@@ -14,6 +14,7 @@
 - **`implementation_capabilities_report.md`** - דוח יכולות מימוש טכנולוגיות
 - **`chat-capabilities-analysis.md`** - ניתוח ספציפי ליכולות הצ'אט
 - **`agent-management-interface-analysis.md`** - ניתוח יכולות מימוש ממשק ניהול סוכנים
+- **`gui-development-guidelines-manus-ai.md`** - הנחיות פיתוח GUI למאנוס AI
 
 ## סיכום דרישות מרכזיות
 

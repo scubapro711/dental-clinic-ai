@@ -20,6 +20,7 @@ This directory contains all documents related to user experience design and user
 - **`implementation-capabilities-report-en.md`** - Technology implementation capabilities report (English)
 - **`chat-capabilities-analysis-en.md`** - Specific analysis of chat capabilities (English)
 - **`agent-management-interface-analysis-en.md`** - Agent management interface implementation analysis (English)
+- **`gui-development-guidelines-manus-ai-en.md`** - GUI development guidelines for Manus AI (English)
 
 ## Core Requirements Summary
 
