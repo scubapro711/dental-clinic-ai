@@ -235,8 +235,17 @@ curl http://localhost:8001/health
 - **[⚙️ Implementation Report](docs/ux-ui-specs/implementation_capabilities_report.md)** - Technical implementation capabilities assessment ([English](docs/ux-ui-specs/implementation-capabilities-report-en.md))
 - **[📋 UX/UI Analysis](docs/ux-ui-specs/ux-ui-spec-analysis.md)** - Detailed specification analysis ([English](docs/ux-ui-specs/ux-ui-spec-analysis-en.md))
 - **[🤖 Agent Management Interface](docs/ux-ui-specs/agent-management-interface-analysis.md)** - Core UI/UX specification for agent team management ([English](docs/ux-ui-specs/agent-management-interface-analysis-en.md))
-
 - **[🛠️ GUI Development Guidelines](docs/ux-ui-specs/gui-development-guidelines-manus-ai.md)** - Comprehensive GUI development and testing protocol for Manus AI ([English](docs/ux-ui-specs/gui-development-guidelines-manus-ai-en.md))
+
+### Security & Privacy Documentation
+
+- **[🔒 Comprehensive Security & Privacy Analysis](docs/comprehensive-security-privacy-analysis.md)** - Complete HIPAA, GDPR, and AWS security assessment with 8-week implementation roadmap
+- **[🛡️ Code Quality Assessment](docs/code-quality-assessment.md)** - Enterprise-grade code quality evaluation and best practices analysis
+- **[📋 Code Documentation Assessment](docs/code-documentation-assessment.md)** - Comprehensive code documentation quality analysis
+- **[🔍 Code Review Tools Analysis](docs/code-review-tools-analysis.md)** - Analysis of enterprise code review tools and GitHub workflow enhancement
+- **[⚖️ Legal Rights Analysis](docs/legal-rights-analysis.md)** - Copyright protection and licensing framework
+- **[📋 Patentability Analysis](docs/patentability-analysis.md)** - Comprehensive patent potential assessment for core innovations
+- **[🏛️ Repository Professionalism Assessment](docs/repository-professionalism-assessment.md)** - Professional repository standards evaluation
 
 ### Open Dental Integration
 
