@@ -220,6 +220,8 @@ curl http://localhost:8001/health
 ### Open Dental Integration
 
 - **[🔌 Open Dental Resources Analysis](docs/open-dental-resources-analysis.md)** - Comprehensive analysis of Open Dental API and integration options ([English](docs/open-dental-resources-analysis-en.md))
+- **[📧 Developer Request Status](docs/open-dental-request-status.md)** - Current status of Open Dental Developer Portal access request
+- **[📝 Developer Request Letter](docs/eran-focused-open-dental-request.md)** - Submitted request letter for API access
 
 ## 🔮 Future Roadmap
 
@@ -231,8 +233,8 @@ curl http://localhost:8001/health
 - ✅ **UX/UI specifications and GUI development guidelines**
 - ⏳ CI/CD pipeline
 
-### Phase 2: Open Dental Integration (Ready to Start)
-- 🔄 **Developer Portal registration and API key setup**
+### Phase 2: Open Dental Integration (Awaiting API Access)
+- ✅ **Developer Portal registration request submitted (Sept 26, 2025)**
 - 🔌 **DentalPMS Tool development for AI agents**
 - 📋 **Python SDK integration (opendental-sdk)**
 - 🤖 **MCP server integration for documentation search**
