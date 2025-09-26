@@ -1,0 +1,73 @@
+# Code Owners - Patent Protection & Quality Control
+# 
+# This file defines code ownership for patent-sensitive areas and critical components.
+# All changes to these areas require explicit approval from designated owners.
+#
+# Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+# Patent Pending - Multiple Innovations Under Patent Protection
+
+# =============================================================================
+# GLOBAL OWNERSHIP - All files require owner approval
+# =============================================================================
+* @scubapro711
+
+# =============================================================================
+# PATENT-CRITICAL AREAS - Require mandatory review for IP protection
+# =============================================================================
+
+# Multi-Agent AI Orchestration System (CORE PATENT)
+src/ai_agents/engines/ @scubapro711
+src/ai_agents/interfaces/ @scubapro711
+
+# AI-Powered Dental Scheduling Algorithm (CORE PATENT)  
+src/ai_agents/tools/advanced_dental_tool.py @scubapro711
+
+# Medical Conversation Management Protocol (PATENT PENDING)
+src/ai_agents/enhanced_message_processor.py @scubapro711
+src/ai_agents/crewai_agents/ @scubapro711
+
+# Adaptive Healthcare Queue Management (PATENT PENDING)
+src/shared/redis_queue.py @scubapro711
+
+# Gateway Service - AI Orchestration Entry Point
+src/gateway/ @scubapro711
+
+# =============================================================================
+# LEGAL & COMPLIANCE FILES - Critical for IP protection
+# =============================================================================
+LICENSE @scubapro711
+SECURITY.md @scubapro711
+NOTICE @scubapro711
+COPYRIGHT_HEADER.py @scubapro711
+
+# Patent and legal documentation
+docs/patentability-analysis.md @scubapro711
+docs/legal-rights-analysis.md @scubapro711
+
+# =============================================================================
+# INFRASTRUCTURE & DEPLOYMENT - Production security
+# =============================================================================
+infrastructure/ @scubapro711
+.github/ @scubapro711
+docker-compose.yml @scubapro711
+requirements.txt @scubapro711
+
+# =============================================================================
+# TESTING & QUALITY ASSURANCE - Maintain code quality standards
+# =============================================================================
+tests/ @scubapro711
+pytest.ini @scubapro711
+.pre-commit-config.yaml @scubapro711
+
+# =============================================================================
+# DOCUMENTATION - Maintain professional standards
+# =============================================================================
+README.md @scubapro711
+ROADMAP.md @scubapro711
+docs/ @scubapro711
+
+# =============================================================================
+# CONFIGURATION FILES - Security and compliance
+# =============================================================================
+.env.example @scubapro711
+.gitignore @scubapro711
