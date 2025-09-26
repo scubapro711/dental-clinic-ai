@@ -207,6 +207,12 @@ curl http://localhost:8001/health
 - **[🔮 OpenManus Integration](FUTURE_OPENMANUS_INTEGRATION_PLAN.md)** - Future AI engine integration
 - **[⚖️ CrewAI vs OpenManus](OPENMANUS_VS_CREWAI_COMPARISON.md)** - Technology comparison
 
+### UX/UI Documentation
+
+- **[🎨 UX/UI Specifications](docs/ux-ui-specs/)** - Complete user experience and interface specifications
+- **[📱 Chat Capabilities](docs/ux-ui-specs/chat-capabilities-analysis.md)** - Human handoff and chat system analysis
+- **[⚙️ Implementation Report](docs/ux-ui-specs/implementation_capabilities_report.md)** - Technical implementation capabilities assessment
+
 ## 🔮 Future Roadmap
 
 ### Phase 1: Current (87.5% Complete)
