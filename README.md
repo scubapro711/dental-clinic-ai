@@ -213,6 +213,7 @@ curl http://localhost:8001/health
 - **[📱 Chat Capabilities](docs/ux-ui-specs/chat-capabilities-analysis.md)** - Human handoff and chat system analysis ([English](docs/ux-ui-specs/chat-capabilities-analysis-en.md))
 - **[⚙️ Implementation Report](docs/ux-ui-specs/implementation_capabilities_report.md)** - Technical implementation capabilities assessment ([English](docs/ux-ui-specs/implementation-capabilities-report-en.md))
 - **[📋 UX/UI Analysis](docs/ux-ui-specs/ux-ui-spec-analysis.md)** - Detailed specification analysis ([English](docs/ux-ui-specs/ux-ui-spec-analysis-en.md))
+- **[🤖 Agent Management Interface](docs/ux-ui-specs/agent-management-interface-analysis.md)** - Core UI/UX specification for agent team management ([English](docs/ux-ui-specs/agent-management-interface-analysis-en.md))
 
 ## 🔮 Future Roadmap
 

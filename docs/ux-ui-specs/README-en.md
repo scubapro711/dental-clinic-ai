@@ -7,16 +7,19 @@ This directory contains all documents related to user experience design and user
 ### Original Specifications
 - **`מפרטuxuidental.pdf`** - Original user experience and architecture specification
 - **`dentalsystemuxuiupdated.pdf`** - Updated specification including chat requirements
+- **`תוכניתאבלממשקניהולצוותסוכניםאוטונומי.pdf`** - **Core Document** - Detailed plan for agent team management interface
 
 ### Analysis Reports (Hebrew)
 - **`ux-ui-spec-analysis.md`** - Detailed analysis of specification requirements
 - **`implementation_capabilities_report.md`** - Technology implementation capabilities report
 - **`chat-capabilities-analysis.md`** - Specific analysis of chat capabilities
+- **`agent-management-interface-analysis.md`** - Agent management interface implementation analysis
 
 ### Analysis Reports (English)
 - **`ux-ui-spec-analysis-en.md`** - Detailed analysis of specification requirements (English)
 - **`implementation-capabilities-report-en.md`** - Technology implementation capabilities report (English)
 - **`chat-capabilities-analysis-en.md`** - Specific analysis of chat capabilities (English)
+- **`agent-management-interface-analysis-en.md`** - Agent management interface implementation analysis (English)
 
 ## Core Requirements Summary
 
