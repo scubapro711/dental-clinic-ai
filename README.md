@@ -1,6 +1,6 @@
 # 🦷 AI Dental Clinic Management System
 
-**מערכת ניהול מרפאת שיניים מבוססת בינה מלאכותית**
+**AI-Powered Dental Clinic Management System**
 
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue?logo=docker)](https://docker.com)
 [![Python](https://img.shields.io/badge/Python-3.11-green?logo=python)](https://python.org)
@@ -210,8 +210,9 @@ curl http://localhost:8001/health
 ### UX/UI Documentation
 
 - **[🎨 UX/UI Specifications](docs/ux-ui-specs/)** - Complete user experience and interface specifications
-- **[📱 Chat Capabilities](docs/ux-ui-specs/chat-capabilities-analysis.md)** - Human handoff and chat system analysis
-- **[⚙️ Implementation Report](docs/ux-ui-specs/implementation_capabilities_report.md)** - Technical implementation capabilities assessment
+- **[📱 Chat Capabilities](docs/ux-ui-specs/chat-capabilities-analysis.md)** - Human handoff and chat system analysis ([English](docs/ux-ui-specs/chat-capabilities-analysis-en.md))
+- **[⚙️ Implementation Report](docs/ux-ui-specs/implementation_capabilities_report.md)** - Technical implementation capabilities assessment ([English](docs/ux-ui-specs/implementation-capabilities-report-en.md))
+- **[📋 UX/UI Analysis](docs/ux-ui-specs/ux-ui-spec-analysis.md)** - Detailed specification analysis ([English](docs/ux-ui-specs/ux-ui-spec-analysis-en.md))
 
 ## 🔮 Future Roadmap
 
