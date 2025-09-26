@@ -1,6 +1,27 @@
 """
+================================================================================
+AI ENGINE FACTORY - PATENTABLE INNOVATION
+================================================================================
+
+Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+🔒 PROPRIETARY SOFTWARE - PATENT PENDING 🔒
+
 AI Engine Factory - Factory for creating AI engines
 מפעל מנועי AI - מפעל ליצירת מנועי AI
+
+⚠️ PATENT PENDING INNOVATION ⚠️
+This module contains the core patentable "Multi-Agent AI Orchestration System"
+including dynamic engine selection and failover mechanisms.
+
+PROTECTED ALGORITHMS:
+- Dynamic AI Engine Selection Method
+- Multi-Agent Coordination Protocol  
+- Automatic Failover and Load Balancing
+- Context Preservation Across Engine Transitions
+
+Unauthorized copying or reverse engineering is strictly prohibited.
+For licensing: scubapro711@gmail.com | +972-53-555-0317
+================================================================================
 """
 
 import logging

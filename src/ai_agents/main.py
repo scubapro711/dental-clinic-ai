@@ -1,9 +1,26 @@
 #!/usr/bin/env python3
 """
+================================================================================
+AI DENTAL CLINIC MANAGEMENT SYSTEM - AI AGENTS SERVICE
+================================================================================
+
+Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+🔒 PROPRIETARY SOFTWARE - PATENT PENDING INNOVATIONS 🔒
+
 AI Agents Service - Main Entry Point
 שירות סוכני הבינה המלאכותית - נקודת כניסה ראשית
 
-This service runs the AI agents worker that processes messages from Redis Queue.
+PROTECTED INTELLECTUAL PROPERTY:
+This module contains patentable multi-agent AI orchestration systems.
+Unauthorized copying or commercial use is strictly prohibited.
+
+PATENT PENDING INNOVATIONS:
+- Multi-Agent AI Coordination Protocol
+- Dynamic AI Engine Selection Algorithm
+- Medical Context Preservation System
+
+For licensing: scubapro711@gmail.com | +972-53-555-0317
+================================================================================
 """
 
 import asyncio

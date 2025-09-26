@@ -1,6 +1,28 @@
 """
+================================================================================
+REDIS QUEUE MANAGER - PATENTABLE HEALTHCARE QUEUE INNOVATION
+================================================================================
+
+Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+🔒 PROPRIETARY SOFTWARE - PATENT PENDING 🔒
+
 Redis Queue Manager
 מנהל תורי Redis לעיבוד הודעות אסינכרוני
+
+⚠️ PATENT PENDING INNOVATION ⚠️
+This module contains the patentable "Adaptive Healthcare Queue Management"
+system with medical priority classification and intelligent load balancing.
+
+PROTECTED ALGORITHMS:
+- Medical Priority Classification System
+- Dynamic Load Balancing Algorithm
+- Adaptive Resource Allocation Method
+- Healthcare-Specific Failure Recovery Protocol
+- Performance Optimization Engine
+
+Unauthorized copying or reverse engineering is strictly prohibited.
+For licensing: scubapro711@gmail.com | +972-53-555-0317
+================================================================================
 """
 
 import redis

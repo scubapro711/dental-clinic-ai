@@ -1,6 +1,20 @@
 """
+================================================================================
+AI DENTAL CLINIC MANAGEMENT SYSTEM - GATEWAY SERVICE
+================================================================================
+
+Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+🔒 PROPRIETARY SOFTWARE - PATENT PENDING INNOVATIONS 🔒
+
 Gateway Service - Main Entry Point
 שכבת השער הראשית של מערכת ניהול המרפאה
+
+PROTECTED INTELLECTUAL PROPERTY:
+This module contains patentable AI orchestration algorithms.
+Unauthorized copying or commercial use is strictly prohibited.
+
+For licensing: scubapro711@gmail.com | +972-53-555-0317
+================================================================================
 """
 
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks

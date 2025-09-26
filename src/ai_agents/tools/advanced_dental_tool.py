@@ -1,8 +1,28 @@
 """
+================================================================================
+ADVANCED DENTAL TOOL - PATENTABLE SCHEDULING INNOVATION
+================================================================================
+
+Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
+🔒 PROPRIETARY SOFTWARE - PATENT PENDING 🔒
+
 Advanced Dental Tool
 כלי מתקדם לניהול מרפאת שיניים
 
-This tool provides comprehensive dental clinic management capabilities.
+⚠️ PATENT PENDING INNOVATION ⚠️
+This module contains the core patentable "AI-Powered Dental Scheduling Algorithm"
+with intelligent appointment optimization and conflict resolution.
+
+PROTECTED ALGORITHMS:
+- AI-Powered Appointment Optimization Method
+- Treatment Duration Prediction Algorithm
+- Multi-Provider Scheduling Coordination
+- Real-Time Conflict Resolution System
+- Patient History Integration Protocol
+
+Unauthorized copying or reverse engineering is strictly prohibited.
+For licensing: scubapro711@gmail.com | +972-53-555-0317
+================================================================================
 """
 
 import logging

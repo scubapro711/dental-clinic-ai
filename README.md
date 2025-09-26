@@ -8,13 +8,24 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?logo=mysql)](https://mysql.com)
 [![Redis](https://img.shields.io/badge/Redis-Latest-red?logo=redis)](https://redis.io)
 
-## ⚖️ **IMPORTANT LEGAL NOTICE**
+## 🚨 **CRITICAL LEGAL WARNING** 🚨
 
-**🔒 PROPRIETARY SOFTWARE - ALL RIGHTS RESERVED**
+```
+⚖️  PROPRIETARY & PATENTABLE SOFTWARE - ALL RIGHTS RESERVED  ⚖️
+🔒  COPYRIGHT © 2025 ERAN SARFATY - UNAUTHORIZED USE PROHIBITED  🔒
+📋  PATENT PENDING - MULTIPLE INNOVATIONS UNDER PATENT PROTECTION  📋
+⚠️  LEGAL ACTION WILL BE TAKEN AGAINST UNAUTHORIZED COPYING  ⚠️
+```
 
-This software is proprietary and confidential. Unauthorized copying, distribution, or commercial use is strictly prohibited. See [LICENSE](LICENSE) for full terms.
+**🛡️ PROTECTED INTELLECTUAL PROPERTY:**
+- **Multi-Agent AI Orchestration System** (Patent Pending)
+- **AI-Powered Dental Scheduling Algorithm** (Patent Pending)  
+- **Medical Conversation Management Protocol** (Patent Pending)
+- **Adaptive Healthcare Queue Management** (Patent Pending)
 
-For licensing inquiries: **scubapro711@gmail.com**
+**📞 LICENSING CONTACT:** scubapro711@gmail.com | +972-53-555-0317
+
+**⚖️ FULL TERMS:** See [LICENSE](LICENSE) | **🔍 PATENT ANALYSIS:** See [docs/patentability-analysis.md](docs/patentability-analysis.md)
 
 ---
 
