@@ -8,6 +8,16 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-orange?logo=mysql)](https://mysql.com)
 [![Redis](https://img.shields.io/badge/Redis-Latest-red?logo=redis)](https://redis.io)
 
+## ⚖️ **IMPORTANT LEGAL NOTICE**
+
+**🔒 PROPRIETARY SOFTWARE - ALL RIGHTS RESERVED**
+
+This software is proprietary and confidential. Unauthorized copying, distribution, or commercial use is strictly prohibited. See [LICENSE](LICENSE) for full terms.
+
+For licensing inquiries: **scubapro711@gmail.com**
+
+---
+
 ## 🎯 Overview
 
 A comprehensive AI-powered dental clinic management system that automates patient communication, appointment scheduling, and clinic operations using advanced AI agents and modern microservices architecture.
@@ -283,15 +293,20 @@ docker-compose exec mysql mysql -u dental_user -p < scripts/init_db.sql
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## 📄 License
+## 📄 License & Copyright
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+**© 2025 Eran Sarfaty. All Rights Reserved.**
 
-## 🆘 Support
+This project is proprietary software protected by copyright law. See the [LICENSE](LICENSE) file for complete terms and restrictions.
 
-- **Documentation**: Check the documentation files
-- **Issues**: Create GitHub issue
-- **Email**: support@dental-clinic-ai.com
+**⚠️ IMPORTANT:** Unauthorized copying, distribution, or commercial use is strictly prohibited and may result in legal action.
+
+## 🆘 Support & Contact
+
+- **Documentation**: Check the comprehensive documentation in `/docs`
+- **Issues**: Create GitHub issue for bugs or feature requests
+- **Commercial Licensing**: scubapro711@gmail.com
+- **Developer**: Eran Sarfaty (+972-53-555-0317)
 
 ## 🙏 Acknowledgments
 
