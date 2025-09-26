@@ -215,6 +215,10 @@ curl http://localhost:8001/health
 - **[📋 UX/UI Analysis](docs/ux-ui-specs/ux-ui-spec-analysis.md)** - Detailed specification analysis ([English](docs/ux-ui-specs/ux-ui-spec-analysis-en.md))
 - **[🤖 Agent Management Interface](docs/ux-ui-specs/agent-management-interface-analysis.md)** - Core UI/UX specification for agent team management ([English](docs/ux-ui-specs/agent-management-interface-analysis-en.md))
 
+### Development Guidelines
+
+- **[🛠️ Manus AI Development Guidelines](docs/development-guidelines-manus-ai.md)** - Comprehensive development and testing protocol for Manus AI ([English](docs/development-guidelines-manus-ai-en.md))
+
 ## 🔮 Future Roadmap
 
 ### Phase 1: Current (87.5% Complete)
