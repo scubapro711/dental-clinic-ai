@@ -217,21 +217,33 @@ curl http://localhost:8001/health
 
 - **[🛠️ GUI Development Guidelines](docs/ux-ui-specs/gui-development-guidelines-manus-ai.md)** - Comprehensive GUI development and testing protocol for Manus AI ([English](docs/ux-ui-specs/gui-development-guidelines-manus-ai-en.md))
 
+### Open Dental Integration
+
+- **[🔌 Open Dental Resources Analysis](docs/open-dental-resources-analysis.md)** - Comprehensive analysis of Open Dental API and integration options ([English](docs/open-dental-resources-analysis-en.md))
+
 ## 🔮 Future Roadmap
 
-### Phase 1: Current (87.5% Complete)
+### Phase 1: Foundation (90% Complete)
 - ✅ Core system functionality
 - ✅ AI agents with CrewAI
 - ✅ Database and API layer
+- ✅ **Open Dental API integration analysis**
+- ✅ **UX/UI specifications and GUI development guidelines**
 - ⏳ CI/CD pipeline
 
-### Phase 2: Enhancement
+### Phase 2: Open Dental Integration (Ready to Start)
+- 🔄 **Developer Portal registration and API key setup**
+- 🔌 **DentalPMS Tool development for AI agents**
+- 📋 **Python SDK integration (opendental-sdk)**
+- 🤖 **MCP server integration for documentation search**
+- 🔐 **HIPAA-compliant security implementation**
+- 📊 **Availability engine and appointment management**
+
+### Phase 3: Enhancement & Scale
 - 🔄 OpenManus integration
 - 📱 Mobile app development  
 - 🔐 Advanced security features
 - 📊 Analytics dashboard
-
-### Phase 3: Scale
 - ☁️ Multi-region deployment
 - 🤖 Advanced AI capabilities
 - 🔗 Third-party integrations
