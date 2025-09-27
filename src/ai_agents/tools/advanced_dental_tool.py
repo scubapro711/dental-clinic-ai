@@ -47,7 +47,7 @@ class AdvancedDentalTool:
             'port': int(os.getenv("DB_PORT", 3306)),
             'charset': 'utf8mb4',
         }
-        self.adapter = DemoDataAdapter(db_config)
+        self.adapter = DemoDataAdapter(db_config, default_language='he')
     
     async def initialize(self):
         """Initialize the dental tool"""
@@ -96,17 +96,22 @@ class AdvancedDentalTool:
                 "timestamp": datetime.now().isoformat()
             }
         
-    async def search_patients(self, query: str) -> List[Dict[str, Any]]:
-        """Search for patients by name, phone, or ID"""
+    async def search_patients(self, query: str, language: str = None) -> str:
+        """Search for patients by name, phone, or ID with i18n support"""
         try:
-            results = self.adapter.search_patients(query)
-            logger.info(f"Found {len(results)} patients for query: {query}")
-            return results
+            result = self.adapter.search_patients(query, language)
+            logger.info(f"Patient search completed for query: {query}")
+            return result
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
-            import traceback
-            traceback.print_exc()
-            return []
+            # Import i18n functions for error handling
+            import sys
+            import os
+            sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+            from i18n_ready_solution import get_message, detect_language
+            
+            lang = language or detect_language(query) if query else 'he'
+            return get_message('system_error', lang, error=str(e))
     
     async def get_available_slots(self, provider_id: int, date: str) -> List[Dict[str, Any]]:
         """Get available appointment slots for a provider on a specific date"""
@@ -119,23 +124,22 @@ class AdvancedDentalTool:
             return []
     
     async def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, 
-                             treatment_type: str = "General Checkup") -> Dict[str, Any]:
-        """Book an appointment for a patient"""
+                             treatment_type: str = "General Checkup", language: str = None) -> str:
+        """Book an appointment for a patient with i18n support"""
         try:
-            appointment = self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type)
-            logger.info(f"Booked appointment {appointment['id']} for patient {patient_id}")
-            return {
-                "success": True,
-                "appointment": appointment,
-                "message": f"Appointment {appointment['id']} booked successfully"
-            }
+            result = self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type, language)
+            logger.info(f"Booked appointment for patient {patient_id}")
+            return result
         except Exception as e:
             logger.error(f"Error booking appointment: {e}")
-            return {
-                "success": False,
-                "error": str(e),
-                "message": "Failed to book appointment"
-            }
+            # Import i18n functions for error handling
+            import sys
+            import os
+            sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
+            from i18n_ready_solution import get_message
+            
+            lang = language or 'he'
+            return get_message('system_error', lang, error=str(e))
     
     async def get_patient_appointments(self, patient_id: int) -> List[Dict[str, Any]]:
         """Get all appointments for a patient"""
