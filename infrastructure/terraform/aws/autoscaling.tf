@@ -225,7 +225,7 @@ resource "aws_appautoscaling_scheduled_action" "scale_up_morning" {
   resource_id        = aws_appautoscaling_target.gateway[0].resource_id
   scalable_dimension = aws_appautoscaling_target.gateway[0].scalable_dimension
   
-  schedule = "cron(0 8 * * MON-FRI)"
+  schedule = "cron(0 8 ? * 1-5 *)"
   
   scalable_target_action {
     min_capacity = var.min_capacity + 1
@@ -241,7 +241,7 @@ resource "aws_appautoscaling_scheduled_action" "scale_down_evening" {
   resource_id        = aws_appautoscaling_target.gateway[0].resource_id
   scalable_dimension = aws_appautoscaling_target.gateway[0].scalable_dimension
   
-  schedule = "cron(0 20 * * MON-FRI)"
+  schedule = "cron(0 20 ? * 1-5 *)"
   
   scalable_target_action {
     min_capacity = var.min_capacity

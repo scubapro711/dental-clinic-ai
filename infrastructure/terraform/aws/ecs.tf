@@ -101,21 +101,7 @@ resource "aws_lb_target_group" "ai_agents" {
 }
 
 # Load Balancer Listeners
-resource "aws_lb_listener" "main" {
-  load_balancer_arn = aws_lb.main.arn
-  port              = "80"
-  protocol          = "HTTP"
-  
-  default_action {
-    type = "redirect"
-    
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
-}
+# Main HTTP listener removed to avoid conflict with http_dev
 
 resource "aws_lb_listener" "https" {
   count = var.certificate_arn != "" ? 1 : 0
@@ -391,7 +377,7 @@ resource "aws_ecs_service" "gateway" {
   }
   
   depends_on = [
-    aws_lb_listener.main,
+
     aws_lb_listener.https,
     aws_lb_listener.http_dev
   ]
@@ -421,7 +407,7 @@ resource "aws_ecs_service" "ai_agents" {
   }
   
   depends_on = [
-    aws_lb_listener.main,
+
     aws_lb_listener.https,
     aws_lb_listener.http_dev
   ]

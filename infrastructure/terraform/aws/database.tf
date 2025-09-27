@@ -82,12 +82,8 @@ resource "aws_db_instance" "main" {
   maintenance_window     = var.db_maintenance_window
   
   # Monitoring and Performance
-  monitoring_interval = 60
-  monitoring_role_arn = aws_iam_role.rds_enhanced_monitoring.arn
-  
-  performance_insights_enabled = true
-  performance_insights_kms_key_id = var.enable_encryption_at_rest ? aws_kms_key.secrets.arn : null
-  performance_insights_retention_period = 7
+  monitoring_interval = 0  # Disabled for basic setup
+  performance_insights_enabled = false
   
   # Security and Compliance
   deletion_protection = var.environment == "prod" ? true : false
@@ -179,9 +175,8 @@ resource "aws_elasticache_cluster" "redis" {
   subnet_group_name  = aws_elasticache_subnet_group.main.name
   security_group_ids = [aws_security_group.redis.id]
   
-  # Security
-  at_rest_encryption_enabled = var.enable_encryption_at_rest
-  transit_encryption_enabled = var.enable_encryption_in_transit
+  # Security - Encryption disabled for basic Redis
+  # transit_encryption_enabled = false
   
   # Maintenance
   maintenance_window = "sun:05:00-sun:06:00"
