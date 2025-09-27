@@ -6,10 +6,10 @@ services:
     image: mysql:8.0
     container_name: dental-clinic-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: dental_clinic
+      MYSQL_ROOT_PASSWORD: dental_clinic_secure_2025
+      MYSQL_DATABASE: dental_clinic_demo
       MYSQL_USER: dental_user
-      MYSQL_PASSWORD: dental_password
+      MYSQL_PASSWORD: dental_pass_2025
     ports:
       - "3306:3306"
     volumes:
@@ -48,8 +48,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MYSQL_HOST=mysql
       - MYSQL_USER=dental_user
-      - MYSQL_PASSWORD=dental_password
-      - MYSQL_DATABASE=dental_clinic
+      - MYSQL_PASSWORD=dental_pass_2025
+      - MYSQL_DATABASE=dental_clinic_demo
       - REDIS_URL=redis://redis:6379/0
       - APP_HOST=0.0.0.0
       - APP_PORT=8000
@@ -82,8 +82,8 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - MYSQL_HOST=mysql
       - MYSQL_USER=dental_user
-      - MYSQL_PASSWORD=dental_password
-      - MYSQL_DATABASE=dental_clinic
+      - MYSQL_PASSWORD=dental_pass_2025
+      - MYSQL_DATABASE=dental_clinic_demo
       - REDIS_URL=redis://redis:6379/0
       - APP_HOST=0.0.0.0
       - APP_PORT=8001

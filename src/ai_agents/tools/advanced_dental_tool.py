@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 ================================================================================
 ADVANCED DENTAL TOOL - PATENTABLE SCHEDULING INNOVATION
@@ -6,10 +7,6 @@ ADVANCED DENTAL TOOL - PATENTABLE SCHEDULING INNOVATION
 Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
 🔒 PROPRIETARY SOFTWARE - PATENT PENDING 🔒
 
-Advanced Dental Tool
-כלי מתקדם לניהול מרפאת שיניים
-
-⚠️ PATENT PENDING INNOVATION ⚠️
 This module contains the core patentable "AI-Powered Dental Scheduling Algorithm"
 with intelligent appointment optimization and conflict resolution.
 
@@ -29,6 +26,9 @@ import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 import json
+import os
+
+from .demo_data_adapter import DemoDataAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -39,12 +39,21 @@ class AdvancedDentalTool:
         self.name = "advanced_dental_tool"
         self.description = "Advanced tool for dental clinic management including appointments, patients, and providers"
         self.initialized = False
+        db_config = {
+            'host': os.getenv("DB_HOST", "localhost"),
+            'user': os.getenv("DB_USER", "dental_user"),
+            'password': os.getenv("DB_PASSWORD", "dental_pass_2025"),
+            'database': os.getenv("DB_NAME", "dental_clinic_demo"),
+            'port': int(os.getenv("DB_PORT", 3306)),
+            'charset': 'utf8mb4',
+        }
+        self.adapter = DemoDataAdapter(db_config)
     
     async def initialize(self):
         """Initialize the dental tool"""
         try:
-            # In a real implementation, this would connect to the database
             logger.info("Initializing Advanced Dental Tool...")
+            self.adapter.connect()
             self.initialized = True
             logger.info("Advanced Dental Tool initialized successfully")
         except Exception as e:
@@ -55,6 +64,7 @@ class AdvancedDentalTool:
         """Cleanup the dental tool"""
         try:
             logger.info("Cleaning up Advanced Dental Tool...")
+            self.adapter.disconnect()
             self.initialized = False
             logger.info("Advanced Dental Tool cleaned up successfully")
         except Exception as e:
@@ -63,10 +73,18 @@ class AdvancedDentalTool:
     async def health_check(self) -> Dict[str, Any]:
         """Check the health of the dental tool"""
         try:
+            # Check database connection without disconnecting
+            if not self.adapter.connection:
+                self.adapter.connect()
+            # Test with a simple query
+            with self.adapter.connection.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
             return {
                 "status": "healthy" if self.initialized else "not_initialized",
                 "tool_name": self.name,
                 "initialized": self.initialized,
+                "database_connection": "ok",
                 "timestamp": datetime.now().isoformat()
             }
         except Exception as e:
@@ -74,66 +92,28 @@ class AdvancedDentalTool:
                 "status": "unhealthy",
                 "tool_name": self.name,
                 "error": str(e),
+                "database_connection": "error",
                 "timestamp": datetime.now().isoformat()
             }
         
     async def search_patients(self, query: str) -> List[Dict[str, Any]]:
         """Search for patients by name, phone, or ID"""
         try:
-            # Mock patient data for testing
-            mock_patients = [
-                {
-                    "id": 1,
-                    "name": "יוסי כהן",
-                    "phone": "050-1234567",
-                    "email": "yossi@example.com",
-                    "last_visit": "2025-09-20"
-                },
-                {
-                    "id": 2,
-                    "name": "שרה לוי",
-                    "phone": "052-9876543",
-                    "email": "sara@example.com",
-                    "last_visit": "2025-09-15"
-                }
-            ]
-            
-            # Simple search logic
-            results = []
-            query_lower = query.lower()
-            for patient in mock_patients:
-                if (query_lower in patient["name"].lower() or 
-                    query_lower in patient["phone"] or 
-                    str(patient["id"]) == query_lower):
-                    results.append(patient)
-            
+            results = self.adapter.search_patients(query)
             logger.info(f"Found {len(results)} patients for query: {query}")
             return results
-            
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
+            import traceback
+            traceback.print_exc()
             return []
     
     async def get_available_slots(self, provider_id: int, date: str) -> List[Dict[str, Any]]:
         """Get available appointment slots for a provider on a specific date"""
         try:
-            # Mock available slots
-            base_time = datetime.strptime(f"{date} 09:00", "%Y-%m-%d %H:%M")
-            slots = []
-            
-            for hour in range(9, 17):  # 9 AM to 5 PM
-                for minute in [0, 30]:  # Every 30 minutes
-                    slot_time = base_time.replace(hour=hour, minute=minute)
-                    slots.append({
-                        "time": slot_time.strftime("%H:%M"),
-                        "datetime": slot_time.isoformat(),
-                        "available": True,
-                        "duration": 30
-                    })
-            
+            slots = self.adapter.get_available_slots(provider_id, date)
             logger.info(f"Found {len(slots)} available slots for provider {provider_id} on {date}")
             return slots
-            
         except Exception as e:
             logger.error(f"Error getting available slots: {e}")
             return []
@@ -142,25 +122,13 @@ class AdvancedDentalTool:
                              treatment_type: str = "General Checkup") -> Dict[str, Any]:
         """Book an appointment for a patient"""
         try:
-            appointment_id = f"APT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
-            
-            appointment = {
-                "id": appointment_id,
-                "patient_id": patient_id,
-                "provider_id": provider_id,
-                "datetime": datetime_str,
-                "treatment_type": treatment_type,
-                "status": "scheduled",
-                "created_at": datetime.now().isoformat()
-            }
-            
-            logger.info(f"Booked appointment {appointment_id} for patient {patient_id}")
+            appointment = self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type)
+            logger.info(f"Booked appointment {appointment['id']} for patient {patient_id}")
             return {
                 "success": True,
                 "appointment": appointment,
-                "message": f"Appointment {appointment_id} booked successfully"
+                "message": f"Appointment {appointment['id']} booked successfully"
             }
-            
         except Exception as e:
             logger.error(f"Error booking appointment: {e}")
             return {
@@ -172,21 +140,9 @@ class AdvancedDentalTool:
     async def get_patient_appointments(self, patient_id: int) -> List[Dict[str, Any]]:
         """Get all appointments for a patient"""
         try:
-            # Mock appointments
-            appointments = [
-                {
-                    "id": "APT-20250920001",
-                    "patient_id": patient_id,
-                    "provider_id": 1,
-                    "datetime": "2025-09-30T10:00:00",
-                    "treatment_type": "General Checkup",
-                    "status": "scheduled"
-                }
-            ]
-            
+            appointments = self.adapter.get_patient_appointments(patient_id)
             logger.info(f"Found {len(appointments)} appointments for patient {patient_id}")
             return appointments
-            
         except Exception as e:
             logger.error(f"Error getting patient appointments: {e}")
             return []
@@ -194,13 +150,21 @@ class AdvancedDentalTool:
     async def cancel_appointment(self, appointment_id: str) -> Dict[str, Any]:
         """Cancel an appointment"""
         try:
-            logger.info(f"Cancelled appointment {appointment_id}")
-            return {
-                "success": True,
-                "appointment_id": appointment_id,
-                "message": f"Appointment {appointment_id} cancelled successfully"
-            }
-            
+            success = self.adapter.cancel_appointment(appointment_id)
+            if success:
+                logger.info(f"Cancelled appointment {appointment_id}")
+                return {
+                    "success": True,
+                    "appointment_id": appointment_id,
+                    "message": f"Appointment {appointment_id} cancelled successfully"
+                }
+            else:
+                logger.warning(f"Appointment {appointment_id} not found for cancellation")
+                return {
+                    "success": False,
+                    "appointment_id": appointment_id,
+                    "message": f"Appointment {appointment_id} not found"
+                }
         except Exception as e:
             logger.error(f"Error cancelling appointment: {e}")
             return {
@@ -212,28 +176,13 @@ class AdvancedDentalTool:
     async def get_providers(self) -> List[Dict[str, Any]]:
         """Get list of available providers"""
         try:
-            providers = [
-                {
-                    "id": 1,
-                    "name": "ד\"ר אבי רוזן",
-                    "specialty": "General Dentistry",
-                    "phone": "03-1234567",
-                    "available": True
-                },
-                {
-                    "id": 2,
-                    "name": "ד\"ר מיכל כהן",
-                    "specialty": "Orthodontics",
-                    "phone": "03-2345678",
-                    "available": True
-                }
-            ]
-            
+            providers = self.adapter.get_providers()
             logger.info(f"Found {len(providers)} providers")
             return providers
-            
         except Exception as e:
             logger.error(f"Error getting providers: {e}")
+            import traceback
+            traceback.print_exc()
             return []
     
     def get_tool_description(self) -> str:
@@ -251,3 +200,4 @@ class AdvancedDentalTool:
         
         Use this tool for all dental clinic management operations.
         """
+

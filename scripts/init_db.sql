@@ -1,131 +1,153 @@
--- Dental Clinic Database Initialization Script
--- מסד נתונים למערכת ניהול מרפאת שיניים
+-- Demo Database Initialization Script for Docker Container
+-- This script will be executed when the MySQL container starts
 
-USE dental_clinic;
+-- Create the demo database
+CREATE DATABASE IF NOT EXISTS dental_clinic_demo;
+USE dental_clinic_demo;
 
--- Create patients table
-CREATE TABLE IF NOT EXISTS patients (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) UNIQUE NOT NULL,
-    email VARCHAR(255),
-    date_of_birth DATE,
-    address TEXT,
-    emergency_contact VARCHAR(20),
-    medical_notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_phone (phone),
-    INDEX idx_email (email)
-);
+-- Core Tables
 
--- Create providers table (dentists and staff)
-CREATE TABLE IF NOT EXISTS providers (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(100) NOT NULL,
-    last_name VARCHAR(100) NOT NULL,
-    specialization VARCHAR(100),
-    phone VARCHAR(20),
-    email VARCHAR(255),
-    license_number VARCHAR(50),
-    is_active BOOLEAN DEFAULT TRUE,
+-- Doctors table
+CREATE TABLE doctors (
+    doctors_id INT AUTO_INCREMENT PRIMARY KEY,
+    doctors_name VARCHAR(128) NOT NULL,
+    doctors_surname VARCHAR(128) NOT NULL,
+    doctors_doctext VARCHAR(512) NOT NULL,
+    doctors_username VARCHAR(8) NOT NULL,
+    doctors_password VARCHAR(6) NOT NULL,
+    doctors_token VARCHAR(64) NULL,
+    doctors_lastlogin DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Create treatment types table
-CREATE TABLE IF NOT EXISTS treatment_types (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    duration_minutes INT DEFAULT 30,
-    price DECIMAL(10,2),
-    is_active BOOLEAN DEFAULT TRUE,
+-- Rooms table
+CREATE TABLE rooms (
+    rooms_id INT AUTO_INCREMENT PRIMARY KEY,
+    rooms_name VARCHAR(64) NOT NULL,
+    rooms_description VARCHAR(256) NULL,
+    rooms_isactive BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Treatment types
+CREATE TABLE treatmentstypes (
+    treatmentstypes_id INT AUTO_INCREMENT PRIMARY KEY,
+    treatmentstypes_name VARCHAR(64) NOT NULL,
+    treatmentstypes_description VARCHAR(256) NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Create appointments table
-CREATE TABLE IF NOT EXISTS appointments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT NOT NULL,
-    provider_id INT NOT NULL,
-    treatment_type_id INT,
-    appointment_date DATE NOT NULL,
-    appointment_time TIME NOT NULL,
-    duration_minutes INT DEFAULT 30,
-    status ENUM('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show') DEFAULT 'scheduled',
-    notes TEXT,
+-- Treatment price lists
+CREATE TABLE treatmentspriceslists (
+    treatmentspriceslists_id INT AUTO_INCREMENT PRIMARY KEY,
+    treatmentspriceslists_name VARCHAR(64) NOT NULL,
+    treatmentspriceslists_description VARCHAR(256) NULL,
+    treatmentspriceslists_isdefault BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Treatments
+CREATE TABLE treatments (
+    treatments_id INT AUTO_INCREMENT PRIMARY KEY,
+    treatmentstypes_id INT,
+    treatments_code CHAR(3) NOT NULL,
+    treatments_name VARCHAR(128) NOT NULL,
+    treatments_description VARCHAR(512) NULL,
+    treatments_isactive BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (treatmentstypes_id) REFERENCES treatmentstypes(treatmentstypes_id)
+);
+
+-- Patients table
+CREATE TABLE patients (
+    patients_id INT AUTO_INCREMENT PRIMARY KEY,
+    treatmentspriceslists_id INT NULL,
+    patients_name VARCHAR(128) NOT NULL,
+    patients_surname VARCHAR(128) NOT NULL,
+    patients_sex CHAR(1) NOT NULL,
+    patients_birthdate DATE NOT NULL,
+    patients_birthcity VARCHAR(64) NOT NULL,
+    patients_doctext VARCHAR(512) NOT NULL,
+    patients_notes TEXT NULL,
+    patients_isarchived BOOLEAN DEFAULT FALSE,
+    patients_username VARCHAR(8) NOT NULL,
+    patients_password VARCHAR(6) NOT NULL,
+    patients_token VARCHAR(64) NULL,
+    patients_lastlogin DATETIME NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
-    FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE CASCADE,
-    FOREIGN KEY (treatment_type_id) REFERENCES treatment_types(id) ON DELETE SET NULL,
-    INDEX idx_appointment_date (appointment_date),
-    INDEX idx_patient_id (patient_id),
-    INDEX idx_provider_id (provider_id),
-    INDEX idx_status (status)
+    FOREIGN KEY (treatmentspriceslists_id) REFERENCES treatmentspriceslists(treatmentspriceslists_id)
 );
 
--- Create messages table for communication history
-CREATE TABLE IF NOT EXISTS messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    patient_id INT,
-    sender_type ENUM('patient', 'system', 'staff') NOT NULL,
-    channel ENUM('whatsapp', 'telegram', 'sms', 'email', 'api') NOT NULL,
-    message_text TEXT NOT NULL,
-    response_text TEXT,
-    status ENUM('sent', 'delivered', 'read', 'failed') DEFAULT 'sent',
+-- Appointments table
+CREATE TABLE appointments (
+    appointments_id INT AUTO_INCREMENT PRIMARY KEY,
+    doctors_id INT NOT NULL,
+    patients_id INT NOT NULL,
+    rooms_id INT NOT NULL,
+    appointments_from DATETIME NOT NULL,
+    appointments_to DATETIME NOT NULL,
+    appointments_title VARCHAR(128) NOT NULL,
+    appointments_notes TEXT NULL,
+    appointments_color CHAR(7) NULL,
+    appointments_status ENUM('scheduled', 'confirmed', 'completed', 'cancelled', 'no_show') DEFAULT 'scheduled',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE SET NULL,
-    INDEX idx_patient_id (patient_id),
-    INDEX idx_channel (channel),
-    INDEX idx_created_at (created_at)
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctors_id) REFERENCES doctors(doctors_id),
+    FOREIGN KEY (patients_id) REFERENCES patients(patients_id),
+    FOREIGN KEY (rooms_id) REFERENCES rooms(rooms_id)
 );
 
--- Insert sample data
+-- Insert basic data for immediate functionality
 
--- Sample providers
-INSERT INTO providers (first_name, last_name, specialization, phone, email, license_number) VALUES
-('Dr. Sarah', 'Cohen', 'General Dentistry', '+972-50-1234567', 'sarah.cohen@clinic.com', 'DEN001'),
-('Dr. Michael', 'Levy', 'Orthodontics', '+972-50-2345678', 'michael.levy@clinic.com', 'DEN002'),
-('Dr. Rachel', 'Ben-David', 'Oral Surgery', '+972-50-3456789', 'rachel.bendavid@clinic.com', 'DEN003');
+-- Insert treatment price lists
+INSERT INTO treatmentspriceslists (treatmentspriceslists_name, treatmentspriceslists_description, treatmentspriceslists_isdefault) VALUES
+('Standard Prices', 'מחירון רגיל', TRUE),
+('Insurance Prices', 'מחירי ביטוח', FALSE);
 
--- Sample treatment types
-INSERT INTO treatment_types (name, description, duration_minutes, price) VALUES
-('Cleaning', 'Regular dental cleaning and checkup', 45, 250.00),
-('Filling', 'Dental filling for cavities', 60, 400.00),
-('Root Canal', 'Root canal treatment', 90, 1200.00),
-('Crown', 'Dental crown placement', 120, 2000.00),
-('Extraction', 'Tooth extraction', 30, 300.00),
-('Orthodontic Consultation', 'Initial orthodontic evaluation', 60, 200.00);
+-- Insert treatment types
+INSERT INTO treatmentstypes (treatmentstypes_name, treatmentstypes_description) VALUES
+('Preventive', 'טיפולי מניעה'),
+('Restorative', 'טיפולי שיקום'),
+('Endodontic', 'טיפולי שורש');
 
--- Sample patients
-INSERT INTO patients (first_name, last_name, phone, email, date_of_birth, address) VALUES
-('John', 'Smith', '+972-50-1111111', 'john.smith@email.com', '1985-03-15', 'Tel Aviv, Israel'),
-('Mary', 'Johnson', '+972-50-2222222', 'mary.johnson@email.com', '1990-07-22', 'Jerusalem, Israel'),
-('David', 'Brown', '+972-50-3333333', 'david.brown@email.com', '1978-11-08', 'Haifa, Israel'),
-('Lisa', 'Wilson', '+972-50-4444444', 'lisa.wilson@email.com', '1995-01-30', 'Netanya, Israel'),
-('Robert', 'Davis', '+972-50-5555555', 'robert.davis@email.com', '1982-09-12', 'Eilat, Israel');
+-- Insert treatments
+INSERT INTO treatments (treatmentstypes_id, treatments_code, treatments_name, treatments_description) VALUES
+(1, '001', 'Dental Cleaning', 'ניקוי שיניים מקצועי'),
+(1, '003', 'Dental Examination', 'בדיקת שיניים'),
+(2, '102', 'Filling - Composite', 'סתימה קומפוזיט'),
+(3, '201', 'Root Canal', 'טיפול שורש');
 
--- Sample appointments
-INSERT INTO appointments (patient_id, provider_id, treatment_type_id, appointment_date, appointment_time, status) VALUES
-(1, 1, 1, '2025-09-28', '09:00:00', 'scheduled'),
-(2, 2, 6, '2025-09-28', '10:30:00', 'confirmed'),
-(3, 1, 2, '2025-09-29', '14:00:00', 'scheduled'),
-(4, 3, 5, '2025-09-30', '11:00:00', 'scheduled'),
-(5, 1, 1, '2025-10-01', '15:30:00', 'scheduled');
+-- Insert rooms
+INSERT INTO rooms (rooms_name, rooms_description) VALUES
+('Room 1', 'חדר טיפולים ראשי'),
+('Room 2', 'חדר טיפולים משני');
 
--- Sample messages
-INSERT INTO messages (patient_id, sender_type, channel, message_text, response_text, status) VALUES
-(1, 'patient', 'whatsapp', 'I need to schedule an appointment', 'Hello! I can help you schedule an appointment. What type of treatment do you need?', 'delivered'),
-(2, 'system', 'sms', 'Reminder: You have an appointment tomorrow at 10:30 AM', NULL, 'sent'),
-(3, 'patient', 'telegram', 'Can I reschedule my appointment?', 'Of course! When would you prefer to reschedule?', 'read');
+-- Insert doctors
+INSERT INTO doctors (doctors_name, doctors_surname, doctors_doctext, doctors_username, doctors_password) VALUES
+('Dr. David', 'Cohen', 'רופא שיניים בכיר, מומחה בטיפולי שורש ושיקום פה. 15 שנות ניסיון.', 'dcohen', 'pass01'),
+('Dr. Sarah', 'Levy', 'רופאת שיניים מומחית ביישור שיניים וטיפולים אסתטיים. 12 שנות ניסיון.', 'slevy', 'pass02');
+
+-- Insert sample patients
+INSERT INTO patients (treatmentspriceslists_id, patients_name, patients_surname, patients_sex, patients_birthdate, patients_birthcity, patients_doctext, patients_notes, patients_username, patients_password) VALUES
+(1, 'Yossi', 'Mizrahi', 'M', '1985-03-15', 'Tel Aviv', 'מטופל רגיל, ללא אלרגיות ידועות', 'מטופל שיתופי, מגיע לבדיקות באופן קבוע', 'ymizrahi', 'pat001'),
+(1, 'Miriam', 'Shapiro', 'F', '1978-07-22', 'Jerusalem', 'אלרגיה לפניצילין', 'מטופלת חרדה, זקוקה להרגעה לפני טיפולים', 'mshapir', 'pat002');
+
+-- Insert sample appointments for today and tomorrow
+INSERT INTO appointments (doctors_id, patients_id, rooms_id, appointments_from, appointments_to, appointments_title, appointments_color, appointments_status) VALUES
+(1, 1, 1, DATE_ADD(NOW(), INTERVAL 1 HOUR), DATE_ADD(NOW(), INTERVAL 1.5 HOUR), 'Dental Cleaning', '#4CAF50', 'scheduled'),
+(2, 2, 2, DATE_ADD(NOW(), INTERVAL 1 DAY), DATE_ADD(NOW(), INTERVAL 25 HOUR), 'Dental Examination', '#2196F3', 'scheduled');
 
 -- Create indexes for better performance
-CREATE INDEX idx_appointments_datetime ON appointments(appointment_date, appointment_time);
-CREATE INDEX idx_messages_datetime ON messages(created_at);
+CREATE INDEX idx_appointments_datetime ON appointments(appointments_from, appointments_to);
+CREATE INDEX idx_appointments_doctor ON appointments(doctors_id);
+CREATE INDEX idx_appointments_patient ON appointments(patients_id);
+CREATE INDEX idx_patients_name ON patients(patients_surname, patients_name);
 
--- Grant permissions
-GRANT ALL PRIVILEGES ON dental_clinic.* TO 'dental_user'@'%';
+-- Grant permissions to the dental_user
+GRANT ALL PRIVILEGES ON dental_clinic_demo.* TO 'dental_user'@'%';
 FLUSH PRIVILEGES;
+
+SELECT 'Demo database initialized successfully!' AS status;
