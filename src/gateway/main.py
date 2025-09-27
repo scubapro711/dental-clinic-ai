@@ -26,13 +26,14 @@ import logging
 from datetime import datetime
 from typing import Dict, Any
 
-from .webhooks import whatsapp_webhook, telegram_webhook
-from .api import appointments_router, patients_router
-from .api.ai_router import router as ai_router
-from .api.queue_router import router as queue_router
+from .webhooks_router import router as webhooks_router
+from . import api
 from .middleware import setup_middleware
 from .config import get_settings
 from .services.message_service import message_service
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Setup logging
 logging.basicConfig(
@@ -41,7 +42,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize FastAPI app
+limiter = Limiter(key_func=get_remote_address)
+
 app = FastAPI(
     title="מערכת ניהול מרפאת שיניים - Gateway",
     description="שכבת השער לניהול תקשורת עם מטופלים באמצעות בינה מלאכותית",
@@ -50,16 +52,15 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 # Setup middleware
 setup_middleware(app)
 
 # Include routers
-app.include_router(whatsapp_webhook.router, prefix="/webhook", tags=["webhooks"])
-app.include_router(telegram_webhook.router, prefix="/webhook", tags=["webhooks"])
-app.include_router(appointments_router.router, prefix="/api", tags=["appointments"])
-app.include_router(patients_router.router, prefix="/api", tags=["patients"])
-app.include_router(ai_router, prefix="/api", tags=["ai"])
-app.include_router(queue_router, prefix="/api", tags=["queue"])
+app.include_router(webhooks_router, prefix="/webhook", tags=["webhooks"])
+app.include_router(api.router, prefix="/api", tags=["api"])
 
 @app.on_event("startup")
 async def startup_event():

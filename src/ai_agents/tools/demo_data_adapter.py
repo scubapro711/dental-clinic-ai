@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 ================================================================================
 DEMO DATA ADAPTER - DATABASE INTERACTION LAYER
@@ -22,9 +21,9 @@ from datetime import datetime, timedelta
 import sys
 import os
 
-# Add the shared directory to the path for i18n import
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'shared'))
 from i18n_ready_solution import get_message, detect_language
+from security_validators import SecurityValidator, DataSanitizer
 
 logger = logging.getLogger(__name__)
 
@@ -53,12 +52,16 @@ class DemoDataAdapter:
 
     def search_patients(self, query: str, language: str = None) -> str:
         """Search for patients in the database with i18n support."""
+        query = DataSanitizer.sanitize_input(query)
+        if not SecurityValidator.validate_patient_name(query):
+            return get_message('invalid_input', language, field='patient name')
+
         if language is None:
             language = detect_language(query) if query else self.default_language
-            
+
         if not self.connection:
             self.connect()
-            
+
         try:
             with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = """
@@ -70,14 +73,13 @@ class DemoDataAdapter:
                 search_query = f"%{query}%"
                 cursor.execute(sql, (search_query, search_query, query))
                 results = cursor.fetchall()
-                
+
                 if not results:
                     return get_message('patient_not_found', language)
-                
+
                 if len(results) == 1:
                     patient = results[0]
                     full_name = f"{patient['name']} {patient['surname']}"
-                    # Calculate age from birthdate if available
                     age = "N/A"
                     if patient['birthdate']:
                         try:
@@ -85,11 +87,10 @@ class DemoDataAdapter:
                             age = datetime.now().year - birth_year
                         except:
                             pass
-                    
                     return get_message('patient_found', language, name=full_name, age=age)
                 else:
                     return get_message('search_results', language, count=len(results))
-                    
+
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
             return get_message('system_error', language, error=str(e))
@@ -107,7 +108,6 @@ class DemoDataAdapter:
             cursor.execute(sql, (provider_id, date))
             booked_slots = cursor.fetchall()
 
-            # Generate all possible slots for the day and filter out booked ones
             available_slots = []
             day_start = datetime.strptime(f"{date} 09:00", "%Y-%m-%d %H:%M")
             for hour in range(9, 17):
@@ -128,12 +128,15 @@ class DemoDataAdapter:
 
     def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, treatment_type: str, language: str = None) -> str:
         """Book an appointment in the database with i18n support."""
+        if not SecurityValidator.validate_patient_name(treatment_type):
+            return get_message('invalid_input', language, field='treatment type')
+
         if language is None:
             language = self.default_language
-            
+
         if not self.connection:
             self.connect()
-            
+
         try:
             with self.connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 appointment_time = datetime.fromisoformat(datetime_str)
@@ -141,16 +144,14 @@ class DemoDataAdapter:
                     INSERT INTO appointments (doctors_id, patients_id, rooms_id, appointments_from, appointments_to, appointments_title, appointments_status)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """
-                # For simplicity, we'll use room 1 and a 30-minute duration
                 cursor.execute(sql, (provider_id, patient_id, 1, appointment_time, appointment_time + timedelta(minutes=30), treatment_type, 'scheduled'))
                 self.connection.commit()
-                
-                # Format date and time for the response
+
                 date_str = appointment_time.strftime("%Y-%m-%d")
                 time_str = appointment_time.strftime("%H:%M")
-                
+
                 return get_message('appointment_booked', language, date=date_str, time=time_str)
-                
+
         except Exception as e:
             logger.error(f"Error booking appointment: {e}")
             return get_message('system_error', language, error=str(e))
