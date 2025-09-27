@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import AgenticLandingPage from './components/landing/AgenticLandingPage';
 import MissionControlDashboard from './components/dashboard/MissionControlDashboard';
+import ActivityDetailDemo from './components/activity/ActivityDetailDemo';
+import ActivityFeedDemo from './components/agent/ActivityFeedDemo';
 import './App.css';
 
 /**
@@ -62,6 +64,24 @@ function App() {
               <Monitor className="w-4 h-4" />
               מרכז השליטה
             </Button>
+            
+            <Button
+              variant={currentView === 'demo' ? 'default' : 'outline'}
+              onClick={() => setCurrentView('demo')}
+              className="flex items-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              בדיקת רכיבים
+            </Button>
+
+            <Button
+              variant={currentView === 'activity-feed' ? 'default' : 'outline'}
+              onClick={() => setCurrentView('activity-feed')}
+              className="flex items-center gap-2"
+            >
+              <Bot className="w-4 h-4" />
+              פיד פעילות
+            </Button>
 
             <Badge className="bg-green-100 text-green-800 flex items-center gap-1">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
@@ -94,6 +114,44 @@ function App() {
       {currentView === 'dashboard' && (
         <div className="relative">
           <MissionControlDashboard />
+          
+          {/* Floating Back to Landing */}
+          <div className="fixed bottom-8 left-8 z-50">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setCurrentView('landing')}
+              className="bg-white hover:bg-gray-50 shadow-2xl flex items-center gap-3 px-6 py-4 rounded-full border-2"
+            >
+              <Home className="w-5 h-5" />
+              <span className="font-medium">חזרה לדף הבית</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {currentView === 'demo' && (
+        <div className="relative">
+          <ActivityDetailDemo />
+          
+          {/* Floating Back to Landing */}
+          <div className="fixed bottom-8 left-8 z-50">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => setCurrentView('landing')}
+              className="bg-white hover:bg-gray-50 shadow-2xl flex items-center gap-3 px-6 py-4 rounded-full border-2"
+            >
+              <Home className="w-5 h-5" />
+              <span className="font-medium">חזרה לדף הבית</span>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {currentView === 'activity-feed' && (
+        <div className="relative">
+          <ActivityFeedDemo />
           
           {/* Floating Back to Landing */}
           <div className="fixed bottom-8 left-8 z-50">

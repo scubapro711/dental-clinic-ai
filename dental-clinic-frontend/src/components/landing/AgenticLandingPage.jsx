@@ -120,7 +120,7 @@ const AgenticLandingPage = () => {
     <div className="min-h-screen bg-[#f5f5f5]" dir="rtl">
       {/* Hero Section - The Agent Introduction */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#001529] via-[#220] to-[#001529] text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         
         <div className="relative max-w-7xl mx-auto px-6 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -282,11 +282,11 @@ const AgenticLandingPage = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm">מטרה: זמן תגובה < 30 שניות</span>
+                      <span className="text-sm">מטרה: זמן תגובה &lt; 30 שניות</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm">מטרה: שביעות רצון > 90%</span>
+                      <span className="text-sm">מטרה: שביעות רצון &gt; 90%</span>
                     </div>
                   </div>
                 </div>
