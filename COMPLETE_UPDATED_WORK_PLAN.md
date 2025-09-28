@@ -205,3 +205,21 @@
 **סה"כ קבצים**: 136 קבצי קוד  
 **סה"כ מודולים**: 15+ מודולים מושלמים  
 **איכות**: Production-ready ברמה גבוהה
+
+
+
+## 📧 External Communications
+
+- [Open Dental Email](docs/images/opendental_email.jpg)
+
+
+
+- [Open Dental API Credentials](docs/open_dental_api_credentials.md)
+
+
+
+
+## 🧪 Modular Testing Plan
+
+For a detailed breakdown of the testing strategy for each component, please see the [Modular Testing Plan](MODULAR_TESTING_PLAN.md).
+
