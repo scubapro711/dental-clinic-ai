@@ -78,8 +78,7 @@
 ### **Phase 3: השלמת Mission Control Dashboard (5-6 שבועות)**
 
 #### **Component 3.1: Real Data Integration (1.5 שבועות)**
-**📋 חזון**: מימוש חיבור לנתונים אמיתיים לפי מסמך החזון  
-**📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 2, סעיף 2.1
+**📋 מטרה**: מימוש חיבור לנתונים אמיתיים של Open Dental
 
 **משימות מפורטות**:
 1. **תיקון Open Dental Client** (3 ימים)
@@ -109,8 +108,7 @@
 - בדיקות failover למצב demo
 
 #### **Component 3.2: Dental Knowledge Base (2 שבועות)**
-**📋 חזון**: בניית "מוח" הסוכן לפי מסמך החזון  
-**📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 3, סעיף 2.4
+**📋 מטרה**: בניית בסיס ידע דנטלי מקיף לסוכנים
 
 **משימות מפורטות**:
 1. **Core Knowledge Base** (5 ימים)
@@ -149,8 +147,8 @@
 - בדיקות רב-לשוניות
 
 #### **Component 3.3: Specialized Dental Agents (2 שבועות)**
-**📋 חזון**: מימוש הסוכנים המתמחים לפי חזון Agentic UX  
-**📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 1, עקרונות יסוד
+**📋 מטרה**: פיתוח 3 סוכנים מתמחים דנטליים עם יכולות Agentic UX  
+**📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 1, עקרונות Agentic UX
 
 **משימות מפורטות**:
 1. **DentalReceptionistAgent** (4 ימים)
@@ -248,8 +246,8 @@
 - בדיקות visual compliance עם מפרט החזון
 
 #### **Component 3.5: Frontend i18n Integration (0.5 שבועות)**
-**📋 חזון**: תמיכה רב-לשונית מלאה  
-**📖 הפניה**: Backend i18n כבר קיים (370 שורות)
+**📋 מטרה**: תמיכה רב-לשונית מלאה בפרונטאנד  
+**📖 רקע**: Backend i18n כבר קיים (370 שורות)
 
 **משימות מפורטות**:
 1. **i18n Setup** (1 יום)
@@ -282,7 +280,7 @@
 ### **Phase 4: AI Enhancement & Explainability (4 שבועות)**
 
 #### **Component 4.1: AI Explainability Engine (2 שבועות)**
-**📋 חזון**: מימוש שקיפות והסבר החלטות לפי חזון Agentic UX  
+**📋 מטרה**: מימוש שקיפות והסבר החלטות AI לפי עקרונות Agentic UX  
 **📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 1, עקרון שקיפות
 
 **משימות מפורטות**:
@@ -321,7 +319,7 @@
 - בדיקות trust metrics
 
 #### **Component 4.2: Human Override System (2 שבועות)**
-**📋 חזון**: מימוש שליטה אנושית מלאה לפי חזון  
+**📋 מטרה**: מימוש שליטה אנושית מלאה לפי עקרונות Agentic UX  
 **📖 הפניה**: `docs/reference/תוכניתאבלממשקסוכןאוטונומי_חזון,מגמותויישום.pdf` - עמוד 1, עקרון שליטה אנושית
 
 **משימות מפורטות**:
@@ -365,8 +363,7 @@
 ### **Phase 5: Production Readiness & Security (3 שבועות)**
 
 #### **Component 5.1: Security Enhancement (1.5 שבועות)**
-**📋 חזון**: אבטחה ברמת production  
-**מטרה**: העלאת Security score מ-55 ל-90+
+**📋 מטרה**: אבטחה ברמת production - העלאת Security score מ-55 ל-90+
 
 **משימות מפורטות**:
 1. **Input Validation & Sanitization** (3 ימים)
