@@ -10,7 +10,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, APIRouter
 import time
 
-from .shared import broadcaster
+from src.websocket.shared import broadcaster
 from .agent_broadcaster import (
     start_agent_broadcasting,
     stop_agent_broadcasting,

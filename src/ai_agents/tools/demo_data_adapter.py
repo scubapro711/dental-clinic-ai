@@ -34,6 +34,7 @@ class DemoDataAdapter:
         self.db_config = db_config
         self.connection = None
         self.default_language = default_language
+        self.language = default_language
 
     def connect(self):
         """Connect to the database."""
@@ -50,14 +51,16 @@ class DemoDataAdapter:
             self.connection.close()
             logger.info("Disconnected from the demo database.")
 
-    def search_patients(self, query: str, language: str = None) -> str:
+    def search_patients(self, query: str, language: str = None) -> List[Dict[str, Any]]:
         """Search for patients in the database with i18n support."""
         query = DataSanitizer.sanitize_input(query)
         if not SecurityValidator.validate_patient_name(query):
-            return get_message('invalid_input', language, field='patient name')
+            logger.warning(f"Invalid patient name query: {query}")
+            return []
 
         if language is None:
             language = detect_language(query) if query else self.default_language
+        self.language = language
 
         if not self.connection:
             self.connect()
@@ -73,27 +76,11 @@ class DemoDataAdapter:
                 search_query = f"%{query}%"
                 cursor.execute(sql, (search_query, search_query, query))
                 results = cursor.fetchall()
-
-                if not results:
-                    return get_message('patient_not_found', language)
-
-                if len(results) == 1:
-                    patient = results[0]
-                    full_name = f"{patient['name']} {patient['surname']}"
-                    age = "N/A"
-                    if patient['birthdate']:
-                        try:
-                            birth_year = patient['birthdate'].year
-                            age = datetime.now().year - birth_year
-                        except:
-                            pass
-                    return get_message('patient_found', language, name=full_name, age=age)
-                else:
-                    return get_message('search_results', language, count=len(results))
+                return results
 
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
-            return get_message('system_error', language, error=str(e))
+            return []
 
     def get_available_slots(self, provider_id: int, date: str) -> List[Dict[str, Any]]:
         """Get available appointment slots from the database."""
@@ -126,13 +113,13 @@ class DemoDataAdapter:
                         })
             return available_slots
 
-    def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, treatment_type: str, language: str = None) -> str:
+    def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, treatment_type: str, language: str = None) -> Dict[str, Any]:
         """Book an appointment in the database with i18n support."""
         if not SecurityValidator.validate_patient_name(treatment_type):
-            return get_message('invalid_input', language, field='treatment type')
+            return {"success": False, "message": get_message('invalid_input', self.language, field='treatment type')}
 
         if language is None:
-            language = self.default_language
+            language = self.language
 
         if not self.connection:
             self.connect()
@@ -146,15 +133,23 @@ class DemoDataAdapter:
                 """
                 cursor.execute(sql, (provider_id, patient_id, 1, appointment_time, appointment_time + timedelta(minutes=30), treatment_type, 'scheduled'))
                 self.connection.commit()
+                appointment_id = cursor.lastrowid
 
-                date_str = appointment_time.strftime("%Y-%m-%d")
-                time_str = appointment_time.strftime("%H:%M")
-
-                return get_message('appointment_booked', language, date=date_str, time=time_str)
+                return {
+                    "success": True,
+                    "appointment": {
+                        "id": appointment_id,
+                        "patient_id": patient_id,
+                        "provider_id": provider_id,
+                        "datetime": datetime_str,
+                        "treatment_type": treatment_type
+                    },
+                    "message": get_message('appointment_booked', language, date=appointment_time.strftime("%Y-%m-%d"), time=appointment_time.strftime("%H:%M"))
+                }
 
         except Exception as e:
             logger.error(f"Error booking appointment: {e}")
-            return get_message('system_error', language, error=str(e))
+            return {"success": False, "message": get_message('system_error', language, error=str(e))}
 
     def get_patient_appointments(self, patient_id: int) -> List[Dict[str, Any]]:
         """Get all appointments for a patient from the database."""

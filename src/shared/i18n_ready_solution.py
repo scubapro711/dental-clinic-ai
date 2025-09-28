@@ -368,3 +368,12 @@ def test_i18n_solution():
 
 if __name__ == "__main__":
     test_i18n_solution()
+
+
+
+add_translation('appointment.confirmation.success', {
+    'he': 'התור אושר עבור {patient_name} בשעה {appointment_time}',
+    'en': 'Appointment confirmed for {patient_name} at {appointment_time}',
+    'ar': 'تم تأكيد الموعد لـ {patient_name} في الساعة {appointment_time}'
+})
+

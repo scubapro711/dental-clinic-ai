@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""
+'''
 ================================================================================
 ADVANCED DENTAL TOOL - PATENTABLE SCHEDULING INNOVATION
 ================================================================================
@@ -20,7 +19,7 @@ PROTECTED ALGORITHMS:
 Unauthorized copying or reverse engineering is strictly prohibited.
 For licensing: scubapro711@gmail.com | +972-53-555-0317
 ================================================================================
-"""
+'''
 
 import logging
 from typing import Dict, Any, List, Optional
@@ -30,7 +29,7 @@ import os
 # Import both adapters to allow for switching
 from .demo_data_adapter import DemoDataAdapter
 from .open_dental_adapter import OpenDentalAdapter
-from .i18n_ready_solution import get_message, detect_language
+from ...shared.i18n_ready_solution import get_message, detect_language
 
 logger = logging.getLogger(__name__)
 
@@ -110,18 +109,17 @@ class AdvancedDentalTool:
                 "timestamp": datetime.now().isoformat()
             }
 
-    async def search_patients(self, query: str, language: str = None) -> str:
+    async def search_patients(self, query: str, language: str = None) -> List[Dict[str, Any]]:
         """Search for patients by name, phone, or ID with i18n support"""
         try:
             lang = language or detect_language(query) if query else 'he'
             self.adapter.language = lang # Update adapter language
-            result = self.adapter.search_patients(query)
-            logger.info(f"Patient search completed for query: {query}")
-            return result
+            return self.adapter.search_patients(query, language=lang)
+
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
             lang = language or 'he'
-            return get_message('system_error', lang, error=str(e))
+            return []
 
     async def get_providers(self) -> List[Dict[str, Any]]:
         """Get list of available providers"""
@@ -133,16 +131,50 @@ class AdvancedDentalTool:
             logger.error(f"Error getting providers: {e}")
             return []
 
-    # ... (add other methods like book_appointment, etc. delegating to the adapter)
+    async def get_patient_appointments(self, patient_id: int) -> str:
+        """Get all appointments for a patient."""
+        try:
+            appointments = self.adapter.get_patient_appointments(patient_id)
+            logger.info(f"Found {len(appointments)} appointments for patient {patient_id}")
+            return appointments
+        except Exception as e:
+            logger.error(f"Error getting patient appointments: {e}")
+            return "An error occurred while getting patient appointments."
 
-    def get_tool_description(self) -> str:
-        """Get tool description for AI agents"""
-        return '''
-        Advanced Dental Tool - כלי מתקדם לניהול מרפאת שיניים
+    async def cancel_appointment(self, appointment_id: str) -> bool:
+        """Cancel an appointment."""
+        try:
+            success = self.adapter.cancel_appointment(appointment_id)
+            if success:
+                logger.info(f"Cancelled appointment {appointment_id}")
+            else:
+                logger.warning(f"Failed to cancel appointment {appointment_id}")
+            return success
+        except Exception as e:
+            logger.error(f"Error cancelling appointment: {e}")
+            return False
 
-        Available functions:
-        - search_patients(query, language): Search for patients.
-        - get_providers(): Get list of available providers.
-        - ... (other functions)
-        '''
+    async def get_available_slots(self, provider_id: int, date_str: str) -> List[Dict[str, Any]]:
+        try:
+            slots = self.adapter.get_available_slots(provider_id, date_str)
+            logger.info(f"Found {len(slots)} available slots for provider {provider_id} on {date_str}")
+            return slots
+        except Exception as e:
+            logger.error(f"Error getting available slots: {e}")
+            return []
+
+    async def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, treatment_type: str) -> Dict[str, Any]:
+        try:
+            appointment = self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type)
+            if isinstance(appointment, dict) and appointment.get("success"):
+                logger.info(f"Booked appointment {appointment['appointment']['id']} for patient {patient_id}")
+                return appointment
+            elif isinstance(appointment, str):
+                 return {"success": False, "message": appointment}
+            else:
+                return {"success": False, "message": "An unknown error occurred while booking the appointment."}
+        except Exception as e:
+            logger.error(f"Error booking appointment: {e}")
+            return {"success": False, "message": "An error occurred while booking the appointment."}
+
 

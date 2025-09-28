@@ -1,7 +1,7 @@
-"""
+'''
 Open Dental API Client
 Handles authentication and API calls to Open Dental system
-"""
+'''
 
 import os
 import requests
@@ -12,16 +12,16 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class OpenDentalAPIClient:
-    """Client for interacting with Open Dental API"""
+class OpenDentalClient:
+    '''Client for interacting with Open Dental API'''
     
     def __init__(self):
         self.api_key = os.getenv('OPEN_DENTAL_API_KEY', '1qvk4L2HHJs55Y3Z')
-        self.base_url = os.getenv('OPEN_DENTAL_BASE_URL', 'https://api.opendental.com')
+        self.base_url = os.getenv('OPEN_DENTAL_BASE_URL', 'https://api.opendental.com/api/v1')
         self.timeout = int(os.getenv('OPEN_DENTAL_TIMEOUT', '30'))
         
         self.headers = {
-            'Authorization': f'Bearer {self.api_key}',
+            'Authorization': 'ODFHIR NFF6i0KrXrxDkZHt/VzkmZEaUWOjnQX2z',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         }
@@ -30,7 +30,7 @@ class OpenDentalAPIClient:
     
     def _make_request(self, method: str, endpoint: str, params: Optional[Dict] = None, 
                      data: Optional[Dict] = None) -> Dict[str, Any]:
-        """Make HTTP request to Open Dental API"""
+        '''Make HTTP request to Open Dental API'''
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
         
         try:
@@ -73,7 +73,7 @@ class OpenDentalAPIClient:
             raise
     
     def test_connection(self) -> Dict[str, Any]:
-        """Test API connection and authentication"""
+        '''Test API connection and authentication'''
         try:
             # Try different endpoints to test connection
             test_endpoints = [
@@ -114,7 +114,7 @@ class OpenDentalAPIClient:
             }
     
     def get_appointments(self, limit: int = 10, **filters) -> List[Dict[str, Any]]:
-        """Get appointments with optional filters"""
+        '''Get appointments with optional filters'''
         params = {'Limit': limit}
         params.update(filters)
         
@@ -122,11 +122,11 @@ class OpenDentalAPIClient:
         return result if isinstance(result, list) else [result]
     
     def get_appointment(self, apt_num: int) -> Dict[str, Any]:
-        """Get single appointment by AptNum"""
+        '''Get single appointment by AptNum'''
         return self._make_request('GET', f'appointments/{apt_num}')
     
     def get_patients(self, limit: int = 10, **filters) -> List[Dict[str, Any]]:
-        """Get patients with optional filters"""
+        '''Get patients with optional filters'''
         params = {'Limit': limit}
         params.update(filters)
         
@@ -134,7 +134,7 @@ class OpenDentalAPIClient:
         return result if isinstance(result, list) else [result]
     
     def get_providers(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get providers/doctors"""
+        '''Get providers/doctors'''
         params = {'Limit': limit}
         
         result = self._make_request('GET', 'providers', params=params)
@@ -142,7 +142,7 @@ class OpenDentalAPIClient:
     
     def get_available_slots(self, date: str, provider_num: Optional[int] = None, 
                            duration_minutes: int = 60) -> List[Dict[str, Any]]:
-        """Get available appointment slots for a specific date"""
+        '''Get available appointment slots for a specific date'''
         params = {
             'date': date,
             'lengthMinutes': duration_minutes
@@ -155,11 +155,11 @@ class OpenDentalAPIClient:
         return result if isinstance(result, list) else [result]
     
     def create_appointment(self, appointment_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create new appointment"""
+        '''Create new appointment'''
         return self._make_request('POST', 'appointments', data=appointment_data)
     
     def update_appointment(self, apt_num: int, appointment_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Update existing appointment"""
+        '''Update existing appointment'''
         return self._make_request('PUT', f'appointments/{apt_num}', data=appointment_data)
 
 
@@ -182,3 +182,4 @@ if __name__ == "__main__":
     
     print(f"\n🔑 API Key: {client.api_key}")
     print(f"🌐 Base URL: {client.base_url}")
+

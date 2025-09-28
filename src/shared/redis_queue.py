@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class RedisQueueManager:
     """Redis Queue Manager for async message processing"""
     
-        def __init__(self, redis_url: str = "redis://localhost:6379/0"):
+    def __init__(self, redis_url: str = "redis://localhost:6379/0"):
         self.redis_url = redis_url
         self.redis_client = None
         self.running = False

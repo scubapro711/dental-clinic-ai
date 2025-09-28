@@ -107,4 +107,5 @@ class MessageService:
             logger.error(f"Error during cleanup: {e}")
 
 # Global instance
-message_service = MessageService()
+# Global instance
+# message_service = MessageService()
