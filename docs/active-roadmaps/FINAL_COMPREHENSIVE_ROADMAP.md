@@ -557,3 +557,13 @@
 **סטטוס**: ✅ תוכנית מאוחדת מקיפה מוכנה לביצוע  
 **דיוק**: 100% מבוסס על ניתוח 61 קומיטים + כל תוכניות העבודה הקודמות  
 **יעד**: מערכת Agentic UX מלאה למרפאות דנטליות תוך 19-21 שבועות
+
+
+
+## 🚀 **Recent Major Update: OpenManus Migration**
+
+- **Date**: December 29, 2025
+- **Change**: The core AI engine has been successfully migrated from CrewAI to **OpenManus**.
+- **Impact**: This provides a more powerful, flexible, and scalable foundation for all AI agents. All existing and future components will leverage the OpenManus engine.
+- **Status**: Migration is 100% complete, with all 82 tests passing.
+

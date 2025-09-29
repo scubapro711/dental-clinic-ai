@@ -30,7 +30,7 @@ from enum import Enum
 
 from ..interfaces.ai_agent_interface import AIEngineInterface
 from .crewai_engine import CrewAIEngine
-# from .openmanus_engine import OpenManusEngine  # Future implementation
+from .openmanus_engine import OpenManusEngine  # Future implementation
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ class AIEngineFactory:
     
     _engines = {
         AIEngineType.CREWAI: CrewAIEngine,
-        # AIEngineType.OPENMANUS: OpenManusEngine,  # Future implementation
+        AIEngineType.OPENMANUS: OpenManusEngine,
     }
     
     @classmethod
@@ -76,8 +76,8 @@ class AIEngineFactory:
     
     @classmethod
     async def create_default_engine(cls, config: Dict[str, Any]) -> AIEngineInterface:
-        """Create default AI engine (CrewAI for now)"""
-        return await cls.create_engine(AIEngineType.CREWAI, config)
+        """Create default AI engine (OpenManus)"""
+        return await cls.create_engine(AIEngineType.OPENMANUS, config)  
 
 # Configuration helper
 class AIEngineConfig:
@@ -112,12 +112,29 @@ class AIEngineConfig:
     
     @staticmethod
     def get_openmanus_config() -> Dict[str, Any]:
-        """Get default OpenManus configuration (future implementation)"""
+        """Get default OpenManus configuration"""
         return {
             "engine_type": "openmanus",
             "model": "gpt-4o",
             "temperature": 0.0,
             "max_tokens": 4096,
+            "agents": {
+                "receptionist": {
+                    "role": "Receptionist Agent",
+                    "goal": "Handle patient inquiries and appointment requests",
+                    "backstory": "You are a helpful dental clinic receptionist"
+                },
+                "scheduler": {
+                    "role": "Scheduler Agent", 
+                    "goal": "Schedule and manage appointments",
+                    "backstory": "You are an expert at managing dental appointments"
+                },
+                "confirmation": {
+                    "role": "Confirmation Agent",
+                    "goal": "Confirm appointments and send reminders",
+                    "backstory": "You ensure patients are reminded of their appointments"
+                }
+            },
             "tools": [
                 "browser_automation",
                 "file_processing", 

@@ -35,13 +35,13 @@ A comprehensive AI-powered dental clinic management system that automates patien
 
 ### ✨ Key Features
 
-- 🤖 **Multi-Agent AI System** - Three specialized AI agents for different tasks
+- 🤖 **Multi-Agent AI System** - Powered by the advanced OpenManus engine
 - 📱 **Multi-Channel Support** - WhatsApp, Telegram, and API integration
 - 🔄 **Async Message Processing** - Redis-based queue system
 - 🏥 **Dental PMS Integration** - Ready for Open Dental integration
 - 🌐 **Bilingual Support** - Hebrew and English
 - 🐳 **Containerized Architecture** - Full Docker deployment
-- 🔮 **Future-Ready** - Modular design for OpenManus integration
+- 🚀 **Enhanced Capabilities** - Advanced intent analysis, emergency detection, and more
 
 ## 🏗️ Architecture
 
@@ -58,7 +58,7 @@ A comprehensive AI-powered dental clinic management system that automates patien
                   │
 ┌─────────────────┴───────────────────────┐
 │          AI Agents Service              │
-│         (CrewAI - Port 8001)            │
+│        (OpenManus - Port 8001)          │
 └─────────────────┬───────────────────────┘
                   │
 ┌─────────────────┴───────────────────────┐
@@ -272,7 +272,7 @@ curl http://localhost:8001/health
 - 📊 **Availability engine and appointment management**
 
 ### Phase 3: Enhancement & Scale
-- 🔄 OpenManus integration
+- ✅ **OpenManus Integration Complete**
 - 📱 Mobile app development  
 - 🔐 Advanced security features
 - 📊 Analytics dashboard
@@ -330,7 +330,8 @@ This project is proprietary software protected by copyright law. See the [LICENS
 
 ## 🙏 Acknowledgments
 
-- **CrewAI** - Multi-agent AI framework
+- **OpenManus** - The new, powerful AI engine for our system
+- **CrewAI** - The original multi-agent AI framework
 - **FastAPI** - Modern Python web framework
 - **OpenAI** - AI language models
 - **Docker** - Containerization platform

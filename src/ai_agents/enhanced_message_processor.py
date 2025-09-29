@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class EnhancedAIMessageProcessor(MessageProcessorInterface):
     """Enhanced AI Message Processor with pluggable AI engines"""
     
-    def __init__(self, engine_type: AIEngineType = AIEngineType.CREWAI):
+    def __init__(self, engine_type: AIEngineType = AIEngineType.OPENMANUS):
         self.engine_type = engine_type
         self.ai_engine = None
         self.agents = {}
@@ -66,7 +66,9 @@ class EnhancedAIMessageProcessor(MessageProcessorInterface):
             logger.info(f"Processing message: {message_data}")
             
             # Extract message details
-            text = message_data.get("text", "")
+            text = message_data.get("text")
+            if text is None:
+                text = ""
             sender_id = message_data.get("sender_id", "")
             channel = message_data.get("channel", "api")
             metadata = message_data.get("metadata", {})
@@ -110,17 +112,15 @@ class EnhancedAIMessageProcessor(MessageProcessorInterface):
     
     async def _route_to_agent(self, text: str, metadata: Dict[str, Any]) -> str:
         """Route message to appropriate agent based on content"""
+        if not text:
+            return "receptionist"
         text_lower = text.lower()
-        
-        # Check for appointment-related keywords
-        if any(word in text_lower for word in ["appointment", "schedule", "book", "תור", "לקבוע"]):
-            return "scheduler"
-        
-        # Check for confirmation-related keywords
-        elif any(word in text_lower for word in ["confirm", "reminder", "cancel", "אישור", "תזכורת", "ביטול"]):
+
+        # More specific confirmation keywords first
+        if any(word in text_lower for word in ["cancel", "ביטול", "confirm", "אישור", "reminder", "תזכורת"]):
             return "confirmation"
-        
-        # Default to receptionist for general inquiries
+        elif any(word in text_lower for word in ["appointment", "schedule", "book", "תור", "לקבוע"]):
+            return "scheduler"
         else:
             return "receptionist"
     

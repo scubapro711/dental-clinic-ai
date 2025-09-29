@@ -23,7 +23,12 @@ class CrewAIAgentWrapper(AIAgentInterface):
         self.goal = agent_config.get("goal", "Help users with their requests")
         self.backstory = agent_config.get("backstory", "You are a helpful AI assistant")
         
-        self.dental_tool = AdvancedDentalTool()
+        use_mock = engine_config.get("use_mock_tools", False)
+        if use_mock:
+            from ..tools.mock_dental_tool import MockDentalTool
+            self.dental_tool = MockDentalTool()
+        else:
+            self.dental_tool = AdvancedDentalTool()
         self.initialized = False
     
     async def initialize(self) -> None:
@@ -60,6 +65,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "success": False,
                 "error": str(e),
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
     
@@ -101,6 +107,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "intent": "appointment_scheduling",
                 "available_slots": available_slots[:5],
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
             
@@ -111,6 +118,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "response": "מצטער, יש בעיה טכנית. אנא נסה שוב מאוחר יותר.",
                 "error": str(e),
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
     
@@ -137,6 +145,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "intent": "patient_inquiry",
                 "patient_details": patient_details,
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
             
@@ -147,6 +156,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "response": "שלום! איך אפשר לעזור לך היום?",
                 "error": str(e),
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
     
@@ -171,6 +181,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "intent": "appointment_confirmation",
                 "appointments": appointments,
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
             
@@ -181,6 +192,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
                 "response": "מצטער, לא הצלחתי לבדוק את התורים שלך כרגע.",
                 "error": str(e),
                 "agent": self.agent_name,
+                "engine": "crewai",
                 "timestamp": datetime.now().isoformat()
             }
     
@@ -198,6 +210,7 @@ class CrewAIAgentWrapper(AIAgentInterface):
             "response": response_text,
             "intent": "general_inquiry",
             "agent": self.agent_name,
+            "engine": "crewai",
             "timestamp": datetime.now().isoformat()
         }
     
