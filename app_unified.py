@@ -18,7 +18,7 @@ from flask_cors import CORS
 
 # --- Configuration ---
 CHAT_SERVER_HOST = "0.0.0.0"
-CHAT_SERVER_PORT = 8765
+CHAT_SERVER_PORT = 8766
 
 # --- Flask App Initialization ---
 app = Flask(__name__)
@@ -139,7 +139,7 @@ UNIFIED_DASHBOARD_HTML = """
         });
 
         // --- WebSocket Connection ---
-        const socket = new WebSocket(`ws://${window.location.hostname}:8765`);
+        const socket = new WebSocket(`ws://${window.location.hostname}:8766`);
 
         socket.onopen = () => {
             console.log("WebSocket connection established.");

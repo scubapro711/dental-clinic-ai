@@ -159,7 +159,7 @@ async def chat_handler(websocket, path):
 
 async def main():
     host = "0.0.0.0"
-    port = 8765
+    port = 8766  # Changed port to avoid conflicts
     async with websockets.serve(chat_handler, host, port):
         print(f"Multilingual Chat Server started on ws://{host}:{port}")
         await asyncio.Future()  # Run forever
