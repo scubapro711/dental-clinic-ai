@@ -10,7 +10,10 @@ import logging
 # Add the project root to Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from gateway.main import create_app
+try:
+    from src.gateway.main import create_app
+except ImportError:
+    from gateway.main import create_app
 
 # Configure logging for production
 logging.basicConfig(
