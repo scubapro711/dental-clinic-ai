@@ -139,53 +139,28 @@ function App() {
         </div>
       )}
 
-      {/* Demo Information Overlay */}
-      <div className="fixed top-20 left-6 z-40 max-w-sm">
-        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg p-4 shadow-lg">
-          <div className="flex items-center gap-2 mb-2">
-            <Eye className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-gray-900">הדגמת Agentic UX</span>
+      {/* Demo Information Overlay - Moved to Bottom */}
+      <div className="fixed bottom-20 left-6 z-40 max-w-sm">
+        <div className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg p-3 shadow-lg">
+          <div className="flex items-center gap-2 mb-1">
+            <Eye className="w-3 h-3 text-blue-600" />
+            <span className="text-xs font-medium text-gray-900">הדגמת מערכת</span>
           </div>
-          <p className="text-xs text-gray-600 mb-3">
-            זוהי הדגמה של המעבר מממשק משתמש מסורתי לחוויה אגנטית (Agentic Experience)
+          <p className="text-xs text-gray-600">
+            מערכת הדגמה למשקיעים
           </p>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-              <span className="text-gray-700">דף הבית: הצגת הסוכן האוטונומי</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full" />
-              <span className="text-gray-700">מרכז השליטה: Mission Control</span>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Agentic UX Principles Indicator */}
-      <div className="fixed bottom-8 right-8 z-40">
-        <div className="bg-[#001529] text-white rounded-lg p-4 shadow-2xl max-w-xs">
-          <div className="flex items-center gap-2 mb-2">
-            <Command className="w-4 h-4" />
-            <span className="text-sm font-bold">עקרונות Agentic UX</span>
+      {/* System Info - Bottom Right */}
+      <div className="fixed bottom-20 right-6 z-40">
+        <div className="bg-[#001529] text-white rounded-lg p-3 shadow-lg max-w-xs">
+          <div className="flex items-center gap-2 mb-1">
+            <Command className="w-3 h-3" />
+            <span className="text-xs font-bold">מערכת AI מתקדמת</span>
           </div>
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span>הגדרת מטרות במקום משימות</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span>ביצוע אוטונומי של הסוכן</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span>שקיפות והסברים</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span>שליטה אנושית מתמשכת</span>
-            </div>
+          <div className="text-xs text-gray-300">
+            פועלת עם נתוני הדגמה
           </div>
         </div>
       </div>

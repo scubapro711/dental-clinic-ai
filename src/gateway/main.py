@@ -60,12 +60,5 @@ app = create_app()
 
 
 
-@app.get("/status", summary="System Status", description="Returns the status of various system components.")
-async def get_status():
-    # In a real application, this would check the status of the database, Redis, etc.
-    return {
-        "gateway": "ok",
-        "database": "ok", # Placeholder
-        "redis": "ok" # Placeholder
-    }
+
 

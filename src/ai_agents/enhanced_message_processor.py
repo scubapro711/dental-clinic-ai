@@ -60,18 +60,25 @@ class EnhancedAIMessageProcessor(MessageProcessorInterface):
             logger.error(f"Error creating agents: {e}")
             raise
     
-    async def process_message(self, message_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process_message(self, message_data) -> Dict[str, Any]:
         """Process a single message using the appropriate agent"""
         try:
             logger.info(f"Processing message: {message_data}")
             
-            # Extract message details
-            text = message_data.get("text")
-            if text is None:
-                text = ""
-            sender_id = message_data.get("sender_id", "")
-            channel = message_data.get("channel", "api")
-            metadata = message_data.get("metadata", {})
+            # Handle both string and dict inputs
+            if isinstance(message_data, str):
+                text = message_data
+                sender_id = ""
+                channel = "api"
+                metadata = {}
+            else:
+                # Extract message details from dict
+                text = message_data.get("text")
+                if text is None:
+                    text = ""
+                sender_id = message_data.get("sender_id", "")
+                channel = message_data.get("channel", "api")
+                metadata = message_data.get("metadata", {})
             
             # Determine which agent should handle this message
             agent_name = await self._route_to_agent(text, metadata)
@@ -101,11 +108,20 @@ class EnhancedAIMessageProcessor(MessageProcessorInterface):
             
         except Exception as e:
             logger.error(f"Error processing message: {e}")
+            
+            # Handle error response for both string and dict inputs
+            if isinstance(message_data, str):
+                sender_id = ""
+                channel = "api"
+            else:
+                sender_id = message_data.get("sender_id", "")
+                channel = message_data.get("channel", "api")
+            
             return {
                 "success": False,
                 "error": str(e),
-                "sender_id": message_data.get("sender_id", ""),
-                "channel": message_data.get("channel", "api"),
+                "sender_id": sender_id,
+                "channel": channel,
                 "processed_at": datetime.now().isoformat(),
                 "engine_type": self.engine_type.value
             }

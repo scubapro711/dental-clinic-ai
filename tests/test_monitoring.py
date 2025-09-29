@@ -14,11 +14,10 @@ def test_health_check():
     assert response.json() == {"status": "ok"}
 
 def test_status_endpoint():
-    response = client.get("/status")
+    response = client.get("/api/status")
     assert response.status_code == 200
-    assert response.json() == {
-        "gateway": "ok",
-        "database": "ok",
-        "redis": "ok"
-    }
+    data = response.json()
+    assert "status" in data
+    assert "components" in data
+    
 

@@ -68,8 +68,8 @@ const AgenticLandingPage = () => {
     { id: 4, action: 'מנתח נתוני ביצועים', status: 'active', time: '14:25' }
   ]);
 
-  // Demo scenarios
-  const demoScenarios = [
+  // System scenarios
+  const systemScenarios = [
     {
       title: 'זימון תורים אוטומטי',
       description: 'הסוכן מטפל ב-89% מהפניות ללא התערבות',
@@ -107,10 +107,10 @@ const AgenticLandingPage = () => {
     return () => clearInterval(interval);
   }, [isAnimating]);
 
-  // Cycle through demo scenarios
+  // Cycle through system scenarios
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentDemo(prev => (prev + 1) % demoScenarios.length);
+      setCurrentDemo(prev => (prev + 1) % systemScenarios.length);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -150,7 +150,7 @@ const AgenticLandingPage = () => {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="bg-white text-[#001529] hover:bg-blue-50 text-lg px-8 py-4">
                   <Play className="w-5 h-5 ml-2" />
-                  צפו בהדגמה חיה
+                  צפו במערכת חיה
                 </Button>
                 <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-4">
                   <Shield className="w-5 h-5 ml-2" />
@@ -771,13 +771,13 @@ const AgenticLandingPage = () => {
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             הצטרפו למהפכה של ניהול מרפאות אוטונומי. 
-            התחילו עם הדגמה חיה ותראו איך הסוכן יכול לשנות את המרפאה שלכם.
+            התחילו עם מערכת חיה ותראו איך הסוכן יכול לשנות את המרפאה שלכם.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="bg-white text-[#001529] hover:bg-blue-50 text-lg px-8 py-4">
               <Play className="w-5 h-5 ml-2" />
-              התחל הדגמה חיה
+              התחל מערכת חיה
             </Button>
             <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-4">
               <Calendar className="w-5 h-5 ml-2" />
@@ -792,7 +792,7 @@ const AgenticLandingPage = () => {
             </div>
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5" />
-              <span>הדגמה מלאה</span>
+              <span>מערכת מלאה</span>
             </div>
             <div className="flex items-center gap-2">
               <Headphones className="w-5 h-5" />
