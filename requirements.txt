@@ -4,6 +4,11 @@ uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
+# Flask for simple deployment
+flask==2.3.3
+flask-cors==4.0.0
+gunicorn==21.2.0
+
 # Database (using mock data for now)
 sqlalchemy==2.0.23
 
