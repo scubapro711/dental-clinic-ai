@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import DashboardGrid from './DashboardGrid';
 import StatisticsCard from './StatisticsCard';
+import RealTimeAlerts from './RealTimeAlerts';
 
 /**
  * MissionControlDashboard Component
@@ -352,6 +353,7 @@ const MissionControlDashboard = () => {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Live Monitoring - 65% width */}
                 <div className="lg:col-span-2 space-y-6">
+                  <RealTimeAlerts />
                   <Card className="border-r-4 border-r-green-500">
                     <CardHeader>
                       <div className="flex items-center justify-between">

@@ -6,7 +6,10 @@ from .config import get_settings
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
+from ..shared.logging_config import setup_logging
+
+# Configure logging
+setup_logging()
 logger = logging.getLogger(__name__)
 
 def create_app(include_startup_events: bool = True) -> FastAPI:
@@ -54,4 +57,15 @@ def create_app(include_startup_events: bool = True) -> FastAPI:
     return app
 
 app = create_app()
+
+
+
+@app.get("/status", summary="System Status", description="Returns the status of various system components.")
+async def get_status():
+    # In a real application, this would check the status of the database, Redis, etc.
+    return {
+        "gateway": "ok",
+        "database": "ok", # Placeholder
+        "redis": "ok" # Placeholder
+    }
 

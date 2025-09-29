@@ -1,30 +1,9 @@
-'''
-================================================================================
-ADVANCED DENTAL TOOL - PATENTABLE SCHEDULING INNOVATION
-================================================================================
-
-Copyright (c) 2025 Eran Sarfaty. All Rights Reserved.
-🔒 PROPRIETARY SOFTWARE - PATENT PENDING 🔒
-
-This module contains the core patentable "AI-Powered Dental Scheduling Algorithm"
-with intelligent appointment optimization and conflict resolution.
-
-PROTECTED ALGORITHMS:
-- AI-Powered Appointment Optimization Method
-- Treatment Duration Prediction Algorithm
-- Multi-Provider Scheduling Coordination
-- Real-Time Conflict Resolution System
-- Patient History Integration Protocol
-
-Unauthorized copying or reverse engineering is strictly prohibited.
-For licensing: scubapro711@gmail.com | +972-53-555-0317
-================================================================================
-'''
 
 import logging
 from typing import Dict, Any, List, Optional
 from datetime import datetime
 import os
+import aiomysql
 
 # Import both adapters to allow for switching
 from .demo_data_adapter import DemoDataAdapter
@@ -41,6 +20,7 @@ class AdvancedDentalTool:
         self.description = "Advanced tool for dental clinic management including appointments, patients, and providers"
         self.initialized = False
         self.adapter = None
+        self.pool = None
 
         # Determine which adapter to use based on an environment variable
         adapter_mode = os.getenv("ADAPTER_MODE", "DEMO") # Default to DEMO
@@ -49,23 +29,24 @@ class AdvancedDentalTool:
             self.adapter = OpenDentalAdapter(language='en')
             logger.info("Using OpenDentalAdapter")
         else:
-            db_config = {
+            self.db_config = {
                 'host': os.getenv("DB_HOST", "localhost"),
                 'user': os.getenv("DB_USER", "dental_user"),
                 'password': os.getenv("DB_PASSWORD", "dental_pass_2025"),
-                'database': os.getenv("DB_NAME", "dental_clinic_demo"),
+                'db': os.getenv("DB_NAME", "dental_clinic_demo"),
                 'port': int(os.getenv("DB_PORT", 3306)),
-                'charset': 'utf8mb4',
+                'autocommit': True
             }
-            self.adapter = DemoDataAdapter(db_config, default_language='he')
+            self.adapter = DemoDataAdapter(self.db_config, default_language='he')
             logger.info("Using DemoDataAdapter")
 
     async def initialize(self):
-        """Initialize the dental tool"""
+        """Initialize the dental tool and create a connection pool."""
         try:
             logger.info(f"Initializing Advanced Dental Tool with {self.adapter.__class__.__name__}...")
             if isinstance(self.adapter, DemoDataAdapter):
-                self.adapter.connect()
+                self.pool = await aiomysql.create_pool(**self.db_config)
+                self.adapter.pool = self.pool
             self.initialized = True
             logger.info("Advanced Dental Tool initialized successfully")
         except Exception as e:
@@ -73,11 +54,12 @@ class AdvancedDentalTool:
             raise
 
     async def cleanup(self):
-        """Cleanup the dental tool"""
+        """Cleanup the dental tool and close the connection pool."""
         try:
             logger.info("Cleaning up Advanced Dental Tool...")
-            if isinstance(self.adapter, DemoDataAdapter):
-                self.adapter.disconnect()
+            if self.pool:
+                self.pool.close()
+                await self.pool.wait_closed()
             self.initialized = False
             logger.info("Advanced Dental Tool cleaned up successfully")
         except Exception as e:
@@ -86,10 +68,11 @@ class AdvancedDentalTool:
     async def health_check(self) -> Dict[str, Any]:
         """Check the health of the dental tool"""
         try:
-            if isinstance(self.adapter, DemoDataAdapter):
-                with self.adapter.connection.cursor() as cursor:
-                    cursor.execute("SELECT 1")
-                    cursor.fetchone()
+            if self.pool:
+                async with self.pool.acquire() as conn:
+                    async with conn.cursor() as cursor:
+                        await cursor.execute("SELECT 1")
+                        await cursor.fetchone()
                 db_status = "ok"
             else: # OpenDentalAdapter
                 self.adapter.client.test_connection()
@@ -114,7 +97,7 @@ class AdvancedDentalTool:
         try:
             lang = language or detect_language(query) if query else 'he'
             self.adapter.language = lang # Update adapter language
-            return self.adapter.search_patients(query, language=lang)
+            return await self.adapter.search_patients(query, language=lang)
 
         except Exception as e:
             logger.error(f"Error searching patients: {e}")
@@ -124,7 +107,7 @@ class AdvancedDentalTool:
     async def get_providers(self) -> List[Dict[str, Any]]:
         """Get list of available providers"""
         try:
-            providers = self.adapter.get_providers()
+            providers = await self.adapter.get_providers()
             logger.info(f"Found {len(providers)} providers")
             return providers
         except Exception as e:
@@ -134,7 +117,7 @@ class AdvancedDentalTool:
     async def get_patient_appointments(self, patient_id: int) -> str:
         """Get all appointments for a patient."""
         try:
-            appointments = self.adapter.get_patient_appointments(patient_id)
+            appointments = await self.adapter.get_patient_appointments(patient_id)
             logger.info(f"Found {len(appointments)} appointments for patient {patient_id}")
             return appointments
         except Exception as e:
@@ -144,7 +127,7 @@ class AdvancedDentalTool:
     async def cancel_appointment(self, appointment_id: str) -> bool:
         """Cancel an appointment."""
         try:
-            success = self.adapter.cancel_appointment(appointment_id)
+            success = await self.adapter.cancel_appointment(appointment_id)
             if success:
                 logger.info(f"Cancelled appointment {appointment_id}")
             else:
@@ -156,7 +139,7 @@ class AdvancedDentalTool:
 
     async def get_available_slots(self, provider_id: int, date_str: str) -> List[Dict[str, Any]]:
         try:
-            slots = self.adapter.get_available_slots(provider_id, date_str)
+            slots = await self.adapter.get_available_slots(provider_id, date_str)
             logger.info(f"Found {len(slots)} available slots for provider {provider_id} on {date_str}")
             return slots
         except Exception as e:
@@ -165,7 +148,7 @@ class AdvancedDentalTool:
 
     async def book_appointment(self, patient_id: int, provider_id: int, datetime_str: str, treatment_type: str) -> Dict[str, Any]:
         try:
-            appointment = self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type)
+            appointment = await self.adapter.book_appointment(patient_id, provider_id, datetime_str, treatment_type)
             if isinstance(appointment, dict) and appointment.get("success"):
                 logger.info(f"Booked appointment {appointment['appointment']['id']} for patient {patient_id}")
                 return appointment
@@ -176,5 +159,4 @@ class AdvancedDentalTool:
         except Exception as e:
             logger.error(f"Error booking appointment: {e}")
             return {"success": False, "message": "An error occurred while booking the appointment."}
-
 
