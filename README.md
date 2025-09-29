@@ -341,3 +341,36 @@ This project is proprietary software protected by copyright law. See the [LICENS
 **Status**: 🟢 **Production Ready** (87.5% Complete)  
 **Last Updated**: September 26, 2025  
 **Version**: 2.0.0
+
+
+
+---
+
+## 🌟 Interactive Demo with Dana AI
+
+In addition to the core microservices architecture, this repository includes a standalone, unified application (`app_unified.py`) that provides an interactive demonstration of the system's capabilities. This is the best way to quickly experience the AI assistant "Dana" and the investor dashboard.
+
+### Features of the Interactive Demo
+
+- **Live Chat with Dana**: A fully functional chat widget to interact with Dana in English, Hebrew, or Arabic.
+- **Real-time Synthesis Agent**: Watch as the system routes your conversations to the correct agent (Dana, Booking, Emergency) based on your messages.
+- **Investor & Technical Dashboard**: A comprehensive, single-page view combining business metrics, ROI, and live system monitoring.
+- **No Dependencies Required**: Runs as a single Python script with Flask (after installing dependencies).
+
+### How to Run the Interactive Demo
+
+1.  **Ensure all dependencies are installed:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+2.  **Run the `app_unified.py` script:**
+    ```bash
+    python app_unified.py
+    ```
+
+3.  **Open your browser:**
+    Navigate to `http://127.0.0.1:5000`.
+
+    You will see the main dashboard. The chat widget with Dana will be in the bottom-right corner, ready for interaction.
+
