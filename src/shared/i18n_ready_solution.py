@@ -371,6 +371,128 @@ if __name__ == "__main__":
 
 
 
+# Technical log translations for dashboard terminals
+add_translation('log_api_gateway_webhook', {
+    'he': 'POST /api/message - התקבל webhook מ-WhatsApp מהמספר {phone}',
+    'en': 'POST /api/message - WhatsApp webhook received from {phone}',
+    'ar': 'POST /api/message - تم استلام webhook من WhatsApp من {phone}'
+})
+
+add_translation('log_auth_validated', {
+    'he': 'JWT token אומת, משתמש: {user}',
+    'en': 'JWT token validated, user: {user}',
+    'ar': 'تم التحقق من JWT token، المستخدم: {user}'
+})
+
+add_translation('log_processing_message', {
+    'he': 'מעבד הודעה נכנסת ממטופל מספר {patient_id}',
+    'en': 'Processing incoming message from patient ID {patient_id}',
+    'ar': 'معالجة رسالة واردة من المريض رقم {patient_id}'
+})
+
+add_translation('log_patient_search', {
+    'he': 'GET /api/patients/search?name={name} - תגובה: 200 OK ({results} תוצאות)',
+    'en': 'GET /api/patients/search?name={name} - Response: 200 OK ({results} results)',
+    'ar': 'GET /api/patients/search?name={name} - الاستجابة: 200 OK ({results} نتائج)'
+})
+
+add_translation('log_database_query', {
+    'he': 'שאילתת מסד נתונים בוצעה תוך {time}',
+    'en': 'Database query executed in {time}',
+    'ar': 'تم تنفيذ استعلام قاعدة البيانات في {time}'
+})
+
+add_translation('log_nlp_pipeline', {
+    'he': 'צינור NLP {language} - ביטחון: {confidence}',
+    'en': '{language} NLP pipeline - confidence: {confidence}',
+    'ar': 'خط أنابيب NLP {language} - الثقة: {confidence}'
+})
+
+add_translation('log_available_slots', {
+    'he': 'נמצאו {slots} תורים פנויים למחר',
+    'en': 'Found {slots} available slots for tomorrow',
+    'ar': 'تم العثور على {slots} مواعيد متاحة لغداً'
+})
+
+add_translation('log_appointment_booked', {
+    'he': 'POST /api/appointments/book - תגובה: 201 נוצר',
+    'en': 'POST /api/appointments/book - Response: 201 Created',
+    'ar': 'POST /api/appointments/book - الاستجابة: 201 تم الإنشاء'
+})
+
+add_translation('log_whatsapp_response', {
+    'he': 'שולח תגובה דרך WhatsApp Business API',
+    'en': 'Sending response via WhatsApp Business API',
+    'ar': 'إرسال الاستجابة عبر WhatsApp Business API'
+})
+
+add_translation('log_response_time', {
+    'he': 'זמן תגובת API: {time}',
+    'en': 'API response time: {time}',
+    'ar': 'وقت استجابة API: {time}'
+})
+
+add_translation('log_security_check', {
+    'he': 'הצפנת HTTPS/TLS אומתה',
+    'en': 'HTTPS/TLS encryption verified',
+    'ar': 'تم التحقق من تشفير HTTPS/TLS'
+})
+
+add_translation('log_hipaa_compliance', {
+    'he': 'קריאת API נרשמה לציות HIPAA',
+    'en': 'API call logged for HIPAA compliance',
+    'ar': 'تم تسجيل استدعاء API للامتثال لـ HIPAA'
+})
+
+# Database activity translations for database terminal
+add_translation('db_patient_created', {
+    'he': 'מטופל חדש נוצר: {patient_name} (ID: {patient_id})',
+    'en': 'New patient created: {patient_name} (ID: {patient_id})',
+    'ar': 'تم إنشاء مريض جديد: {patient_name} (المعرف: {patient_id})'
+})
+
+add_translation('db_appointment_booked', {
+    'he': 'תור נקבע עם {doctor} בשעה {time}',
+    'en': 'Appointment booked with {doctor} at {time}',
+    'ar': 'تم حجز موعد مع {doctor} في الساعة {time}'
+})
+
+add_translation('db_patient_search', {
+    'he': 'חיפוש מטופלים: "{query}" - {results} תוצאות',
+    'en': 'Patient search: "{query}" - {results} results found',
+    'ar': 'البحث عن المرضى: "{query}" - تم العثور على {results} نتائج'
+})
+
+add_translation('db_treatment_completed', {
+    'he': 'טיפול {treatment} הושלם למטופל {patient_id}',
+    'en': 'Treatment {treatment} completed for patient {patient_id}',
+    'ar': 'تم إكمال العلاج {treatment} للمريض {patient_id}'
+})
+
+add_translation('db_appointment_reminder', {
+    'he': 'תזכורת תור נשלחה ל-{phone}',
+    'en': 'Appointment reminder sent to {phone}',
+    'ar': 'تم إرسال تذكير الموعد إلى {phone}'
+})
+
+add_translation('db_doctor_schedule', {
+    'he': 'לוח זמנים עודכן לרופא {doctor_id} - {slots} תורים פנויים',
+    'en': 'Schedule updated for doctor {doctor_id} - {slots} available slots',
+    'ar': 'تم تحديث الجدول للطبيب {doctor_id} - {slots} مواعيد متاحة'
+})
+
+add_translation('db_appointment_cancelled', {
+    'he': 'תור בוטל - סיבה: {reason}',
+    'en': 'Appointment cancelled - reason: {reason}',
+    'ar': 'تم إلغاء الموعد - السبب: {reason}'
+})
+
+add_translation('db_hipaa_log', {
+    'he': 'רישום HIPAA: {action} על ידי {user}',
+    'en': 'HIPAA audit log: {action} by {user}',
+    'ar': 'سجل تدقيق HIPAA: {action} بواسطة {user}'
+})
+
 add_translation('appointment.confirmation.success', {
     'he': 'התור אושר עבור {patient_name} בשעה {appointment_time}',
     'en': 'Appointment confirmed for {patient_name} at {appointment_time}',
