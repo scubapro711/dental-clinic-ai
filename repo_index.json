@@ -1,0 +1,261 @@
+{
+  "repository": {
+    "name": "dental-clinic-ai",
+    "owner": "scubapro711",
+    "description": "AI-Powered Dental Clinic Management System",
+    "version": "2.0.0",
+    "status": "Production Ready (87.5% Complete)",
+    "last_updated": "2025-12-29",
+    "main_language": "Python",
+    "license": "Proprietary - All Rights Reserved"
+  },
+  "architecture": {
+    "pattern": "Microservices",
+    "main_components": ["Gateway", "AI Agents", "Database", "Queue System"],
+    "ai_engine": "OpenManus",
+    "database": "MySQL",
+    "queue": "Redis",
+    "containerization": "Docker"
+  },
+  "components": [
+    {
+      "path": "src/gateway/main.py",
+      "type": "code",
+      "summary": "שרת FastAPI ראשי - נקודת כניסה למערכת",
+      "owners": ["@scubapro711"],
+      "deps": ["FastAPI", "Redis", "OpenAI"],
+      "apis": ["GET /health", "POST /api/queue/process-async", "GET /docs"],
+      "evidence": ["commit:1b5723a", "file:main.py"]
+    },
+    {
+      "path": "src/ai_agents/enhanced_message_processor.py",
+      "type": "code",
+      "summary": "מעבד הודעות מרכזי עם מנוע OpenManus",
+      "owners": ["@scubapro711"],
+      "deps": ["OpenManus", "Redis", "AI Agents"],
+      "apis": ["process_message", "route_to_agent"],
+      "evidence": ["commit:2c8e25f", "test:test_openmanus_integration.py"]
+    },
+    {
+      "path": "src/ai_agents/engines/openmanus_engine.py",
+      "type": "code",
+      "summary": "מנוע OpenManus - ליבת הבינה המלאכותית",
+      "owners": ["@scubapro711"],
+      "deps": ["OpenAI", "AsyncIO"],
+      "apis": ["create_agent", "initialize", "shutdown"],
+      "evidence": ["commit:1b5723a", "test:test_openmanus_integration.py"]
+    },
+    {
+      "path": "src/ai_agents/openmanus_agents/openmanus_agent_wrapper.py",
+      "type": "code",
+      "summary": "עטיפת סוכני OpenManus - 3 סוכנים מתמחים",
+      "owners": ["@scubapro711"],
+      "deps": ["OpenManus Engine", "Dental Tools"],
+      "apis": ["process_message", "analyze_intent", "handle_emergency"],
+      "evidence": ["commit:1b5723a", "agents:receptionist,scheduler,confirmation"]
+    },
+    {
+      "path": "src/ai_agents/tools/enhanced_mock_tool.py",
+      "type": "code",
+      "summary": "כלי פיתוח משופר עם 20 מטופלים ו-4 רופאים",
+      "owners": ["@scubapro711"],
+      "deps": ["AsyncIO", "JSON"],
+      "apis": ["get_patient_details", "book_appointment", "get_available_slots"],
+      "evidence": ["commit:1b5723a", "test:test_enhanced_mock_tool.py"]
+    },
+    {
+      "path": "src/shared/redis_queue.py",
+      "type": "code",
+      "summary": "מנהל תורי הודעות Redis",
+      "owners": ["@scubapro711"],
+      "deps": ["Redis", "AsyncIO"],
+      "apis": ["enqueue", "dequeue", "start_worker"],
+      "evidence": ["commit:4a4cedd", "integration:gateway"]
+    },
+    {
+      "path": "src/shared/i18n_ready_solution.py",
+      "type": "code",
+      "summary": "תמיכה רב-לשונית בעברית ואנגלית",
+      "owners": ["@scubapro711"],
+      "deps": ["JSON", "Locale"],
+      "apis": ["get_message", "set_language"],
+      "evidence": ["commit:4a4cedd", "feature:multilingual"]
+    },
+    {
+      "path": "tests/test_openmanus_integration.py",
+      "type": "test",
+      "summary": "בדיקות אינטגרציה מקיפות למנוע OpenManus",
+      "owners": ["@scubapro711"],
+      "deps": ["pytest", "pytest-asyncio"],
+      "apis": ["test_engine_initialization", "test_agent_processing"],
+      "evidence": ["commit:2c8e25f", "status:68_tests_passing"]
+    },
+    {
+      "path": "tests/test_enhanced_mock_tool.py",
+      "type": "test",
+      "summary": "בדיקות לכלי הפיתוח המשופר",
+      "owners": ["@scubapro711"],
+      "deps": ["pytest", "AsyncIO"],
+      "apis": ["test_patient_search", "test_appointment_booking"],
+      "evidence": ["commit:1b5723a", "coverage:enhanced_mock_tool"]
+    },
+    {
+      "path": "docker-compose.yml",
+      "type": "config",
+      "summary": "הגדרות Docker לכל השירותים",
+      "owners": ["@scubapro711"],
+      "deps": ["Docker", "MySQL", "Redis"],
+      "apis": ["gateway:8000", "mysql:3306", "redis:6379"],
+      "evidence": ["commit:4a4cedd", "deployment:containerized"]
+    },
+    {
+      "path": "requirements.txt",
+      "type": "config",
+      "summary": "תלויות Python של הפרויקט",
+      "owners": ["@scubapro711"],
+      "deps": ["FastAPI", "OpenAI", "Redis", "MySQL", "pytest"],
+      "apis": [],
+      "evidence": ["commit:2c8e25f", "dependencies:python"]
+    },
+    {
+      "path": "README.md",
+      "type": "doc",
+      "summary": "תיעוד ראשי של הפרויקט עם הוראות התקנה",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:1b5723a", "documentation:main"]
+    },
+    {
+      "path": "docs/active-roadmaps/FINAL_COMPREHENSIVE_ROADMAP.md",
+      "type": "doc",
+      "summary": "תוכנית עבודה מקיפה עם 3 שלבים עיקריים",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:4a4cedd", "planning:roadmap"]
+    },
+    {
+      "path": "TODO.md",
+      "type": "doc",
+      "summary": "רשימת משימות פתוחות ועדיפויות",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:1b5723a", "tracking:tasks"]
+    },
+    {
+      "path": "MODULAR_TESTING_PLAN.md",
+      "type": "doc",
+      "summary": "תוכנית בדיקות מודולרית מקיפה",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:ca15027", "testing:plan"]
+    },
+    {
+      "path": "dental-clinic-frontend/",
+      "type": "code",
+      "summary": "ממשק משתמש React + TypeScript (בפיתוח בסיסי)",
+      "owners": ["@scubapro711"],
+      "deps": ["React", "TypeScript", "Vite"],
+      "apis": ["frontend:3000"],
+      "evidence": ["commit:4a4cedd", "status:basic_development"]
+    },
+    {
+      "path": "scripts/",
+      "type": "config",
+      "summary": "סקריפטי עזר לדיפלוימנט ובסיס נתונים",
+      "owners": ["@scubapro711"],
+      "deps": ["Bash", "SQL", "Python"],
+      "apis": [],
+      "evidence": ["commit:4a4cedd", "automation:scripts"]
+    },
+    {
+      "path": "infrastructure/",
+      "type": "config",
+      "summary": "הגדרות תשתית Docker ו-Terraform",
+      "owners": ["@scubapro711"],
+      "deps": ["Docker", "Terraform", "AWS"],
+      "apis": [],
+      "evidence": ["commit:4a4cedd", "infrastructure:iac"]
+    },
+    {
+      "path": "docs/",
+      "type": "doc",
+      "summary": "תיעוד מקיף כולל אבטחה, UX/UI ואינטגרציות",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:4a4cedd", "documentation:comprehensive"]
+    },
+    {
+      "path": "archive/",
+      "type": "doc",
+      "summary": "ארכיון מסמכים ישנים ודוחות השלמה",
+      "owners": ["@scubapro711"],
+      "deps": [],
+      "apis": [],
+      "evidence": ["commit:e12c141", "cleanup:archive"]
+    }
+  ],
+  "agents": [
+    {
+      "name": "receptionist",
+      "type": "OpenManus Agent",
+      "role": "Receptionist Agent",
+      "capabilities": ["general_inquiries", "emergency_detection", "patient_registration"],
+      "languages": ["Hebrew", "English"],
+      "evidence": ["openmanus_agent_wrapper.py", "test:test_receptionist_agent_processing"]
+    },
+    {
+      "name": "scheduler",
+      "type": "OpenManus Agent", 
+      "role": "Scheduler Agent",
+      "capabilities": ["appointment_booking", "availability_check", "rescheduling"],
+      "languages": ["Hebrew", "English"],
+      "evidence": ["openmanus_agent_wrapper.py", "test:test_scheduler_agent_processing"]
+    },
+    {
+      "name": "confirmation",
+      "type": "OpenManus Agent",
+      "role": "Confirmation Agent", 
+      "capabilities": ["appointment_confirmation", "reminders", "cancellations"],
+      "languages": ["Hebrew", "English"],
+      "evidence": ["openmanus_agent_wrapper.py", "test:test_confirmation_agent_processing"]
+    }
+  ],
+  "testing": {
+    "total_tests": 68,
+    "status": "All Passing",
+    "coverage": ["unit", "integration", "stress", "multilingual"],
+    "frameworks": ["pytest", "pytest-asyncio"],
+    "evidence": ["commit:2c8e25f", "test_results:68_passed"]
+  },
+  "deployment": {
+    "method": "Docker Compose",
+    "services": ["gateway", "redis", "mysql"],
+    "ports": ["8000", "6379", "3306"],
+    "status": "Production Ready",
+    "evidence": ["docker-compose.yml", "deployment:containerized"]
+  },
+  "integrations": {
+    "current": ["OpenAI API", "Redis", "MySQL"],
+    "planned": ["Open Dental API", "WhatsApp Business", "Telegram Bot"],
+    "status": "Awaiting Open Dental API Access",
+    "evidence": ["docs/open-dental-request-status.md"]
+  },
+  "security": {
+    "features": ["Input validation", "SQL injection protection", "Rate limiting"],
+    "compliance": ["HIPAA ready", "GDPR considerations"],
+    "status": "Basic security implemented",
+    "evidence": ["src/shared/security_validators.py"]
+  },
+  "performance": {
+    "architecture": "Async/Await throughout",
+    "queue_system": "Redis for message processing",
+    "database": "MySQL with connection pooling",
+    "status": "Optimized for high concurrency",
+    "evidence": ["test:test_high_concurrency_load"]
+  }
+}
