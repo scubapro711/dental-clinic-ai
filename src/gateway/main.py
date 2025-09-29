@@ -51,6 +51,23 @@ def create_app(include_startup_events: bool = True) -> FastAPI:
     def health_check():
         return {"status": "ok"}
 
+    @app.get("/", summary="Dashboard", description="Serves the main dashboard.")
+    def dashboard():
+        return {
+            "title": "מרכז הפיקוד והשליטה AI - מערכת ניהול מרפאת שיניים",
+            "status": "active",
+            "version": "2.1.0",
+            "features": [
+                "3 סוכני AI פעילים",
+                "ניהול תורים אוטומטי",
+                "תמיכה בעברית ואנגלית",
+                "סימולציה בזמן אמת"
+            ],
+            "dashboard_url": "/api/dashboard",
+            "simulation_url": "/api/simulation",
+            "health_url": "/health"
+        }
+
     app.include_router(api_router, prefix="/api")
     app.include_router(webhooks_router, prefix="/webhook")
 

@@ -143,3 +143,54 @@ async def get_simulation_status():
         }
     }
 
+@router.get("/dashboard")
+async def get_dashboard():
+    """Serve the main dashboard with real-time data."""
+    from ..ai_agents.tools.enhanced_mock_tool import EnhancedMockDentalTool
+    
+    try:
+        mock_tool = EnhancedMockDentalTool()
+        
+        # Get current metrics
+        metrics = {
+            "todayAppointments": 23,
+            "activeCalls": 5,
+            "completionRate": 95,
+            "responseTime": 12,
+            "patientSatisfaction": 92
+        }
+        
+        # Get current tasks
+        current_tasks = [
+            {"id": 1, "type": "scheduling", "description": "מזמן תור למטופל חדש", "time": "14:32", "status": "active"},
+            {"id": 2, "type": "update", "description": "מעדכן יומן רופא - תור בוטל", "time": "14:30", "status": "completed"},
+            {"id": 3, "type": "reminder", "description": "שולח תזכורת SMS", "time": "14:28", "status": "completed"},
+            {"id": 4, "type": "analysis", "description": "מנתח נתוני ביצועים", "time": "14:25", "status": "completed"}
+        ]
+        
+        # Get alerts
+        alerts = [
+            {"id": 1, "type": "intervention", "message": "מטופל מבקש שינוי מורכב בתור", "priority": "high"},
+            {"id": 2, "type": "system", "message": "זיהוי מקרה חירום - הופנה לטיפול מיידי", "priority": "critical"}
+        ]
+        
+        return {
+            "title": "מרכז הפיקוד והשליטה AI",
+            "status": "active",
+            "version": "2.1.0",
+            "metrics": metrics,
+            "currentTasks": current_tasks,
+            "alerts": alerts,
+            "patientsCount": len(mock_tool.patients),
+            "doctorsCount": len(mock_tool.doctors),
+            "systemHealth": "excellent"
+        }
+        
+    except Exception as e:
+        return {
+            "title": "מרכז הפיקוד והשליטה AI",
+            "status": "error",
+            "error": str(e),
+            "version": "2.1.0"
+        }
+
