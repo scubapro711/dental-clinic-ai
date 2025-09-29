@@ -12,7 +12,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 import AgenticLandingPage from './components/landing/AgenticLandingPage';
-import MissionControlDashboard from './components/dashboard/MissionControlDashboard';
+import VisionCompliantDashboard from './components/dashboard/VisionCompliantDashboard';
 import ActivityDetailDemo from './components/activity/ActivityDetailDemo';
 import './App.css';
 
@@ -103,7 +103,7 @@ function App() {
 
       {currentView === 'dashboard' && (
         <div className="relative">
-          <MissionControlDashboard />
+          <VisionCompliantDashboard />
           
           {/* Floating Back to Landing */}
           <div className="fixed bottom-8 left-8 z-50">
