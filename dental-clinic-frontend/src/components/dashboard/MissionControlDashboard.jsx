@@ -296,15 +296,15 @@ const MissionControlDashboard = () => {
               </Button>
               
               <Button
-                variant={activeTab === 'analytics' ? 'secondary' : 'ghost'}
+                variant={activeTab === 'chat' ? 'secondary' : 'ghost'}
                 className={cn(
                   "w-full justify-start h-10 text-right",
-                  activeTab === 'analytics' && "bg-[#e6f7ff] text-[#001529] border-r-4 border-r-blue-500"
+                  activeTab === 'chat' && "bg-[#e6f7ff] text-[#001529] border-r-4 border-r-blue-500"
                 )}
-                onClick={() => setActiveTab('analytics')}
+                onClick={() => setActiveTab('chat')}
               >
-                <BarChart3 className="w-5 h-5 ml-3" />
-                ניתוח ביצועים
+                <MessageSquare className="w-5 h-5 ml-3" />
+                צ'אט עם דנה
               </Button>
               
               <Button
@@ -632,84 +632,92 @@ const MissionControlDashboard = () => {
             </div>
           )}
 
-          {/* Performance Analytics Tab */}
-          {activeTab === 'analytics' && (
+          {/* Dana Chat Tab */}
+          {activeTab === 'chat' && (
             <div className="p-6 space-y-6">
-              {/* Filters */}
+              {/* Dana Chat Header */}
               <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
-                      <select className="px-3 py-2 border rounded-lg">
-                        <option>7 ימים אחרונים</option>
-                        <option>30 ימים אחרונים</option>
-                        <option>3 חודשים אחרונים</option>
-                      </select>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    צ'אט עם דנה - הסוכנת הראשית
+                  </CardTitle>
+                  <p className="text-sm text-gray-600">
+                    דנה היא הסוכנת הראשית שלכם לניהול המרפאה. היא יכולה לעזור עם תיאום תורים, מידע על מטופלים, וניהול כללי של המרפאה.
+                  </p>
+                </CardHeader>
+              </Card>
+
+              {/* Chat Interface */}
+              <Card className="h-96">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>שיחה עם דנה</CardTitle>
+                    <Badge className="bg-green-100 text-green-800">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></div>
+                      פעילה
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent className="flex flex-col h-full">
+                  {/* Chat Messages */}
+                  <div className="flex-1 overflow-y-auto space-y-4 mb-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                        ד
+                      </div>
+                      <div className="bg-white p-3 rounded-lg shadow-sm max-w-xs">
+                        <p className="text-sm">שלום! אני דנה, הסוכנת הראשית של המרפאה. איך אני יכולה לעזור לך היום?</p>
+                        <span className="text-xs text-gray-500 mt-1 block">עכשיו</span>
+                      </div>
                     </div>
+                  </div>
+                  
+                  {/* Chat Input */}
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="הקלד הודעה לדנה..."
+                      className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
                     <Button className="bg-blue-600 hover:bg-blue-700">
-                      <Download className="w-4 h-4 ml-2" />
-                      ייצא דוח
+                      <MessageCircle className="w-4 h-4" />
                     </Button>
                   </div>
                 </CardContent>
               </Card>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Conversion Funnel */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>משפך המרות</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {performanceData.conversionFunnel.map((stage, index) => (
-                        <div key={index} className="space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium">{stage.stage}</span>
-                            <span className="text-sm text-gray-600">{stage.value} ({stage.percentage}%)</span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-3">
-                            <div 
-                              className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                              style={{ width: `${stage.percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
+              {/* Dana's Capabilities */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>יכולות דנה</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Calendar className="w-4 h-4 text-blue-500" />
+                        <span className="font-medium">ניהול תורים</span>
+                      </div>
+                      <p className="text-sm text-gray-600">קביעת תורים, ביטולים ושינויים</p>
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Channel Performance */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>ביצועים לפי ערוץ</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {performanceData.channelPerformance.map((channel, index) => (
-                        <div key={index} className="p-4 border rounded-lg">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium">{channel.channel}</span>
-                            <Badge variant="outline">{channel.conversations} שיחות</Badge>
-                          </div>
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <span className="text-gray-600">הצלחה: </span>
-                              <span className="font-medium text-green-600">{channel.success}%</span>
-                            </div>
-                            <div>
-                              <span className="text-gray-600">העברה: </span>
-                              <span className="font-medium text-orange-600">{channel.handoff}%</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Users className="w-4 h-4 text-green-500" />
+                        <span className="font-medium">מידע על מטופלים</span>
+                      </div>
+                      <p className="text-sm text-gray-600">היסטוריה רפואית ופרטי קשר</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    <div className="p-4 border rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <DollarSign className="w-4 h-4 text-yellow-500" />
+                        <span className="font-medium">מידע כלכלי</span>
+                      </div>
+                      <p className="text-sm text-gray-600">עלויות טיפולים ותשלומים</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
 

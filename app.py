@@ -818,8 +818,21 @@ TECHNICAL_DASHBOARD_HTML = """
 
 @app.route('/')
 def dashboard():
-    """Serve the main dashboard."""
-    return render_template_string(DASHBOARD_HTML)
+    """Serve the main dashboard with Dana chat integration."""
+    # Serve the built React frontend with Dana chat
+    try:
+        with open('dental-clinic-frontend/dist/index.html', 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        # Fallback to original dashboard if React build not found
+        return render_template_string(DASHBOARD_HTML)
+
+# Serve static assets for React frontend
+@app.route('/assets/<path:filename>')
+def serve_assets(filename):
+    """Serve React frontend assets."""
+    from flask import send_from_directory
+    return send_from_directory('dental-clinic-frontend/dist/assets', filename)
 
 @app.route('/health')
 def health_check():
