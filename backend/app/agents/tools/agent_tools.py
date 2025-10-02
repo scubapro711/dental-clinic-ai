@@ -8,10 +8,10 @@ and other external systems.
 from typing import Optional
 from datetime import datetime, timedelta
 
-from app.integrations.mock_odoo import MockOdooClient
+from app.integrations.mock_odoo_realistic import realistic_mock_odoo
 
-# Initialize mock Odoo client for MVP
-mock_odoo = MockOdooClient()
+# Use realistic mock Odoo client with 1500+ patients
+mock_odoo = realistic_mock_odoo
 
 
 def search_patient_tool(name: Optional[str] = None, phone: Optional[str] = None) -> str:
