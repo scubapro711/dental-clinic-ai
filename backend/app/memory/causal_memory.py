@@ -85,6 +85,10 @@ class CausalMemoryGraph:
         
         interaction_id = str(uuid4())
         
+        # Convert metadata to JSON string (Neo4j doesn't support nested dicts)
+        import json
+        metadata_json = json.dumps(metadata or {})
+        
         with self.driver.session() as session:
             session.run("""
                 CREATE (i:Interaction {
@@ -97,7 +101,7 @@ class CausalMemoryGraph:
                     outcome: $outcome,
                     embedding: $embedding,
                     timestamp: datetime($timestamp),
-                    metadata: $metadata
+                    metadata_json: $metadata_json
                 })
             """, {
                 "interaction_id": interaction_id,
@@ -109,7 +113,7 @@ class CausalMemoryGraph:
                 "outcome": outcome,
                 "embedding": embedding,
                 "timestamp": datetime.now().isoformat(),
-                "metadata": metadata or {}
+                "metadata_json": metadata_json
             })
         
         # Find and link similar interactions

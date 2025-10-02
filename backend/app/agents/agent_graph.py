@@ -23,10 +23,11 @@ from langgraph.graph import StateGraph, END
 from langchain_core.messages import HumanMessage, AIMessage
 
 from app.agents.graph_state import AgentState
-from app.agents.dana import DanaAgent
-from app.agents.michal import MichalAgent
-from app.agents.yosef import YosefAgent
-from app.agents.sarah import SarahAgent
+from app.agents.emma import EmmaAgent
+from app.agents.lisa import LisaAgent
+from app.agents.robert import RobertAgent
+from app.agents.jessica import JessicaAgent
+from app.memory.causal_memory import causal_memory
 
 
 class AgentGraph:
@@ -34,10 +35,10 @@ class AgentGraph:
     
     def __init__(self):
         """Initialize agent graph with all 4 agents."""
-        self.dana = DanaAgent()
-        self.michal = MichalAgent()
-        self.yosef = YosefAgent()
-        self.sarah = SarahAgent()
+        self.emma = EmmaAgent()
+        self.lisa = LisaAgent()
+        self.robert = RobertAgent()
+        self.jessica = JessicaAgent()
         
         # Build the graph
         self.graph = self._build_graph()
@@ -53,37 +54,37 @@ class AgentGraph:
         workflow = StateGraph(AgentState)
         
         # Add nodes
-        workflow.add_node("dana", self._dana_node)
-        workflow.add_node("michal", self._michal_node)
-        workflow.add_node("yosef", self._yosef_node)
-        workflow.add_node("sarah", self._sarah_node)
+        workflow.add_node("emma", self._emma_node)
+        workflow.add_node("lisa", self._lisa_node)
+        workflow.add_node("robert", self._robert_node)
+        workflow.add_node("jessica", self._jessica_node)
         
         # Set entry point
-        workflow.set_entry_point("dana")
+        workflow.set_entry_point("emma")
         
-        # Add conditional edges from Dana
+        # Add conditional edges from Emma
         workflow.add_conditional_edges(
-            "dana",
-            self._route_from_dana,
+            "emma",
+            self._route_from_emma,
             {
-                "michal": "michal",
-                "yosef": "yosef",
-                "sarah": "sarah",
+                "lisa": "lisa",
+                "robert": "robert",
+                "jessica": "jessica",
                 "end": END,
             }
         )
         
         # All other agents go to END
-        workflow.add_edge("michal", END)
-        workflow.add_edge("yosef", END)
-        workflow.add_edge("sarah", END)
+        workflow.add_edge("lisa", END)
+        workflow.add_edge("robert", END)
+        workflow.add_edge("jessica", END)
         
         # Compile graph
         return workflow.compile()
     
-    def _dana_node(self, state: AgentState) -> AgentState:
+    def _emma_node(self, state: AgentState) -> AgentState:
         """
-        Dana (Coordinator) node.
+        Emma (Coordinator) node.
         
         Args:
             state: Current agent state
@@ -91,11 +92,11 @@ class AgentGraph:
         Returns:
             Updated state
         """
-        return self.dana.process(state)
+        return self.emma.process(state)
     
-    def _michal_node(self, state: AgentState) -> AgentState:
+    def _lisa_node(self, state: AgentState) -> AgentState:
         """
-        Michal (Medical) node.
+        Lisa (Medical) node.
         
         Args:
             state: Current agent state
@@ -103,11 +104,11 @@ class AgentGraph:
         Returns:
             Updated state
         """
-        return self.michal.process(state)
+        return self.lisa.process(state)
     
-    def _yosef_node(self, state: AgentState) -> AgentState:
+    def _robert_node(self, state: AgentState) -> AgentState:
         """
-        Yosef (Billing) node.
+        Robert (Billing) node.
         
         Args:
             state: Current agent state
@@ -115,11 +116,11 @@ class AgentGraph:
         Returns:
             Updated state
         """
-        return self.yosef.process(state)
+        return self.robert.process(state)
     
-    def _sarah_node(self, state: AgentState) -> AgentState:
+    def _jessica_node(self, state: AgentState) -> AgentState:
         """
-        Sarah (Scheduling) node.
+        Jessica (Scheduling) node.
         
         Args:
             state: Current agent state
@@ -127,13 +128,13 @@ class AgentGraph:
         Returns:
             Updated state
         """
-        return self.sarah.process(state)
+        return self.jessica.process(state)
     
-    def _route_from_dana(
+    def _route_from_emma(
         self, state: AgentState
-    ) -> Literal["michal", "yosef", "sarah", "end"]:
+    ) -> Literal["lisa", "robert", "jessica", "end"]:
         """
-        Route from Dana to appropriate agent or end.
+        Route from Emma to appropriate agent or end.
         
         Args:
             state: Current agent state
@@ -143,14 +144,14 @@ class AgentGraph:
         """
         next_agent = state.get("next_agent")
         
-        if next_agent == "michal":
-            return "michal"
-        elif next_agent == "yosef":
-            return "yosef"
-        elif next_agent == "sarah":
-            return "sarah"
+        if next_agent == "lisa":
+            return "lisa"
+        elif next_agent == "robert":
+            return "robert"
+        elif next_agent == "jessica":
+            return "jessica"
         else:
-            # Dana handles it herself
+            # Emma handles it herself
             return "end"
     
     async def process_message(
@@ -174,13 +175,34 @@ class AgentGraph:
         Returns:
             Response dict with agent reply
         """
+        # 🧠 STEP 1: Retrieve similar past interactions from causal memory
+        similar_interactions = causal_memory.get_similar_interactions(
+            user_message=message,
+            limit=3
+        )
+        
+        # Build context from similar interactions
+        context_from_memory = ""
+        if similar_interactions:
+            context_from_memory = "\n\n📚 Similar past interactions:\n"
+            for idx, interaction in enumerate(similar_interactions, 1):
+                context_from_memory += f"\n{idx}. User: {interaction['user_message']}\n"
+                context_from_memory += f"   Agent ({interaction['agent_name']}): {interaction['agent_response']}\n"
+                context_from_memory += f"   Outcome: {interaction['outcome']} (Similarity: {interaction['similarity']:.2f})\n"
+        
         # Build initial state
         messages = message_history or []
-        messages.append(HumanMessage(content=message))
+        
+        # Add context from causal memory to the message
+        enriched_message = message
+        if context_from_memory:
+            enriched_message = f"{message}\n\n{context_from_memory}"
+        
+        messages.append(HumanMessage(content=enriched_message))
         
         initial_state: AgentState = {
             "messages": messages,
-            "current_agent": "dana",
+            "current_agent": "emma",
             "user_id": user_id,
             "organization_id": organization_id,
             "conversation_id": conversation_id,
@@ -200,11 +222,44 @@ class AgentGraph:
         
         # Extract response
         last_message = final_state["messages"][-1]
+        agent_response = last_message.content
+        current_agent = final_state.get("current_agent", "dana")
+        
+        # 🧠 STEP 2: Store interaction in causal memory
+        outcome = "success"
+        if final_state.get("requires_human", False):
+            outcome = "escalated"
+        elif final_state.get("errors"):
+            outcome = "failure"
+        
+        try:
+            # Build metadata without None values (Neo4j doesn't support them)
+            metadata = {
+                "user_id": user_id,
+            }
+            if final_state.get("intent"):
+                metadata["intent"] = final_state.get("intent")
+            if final_state.get("next_agent"):
+                metadata["next_agent"] = final_state.get("next_agent")
+            
+            causal_memory.store_interaction(
+                user_message=message,
+                agent_response=agent_response,
+                agent_name=current_agent,
+                conversation_id=conversation_id,
+                organization_id=organization_id,
+                outcome=outcome,
+                metadata=metadata
+            )
+        except Exception as e:
+            # Don't fail the request if causal memory fails
+            print(f"⚠️ Failed to store interaction in causal memory: {e}")
         
         return {
-            "response": last_message.content,
-            "agent": final_state.get("current_agent", "dana"),
+            "response": agent_response,
+            "agent": current_agent,
             "next_agent": final_state.get("next_agent"),
             "requires_human": final_state.get("requires_human", False),
             "state": final_state,
+            "similar_interactions": len(similar_interactions) if similar_interactions else 0,
         }

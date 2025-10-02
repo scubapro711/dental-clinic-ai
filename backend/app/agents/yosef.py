@@ -21,6 +21,10 @@ from app.agents.error_handler import (
     rate_limiter,
     RateLimitError,
 )
+from app.agents.tools.agent_tools import (
+    get_patient_invoices_tool,
+    get_invoice_details_tool,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -110,22 +114,39 @@ IMPORTANT:
         
         # Check if user is asking about invoices
         last_message = messages[-1].content.lower() if messages else ""
-        tool_result = None
+        tool_results = []
         
-        if any(word in last_message for word in ["invoice", "bill", "payment", "owe", "balance"]):
-            # Try to extract patient info from conversation context
-            # For MVP, we'll use a simple approach
-            # In production, this would use NER or structured extraction
-            logger.info(f"Yosef checking for invoice information")
-            # Note: In a real implementation, we would extract patient name from context
-            # For now, we'll let the LLM handle it conversationally
+        # Try to extract patient info from state or conversation
+        patient_name = None
+        patient_phone = None
+        
+        # Check if patient_id is in state (from previous interactions)
+        if state.get("patient_id"):
+            logger.info(f"Yosef using patient_id from state: {state['patient_id']}")
+        
+        # For MVP, we'll use a simple keyword-based approach
+        # In production, this would use NER or LLM-based extraction
+        if any(word in last_message for word in ["invoice", "bill", "payment", "owe", "balance", "חשבונית"]):
+            logger.info(f"Yosef detected invoice inquiry")
+            
+            # Try to extract patient name from message
+            # Simple heuristic: look for "my invoice" or "invoice for [name]"
+            if "my invoice" in last_message or "my bill" in last_message:
+                # Use a demo patient for testing
+                patient_name = "John Doe"
+                logger.info(f"Yosef using demo patient: {patient_name}")
+                
+                # Get patient invoices
+                invoice_result = get_patient_invoices_tool(patient_name)
+                tool_results.append(f"📄 Invoice Information:\n{invoice_result}")
         
         # Build conversation history
         conversation = [SystemMessage(content=self.SYSTEM_PROMPT)]
         
         # Add tool results to context if available
-        if tool_result:
-            conversation.append(SystemMessage(content=f"Invoice information:\n{tool_result}"))
+        if tool_results:
+            for result in tool_results:
+                conversation.append(SystemMessage(content=result))
         
         conversation.extend(messages)
         
