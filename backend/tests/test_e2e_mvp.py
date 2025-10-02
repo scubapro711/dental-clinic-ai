@@ -8,7 +8,7 @@ import pytest
 import asyncio
 from uuid import uuid4
 
-from app.agents.agent_graph import AgentGraph
+from app.agents.agent_graph import AgentGraphV2
 
 
 class TestMVPIntegration:
@@ -20,7 +20,7 @@ class TestMVPIntegration:
         Scenario 1: User asks about clinic services
         Expected: Dana handles it directly
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -41,7 +41,7 @@ class TestMVPIntegration:
         Scenario 2: User asks medical question
         Expected: Dana routes to Michal
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -62,7 +62,7 @@ class TestMVPIntegration:
         Scenario 3: User asks about billing
         Expected: Dana routes to Yosef
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -83,7 +83,7 @@ class TestMVPIntegration:
         Scenario 4: User wants to book appointment
         Expected: System provides helpful response about appointments
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -109,7 +109,7 @@ class TestMVPIntegration:
         Scenario 5: User asks about their invoice
         Expected: Yosef uses tools to retrieve invoice data
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -130,7 +130,7 @@ class TestMVPIntegration:
         Scenario 6: User checks availability
         Expected: Sarah uses tools to get real availability
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         response = await graph.process_message(
             user_id=str(uuid4()),
@@ -153,7 +153,7 @@ class TestMVPIntegration:
         Scenario 7: Multi-turn conversation with context
         Expected: System maintains context across turns
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         user_id = str(uuid4())
         org_id = str(uuid4())
@@ -191,7 +191,7 @@ class TestMVPIntegration:
         Scenario 8: Causal memory retrieves similar interactions
         Expected: Similar past interactions are used for context
         """
-        graph = AgentGraph()
+        graph = AgentGraphV2()
         
         user_id = str(uuid4())
         org_id = str(uuid4())

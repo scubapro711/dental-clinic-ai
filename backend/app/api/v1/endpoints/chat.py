@@ -10,7 +10,7 @@ from app.core.database import get_db
 from app.api.dependencies import get_current_user, get_current_organization_id
 from app.models.user import User
 from app.models.conversation import Conversation, ConversationStatus, ConversationChannel
-from app.models.message import Message
+from app.models.message import Message, MessageRole
 from app.schemas.conversation import (
     ChatRequest,
     ChatResponse,
@@ -19,12 +19,12 @@ from app.schemas.conversation import (
     ConversationWithMessages,
     MessageResponse,
 )
-from app.agents.orchestrator import AgentOrchestrator
+from app.agents.agent_graph import AgentGraphV2
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
-# Initialize orchestrator
-orchestrator = AgentOrchestrator()
+# Initialize Alex agent graph
+agent_graph = AgentGraphV2()
 
 
 @router.post("/", response_model=ChatResponse)
@@ -34,7 +34,7 @@ async def chat(
     db: Session = Depends(get_db),
 ):
     """
-    Send a message to AI agents and get a response.
+    Send a message to Alex AI agent and get a response.
     
     If conversation_id is not provided, a new conversation will be created.
     """
@@ -63,34 +63,50 @@ async def chat(
             organization_id=current_user.organization_id,
             channel=ConversationChannel.WEB_CHAT,
             status=ConversationStatus.ACTIVE,
-            primary_agent="dana",
+            primary_agent="alex",
             langgraph_thread_id=str(uuid4()),
         )
         db.add(conversation)
         db.commit()
         db.refresh(conversation)
     
-    # Process message with orchestrator
+    # Save user message to database
+    user_message = Message(
+        conversation_id=conversation.id,
+        organization_id=current_user.organization_id,
+        role=MessageRole.USER,
+        content=request.message,
+    )
+    db.add(user_message)
+    db.commit()
+    
+    # Process message with Alex agent graph
     try:
-        result = await orchestrator.process_message(
-            db=db,
-            user_id=current_user.id,
-            organization_id=current_user.organization_id,
-            conversation_id=conversation.id,
-            message_content=request.message,
+        result = await agent_graph.process_message(
+            user_id=str(current_user.id),
+            organization_id=str(current_user.organization_id),
+            conversation_id=str(conversation.id),
+            message=request.message,
         )
         
-        # Get the latest AI message ID
-        latest_message = db.query(Message).filter(
-            Message.conversation_id == conversation.id
-        ).order_by(Message.created_at.desc()).first()
+        # Save AI response to database
+        ai_message = Message(
+            conversation_id=conversation.id,
+            organization_id=current_user.organization_id,
+            role=MessageRole.ASSISTANT,
+            content=result["response"],
+            agent_name="alex",
+        )
+        db.add(ai_message)
+        db.commit()
+        db.refresh(ai_message)
         
         return ChatResponse(
             conversation_id=conversation.id,
-            message_id=latest_message.id,
+            message_id=ai_message.id,
             response=result["response"],
-            agent=result["agent"],
-            requires_human=result.get("requires_human", False),
+            agent="alex",
+            requires_human=result.get("escalation_level") in ["EMERGENCY", "DOCTOR_REQUIRED"],
         )
     except Exception as e:
         raise HTTPException(

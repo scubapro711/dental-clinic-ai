@@ -6,14 +6,14 @@ import pytest
 import asyncio
 from uuid import uuid4
 
-from app.agents.agent_graph import AgentGraph
+from app.agents.agent_graph import AgentGraphV2
 from app.memory.causal_memory import causal_memory
 
 
 @pytest.mark.asyncio
 async def test_causal_memory_stores_interaction():
     """Test that interactions are stored in causal memory."""
-    graph = AgentGraph()
+    graph = AgentGraphV2()
     
     user_id = str(uuid4())
     org_id = str(uuid4())
@@ -54,7 +54,7 @@ async def test_causal_memory_stores_interaction():
 @pytest.mark.asyncio
 async def test_causal_memory_retrieves_similar():
     """Test that similar interactions are retrieved."""
-    graph = AgentGraph()
+    graph = AgentGraphV2()
     
     user_id = str(uuid4())
     org_id = str(uuid4())
@@ -96,7 +96,7 @@ async def test_causal_memory_retrieves_similar():
 @pytest.mark.asyncio
 async def test_pattern_extraction():
     """Test that patterns are extracted and stored."""
-    graph = AgentGraph()
+    graph = AgentGraphV2()
     
     user_id = str(uuid4())
     org_id = str(uuid4())

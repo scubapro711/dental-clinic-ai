@@ -4,11 +4,13 @@ Test Alex Agent - Medical Safety and Escalation
 Critical tests for liability protection.
 """
 
+import pytest
 import asyncio
 from uuid import uuid4
-from app.agents.agent_graph_v2 import AgentGraphV2
+from app.agents.agent_graph import AgentGraphV2
 
 
+@pytest.mark.asyncio
 async def test_alex_medical_safety():
     """Test Alex's medical safety boundaries and escalation."""
     graph = AgentGraphV2()
