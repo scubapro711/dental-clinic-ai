@@ -1,115 +1,237 @@
 version: '3.8'
 
 services:
-  # MySQL Database Service
-  mysql:
-    image: mysql:8.0
-    container_name: dental-clinic-mysql
+  # PostgreSQL 15 - Main database
+  postgres:
+    image: postgres:15-alpine
+    container_name: dentalai-postgres
     environment:
-      MYSQL_ROOT_PASSWORD: dental_clinic_secure_2025
-      MYSQL_DATABASE: dental_clinic_demo
-      MYSQL_USER: dental_user
-      MYSQL_PASSWORD: dental_pass_2025
+      POSTGRES_DB: dentalai
+      POSTGRES_USER: dentalai
+      POSTGRES_PASSWORD: dentalai_dev_password
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=en_US.UTF-8 --lc-ctype=en_US.UTF-8"
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
-    networks:
-      - dental_network
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 20s
-      retries: 10
+      test: ["CMD-SHELL", "pg_isready -U dentalai"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dentalai-network
 
-  # Redis Service for Message Queue
+  # Redis 7.0 - Cache and session store
   redis:
-    image: redis:7-alpine
-    container_name: dental-clinic-redis
+    image: redis:7.0-alpine
+    container_name: dentalai-redis
+    command: redis-server --appendonly yes --requirepass dentalai_redis_password
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
-    networks:
-      - dental_network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dentalai-network
+
+  # Neo4j - Causal Memory Graph Database
+  neo4j:
+    image: neo4j:5.15-community
+    container_name: dentalai-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/dentalai_neo4j_password
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_memory_heap_max__size: 2G
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dentalai-network
+
+  # Odoo 17.0 - ERP System
+  odoo:
+    image: odoo:17.0
+    container_name: dentalai-odoo
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - HOST=postgres
+      - PORT=5432
+      - USER=dentalai
+      - PASSWORD=dentalai_dev_password
+      - POSTGRES_DB=dentalai_odoo
+    ports:
+      - "8069:8069"
+      - "8072:8072"  # Long polling
+    volumes:
+      - odoo_data:/var/lib/odoo
+      - ./odoo-addons:/mnt/extra-addons
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8069/web/health || exit 1"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 60s
+    networks:
+      - dentalai-network
 
-  # Gateway Service (FastAPI)
-  gateway:
+  # Backend - FastAPI application
+  backend:
     build:
-      context: .
-      dockerfile: infrastructure/docker/Dockerfile.gateway
-    container_name: dental-clinic-gateway
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: dentalai-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
     environment:
+      # Database
+      - DATABASE_URL=postgresql://dentalai:dentalai_dev_password@postgres:5432/dentalai
+      
+      # Redis
+      - REDIS_URL=redis://:dentalai_redis_password@redis:6379/0
+      
+      # Neo4j
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=dentalai_neo4j_password
+      
+      # Odoo
+      - ODOO_URL=http://odoo:8069
+      - ODOO_DB=dentalai_odoo
+      - ODOO_USERNAME=admin
+      - ODOO_PASSWORD=admin
+      
+      # LLM
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=dental_user
-      - MYSQL_PASSWORD=dental_pass_2025
-      - MYSQL_DATABASE=dental_clinic_demo
-      - REDIS_URL=redis://redis:6379/0
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8000
-      - LOG_LEVEL=INFO
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      
+      # App settings
+      - APP_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+      
+      # Security
+      - SECRET_KEY=dev_secret_key_change_in_production
+      - JWT_SECRET=dev_jwt_secret_change_in_production
+      - JWT_ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=30
     ports:
       - "8000:8000"
-    depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dental_network
     volumes:
-      - ./src:/app/src
-      - ./logs:/app/logs
+      - ./backend:/app
+      - /app/__pycache__  # Exclude pycache from volume
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - dentalai-network
 
-  # AI Agents Service
-  ai-agents:
+  # Frontend - React application
+  frontend:
     build:
-      context: .
-      dockerfile: infrastructure/docker/Dockerfile.agents
-    container_name: dental-clinic-ai-agents
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=dental_user
-      - MYSQL_PASSWORD=dental_pass_2025
-      - MYSQL_DATABASE=dental_clinic_demo
-      - REDIS_URL=redis://redis:6379/0
-      - APP_HOST=0.0.0.0
-      - APP_PORT=8001
-      - LOG_LEVEL=INFO
-    ports:
-      - "8001:8001"
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: dentalai-frontend
     depends_on:
-      mysql:
+      backend:
         condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - dental_network
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_WS_URL=ws://localhost:8000
+      - VITE_APP_ENV=development
+    ports:
+      - "5173:5173"
     volumes:
-      - ./src:/app/src
-      - ./logs:/app/logs
+      - ./frontend:/app
+      - /app/node_modules  # Exclude node_modules from volume
+    command: npm run dev -- --host 0.0.0.0
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: ["CMD-SHELL", "curl -f http://localhost:5173 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - dentalai-network
+
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: dentalai-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - dentalai-network
+
+  # Grafana - Metrics visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: dentalai-grafana
+    depends_on:
+      - prometheus
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - dentalai-network
 
 volumes:
-  mysql_data:
+  postgres_data:
+    driver: local
   redis_data:
+    driver: local
+  neo4j_data:
+    driver: local
+  neo4j_logs:
+    driver: local
+  odoo_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
 
 networks:
-  dental_network:
+  dentalai-network:
     driver: bridge

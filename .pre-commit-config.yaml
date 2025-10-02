@@ -1,65 +1,83 @@
-# Pre-commit hooks for AI Dental Clinic System
-# הגדרות בדיקת איכות קוד למערכת ניהול מרפאת שיניים AI
+# Pre-commit hooks for DentalAI SaaS Platform
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
 
 repos:
-  # Python code formatting
-  - repo: https://github.com/psf/black
-    rev: 23.11.0
-    hooks:
-      - id: black
-        language_version: python3.11
-        args: [--line-length=100]
-
-  # Import sorting
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        args: [--profile=black, --line-length=100]
-
-  # Linting
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
-    hooks:
-      - id: flake8
-        args: [--max-line-length=100, --extend-ignore=E203,W503]
-
-  # Type checking
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.1
-    hooks:
-      - id: mypy
-        additional_dependencies: [types-redis, types-requests]
-        args: [--ignore-missing-imports]
-
-  # Security scanning
-  - repo: https://github.com/PyCQA/bandit
-    rev: 1.7.5
-    hooks:
-      - id: bandit
-        args: [-r, src/, -f, json, -o, bandit-report.json]
-        pass_filenames: false
-
-  # General file checks
+  # General file checks (FIRST - most important)
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+        args: ['--unsafe']  # Allow custom YAML tags
       - id: check-json
+      - id: check-toml
       - id: check-merge-conflict
       - id: check-added-large-files
-        args: [--maxkb=1000]
+        args: ['--maxkb=500']  # Stricter than before (500KB vs 1MB)
       - id: check-case-conflict
+      - id: check-symlinks
       - id: check-docstring-first
+      - id: check-ast  # Check Python syntax
+      - id: debug-statements  # Check for debugger imports
+      - id: requirements-txt-fixer  # Sort requirements.txt
+      - id: no-commit-to-branch  # Prevent direct commits to main
+        args: ['--branch', 'main', '--branch', 'master']
+
+  # Detect secrets (API keys, passwords, tokens) - CRITICAL
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: package-lock.json
+
+  # Python code formatting with Black
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: ['--line-length=88']  # Changed from 100 to 88 (Black default)
+
+  # Import sorting with isort
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ['--profile', 'black', '--line-length=88']
+
+  # Linting with flake8
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        args: ['--max-line-length=88', '--extend-ignore=E203,W503']
+        additional_dependencies: [flake8-docstrings]
+
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-redis, types-requests, types-all]
+        args: ['--ignore-missing-imports', '--no-strict-optional']
+
+  # Security scanning with Bandit
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ['-r', 'backend/', '-f', 'json', '-o', 'bandit-report.json']
+        pass_filenames: false
 
   # Docker file linting
   - repo: https://github.com/hadolint/hadolint
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
-        args: [--ignore, DL3008, --ignore, DL3009]
+        args: ['--ignore', 'DL3008', '--ignore', 'DL3009']
 
   # YAML formatting
   - repo: https://github.com/pre-commit/mirrors-prettier
@@ -70,10 +88,16 @@ repos:
 
   # Markdown linting
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.37.0
+    rev: v0.38.0
     hooks:
       - id: markdownlint
-        args: [--fix]
+        args: ['--fix']
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
 
 # Configuration
 default_language_version:
