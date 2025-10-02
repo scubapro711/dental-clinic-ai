@@ -1,0 +1,50 @@
+Run started:2025-10-02 23:28:40.377371
+
+Test results:
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: app/core/config.py:26:34
+25	    LOG_LEVEL: str = Field(default="INFO")
+26	    APP_HOST: str = Field(default="0.0.0.0")
+27	    APP_PORT: int = Field(default=8000)
+
+--------------------------------------------------
+>> Issue: [B411:blacklist] Using xmlrpc.client to parse untrusted XML data is known to be vulnerable to XML attacks. Use defusedxml.xmlrpc.monkey_patch() function to monkey-patch xmlrpclib and mitigate XML vulnerabilities.
+   Severity: High   Confidence: High
+   CWE: CWE-20 (https://cwe.mitre.org/data/definitions/20.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/blacklists/blacklist_imports.html#b411-import-xmlrpclib
+   Location: app/integrations/odoo_client.py:7:0
+6	
+7	import xmlrpc.client
+8	from typing import List, Dict, Any, Optional
+
+--------------------------------------------------
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: app/main.py:78:26
+77	
+78	    uvicorn.run(app, host="0.0.0.0", port=8000)
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 3723
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 1
+		Medium: 2
+		High: 1
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 2
+		High: 2
+Files skipped (0):
