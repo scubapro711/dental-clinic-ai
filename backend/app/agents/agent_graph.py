@@ -124,32 +124,10 @@ class AgentGraphV2:
         last_message = final_state["messages"][-1]
         response_text = last_message.content
         
-        # Extract escalation level from response before cleaning
+        # Get escalation level from state (set by Alex agent)
         escalation_level = final_state.get("escalation_level")
         
-        # Check for explicit tags first
-        if "[ESCALATE: EMERGENCY]" in response_text:
-            escalation_level = "EMERGENCY"
-        elif "[ESCALATE: DOCTOR_REQUIRED]" in response_text:
-            escalation_level = "DOCTOR_REQUIRED"
-        elif "[ESCALATE: ROUTINE]" in response_text:
-            escalation_level = "ROUTINE"
-        # If no tag, detect from content
-        elif not escalation_level:
-            response_lower = response_text.lower()
-            # Emergency indicators
-            if ("🚨" in response_text or 
-                "emergency" in response_lower or 
-                "911" in response_text or 
-                "er" in response_text or
-                "urgency: emergency" in response_lower):
-                escalation_level = "EMERGENCY"
-            # Doctor required indicators
-            elif ("option 1" in response_lower and "option 2" in response_lower) or \
-                 ("dr. smith" in response_lower and ("can't" in response_lower or "cannot" in response_lower)):
-                escalation_level = "DOCTOR_REQUIRED"
-        
-        # Clean up escalation tags from response
+        # Clean up escalation tags from response if present
         for tag in ["[ESCALATE: EMERGENCY]", "[ESCALATE: DOCTOR_REQUIRED]", "[ESCALATE: ROUTINE]"]:
             response_text = response_text.replace(tag, "").strip()
         

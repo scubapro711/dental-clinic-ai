@@ -49,3 +49,6 @@ class AgentState(TypedDict):
     
     # Final response flag
     requires_human: bool
+    
+    # Escalation level for medical safety
+    escalation_level: Optional[str]

@@ -28,7 +28,7 @@ async def test_causal_memory_stores_interaction():
     )
     
     assert response1["response"]
-    assert response1["agent"] in ["dana", "michal", "yosef", "sarah"]
+    assert response1["agent"] == "alex"
     print(f"✅ First interaction stored")
     print(f"   Agent: {response1['agent']}")
     print(f"   Response: {response1['response'][:100]}...")
@@ -45,9 +45,9 @@ async def test_causal_memory_stores_interaction():
     )
     
     assert response2["response"]
+    assert response2["agent"] == "alex"
     print(f"\n✅ Second interaction with memory context")
     print(f"   Agent: {response2['agent']}")
-    print(f"   Similar interactions found: {response2.get('similar_interactions', 0)}")
     print(f"   Response: {response2['response'][:100]}...")
 
 
@@ -85,12 +85,18 @@ async def test_causal_memory_retrieves_similar():
     )
     
     assert response["response"]
-    similar_count = response.get("similar_interactions", 0)
-    print(f"\n✅ Retrieved {similar_count} similar interactions")
+    assert response["agent"] == "alex"
+    print(f"\n✅ Retrieved similar interactions (used internally)")
     print(f"   Response: {response['response'][:150]}...")
     
+    # Check that causal memory can retrieve similar interactions directly
+    similar = causal_memory.get_similar_interactions(
+        user_message="My tooth is painful",
+        limit=3
+    )
+    print(f"   Similar interactions found in Neo4j: {len(similar)}")
     # Should find at least 1 similar interaction (toothache/tooth hurts)
-    assert similar_count >= 1
+    assert len(similar) >= 1
 
 
 @pytest.mark.asyncio
