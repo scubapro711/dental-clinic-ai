@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: str = Field(...)
     ANTHROPIC_API_KEY: str = Field(default="")
 
+    # Telegram Bot
+    TELEGRAM_BOT_TOKEN: str = Field(...)
+
     # CORS
     CORS_ORIGINS: str = Field(
         default="http://localhost:5173,http://localhost:3000"
