@@ -42,7 +42,8 @@ class ConversationResponse(BaseModel):
     organization_id: UUID
     channel: str
     status: str
-    title: Optional[str]
+    title: Optional[str] = None
+    primary_agent: Optional[str] = None
     created_at: datetime
     updated_at: datetime
     

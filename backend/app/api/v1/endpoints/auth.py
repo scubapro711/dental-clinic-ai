@@ -32,6 +32,11 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             detail="Email already registered",
         )
 
+    # Get default organization (first one) for MVP
+    # TODO: In production, this should be based on invitation or signup flow
+    from app.models.organization import Organization
+    default_org = db.query(Organization).first()
+    
     # Create new user
     user = AuthService.create_user(
         db=db,
@@ -39,6 +44,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         password=user_data.password,
         full_name=user_data.full_name,
         phone=user_data.phone,
+        organization_id=default_org.id if default_org else None,
     )
 
     return user

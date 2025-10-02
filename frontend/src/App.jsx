@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
+import { API_ENDPOINTS } from './config'
 
 // Pages
 import LoginPage from './pages/LoginPage'
@@ -18,7 +19,7 @@ function App() {
     if (token) {
       setIsAuthenticated(true)
       // Fetch user info
-      fetch('http://localhost:8000/api/v1/auth/me', {
+      fetch(API_ENDPOINTS.auth.me, {
         headers: {
           'Authorization': `Bearer ${token}`
         }

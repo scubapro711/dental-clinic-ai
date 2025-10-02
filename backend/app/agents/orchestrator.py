@@ -27,6 +27,56 @@ class AgentOrchestrator:
         self.michal = MichalAgent()
         self.yosef = YosefAgent()
         self.sarah = SarahAgent()
+    
+    def _route_to_agent(self, message: str) -> str:
+        """
+        Route message to appropriate agent based on content.
+        
+        Args:
+            message: User message content
+            
+        Returns:
+            Agent name to route to
+        """
+        message_lower = message.lower()
+        
+        # Medical/dental keywords
+        medical_keywords = [
+            "כאב", "שן", "שיניים", "חניכיים", "נפיחות", "דימום", "עששת",
+            "שורש", "כתר", "גשר", "שתל", "יישור", "הלבנה", "טיפול",
+            "pain", "tooth", "teeth", "gum", "swelling", "bleeding", "cavity",
+            "root", "crown", "bridge", "implant", "braces", "whitening", "treatment",
+            "רופא", "רופאת", "דוקטור", "דנטיסט", "dentist", "doctor"
+        ]
+        
+        # Billing/financial keywords
+        billing_keywords = [
+            "מחיר", "עלות", "תשלום", "חשבונית", "ביטוח", "כספי", "תקציב",
+            "price", "cost", "payment", "invoice", "insurance", "financial", "budget",
+            "כמה עולה", "how much", "תשלומים", "installments"
+        ]
+        
+        # Scheduling keywords
+        scheduling_keywords = [
+            "תור", "פגישה", "לקבוע", "לבטל", "לשנות", "מועד", "זמן", "תאריך",
+            "appointment", "schedule", "book", "cancel", "reschedule", "date", "time",
+            "מתי", "when", "available", "פנוי"
+        ]
+        
+        # Check for medical questions
+        if any(keyword in message_lower for keyword in medical_keywords):
+            return "michal"
+        
+        # Check for billing questions
+        if any(keyword in message_lower for keyword in billing_keywords):
+            return "yosef"
+        
+        # Check for scheduling questions
+        if any(keyword in message_lower for keyword in scheduling_keywords):
+            return "sarah"
+        
+        # Default to Dana (general coordinator)
+        return "dana"
         
     async def process_message(
         self,
@@ -83,14 +133,15 @@ class AgentOrchestrator:
         db.add(user_message)
         db.commit()
         
-        # Determine which agent to use based on conversation context
-        # For MVP, Dana routes to appropriate agent
+        # Determine which agent to use based on user message content
+        target_agent = self._route_to_agent(message_content)
+        
         state = {
             "messages": message_history,
             "user_id": str(user_id),
             "organization_id": str(organization_id),
             "conversation_id": str(conversation_id),
-            "current_agent": "dana",
+            "current_agent": target_agent,
             "next_agent": None,
             "extracted_data": {},
             "tool_results": {},
@@ -98,21 +149,19 @@ class AgentOrchestrator:
             "requires_human": False,
         }
         
-        # Process with Dana first (coordinator)
-        updated_state = self.dana.process(state)
-        
-        # Check if Dana wants to route to another agent
-        next_agent = updated_state.get("next_agent")
-        
-        if next_agent == "michal":
-            # Route to medical agent
-            updated_state = self.michal.process(updated_state)
-        elif next_agent == "yosef":
-            # Route to billing agent
-            updated_state = self.yosef.process(updated_state)
-        elif next_agent == "sarah":
-            # Route to scheduling agent
-            updated_state = self.sarah.process(updated_state)
+        # Route to appropriate agent based on message content
+        if target_agent == "michal":
+            # Medical/dental questions
+            updated_state = self.michal.process(state)
+        elif target_agent == "yosef":
+            # Billing/financial questions
+            updated_state = self.yosef.process(state)
+        elif target_agent == "sarah":
+            # Scheduling/appointment questions
+            updated_state = self.sarah.process(state)
+        else:
+            # Default to Dana (coordinator)
+            updated_state = self.dana.process(state)
         
         # Get AI response
         ai_response = updated_state["messages"][-1].content

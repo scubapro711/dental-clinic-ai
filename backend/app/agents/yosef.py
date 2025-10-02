@@ -9,11 +9,20 @@ Yosef handles:
 - Pricing information for treatments
 """
 
+import logging
 from typing import Dict, Any
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from app.core.config import settings
+from app.agents.error_handler import (
+    handle_agent_errors,
+    retry_handler,
+    rate_limiter,
+    RateLimitError,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class YosefAgent:
@@ -80,6 +89,7 @@ IMPORTANT:
             api_key=settings.OPENAI_API_KEY,
         )
     
+    @handle_agent_errors
     def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process user message and generate billing response.
@@ -90,17 +100,44 @@ IMPORTANT:
         Returns:
             Updated state with Yosef's response
         """
+        # Check rate limit
+        user_id = state.get("user_id", "unknown")
+        if not rate_limiter.check_rate_limit(state, user_id):
+            retry_after = rate_limiter.get_retry_after(state, user_id)
+            raise RateLimitError(f"Rate limit exceeded. Try again in {retry_after:.1f} seconds.")
+        
         messages = state.get("messages", [])
+        
+        # Check if user is asking about invoices
+        last_message = messages[-1].content.lower() if messages else ""
+        tool_result = None
+        
+        if any(word in last_message for word in ["invoice", "bill", "payment", "owe", "balance"]):
+            # Try to extract patient info from conversation context
+            # For MVP, we'll use a simple approach
+            # In production, this would use NER or structured extraction
+            logger.info(f"Yosef checking for invoice information")
+            # Note: In a real implementation, we would extract patient name from context
+            # For now, we'll let the LLM handle it conversationally
         
         # Build conversation history
         conversation = [SystemMessage(content=self.SYSTEM_PROMPT)]
+        
+        # Add tool results to context if available
+        if tool_result:
+            conversation.append(SystemMessage(content=f"Invoice information:\n{tool_result}"))
+        
         conversation.extend(messages)
         
-        # Generate response
-        response = self.llm.invoke(conversation)
+        # Generate response with retry logic
+        logger.info(f"Yosef processing message for user {user_id}")
+        response = retry_handler.execute(self.llm.invoke, conversation)
         
         # Check if human escalation needed
         requires_human = self._check_escalation(response.content)
+        
+        if requires_human:
+            logger.warning(f"Yosef escalating to human accountant for user {user_id}")
         
         # Update state
         state["messages"] = messages + [response]
