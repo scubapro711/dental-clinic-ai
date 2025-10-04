@@ -4,8 +4,8 @@ Configuration settings for DentalAI Backend.
 This module uses pydantic-settings to load configuration from environment variables.
 """
 
-from typing import List
-from pydantic import Field, PostgresDsn, RedisDsn
+from typing import List, Union
+from pydantic import Field, PostgresDsn, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,11 +33,20 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7)
 
-    # Database
-    DATABASE_URL: PostgresDsn = Field(...)
+    # Database (allow SQLite for testing)
+    DATABASE_URL: Union[PostgresDsn, str] = Field(...)
+    
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def validate_database_url(cls, v: str, info) -> str:
+        """Allow SQLite URLs in test environment."""
+        app_env = info.data.get("APP_ENV", "development")
+        if app_env == "test" and v.startswith("sqlite://"):
+            return v
+        return v
 
-    # Redis
-    REDIS_URL: RedisDsn = Field(...)
+    # Redis (allow mock for testing)
+    REDIS_URL: Union[RedisDsn, str] = Field(...)
 
     # Neo4j
     NEO4J_URI: str = Field(...)

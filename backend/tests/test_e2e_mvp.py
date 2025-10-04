@@ -7,8 +7,21 @@ Tests the complete system with real user scenarios.
 import pytest
 import asyncio
 from uuid import uuid4
+from unittest.mock import Mock, patch
 
 from app.agents.agent_graph import AgentGraphV2
+
+
+# Mock causal memory for E2E tests
+@pytest.fixture(autouse=True)
+def mock_causal_memory():
+    """Mock causal memory to avoid Neo4j dependency in E2E tests."""
+    mock_memory = Mock()
+    mock_memory.get_similar_interactions.return_value = []
+    mock_memory.store_interaction.return_value = None
+    
+    with patch('app.agents.agent_graph.causal_memory', mock_memory):
+        yield mock_memory
 
 
 class TestMVPIntegration:
@@ -39,7 +52,7 @@ class TestMVPIntegration:
     async def test_scenario_2_medical_question(self):
         """
         Scenario 2: User asks medical question
-        Expected: Dana routes to Michal
+        Expected: Alex handles it (current system has only Alex)
         """
         graph = AgentGraphV2()
         
@@ -51,7 +64,8 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["michal", "dana"]
+        assert response["agent"] == "alex"
+        assert len(response["response"]) > 50
         print(f"\n✅ Scenario 2: Medical Question")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -60,7 +74,7 @@ class TestMVPIntegration:
     async def test_scenario_3_billing_inquiry(self):
         """
         Scenario 3: User asks about billing
-        Expected: Dana routes to Yosef
+        Expected: Alex handles it (current system has only Alex)
         """
         graph = AgentGraphV2()
         
@@ -72,7 +86,8 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["yosef", "dana"]
+        assert response["agent"] == "alex"
+        assert len(response["response"]) > 50
         print(f"\n✅ Scenario 3: Billing Inquiry")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -93,14 +108,15 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        # Any agent can handle appointment inquiries
-        assert response["agent"] in ["sarah", "dana", "michal"]
+        assert response["agent"] == "alex"
+        assert len(response["response"]) > 50
         print(f"\n✅ Scenario 4: Appointment Booking")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
         # Check if response mentions appointments/scheduling
         response_lower = response['response'].lower()
         has_appointment_info = any(word in response_lower for word in ['appointment', 'schedule', 'book', 'available'])
+        assert has_appointment_info, "Response should mention appointments"
         print(f"   Contains appointment info: {has_appointment_info}")
     
     @pytest.mark.asyncio
@@ -169,16 +185,18 @@ class TestMVPIntegration:
         
         assert response1["response"]
         
-        # Turn 2: Follow-up question
+        # Turn 2: Follow-up question (same conversation_id maintains context)
         response2 = await graph.process_message(
             user_id=user_id,
             organization_id=org_id,
             conversation_id=conv_id,
             message="How much does it cost?",
-            message_history=response1["state"]["messages"],
         )
         
         assert response2["response"]
+        assert response1["agent"] == "alex"
+        assert response2["agent"] == "alex"
+        assert len(response2["response"]) > 30
         print(f"\n✅ Scenario 7: Multi-Turn Conversation")
         print(f"   Turn 1 Agent: {response1['agent']}")
         print(f"   Turn 1: {response1['response'][:100]}...")

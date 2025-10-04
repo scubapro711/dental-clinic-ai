@@ -19,8 +19,11 @@ async def test_telegram_client_send_message():
     client = TelegramClient(bot_token="test_token")
     
     with patch.object(client.client, 'post', new_callable=AsyncMock) as mock_post:
-        mock_post.return_value.json.return_value = {"ok": True, "result": {"message_id": 123}}
-        mock_post.return_value.raise_for_status = Mock()
+        # Create mock response (json() is sync, not async!)
+        mock_response = Mock()
+        mock_response.json = Mock(return_value={"ok": True, "result": {"message_id": 123}})
+        mock_response.raise_for_status = Mock()
+        mock_post.return_value = mock_response
         
         result = await client.send_message(
             chat_id=12345,

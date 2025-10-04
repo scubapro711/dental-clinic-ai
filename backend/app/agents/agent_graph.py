@@ -21,9 +21,15 @@ logger = logging.getLogger(__name__)
 class AgentGraphV2:
     """Simplified LangGraph with unified Alex agent."""
     
-    def __init__(self):
-        """Initialize agent graph with Alex."""
+    def __init__(self, memory=None):
+        """
+        Initialize agent graph with Alex.
+        
+        Args:
+            memory: Optional causal memory instance (for testing)
+        """
         self.alex = AlexAgent()
+        self.causal_memory = memory if memory is not None else causal_memory
         
         # Build the graph
         self.graph = self._build_graph()
@@ -84,7 +90,7 @@ class AgentGraphV2:
         logger.info(f"Processing message for user {user_id} in conversation {conversation_id}")
         
         # Retrieve similar past interactions from causal memory
-        similar_interactions = causal_memory.get_similar_interactions(
+        similar_interactions = self.causal_memory.get_similar_interactions(
             user_message=message,
             limit=3
         )
@@ -149,7 +155,7 @@ class AgentGraphV2:
             "requires_human": final_state.get("requires_human", False),
         }
         
-        causal_memory.store_interaction(
+        self.causal_memory.store_interaction(
             user_message=message,
             agent_response=response_text,
             agent_name="alex",

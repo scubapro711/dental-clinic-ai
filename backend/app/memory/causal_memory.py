@@ -21,8 +21,26 @@ from app.core.config import settings
 class CausalMemoryGraph:
     """Causal Memory Graph using Neo4j and Sentence-BERT."""
     
-    def __init__(self):
-        """Initialize causal memory with Neo4j and embedding model."""
+    def __init__(self, lazy_init: bool = False):
+        """
+        Initialize causal memory with Neo4j and embedding model.
+        
+        Args:
+            lazy_init: If True, defer connection until first use (for testing)
+        """
+        self._lazy_init = lazy_init
+        self._initialized = False
+        self.driver = None
+        self.embedding_model = None
+        
+        if not lazy_init:
+            self._do_init()
+    
+    def _do_init(self):
+        """Actually initialize the connections."""
+        if self._initialized:
+            return
+            
         # Neo4j connection
         self.driver = GraphDatabase.driver(
             settings.NEO4J_URI,
@@ -34,6 +52,13 @@ class CausalMemoryGraph:
         
         # Initialize schema
         self._initialize_schema()
+        
+        self._initialized = True
+    
+    def _ensure_initialized(self):
+        """Ensure the system is initialized before use."""
+        if not self._initialized:
+            self._do_init()
     
     def _initialize_schema(self):
         """Create indexes and constraints in Neo4j."""
@@ -80,6 +105,8 @@ class CausalMemoryGraph:
         Returns:
             Interaction ID
         """
+        self._ensure_initialized()
+        
         # Generate embedding for user message
         embedding = self.embedding_model.encode(user_message).tolist()
         
@@ -251,6 +278,8 @@ class CausalMemoryGraph:
         Returns:
             List of similar interactions with their responses and outcomes
         """
+        self._ensure_initialized()
+        
         # Generate embedding
         embedding = self.embedding_model.encode(user_message).tolist()
         
@@ -316,5 +345,5 @@ class CausalMemoryGraph:
         self.driver.close()
 
 
-# Global causal memory instance
-causal_memory = CausalMemoryGraph()
+# Global causal memory instance (lazy initialization for testing)
+causal_memory = CausalMemoryGraph(lazy_init=True)

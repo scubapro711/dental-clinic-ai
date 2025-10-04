@@ -402,9 +402,10 @@ makes sure patients get the right help at the right time! 😊
     def __init__(self):
         """Initialize Alex agent."""
         self.llm = ChatOpenAI(
-            model="gpt-4.1-mini",
+            model="gpt-5-mini",  # Premium quality for excellent patient experience
             temperature=0.7,  # Natural conversation
             api_key=settings.OPENAI_API_KEY,
+            base_url="https://api.openai.com/v1",  # Use OpenAI directly
         )
     
     @handle_agent_errors
