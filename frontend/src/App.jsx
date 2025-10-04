@@ -9,6 +9,7 @@ import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
 import MissionControlPage from './pages/MissionControlPage'
+import MissionControlPageV2 from './pages/MissionControlPageV2'
 
 function App() {
   // DEMO MODE: Skip authentication for testing
@@ -88,6 +89,16 @@ function App() {
         />
         <Route
           path="/dashboard/*"
+          element={
+            isAuthenticated ? (
+              <MissionControlPageV2 user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/dashboard-v1"
           element={
             isAuthenticated ? (
               <MissionControlPage user={user} onLogout={handleLogout} />

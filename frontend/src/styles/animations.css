@@ -1,0 +1,229 @@
+/**
+ * DentalAI v2.0 Animations
+ * Smooth, delightful micro-interactions
+ */
+
+/* ===== PULSE ANIMATIONS ===== */
+
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* ===== FADE ANIMATIONS ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 300ms ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in-scale {
+  animation: fadeInScale 200ms ease-out;
+}
+
+/* ===== SLIDE ANIMATIONS ===== */
+
+@keyframes slideInTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in-top {
+  animation: slideInTop 300ms ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-in-right {
+  animation: slideInRight 300ms ease-out;
+}
+
+/* ===== SHIMMER LOADING ===== */
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #f8f8f8 50%,
+    #f0f0f0 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* ===== HOVER EFFECTS ===== */
+
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* ===== SPIN ANIMATION ===== */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ===== BOUNCE ANIMATION ===== */
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+/* ===== NOTIFICATION SLIDE ===== */
+
+@keyframes notificationSlide {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.notification-slide {
+  animation: notificationSlide 300ms ease-out;
+}
+
+/* ===== STAGGER CHILDREN ===== */
+
+.stagger-children > * {
+  animation: fadeIn 300ms ease-out;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 250ms; }
+.stagger-children > *:nth-child(7) { animation-delay: 300ms; }
+.stagger-children > *:nth-child(8) { animation-delay: 350ms; }
+.stagger-children > *:nth-child(9) { animation-delay: 400ms; }
+
+/* ===== FOCUS VISIBLE ===== */
+
+*:focus-visible {
+  outline: 2px solid var(--color-primary-blue);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* ===== SMOOTH SCROLLING ===== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===== REDUCED MOTION ===== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
