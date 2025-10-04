@@ -1,0 +1,36 @@
+graph TD
+    Start([User Message]) --> Supervisor{Supervisor<br/>Router}
+    
+    Supervisor -->|Patient Query| Alex[Alex Agent<br/>Patient Interactions]
+    Supervisor -->|Financial Query| Marcus[Marcus Agent<br/>CFO/Finance]
+    Supervisor -->|Operations Query| Sophia[Sophia Agent<br/>Admin/Ops]
+    Supervisor -->|Complete/Unclear| End([End])
+    
+    Alex -->|Response| SupervisorReturn{Supervisor<br/>Check}
+    Marcus -->|Response| SupervisorReturn
+    Sophia -->|Response| SupervisorReturn
+    
+    SupervisorReturn -->|More Agents Needed| Supervisor
+    SupervisorReturn -->|Complete| End
+    
+    Alex -.->|Tool Call| Tools1[Tools:<br/>- search_appointments<br/>- book_appointment<br/>- get_patient_info<br/>- check_symptoms<br/>- escalate_to_doctor]
+    
+    Marcus -.->|Tool Call| Tools2[Tools:<br/>- get_revenue_data<br/>- analyze_payments<br/>- generate_report]
+    
+    Sophia -.->|Tool Call| Tools3[Tools:<br/>- check_conflicts<br/>- optimize_schedule<br/>- manage_staff]
+    
+    Tools1 -.->|Data| Odoo[(Odoo ERP<br/>Patients<br/>Appointments<br/>Invoices)]
+    Tools2 -.->|Data| Odoo
+    Tools3 -.->|Data| Odoo
+    
+    style Supervisor fill:#ff6b6b,stroke:#c92a2a,stroke-width:3px,color:#fff
+    style Alex fill:#4dabf7,stroke:#1971c2,stroke-width:2px,color:#fff
+    style Marcus fill:#51cf66,stroke:#2f9e44,stroke-width:2px,color:#fff
+    style Sophia fill:#ffd43b,stroke:#f59f00,stroke-width:2px,color:#000
+    style SupervisorReturn fill:#ff6b6b,stroke:#c92a2a,stroke-width:2px,color:#fff
+    style Odoo fill:#845ef7,stroke:#5f3dc4,stroke-width:2px,color:#fff
+    style Start fill:#f8f9fa,stroke:#868e96,stroke-width:2px
+    style End fill:#f8f9fa,stroke:#868e96,stroke-width:2px
+    style Tools1 fill:#e7f5ff,stroke:#1971c2,stroke-width:1px
+    style Tools2 fill:#d3f9d8,stroke:#2f9e44,stroke-width:1px
+    style Tools3 fill:#fff3bf,stroke:#f59f00,stroke-width:1px
