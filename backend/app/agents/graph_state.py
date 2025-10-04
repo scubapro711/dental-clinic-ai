@@ -41,6 +41,9 @@ class AgentState(TypedDict):
     # Tool results
     tool_results: Dict[str, Any]
     
+    # Agent responses (for multi-agent queries)
+    agent_responses: Dict[str, str]
+    
     # Error tracking
     errors: List[Dict[str, Any]]
     

@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "DentalDesk AI",
+    "subtitle": "מרכז בקרה"
+  },
+  "nav": {
+    "home": "בית",
+    "conversations": "שיחות",
+    "analytics": "אנליטיקס",
+    "configuration": "הגדרות",
+    "logs": "לוגים",
+    "patients": "מטופלים",
+    "appointments": "תורים"
+  },
+  "dashboard": {
+    "title": "מרכז בקרה",
+    "subtitle": "עקוב ונהל את עוזר השיניים החכם שלך בזמן אמת"
+  },
+  "metrics": {
+    "activeConversations": "שיחות פעילות",
+    "todaysAppointments": "תורים להיום",
+    "scheduled": "מתוזמנים",
+    "fromYesterday": "מאתמול"
+  },
+  "agent": {
+    "title": "אלכס - העוזר החכם",
+    "status": {
+      "online": "מחובר",
+      "offline": "מנותק",
+      "paused": "מושהה"
+    },
+    "uptime": "זמן פעילות",
+    "avgResponse": "זמן תגובה ממוצע",
+    "successRate": "שיעור הצלחה",
+    "pause": "השהה",
+    "resume": "המשך",
+    "restart": "הפעל מחדש"
+  },
+  "conversations": {
+    "title": "שיחות פעילות",
+    "viewAll": "הצג הכל",
+    "status": {
+      "urgent": "דחוף",
+      "active": "פעיל",
+      "waiting": "ממתין"
+    },
+    "minutesAgo": "לפני {{count}} דקות",
+    "hoursAgo": "לפני {{count}} שעות"
+  },
+  "alerts": {
+    "title": "התראות אחרונות",
+    "unread": "{{count}} לא נקראו",
+    "read": "נקרא"
+  },
+  "appointments": {
+    "title": "תורים להיום",
+    "status": {
+      "confirmed": "אושר",
+      "pending": "ממתין",
+      "cancelled": "בוטל"
+    }
+  },
+  "channels": {
+    "title": "שיחות לפי ערוץ",
+    "whatsapp": "וואטסאפ",
+    "telegram": "טלגרם",
+    "email": "אימייל",
+    "phone": "טלפון"
+  },
+  "statusBar": {
+    "alex": "אלכס",
+    "conversations": "שיחות",
+    "websocket": "WebSocket",
+    "connected": "מחובר",
+    "disconnected": "מנותק",
+    "version": "גרסה {{version}}"
+  },
+  "common": {
+    "search": "חיפוש...",
+    "loading": "טוען...",
+    "error": "שגיאה",
+    "retry": "נסה שוב",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "close": "סגור"
+  }
+}

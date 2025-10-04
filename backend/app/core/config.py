@@ -49,9 +49,6 @@ class Settings(BaseSettings):
     REDIS_URL: Union[RedisDsn, str] = Field(...)
 
     # Neo4j
-    NEO4J_URI: str = Field(...)
-    NEO4J_USER: str = Field(...)
-    NEO4J_PASSWORD: str = Field(...)
 
     # Odoo
     ODOO_URL: str = Field(...)
@@ -68,7 +65,7 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: str = Field(
-        default="http://localhost:5173,http://localhost:3000"
+        default="*"  # Allow all origins for demo
     )
     
     @property

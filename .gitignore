@@ -316,3 +316,4 @@ alembic/versions/*.pyc
 
 # Keep vision document
 !docs/vision_document.pdf
+backend/.env.test

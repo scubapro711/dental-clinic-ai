@@ -27,8 +27,8 @@ export default function ChatPage({ user, onLogout }) {
     setMessages([
       {
         role: 'assistant',
-        content: `Hello! I'm Dana, your AI dental assistant. How can I help you today?`,
-        agent: 'dana',
+        content: `Hello! I'm Alex, your AI dental assistant. I can help you with appointments, billing questions, and general dental inquiries. How can I assist you today?`,
+        agent: 'alex',
         timestamp: new Date().toISOString(),
       },
     ])
@@ -74,7 +74,7 @@ export default function ChatPage({ user, onLogout }) {
       const assistantMessage = {
         role: 'assistant',
         content: data.response,
-        agent: data.agent || 'dana',
+        agent: data.agent || 'alex',
         timestamp: new Date().toISOString(),
       }
 
@@ -104,24 +104,18 @@ export default function ChatPage({ user, onLogout }) {
 
   const getAgentColor = (agent) => {
     const colors = {
-      dana: 'bg-blue-500',
-      michal: 'bg-purple-500',
-      yosef: 'bg-green-500',
-      sarah: 'bg-pink-500',
+      alex: 'bg-gradient-to-br from-blue-600 to-purple-600',
       system: 'bg-gray-500',
     }
-    return colors[agent] || 'bg-gray-500'
+    return colors[agent] || 'bg-gradient-to-br from-blue-600 to-purple-600'
   }
 
   const getAgentName = (agent) => {
     const names = {
-      dana: 'Dana (Coordinator)',
-      michal: 'Dr. Michal (Dentist)',
-      yosef: 'Yosef (Accountant)',
-      sarah: 'Sarah (Scheduler)',
+      alex: 'Alex (AI Assistant)',
       system: 'System',
     }
-    return names[agent] || 'AI Assistant'
+    return names[agent] || 'Alex (AI Assistant)'
   }
 
   return (

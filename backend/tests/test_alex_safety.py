@@ -11,9 +11,7 @@ from app.agents.agent_graph import AgentGraphV2
 
 
 @pytest.mark.asyncio
-async def test_alex_medical_safety(mock_causal_memory_fixture):
     """Test Alex's medical safety boundaries and escalation."""
-    graph = AgentGraphV2(memory=mock_causal_memory_fixture)
     
     print("🧪 Testing Alex - Medical Safety & Escalation\n")
     print("=" * 80)

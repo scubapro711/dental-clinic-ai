@@ -1,0 +1,87 @@
+{
+  "app": {
+    "title": "DentalDesk AI",
+    "subtitle": "Mission Control"
+  },
+  "nav": {
+    "home": "Home",
+    "conversations": "Conversations",
+    "analytics": "Analytics",
+    "configuration": "Configuration",
+    "logs": "Logs",
+    "patients": "Patients",
+    "appointments": "Appointments"
+  },
+  "dashboard": {
+    "title": "Mission Control",
+    "subtitle": "Monitor and manage your AI dental assistant in real-time"
+  },
+  "metrics": {
+    "activeConversations": "Active Conversations",
+    "todaysAppointments": "Today's Appointments",
+    "scheduled": "scheduled",
+    "fromYesterday": "from yesterday"
+  },
+  "agent": {
+    "title": "Alex Agent",
+    "status": {
+      "online": "ONLINE",
+      "offline": "OFFLINE",
+      "paused": "PAUSED"
+    },
+    "uptime": "Uptime",
+    "avgResponse": "Avg Response",
+    "successRate": "Success Rate",
+    "pause": "Pause",
+    "resume": "Resume",
+    "restart": "Restart"
+  },
+  "conversations": {
+    "title": "Active Conversations",
+    "viewAll": "View All",
+    "status": {
+      "urgent": "URGENT",
+      "active": "ACTIVE",
+      "waiting": "WAITING"
+    },
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago"
+  },
+  "alerts": {
+    "title": "Recent Alerts",
+    "unread": "{{count}} unread",
+    "read": "Read"
+  },
+  "appointments": {
+    "title": "Today's Appointments",
+    "status": {
+      "confirmed": "confirmed",
+      "pending": "pending",
+      "cancelled": "cancelled"
+    }
+  },
+  "channels": {
+    "title": "Conversations by Channel",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "statusBar": {
+    "alex": "Alex",
+    "conversations": "Conversations",
+    "websocket": "WebSocket",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "version": "v{{version}}"
+  },
+  "common": {
+    "search": "Search...",
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Try Again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close"
+  }
+}

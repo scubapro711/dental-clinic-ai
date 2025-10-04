@@ -14,13 +14,11 @@ from app.agents.agent_graph import AgentGraphV2
 
 # Mock causal memory for E2E tests
 @pytest.fixture(autouse=True)
-def mock_causal_memory():
     """Mock causal memory to avoid Neo4j dependency in E2E tests."""
     mock_memory = Mock()
     mock_memory.get_similar_interactions.return_value = []
     mock_memory.store_interaction.return_value = None
     
-    with patch('app.agents.agent_graph.causal_memory', mock_memory):
         yield mock_memory
 
 
@@ -204,7 +202,6 @@ class TestMVPIntegration:
         print(f"   Turn 2: {response2['response'][:100]}...")
     
     @pytest.mark.asyncio
-    async def test_scenario_8_causal_memory(self):
         """
         Scenario 8: Causal memory retrieves similar interactions
         Expected: Similar past interactions are used for context

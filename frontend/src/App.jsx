@@ -8,30 +8,38 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
+import MissionControlPage from './pages/MissionControlPage'
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [user, setUser] = useState(null)
+  // DEMO MODE: Skip authentication for testing
+  const [isAuthenticated, setIsAuthenticated] = useState(true)
+  const [user, setUser] = useState({
+    id: 'demo-user',
+    name: 'Demo User',
+    email: 'demo@dentalai.com',
+    role: 'admin'
+  })
 
   // Check if user is logged in (check localStorage)
-  useState(() => {
-    const token = localStorage.getItem('access_token')
-    if (token) {
-      setIsAuthenticated(true)
-      // Fetch user info
-      fetch(API_ENDPOINTS.auth.me, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(res => res.json())
-        .then(data => setUser(data))
-        .catch(() => {
-          localStorage.removeItem('access_token')
-          setIsAuthenticated(false)
-        })
-    }
-  }, [])
+  // DISABLED FOR DEMO
+  // useState(() => {
+  //   const token = localStorage.getItem('access_token')
+  //   if (token) {
+  //     setIsAuthenticated(true)
+  //     // Fetch user info
+  //     fetch(API_ENDPOINTS.auth.me, {
+  //       headers: {
+  //         'Authorization': `Bearer ${token}`
+  //       }
+  //     })
+  //       .then(res => res.json())
+  //       .then(data => setUser(data))
+  //       .catch(() => {
+  //         localStorage.removeItem('access_token')
+  //         setIsAuthenticated(false)
+  //       })
+  //   }
+  // }, [])
 
   const handleLogin = (token, userData) => {
     localStorage.setItem('access_token', token)
@@ -79,7 +87,17 @@ function App() {
           }
         />
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
+          element={
+            isAuthenticated ? (
+              <MissionControlPage user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/dashboard-old"
           element={
             isAuthenticated ? (
               <DashboardPage user={user} onLogout={handleLogout} />
@@ -88,7 +106,7 @@ function App() {
             )
           }
         />
-        <Route path="/" element={<Navigate to="/chat" replace />} />
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>
   )

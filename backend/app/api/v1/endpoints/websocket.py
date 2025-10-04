@@ -279,3 +279,12 @@ async def emit_error(error_message: str, error_type: str = "system"):
         "error_type": error_type,
         "message": error_message
     }, "monitoring")
+
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    """
+    Main WebSocket endpoint for dashboard connections.
+    Alias for /ws/monitoring for backward compatibility.
+    """
+    await websocket_monitoring(websocket)

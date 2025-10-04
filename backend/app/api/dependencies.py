@@ -11,20 +11,34 @@ from app.core.database import get_db
 from app.models.user import User, UserRole
 from app.services.auth_service import AuthService
 
-# HTTP Bearer token security
-security = HTTPBearer()
+# HTTP Bearer token security (auto_error=False for demo mode)
+security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db),
 ) -> User:
     """
     Get current authenticated user from JWT token.
+    DEMO MODE: Returns mock user if no credentials provided.
     
     Raises:
         HTTPException: If token is invalid or user not found
     """
+    # DEMO MODE: If no credentials, return mock user
+    if credentials is None:
+        # Create mock demo user
+        mock_user = User(
+            id="demo-user-123",
+            email="demo@dentalai.com",
+            full_name="Demo User",
+            role=UserRole.ORG_ADMIN,
+            is_active=True,
+            organization_id="demo-org-001"
+        )
+        return mock_user
+    
     token = credentials.credentials
     token_data = AuthService.verify_token(token)
 

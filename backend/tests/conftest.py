@@ -3,7 +3,6 @@ Pytest configuration and fixtures for DentalAI Backend tests.
 
 This module provides:
 - Test database setup/teardown
-- Mock external services (Odoo, Neo4j, Redis, OpenAI)
 - Test fixtures for common objects
 - Environment configuration for tests
 """
@@ -21,9 +20,6 @@ from fastapi.testclient import TestClient
 os.environ["APP_ENV"] = "test"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 os.environ["REDIS_URL"] = "redis://localhost:6379/1"
-os.environ["NEO4J_URI"] = "bolt://localhost:7687"
-os.environ["NEO4J_USER"] = "neo4j"
-os.environ["NEO4J_PASSWORD"] = "test"
 os.environ["ODOO_URL"] = "http://localhost:8069"
 os.environ["ODOO_DB"] = "test"
 os.environ["ODOO_USERNAME"] = "admin"
@@ -161,9 +157,7 @@ def mock_odoo():
 
 
 @pytest.fixture(scope="function")
-def mock_causal_memory_fixture():
     """Mock causal memory for tests."""
-    with patch("app.agents.agent_graph.causal_memory") as mock:
         mock.store_interaction.return_value = "test-interaction-id"
         mock.get_similar_interactions.return_value = []
         yield mock
