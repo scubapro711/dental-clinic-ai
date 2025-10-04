@@ -1,0 +1,40 @@
+# DentalAI Production Configuration
+# Copy this file to terraform.tfvars and fill in your values
+
+# Project
+project_name = "dentalai"
+environment  = "production"
+aws_region   = "us-east-1"
+
+# Network
+vpc_cidr = "10.0.0.0/16"
+
+# Database
+db_name             = "dentalai"
+db_username         = "dentalai"
+db_password         = "CHANGE_ME_STRONG_PASSWORD"
+db_instance_class   = "db.t3.medium"
+db_allocated_storage = 100
+
+# Redis
+redis_node_type  = "cache.t3.micro"
+redis_num_nodes  = 1
+
+# Backend
+backend_image         = "YOUR_ECR_REPO/dentalai-backend:latest"
+backend_cpu           = 1024
+backend_memory        = 2048
+backend_desired_count = 2
+
+# Odoo
+odoo_url      = "http://your-odoo-instance:8069"
+odoo_db       = "dentalai_odoo"
+odoo_username = "admin"
+odoo_password = "CHANGE_ME"
+use_mock_odoo = true  # Set to false when using real Odoo
+
+# LLM
+openai_api_key = "sk-YOUR_OPENAI_API_KEY"
+
+# Domain (optional)
+domain_name = ""  # e.g., "dentalai.com"
