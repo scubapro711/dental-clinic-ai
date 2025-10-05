@@ -98,6 +98,91 @@ Your role is to manage clinic operations, scheduling, and workflow optimization.
   - Major schedule changes
   - Patient complaints
 
+═══════════════════════════════════════════════════════════════════
+🎯  SUGGESTED ACTIONS (Phase 7: Agentic System)
+═══════════════════════════════════════════════════════════════════
+
+**IMPORTANT: YOU decide what operational actions to suggest based on analysis!**
+
+After analyzing operational data, suggest specific actions to improve clinic operations.
+
+**Format (REQUIRED):**
+
+**Suggested Actions:**
+1. [Action Name] - Brief description
+2. [Action Name] - Brief description
+3. [Action Name] - Brief description
+
+**Guidelines:**
+- Analyze operational data first
+- Suggest 1-3 actions based on your analysis
+- Be specific and actionable
+- Prioritize by operational impact
+- Consider both efficiency and patient experience
+
+**Examples:**
+
+**Scenario: Scheduling conflicts detected**
+```
+Found 3 double-bookings for tomorrow and 2 staff conflicts.
+
+**Suggested Actions:**
+1. [Resolve Double-Bookings] - Reschedule conflicting appointments
+2. [Adjust Staff Schedule] - Coordinate coverage for conflicts
+3. [Add Buffer Time] - Prevent future scheduling issues
+```
+
+**Scenario: High no-show rate**
+```
+No-show rate is 18% this month (clinic average: 8%).
+
+**Suggested Actions:**
+1. [Send Appointment Reminders] - Automated SMS 24h before
+2. [Implement Confirmation System] - Require patient confirmation
+3. [Review Cancellation Policy] - Consider deposit for new patients
+```
+
+**Scenario: Low clinic utilization**
+```
+Clinic utilization is 65% (target: 85%). Many empty slots.
+
+**Suggested Actions:**
+1. [Optimize Appointment Slots] - Adjust slot duration by treatment type
+2. [Fill Empty Slots] - Contact waitlist patients
+3. [Adjust Operating Hours] - Shift hours to match demand
+```
+
+**Scenario: Staff overload**
+```
+Dr. Smith has 12 appointments tomorrow (recommended max: 10).
+
+**Suggested Actions:**
+1. [Reschedule Non-Urgent] - Move 2 routine cleanings to next week
+2. [Add Assistant Time] - Allocate extra assistant support
+3. [Review Booking Rules] - Prevent future overbooking
+```
+
+**Scenario: Efficient operations**
+```
+Operations running smoothly! 92% utilization, 0 conflicts.
+
+**Suggested Actions:**
+1. [Maintain Current Schedule] - Keep current optimization
+2. [Plan for Growth] - Prepare for additional capacity
+3. [Staff Training] - Invest in efficiency improvements
+```
+
+**When NOT to suggest actions:**
+- Simple schedule queries ("What's tomorrow's schedule?")
+- Already resolved issues
+- Casual conversation
+
+**Remember:**
+- YOU analyze operations and decide what to recommend
+- Base suggestions on operational metrics
+- Think: "What would an operations manager do?"
+- Consider patient experience AND staff wellbeing
+
 Always prioritize:
 1. Patient care quality
 2. Clinic efficiency
@@ -108,7 +193,7 @@ Respond in Hebrew or English based on the user's language."""
 
         logger.info("Practice Admin Agent initialized")
     
-    async def process(self, state: AgentState) -> AgentState:
+    def process(self, state: AgentState) -> AgentState:
         """
         Process operations/scheduling request.
         
@@ -170,19 +255,21 @@ Respond in Hebrew or English based on the user's language."""
                     logger.info(f"Executing tool: {tool_name}")
                     
                     # Execute the tool
-                    if tool_name == "get_schedule_conflicts":
+                    if tool_name == "get_schedule_conflicts_tool":
                         result = get_schedule_conflicts_tool.invoke(tool_args)
-                    elif tool_name == "get_available_slots":
+                    elif tool_name == "get_available_slots_tool":
                         result = get_available_slots_tool.invoke(tool_args)
-                    elif tool_name == "reschedule_appointment":
+                    elif tool_name == "reschedule_appointment_tool":
                         result = reschedule_appointment_tool.invoke(tool_args)
-                    elif tool_name == "get_staff_schedule":
+                    elif tool_name == "cancel_appointment_tool":
+                        result = cancel_appointment_tool.invoke(tool_args)
+                    elif tool_name == "get_staff_schedule_tool":
                         result = get_staff_schedule_tool.invoke(tool_args)
-                    elif tool_name == "get_room_availability":
+                    elif tool_name == "get_room_availability_tool":
                         result = get_room_availability_tool.invoke(tool_args)
-                    elif tool_name == "optimize_schedule":
+                    elif tool_name == "optimize_schedule_tool":
                         result = optimize_schedule_tool.invoke(tool_args)
-                    elif tool_name == "get_operational_metrics":
+                    elif tool_name == "get_operational_metrics_tool":
                         result = get_operational_metrics_tool.invoke(tool_args)
                     else:
                         result = f"Unknown tool: {tool_name}"
@@ -214,8 +301,18 @@ Respond in Hebrew or English based on the user's language."""
                 # No tools needed, use direct response
                 response_text = response.content
             
+            # Parse suggested actions from response (Phase 7: Agentic System)
+            from app.agents.utils.action_parser import parse_suggested_actions
+            suggested_actions = parse_suggested_actions(response_text)
+            
+            if suggested_actions:
+                logger.info(f"Practice Admin suggested {len(suggested_actions)} actions")
+            
             # Add response to messages
             state["messages"].append(AIMessage(content=response_text))
+            
+            # Add suggested actions to state
+            state["suggested_actions"] = suggested_actions if suggested_actions else None
             
             logger.info("Practice Admin completed operations analysis")
             

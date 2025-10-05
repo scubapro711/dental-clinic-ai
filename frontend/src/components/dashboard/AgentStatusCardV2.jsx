@@ -2,7 +2,8 @@ import React from 'react';
 import { cn, getAgentBgColor } from '@/lib/utils';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { Activity, Clock, MessageCircle } from 'lucide-react';
+import { Button } from '../ui/Button';
+import { Activity, Clock, MessageCircle, MessageSquare } from 'lucide-react';
 
 const AgentStatusCardV2 = ({ 
   name,
@@ -10,6 +11,8 @@ const AgentStatusCardV2 = ({
   status = 'active', // 'active', 'busy', 'offline'
   activeConversations = 0,
   avgResponseTime = 0,
+  specialization = '',
+  onChatClick,
 }) => {
   const statusConfig = {
     active: {
@@ -39,7 +42,7 @@ const AgentStatusCardV2 = ({
   const agentBgColor = getAgentBgColor(name);
   
   return (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-shadow">
+    <Card className="relative overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02]">
       {/* Status Indicator Bar */}
       <div 
         className={cn(
@@ -85,7 +88,7 @@ const AgentStatusCardV2 = ({
       </div>
       
       {/* Metrics */}
-      <div className="space-y-2">
+      <div className="space-y-2 mb-3">
         <div className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <MessageCircle className="w-4 h-4" />
@@ -107,12 +110,32 @@ const AgentStatusCardV2 = ({
         </div>
       </div>
       
+      {/* Chat Button */}
+      <Button
+        variant="primary"
+        size="md"
+        onClick={onChatClick}
+        className="w-full"
+        disabled={status === 'offline'}
+      >
+        <MessageSquare className="w-4 h-4" />
+        Chat with {name}
+      </Button>
+      
       {/* Activity Indicator */}
       {status === 'active' && (
         <div className="mt-3 pt-3 border-t border-gray-200">
           <div className="flex items-center gap-2 text-xs text-green-600">
             <Activity className="w-3 h-3 animate-pulse" />
             <span className="font-medium">Currently handling requests</span>
+          </div>
+        </div>
+      )}
+      
+      {status === 'offline' && (
+        <div className="mt-3 pt-3 border-t border-gray-200">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
+            <span className="font-medium">Agent is offline</span>
           </div>
         </div>
       )}

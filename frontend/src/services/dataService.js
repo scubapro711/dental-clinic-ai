@@ -304,6 +304,20 @@ function getMockAlerts() {
   ];
 }
 
+// Named export for new v3
+export const dataService = {
+  getMetrics: fetchDashboardMetrics,
+  getAppointments: fetchAppointments,
+  getPatients: fetchPatients,
+  getAgents: fetchAgentStatus,
+  getConversations: fetchActiveConversations,
+  getLogs: fetchSystemLogs,
+  getAlerts: fetchAlerts,
+  takeOverConversation,
+  rescheduleAppointment,
+};
+
+// Default export for backward compatibility
 export default {
   fetchDashboardMetrics,
   fetchAppointments,

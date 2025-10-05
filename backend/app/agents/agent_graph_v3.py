@@ -100,7 +100,7 @@ class AgentGraphV3:
         # Initialize agents
         self.alex = AlexAgent()
         self.cfo = CFOAgent()
-        # self.admin = PracticeAdminAgent()  # Coming soon
+        self.admin = PracticeAdminAgent()
         
         # Initialize supervisor LLM
         self.supervisor_llm = ChatOpenAI(
@@ -128,7 +128,7 @@ class AgentGraphV3:
         workflow.add_node("supervisor", self._supervisor_node)
         workflow.add_node("alex", self._alex_node)
         workflow.add_node("cfo", self._cfo_node)
-        # workflow.add_node("admin", self._admin_node)  # Coming soon
+        workflow.add_node("admin", self._admin_node)
         
         # Set entry point
         workflow.set_entry_point("supervisor")
@@ -140,7 +140,7 @@ class AgentGraphV3:
             {
                 "alex": "alex",
                 "cfo": "cfo",
-                # "admin": "admin",  # Coming soon
+                "admin": "admin",
                 "end": END,
             }
         )
@@ -148,7 +148,7 @@ class AgentGraphV3:
         # Agents return to supervisor for potential follow-up
         workflow.add_edge("alex", "supervisor")
         workflow.add_edge("cfo", "supervisor")
-        # workflow.add_edge("admin", "supervisor")  # Coming soon
+        workflow.add_edge("admin", "supervisor")
         
         # Compile graph with memory checkpointer
         return workflow.compile(checkpointer=self.memory)
@@ -180,6 +180,11 @@ class AgentGraphV3:
             # TODO: Add logic for multi-agent queries
             state["next_agent"] = "end"
             state["current_agent"] = "supervisor"
+            
+            # IMPORTANT: Preserve suggested_actions from the agent
+            # Don't overwrite them - they were set by the agent that just ran
+            # The suggested_actions are already in state, just keep them
+            
             return state
         
         # Supervisor prompt
@@ -220,12 +225,32 @@ If the request is complete or unclear, respond with: end
             logger.warning(f"Invalid routing decision: {routing_decision}, defaulting to alex")
             routing_decision = "alex"
         
-        # For now, only Alex and CFO are available
-        if routing_decision == "admin":
-            logger.info("Admin agent not yet implemented, routing to Alex")
-            routing_decision = "alex"
+        # All agents are now available
+        # Admin agent is fully implemented and ready to use
         
-        logger.info(f"Supervisor routing to: {routing_decision}")
+        # RBAC Check: Verify user has permission to access this agent
+        from app.agents.rbac import can_access_agent, get_permission_denied_message
+        
+        user_role = state.get("user_role", "patient")  # Default to most restrictive
+        
+        if routing_decision in ["alex", "cfo", "admin"]:
+            if not can_access_agent(user_role, routing_decision):
+                logger.warning(
+                    f"User with role '{user_role}' attempted to access agent '{routing_decision}' - DENIED"
+                )
+                
+                # Create permission denied message
+                denied_message = get_permission_denied_message(user_role, f"access_{routing_decision}")
+                
+                # Add denial message to conversation
+                state["messages"].append(AIMessage(content=denied_message))
+                
+                # End the conversation
+                state["next_agent"] = "end"
+                state["current_agent"] = "supervisor"
+                return state
+        
+        logger.info(f"Supervisor routing to: {routing_decision} (user_role={user_role})")
         
         # Update state
         state["next_agent"] = routing_decision
@@ -357,17 +382,17 @@ If the request is complete or unclear, respond with: end
     #     result_state["agent_responses"]["cfo"] = result_state["messages"][-1].content
     #     return result_state
     
-    # def _admin_node(self, state: AgentState) -> AgentState:
-    #     """Admin (Operations Agent) node."""
-    #     logger.info("Admin processing request...")
-    #     clean_messages = remove_handoff_messages(state["messages"])
-    #     clean_state = {**state, "messages": clean_messages}
-    #     result_state = self.admin.process(clean_state)
-    #     result_state["current_agent"] = "admin"
-    #     if "agent_responses" not in result_state:
-    #         result_state["agent_responses"] = {}
-    #     result_state["agent_responses"]["admin"] = result_state["messages"][-1].content
-    #     return result_state
+    def _admin_node(self, state: AgentState) -> AgentState:
+        """Admin (Operations Agent) node."""
+        logger.info("Admin processing request...")
+        clean_messages = remove_handoff_messages(state["messages"])
+        clean_state = {**state, "messages": clean_messages}
+        result_state = self.admin.process(clean_state)
+        result_state["current_agent"] = "admin"
+        if "agent_responses" not in result_state:
+            result_state["agent_responses"] = {}
+        result_state["agent_responses"]["admin"] = result_state["messages"][-1].content
+        return result_state
     
     async def process_message(
         self,
@@ -518,3 +543,39 @@ If the request is complete or unclear, respond with: end
 
 # Create singleton instance
 agent_graph_v3 = AgentGraphV3()
+
+# Export graph for LangGraph Platform
+graph = agent_graph_v3.graph
+
+# Build graph without checkpointer for LangGraph Platform
+def build_graph_for_langgraph_platform():
+    """Build graph without checkpointer for LangGraph Platform."""
+    from langgraph.graph import StateGraph, END
+    from app.agents.graph_state import AgentState
+    
+    # Create instance without memory
+    instance = AgentGraphV3(memory=None)
+    
+    # Build graph without checkpointer
+    workflow = StateGraph(AgentState)
+    workflow.add_node("supervisor", instance._supervisor_node)
+    workflow.add_node("alex", instance._alex_node)
+    workflow.add_node("cfo", instance._cfo_node)
+    workflow.set_entry_point("supervisor")
+    workflow.add_conditional_edges(
+        "supervisor",
+        instance._route_supervisor,
+        {
+            "alex": "alex",
+            "cfo": "cfo",
+            "end": END,
+        }
+    )
+    workflow.add_edge("alex", "supervisor")
+    workflow.add_edge("cfo", "supervisor")
+    
+    # Compile WITHOUT checkpointer
+    return workflow.compile()
+
+# Export for LangGraph Platform (no checkpointer)
+graph = build_graph_for_langgraph_platform()

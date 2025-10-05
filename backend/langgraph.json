@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "dental_assistant": "./app/agents/agent_graph_v3.py:graph"
+  },
+  "env": ".env"
+}

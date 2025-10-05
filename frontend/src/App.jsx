@@ -10,6 +10,9 @@ import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
 import MissionControlPage from './pages/MissionControlPage'
 import MissionControlPageV2 from './pages/MissionControlPageV2'
+import MissionControlPageV3 from './pages/MissionControlPageV3'
+import MissionControlPageV1Enhanced from './pages/MissionControlPageV1Enhanced'
+import VercelAIChatTest from './components/VercelAIChatTest'
 
 function App() {
   // DEMO MODE: Skip authentication for testing
@@ -56,70 +59,100 @@ function App() {
 
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/chat" replace />
-            ) : (
-              <LoginPage onLogin={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            isAuthenticated ? (
-              <Navigate to="/chat" replace />
-            ) : (
-              <RegisterPage onRegister={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/chat"
-          element={
-            isAuthenticated ? (
-              <ChatPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard/*"
-          element={
-            isAuthenticated ? (
-              <MissionControlPageV2 user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard-v1"
-          element={
-            isAuthenticated ? (
-              <MissionControlPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/dashboard-old"
-          element={
-            isAuthenticated ? (
-              <DashboardPage user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </Router>
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/chat" replace />
+              ) : (
+                <LoginPage onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/chat" replace />
+              ) : (
+                <RegisterPage onRegister={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              isAuthenticated ? (
+                <ChatPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/vercel-ai-test"
+            element={
+              isAuthenticated ? (
+                <VercelAIChatTest />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard/*"
+            element={
+              isAuthenticated ? (
+                <MissionControlPageV2 user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard-v3"
+            element={
+              isAuthenticated ? (
+                <MissionControlPageV3 user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard-v2"
+            element={
+              isAuthenticated ? (
+                <MissionControlPageV2 user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard-v1"
+            element={
+              isAuthenticated ? (
+                <MissionControlPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/dashboard-old"
+            element={
+              isAuthenticated ? (
+                <DashboardPage user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </Router>
   )
 }
 

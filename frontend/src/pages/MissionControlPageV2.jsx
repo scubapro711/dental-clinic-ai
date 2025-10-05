@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { formatNumber, formatCurrency, timeAgo } from '../lib/utils';
 import * as dataService from '../services/dataService';
+// CopilotKit removed - using custom chat instead
 
 const MissionControlPageV2 = () => {
   const [loading, setLoading] = useState(true);
@@ -447,6 +448,8 @@ const MissionControlPageV2 = () => {
           </Card>
         )}
       </RightSidebar>
+
+      {/* CopilotKit removed - using custom chat instead */}
     </MissionControlLayoutV2>
   );
 };

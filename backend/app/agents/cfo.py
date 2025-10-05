@@ -80,6 +80,81 @@ When the doctor asks about finances, use these tools to provide accurate,
 data-driven insights and recommendations.
 
 Always respond in Hebrew if the doctor speaks Hebrew, English if they speak English.
+
+═══════════════════════════════════════════════════════════════════
+🎯  SUGGESTED ACTIONS (Phase 7: Agentic System)
+═══════════════════════════════════════════════════════════════════
+
+**IMPORTANT: YOU decide what financial actions to suggest based on data analysis!**
+
+After providing financial analysis, suggest specific actions the clinic should take.
+
+**Format (REQUIRED):**
+
+**Suggested Actions:**
+1. [Action Name] - Brief description
+2. [Action Name] - Brief description
+3. [Action Name] - Brief description
+
+**Guidelines:**
+- Analyze the financial data first
+- Suggest 1-3 actions based on your analysis
+- Be specific and actionable
+- Prioritize by financial impact
+- Consider both short-term and long-term benefits
+
+**Examples:**
+
+**Scenario: Revenue declining**
+```
+Revenue is $45,000 this month, down 15% from last month ($53,000).
+
+**Suggested Actions:**
+1. [Review Pricing Strategy] - Check if prices are competitive with local clinics
+2. [Analyze Patient Retention] - Identify why patients aren't returning
+3. [Increase Marketing Budget] - Boost patient acquisition campaigns
+```
+
+**Scenario: High outstanding invoices**
+```
+Outstanding invoices total $12,000 (18% of monthly revenue).
+
+**Suggested Actions:**
+1. [Send Payment Reminders] - Automated reminders to patients with overdue invoices
+2. [Offer Payment Plans] - Make it easier for patients to pay
+3. [Review Collection Process] - Improve follow-up procedures
+```
+
+**Scenario: Low profitability on certain treatments**
+```
+Root canals show only 12% profit margin vs 35% clinic average.
+
+**Suggested Actions:**
+1. [Analyze Treatment Costs] - Break down material and labor costs
+2. [Adjust Pricing] - Consider 10-15% price increase
+3. [Optimize Procedures] - Reduce time spent per treatment
+```
+
+**Scenario: Strong financial performance**
+```
+Revenue up 25% this quarter! Great job!
+
+**Suggested Actions:**
+1. [Expand Services] - Consider adding cosmetic dentistry
+2. [Hire Additional Staff] - Meet growing demand
+3. [Invest in Equipment] - Upgrade to latest technology
+```
+
+**When NOT to suggest actions:**
+- Simple data requests ("What's the revenue?")
+- Already completed analysis
+- Casual conversation
+
+**Remember:**
+- YOU analyze the data and decide what to recommend
+- Base suggestions on actual financial metrics
+- Think: "What would a real CFO recommend here?"
+- Consider ROI and business impact
 """
     
     def __init__(self):
@@ -111,7 +186,15 @@ Always respond in Hebrew if the doctor speaks Hebrew, English if they speak Engl
         Returns:
             Updated state with CFO's response
         """
-        logger.info(f"CFO processing financial query for user {state['user_id']}")
+        logger.info(f"CFO processing financial query for user {state.get('user_id', 'unknown')}")
+        
+        # Ensure required fields exist in state
+        if "tool_results" not in state:
+            state["tool_results"] = {}
+        if "errors" not in state:
+            state["errors"] = []
+        if "agent_responses" not in state:
+            state["agent_responses"] = {}
         
         try:
             # Get the user's message
@@ -140,17 +223,17 @@ Always respond in Hebrew if the doctor speaks Hebrew, English if they speak Engl
                     logger.info(f"CFO executing tool: {tool_name}")
                     
                     # Execute the tool
-                    if tool_name == "get_revenue_overview":
+                    if tool_name == "get_revenue_overview_tool":
                         result = get_revenue_overview_tool.invoke(tool_args)
-                    elif tool_name == "get_payment_status":
+                    elif tool_name == "get_payment_status_tool":
                         result = get_payment_status_tool.invoke(tool_args)
-                    elif tool_name == "get_top_treatments":
+                    elif tool_name == "get_top_treatments_tool":
                         result = get_top_treatments_tool.invoke(tool_args)
-                    elif tool_name == "get_outstanding_invoices":
+                    elif tool_name == "get_outstanding_invoices_tool":
                         result = get_outstanding_invoices_tool.invoke(tool_args)
-                    elif tool_name == "analyze_profitability":
+                    elif tool_name == "analyze_profitability_tool":
                         result = analyze_profitability_tool.invoke(tool_args)
-                    elif tool_name == "get_financial_trends":
+                    elif tool_name == "get_financial_trends_tool":
                         result = get_financial_trends_tool.invoke(tool_args)
                     else:
                         result = f"Unknown tool: {tool_name}"
@@ -182,8 +265,18 @@ Always respond in Hebrew if the doctor speaks Hebrew, English if they speak Engl
                 # No tools needed, use direct response
                 response_text = response.content
             
+            # Parse suggested actions from response (Phase 7: Agentic System)
+            from app.agents.utils.action_parser import parse_suggested_actions
+            suggested_actions = parse_suggested_actions(response_text)
+            
+            if suggested_actions:
+                logger.info(f"CFO suggested {len(suggested_actions)} actions")
+            
             # Add response to messages
             state["messages"].append(AIMessage(content=response_text))
+            
+            # Add suggested actions to state
+            state["suggested_actions"] = suggested_actions if suggested_actions else None
             
             logger.info("CFO completed financial analysis")
             

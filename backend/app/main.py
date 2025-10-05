@@ -35,6 +35,26 @@ from app.api.v1 import api_router
 app.include_router(api_router)
 
 
+# Register CopilotKit endpoint using ag_ui_langgraph
+# This provides the standard CopilotKit interface at /api/v1/copilotkit
+from ag_ui_langgraph import add_langgraph_fastapi_endpoint, LangGraphAgent
+from app.agents.agent_graph_v3 import agent_graph_v3
+
+# Create LangGraph agent for CopilotKit
+dental_agent = LangGraphAgent(
+    name="dental_assistant",
+    description="AI assistant for dental clinic management with specialized agents for patient care, financial analysis, and operations",
+    graph=agent_graph_v3.graph,
+)
+
+# Add FastAPI endpoint for CopilotKit
+add_langgraph_fastapi_endpoint(
+    app=app,
+    agent=dental_agent,
+    path="/api/v1/copilotkit",
+)
+
+
 @app.get("/")
 async def root():
     """Root endpoint."""

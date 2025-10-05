@@ -15,6 +15,8 @@ class AgentState(TypedDict):
     State schema for the agent graph.
     
     This follows the architecture defined in WORK_PLAN_V14.1, Epic 2, User Story 2.1.
+    
+    Enhanced with RBAC (Role-Based Access Control) for data privacy and security.
     """
     # Conversation messages
     messages: Annotated[List[BaseMessage], add]
@@ -26,6 +28,10 @@ class AgentState(TypedDict):
     user_id: str
     organization_id: str
     conversation_id: str
+    
+    # RBAC - Role-Based Access Control
+    user_role: str  # "patient" | "doctor" | "owner"
+    user_permissions: List[str]  # List of permission strings
     
     # Extracted data from conversation
     patient_id: Optional[str]
@@ -55,3 +61,25 @@ class AgentState(TypedDict):
     
     # Escalation level for medical safety
     escalation_level: Optional[str]
+    
+    # Suggested actions from agents (Phase 7: Agentic System)
+    suggested_actions: Optional[List[Dict[str, Any]]]
+    """
+    Actions suggested by the agent based on context and reasoning.
+    
+    IMPORTANT: These are decided by the agent (LLM), not by code logic!
+    The agent analyzes the situation and suggests specific actions.
+    
+    Format: [
+        {
+            "id": "action_1",
+            "label": "Review Pricing Strategy",
+            "description": "Check if prices are competitive",
+            "type": "analyze",  # analyze, schedule, contact, update, view, financial, action
+            "priority": "high",  # high, medium, low
+            "icon": "BarChart"  # Icon name for UI
+        }
+    ]
+    
+    The parser only extracts these from agent response, doesn't decide them!
+    """
