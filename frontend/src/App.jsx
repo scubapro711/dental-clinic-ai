@@ -3,10 +3,15 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css'
 import { API_ENDPOINTS } from './config'
 
+// Error Boundary
+import ErrorBoundary from './components/ErrorBoundary'
+
 // Pages
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
+import ChatPageWithTransparency from './pages/ChatPageWithTransparency'
+import AgenticDashboard from './pages/AgenticDashboard'
 import DashboardPage from './pages/DashboardPage'
 import MissionControlPage from './pages/MissionControlPage'
 import MissionControlPageV2 from './pages/MissionControlPageV2'
@@ -58,7 +63,8 @@ function App() {
   }
 
   return (
-    <Router>
+    <ErrorBoundary>
+      <Router>
         <Routes>
           <Route
             path="/login"
@@ -84,7 +90,7 @@ function App() {
             path="/chat"
             element={
               isAuthenticated ? (
-                <ChatPage user={user} onLogout={handleLogout} />
+                <ChatPageWithTransparency user={user} onLogout={handleLogout} />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -95,6 +101,16 @@ function App() {
             element={
               isAuthenticated ? (
                 <VercelAIChatTest />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/agentic-dashboard"
+            element={
+              isAuthenticated ? (
+                <AgenticDashboard user={user} onLogout={handleLogout} />
               ) : (
                 <Navigate to="/login" replace />
               )
@@ -153,6 +169,7 @@ function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
+    </ErrorBoundary>
   )
 }
 

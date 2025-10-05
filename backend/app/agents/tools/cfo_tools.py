@@ -9,7 +9,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.mock_odoo import mock_odoo_client as mock_odoo
+from app.integrations.mock_odoo_realistic import realistic_mock_odoo as mock_odoo
 
 
 logger = logging.getLogger(__name__)
@@ -39,13 +39,13 @@ def get_revenue_overview_tool(days: int = 30) -> Dict[str, Any]:
         # Filter invoices by date range
         period_invoices = [
             inv for inv in all_invoices
-            if start_date <= datetime.fromisoformat(inv["date"]) <= end_date
+            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
         ]
         
         # Calculate metrics
-        total_revenue = sum(inv["amount"] for inv in period_invoices)
-        paid_revenue = sum(inv["amount"] for inv in period_invoices if inv["status"] == "paid")
-        pending_revenue = sum(inv["amount"] for inv in period_invoices if inv["status"] == "pending")
+        total_revenue = sum(inv["total_amount"] for inv in period_invoices)
+        paid_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] == "paid")
+        pending_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] in ["draft", "unpaid"])
         
         average_per_day = total_revenue / days if days > 0 else 0
         
@@ -55,9 +55,9 @@ def get_revenue_overview_tool(days: int = 30) -> Dict[str, Any]:
         
         prev_invoices = [
             inv for inv in all_invoices
-            if prev_start <= datetime.fromisoformat(inv["date"]) < prev_end
+            if prev_start <= datetime.fromisoformat(inv["issue_date"]) < prev_end
         ]
-        prev_revenue = sum(inv["amount"] for inv in prev_invoices)
+        prev_revenue = sum(inv["total_amount"] for inv in prev_invoices)
         
         # Calculate growth
         growth = 0.0
@@ -103,7 +103,7 @@ def get_payment_status_tool(days: int = 30) -> Dict[str, Any]:
         
         period_invoices = [
             inv for inv in all_invoices
-            if start_date <= datetime.fromisoformat(inv["date"]) <= end_date
+            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
         ]
         
         # Calculate payment metrics
@@ -116,9 +116,9 @@ def get_payment_status_tool(days: int = 30) -> Dict[str, Any]:
         pending_count = len(pending_invoices)
         overdue_count = len(overdue_invoices)
         
-        paid_amount = sum(inv["amount"] for inv in paid_invoices)
-        pending_amount = sum(inv["amount"] for inv in pending_invoices)
-        overdue_amount = sum(inv["amount"] for inv in overdue_invoices)
+        paid_amount = sum(inv["total_amount"] for inv in paid_invoices)
+        pending_amount = sum(inv["total_amount"] for inv in pending_invoices)
+        overdue_amount = sum(inv["total_amount"] for inv in overdue_invoices)
         
         total_amount = paid_amount + pending_amount + overdue_amount
         
@@ -241,10 +241,10 @@ def get_outstanding_invoices_tool(limit: int = 20) -> List[Dict[str, Any]]:
             result.append({
                 "invoice_id": inv["id"],
                 "patient_id": inv["patient_id"],
-                "amount": round(inv["amount"], 2),
+                "amount": round(inv["total_amount"], 2),
                 "status": inv["status"],
-                "date": inv["date"],
-                "days_outstanding": (datetime.now() - datetime.fromisoformat(inv["date"])).days,
+                "date": inv["issue_date"],
+                "days_outstanding": (datetime.now() - datetime.fromisoformat(inv["issue_date"])).days,
             })
         
         return result
@@ -278,7 +278,7 @@ def analyze_profitability_tool(days: int = 30) -> Dict[str, Any]:
         
         period_invoices = [
             inv for inv in all_invoices
-            if start_date <= datetime.fromisoformat(inv["date"]) <= end_date
+            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
         ]
         
         period_appointments = [
@@ -287,7 +287,7 @@ def analyze_profitability_tool(days: int = 30) -> Dict[str, Any]:
         ]
         
         # Calculate metrics
-        total_revenue = sum(inv["amount"] for inv in period_invoices)
+        total_revenue = sum(inv["total_amount"] for inv in period_invoices)
         total_appointments = len(period_appointments)
         completed_appointments = len([a for a in period_appointments if a["status"] == "completed"])
         
@@ -339,20 +339,20 @@ def get_financial_trends_tool(days: int = 90) -> Dict[str, Any]:
         
         period_invoices = [
             inv for inv in all_invoices
-            if start_date <= datetime.fromisoformat(inv["date"]) <= end_date
+            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
         ]
         
         # Group by week
         weekly_revenue = {}
         for inv in period_invoices:
-            inv_date = datetime.fromisoformat(inv["date"])
+            inv_date = datetime.fromisoformat(inv["issue_date"])
             week_start = inv_date - timedelta(days=inv_date.weekday())
             week_key = week_start.strftime("%Y-%m-%d")
             
             if week_key not in weekly_revenue:
                 weekly_revenue[week_key] = 0.0
             
-            weekly_revenue[week_key] += inv["amount"]
+            weekly_revenue[week_key] += inv["total_amount"]
         
         # Calculate trend
         weeks = sorted(weekly_revenue.keys())

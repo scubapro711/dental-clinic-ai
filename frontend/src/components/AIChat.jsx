@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Send, Loader2, Sparkles, User, Bot, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import FeedbackButtons from './FeedbackButtons';
 
 /**
  * Professional AI Chat Component with Vercel AI SDK + LangGraph Integration
@@ -15,6 +16,7 @@ import { cn } from '@/lib/utils';
  * - Markdown rendering
  * - Tool call visualization
  * - Conversation memory
+ * - Feedback collection for fine-tuning
  * - Beautiful UI with animations
  */
 export default function AIChat({ user }) {
@@ -217,6 +219,12 @@ export default function AIChat({ user }) {
     setError(null);
   };
 
+  // Handle feedback submission
+  const handleFeedbackSubmitted = (messageIndex, feedbackData) => {
+    console.log('Feedback submitted for message', messageIndex, feedbackData);
+    // Optionally update UI to show feedback was submitted
+  };
+
   // Agent badge component
   const AgentBadge = ({ agent }) => {
     const agentConfig = {
@@ -235,8 +243,18 @@ export default function AIChat({ user }) {
   };
 
   // Message component
-  const Message = ({ message }) => {
+  const Message = ({ message, messageIndex, allMessages }) => {
     const isUser = message.role === 'user';
+    
+    // Find the previous user message for feedback context
+    const previousUserMessage = isUser ? null : (() => {
+      for (let i = messageIndex - 1; i >= 0; i--) {
+        if (allMessages[i].role === 'user') {
+          return allMessages[i].content;
+        }
+      }
+      return '';
+    })();
 
     return (
       <div className={cn('flex gap-3 mb-4', isUser ? 'justify-end' : 'justify-start')}>
@@ -292,6 +310,18 @@ export default function AIChat({ user }) {
               <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
             )}
           </div>
+          
+          {/* Feedback Buttons - Now with proper props */}
+          {!isUser && !message.isStreaming && message.content && (
+            <FeedbackButtons
+              messageId={`${conversationId}-${messageIndex}`}
+              conversationId={conversationId}
+              userMessage={previousUserMessage || ""}
+              agentResponse={message.content}
+              agentName={message.agent || "Assistant"}
+              onFeedbackSubmitted={(feedbackData) => handleFeedbackSubmitted(messageIndex, feedbackData)}
+            />
+          )}
           
           {/* Suggested Actions (Phase 7: Agentic System) */}
           {!isUser && message.suggestedActions && message.suggestedActions.length > 0 && (
@@ -396,7 +426,12 @@ export default function AIChat({ user }) {
           )}
 
           {messages.map((message, index) => (
-            <Message key={index} message={message} />
+            <Message 
+              key={index} 
+              message={message} 
+              messageIndex={index}
+              allMessages={messages}
+            />
           ))}
 
           {/* Thinking Indicator */}

@@ -2,14 +2,17 @@
 /**
  * Simple SPA server for production builds
  * Handles client-side routing by always serving index.html
+ * Proxies API requests to backend server
  */
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = 5174;
 const DIST_DIR = path.join(__dirname, 'dist');
+const BACKEND_URL = 'http://localhost:8000';
 
 const MIME_TYPES = {
   '.html': 'text/html',
@@ -26,6 +29,29 @@ const MIME_TYPES = {
 
 const server = http.createServer((req, res) => {
   console.log(`${req.method} ${req.url}`);
+
+  // Proxy API requests to backend
+  if (req.url.startsWith('/api/')) {
+    const proxyReq = http.request({
+      hostname: 'localhost',
+      port: 8000,
+      path: req.url,
+      method: req.method,
+      headers: req.headers
+    }, (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    });
+
+    proxyReq.on('error', (err) => {
+      console.error('Proxy error:', err);
+      res.writeHead(502);
+      res.end('Bad Gateway');
+    });
+
+    req.pipe(proxyReq);
+    return;
+  }
 
   // Remove query string
   let filePath = req.url.split('?')[0];
@@ -67,5 +93,6 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
   console.log(`\n✅ SPA Server running at http://localhost:${PORT}`);
   console.log(`📁 Serving files from: ${DIST_DIR}`);
-  console.log(`🔄 Client-side routing enabled\n`);
+  console.log(`🔄 Client-side routing enabled`);
+  console.log(`🔀 API proxy to: ${BACKEND_URL}\n`);
 });

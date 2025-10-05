@@ -309,6 +309,30 @@ class RealisticMockOdooClient:
         
         return invoice_id
     
+    def get_invoices(self, filters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Get invoices with optional filters."""
+        result = self.invoices.copy()
+        
+        if filters:
+            # Filter by status
+            if "status" in filters:
+                result = [inv for inv in result if inv["status"] == filters["status"]]
+            
+            # Filter by patient_id
+            if "patient_id" in filters:
+                result = [inv for inv in result if inv["patient_id"] == filters["patient_id"]]
+            
+            # Filter by date range
+            if "date_from" in filters:
+                date_from = datetime.fromisoformat(filters["date_from"])
+                result = [inv for inv in result if datetime.fromisoformat(inv["issue_date"]) >= date_from]
+            
+            if "date_to" in filters:
+                date_to = datetime.fromisoformat(filters["date_to"])
+                result = [inv for inv in result if datetime.fromisoformat(inv["issue_date"]) <= date_to]
+        
+        return result
+    
     # Treatment Records
     
     def get_treatment_history(self, patient_id: int) -> List[Dict[str, Any]]:

@@ -483,3 +483,71 @@ async def cancel_appointment(
             message=f"Failed to cancel: {str(e)}",
             appointment_id=appointment_id
         )
+
+
+
+@router.get("/revenue")
+async def get_revenue_overview(days: int = Query(30, description="Number of days to analyze")) -> Dict[str, Any]:
+    """
+    Get revenue overview for dashboard widget.
+    
+    Args:
+        days: Number of days to analyze (default: 30)
+        
+    Returns:
+        Revenue summary with trends and insights
+    """
+    try:
+        # Get date range
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+        
+        # Get invoices
+        all_invoices = realistic_mock_odoo.get_invoices()
+        
+        # Filter by date range
+        period_invoices = [
+            inv for inv in all_invoices
+            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
+        ]
+        
+        # Calculate metrics
+        total_revenue = sum(inv["total_amount"] for inv in period_invoices)
+        paid_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] == "paid")
+        pending_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] in ["draft", "unpaid"])
+        
+        # Previous period for comparison
+        prev_start = start_date - timedelta(days=days)
+        prev_end = start_date
+        
+        prev_invoices = [
+            inv for inv in all_invoices
+            if prev_start <= datetime.fromisoformat(inv["issue_date"]) < prev_end
+        ]
+        prev_revenue = sum(inv["total_amount"] for inv in prev_invoices)
+        
+        # Calculate growth
+        growth = 0.0
+        if prev_revenue > 0:
+            growth = ((total_revenue - prev_revenue) / prev_revenue) * 100
+        
+        # Generate insight
+        trend = "up" if growth > 0 else "down" if growth < 0 else "stable"
+        insight = f"Revenue is {trend} by {abs(growth):.1f}% compared to the previous period"
+        
+        return {
+            "period_days": days,
+            "total_revenue": round(total_revenue, 2),
+            "paid_revenue": round(paid_revenue, 2),
+            "pending_revenue": round(pending_revenue, 2),
+            "previous_period_revenue": round(prev_revenue, 2),
+            "growth_percentage": round(growth, 1),
+            "trend": trend,
+            "insight": insight,
+            "invoice_count": len(period_invoices),
+            "currency": "ILS"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting revenue overview: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
