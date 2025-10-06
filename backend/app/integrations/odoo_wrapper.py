@@ -1,8 +1,8 @@
 """
-OdooRPC-Compatible Wrapper for MockOdoo
+Real Odoo XML-RPC Wrapper
 
-This wrapper provides an OdooRPC-like interface for MockOdoo,
-making it easy to switch to real Odoo in the future.
+This wrapper provides a clean interface to connect to Odoo 19 on AWS
+using XML-RPC protocol.
 
 Usage:
     from app.integrations.odoo_wrapper import get_odoo_client
@@ -10,34 +10,110 @@ Usage:
     odoo = get_odoo_client()
     
     # Search patients
-    patient_ids = odoo.env['res.partner'].search([('is_patient', '=', True)])
+    patient_ids = odoo.env['res.partner'].search([('customer_rank', '>', 0)])
     
     # Read patient data
     patients = odoo.env['res.partner'].browse(patient_ids)
     
     # Create appointment
-    odoo.env['dental.appointment'].create({
-        'patient_id': 123,
-        'date': '2025-10-10',
-        'time': '10:00'
+    odoo.env['calendar.event'].create({
+        'name': 'Dental Checkup',
+        'partner_ids': [(4, patient_id)],
+        'start': '2025-10-10 10:00:00',
+        'stop': '2025-10-10 11:00:00'
     })
 """
 
 import os
+import xmlrpc.client
 from typing import List, Dict, Any, Optional, Union
-from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+
+class OdooXMLRPCClient:
+    """
+    Real Odoo XML-RPC client for connecting to Odoo 19 on AWS.
+    """
+    
+    def __init__(self, url: str, db: str, username: str, password: str):
+        """
+        Initialize Odoo XML-RPC client.
+        
+        Args:
+            url: Odoo URL (e.g., http://3.87.175.126:8069)
+            db: Database name (e.g., dental_prod)
+            username: Username (e.g., admin)
+            password: Password
+        """
+        self.url = url
+        self.db = db
+        self.username = username
+        self.password = password
+        
+        # XML-RPC endpoints
+        self.common = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/common')
+        self.models = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/object')
+        
+        # Authenticate
+        self.uid = self.authenticate()
+        
+        if not self.uid:
+            raise ConnectionError(f"Failed to authenticate to Odoo at {url}")
+        
+        print(f"✅ Connected to Odoo at {url} (User ID: {self.uid})")
+    
+    def authenticate(self) -> int:
+        """
+        Authenticate with Odoo.
+        
+        Returns:
+            User ID if successful, None otherwise
+        """
+        try:
+            uid = self.common.authenticate(self.db, self.username, self.password, {})
+            return uid
+        except Exception as e:
+            print(f"❌ Authentication failed: {e}")
+            return None
+    
+    def execute_kw(self, model: str, method: str, args: list, kwargs: dict = None) -> Any:
+        """
+        Execute a method on an Odoo model.
+        
+        Args:
+            model: Model name (e.g., 'res.partner')
+            method: Method name (e.g., 'search', 'read', 'create')
+            args: Positional arguments
+            kwargs: Keyword arguments
+        
+        Returns:
+            Method result
+        """
+        if kwargs is None:
+            kwargs = {}
+        
+        try:
+            return self.models.execute_kw(
+                self.db, self.uid, self.password,
+                model, method, args, kwargs
+            )
+        except Exception as e:
+            print(f"❌ Error executing {model}.{method}: {e}")
+            raise
 
 
 class OdooModel:
     """
-    Represents an Odoo model (like res.partner, dental.appointment).
+    Represents an Odoo model (like res.partner, calendar.event).
     Provides OdooRPC-like methods: search, read, browse, create, write, unlink.
     """
     
-    def __init__(self, model_name: str, client: 'OdooWrapper'):
+    def __init__(self, model_name: str, client: OdooXMLRPCClient):
         self.model_name = model_name
         self.client = client
-        self._mock = client._mock
     
     def search(self, domain: List[tuple], limit: Optional[int] = None, offset: int = 0) -> List[int]:
         """
@@ -52,61 +128,13 @@ class OdooModel:
             List of record IDs
         
         Example:
-            patient_ids = odoo.env['res.partner'].search([('is_patient', '=', True)])
+            patient_ids = odoo.env['res.partner'].search([('customer_rank', '>', 0)], limit=10)
         """
-        if self.model_name == 'res.partner':
-            # Patient search
-            results = []
-            for field, operator, value in domain:
-                if field == 'is_patient' and value:
-                    results = [p['id'] for p in self._mock.patients]
-                elif field == 'name' and operator in ['=', 'ilike', 'like']:
-                    name_filter = value.lower() if isinstance(value, str) else str(value)
-                    results = self._mock.search_patients(name=name_filter)
-                elif field == 'phone':
-                    results = self._mock.search_patients(phone=value)
-            
-            if limit:
-                results = results[offset:offset+limit]
-            return results
+        kwargs = {'offset': offset}
+        if limit:
+            kwargs['limit'] = limit
         
-        elif self.model_name == 'dental.appointment':
-            # Appointment search
-            results = [a['id'] for a in self._mock.appointments]
-            
-            for field, operator, value in domain:
-                if field == 'patient_id':
-                    patient_id = value
-                    results = [a['id'] for a in self._mock.appointments if a['patient_id'] == patient_id]
-                elif field == 'date':
-                    if operator == '=':
-                        results = [a['id'] for a in self._mock.appointments if a['date'] == value]
-                    elif operator == '>=':
-                        results = [a['id'] for a in self._mock.appointments if a['date'] >= value]
-                    elif operator == '<=':
-                        results = [a['id'] for a in self._mock.appointments if a['date'] <= value]
-                elif field == 'status':
-                    results = [a['id'] for a in self._mock.appointments if a['status'] == value]
-            
-            if limit:
-                results = results[offset:offset+limit]
-            return results
-        
-        elif self.model_name == 'account.move':
-            # Invoice search
-            results = [i['id'] for i in self._mock.invoices]
-            
-            for field, operator, value in domain:
-                if field == 'partner_id':
-                    results = [i['id'] for i in self._mock.invoices if i['patient_id'] == value]
-                elif field == 'state':
-                    results = [i['id'] for i in self._mock.invoices if i['status'] == value]
-            
-            if limit:
-                results = results[offset:offset+limit]
-            return results
-        
-        return []
+        return self.client.execute_kw(self.model_name, 'search', [domain], kwargs)
     
     def search_count(self, domain: List[tuple]) -> int:
         """
@@ -118,7 +146,7 @@ class OdooModel:
         Returns:
             Number of matching records
         """
-        return len(self.search(domain))
+        return self.client.execute_kw(self.model_name, 'search_count', [domain])
     
     def read(self, ids: Union[int, List[int]], fields: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
@@ -137,42 +165,11 @@ class OdooModel:
         if isinstance(ids, int):
             ids = [ids]
         
-        results = []
+        kwargs = {}
+        if fields:
+            kwargs['fields'] = fields
         
-        if self.model_name == 'res.partner':
-            for patient_id in ids:
-                patient = self._mock.get_patient(patient_id)
-                if patient:
-                    # Always include 'id' field
-                    if fields and 'id' not in fields:
-                        fields = ['id'] + fields
-                    if fields:
-                        patient = {k: v for k, v in patient.items() if k in fields}
-                    results.append(patient)
-        
-        elif self.model_name == 'dental.appointment':
-            for appt_id in ids:
-                appt = self._mock.get_appointment(appt_id)
-                if appt:
-                    # Always include 'id' field
-                    if fields and 'id' not in fields:
-                        fields = ['id'] + fields
-                    if fields:
-                        appt = {k: v for k, v in appt.items() if k in fields}
-                    results.append(appt)
-        
-        elif self.model_name == 'account.move':
-            for inv_id in ids:
-                inv = self._mock.get_invoice(inv_id)
-                if inv:
-                    # Always include 'id' field
-                    if fields and 'id' not in fields:
-                        fields = ['id'] + fields
-                    if fields:
-                        inv = {k: v for k, v in inv.items() if k in fields}
-                    results.append(inv)
-        
-        return results
+        return self.client.execute_kw(self.model_name, 'read', [ids], kwargs)
     
     def browse(self, ids: Union[int, List[int]]) -> 'RecordSet':
         """
@@ -206,32 +203,16 @@ class OdooModel:
             ID of created record
         
         Example:
-            appt_id = odoo.env['dental.appointment'].create({
-                'patient_id': 123,
-                'date': '2025-10-10',
-                'time': '10:00'
+            appt_id = odoo.env['calendar.event'].create({
+                'name': 'Dental Checkup',
+                'start': '2025-10-10 10:00:00'
             })
         """
-        if self.model_name == 'res.partner':
-            return self._mock.create_patient(values)
-        
-        elif self.model_name == 'dental.appointment':
-            return self._mock.create_appointment(
-                patient_id=values['patient_id'],
-                date=values['date'],
-                time=values.get('time', '09:00'),
-                treatment_type=values.get('treatment_type', 'Checkup'),
-                duration_minutes=values.get('duration_minutes', 60)
-            )
-        
-        elif self.model_name == 'account.move':
-            return self._mock.create_invoice(values)
-        
-        return 0
+        return self.client.execute_kw(self.model_name, 'create', [values])
     
     def write(self, ids: Union[int, List[int]], values: Dict[str, Any]) -> bool:
         """
-        Update existing records.
+        Update records.
         
         Args:
             ids: Single ID or list of IDs
@@ -241,27 +222,12 @@ class OdooModel:
             True if successful
         
         Example:
-            odoo.env['dental.appointment'].write([123], {'status': 'confirmed'})
+            odoo.env['res.partner'].write([1, 2], {'phone': '123-456-7890'})
         """
         if isinstance(ids, int):
             ids = [ids]
         
-        if self.model_name == 'res.partner':
-            for patient_id in ids:
-                self._mock.update_patient(patient_id, values)
-            return True
-        
-        elif self.model_name == 'dental.appointment':
-            for appt_id in ids:
-                self._mock.update_appointment(appt_id, values)
-            return True
-        
-        elif self.model_name == 'account.move':
-            for inv_id in ids:
-                self._mock.update_invoice(inv_id, values)
-            return True
-        
-        return False
+        return self.client.execute_kw(self.model_name, 'write', [ids, values])
     
     def unlink(self, ids: Union[int, List[int]]) -> bool:
         """
@@ -274,23 +240,47 @@ class OdooModel:
             True if successful
         
         Example:
-            odoo.env['dental.appointment'].unlink([123])
+            odoo.env['calendar.event'].unlink([123, 456])
         """
         if isinstance(ids, int):
             ids = [ids]
         
-        if self.model_name == 'dental.appointment':
-            for appt_id in ids:
-                self._mock.cancel_appointment(appt_id)
-            return True
+        return self.client.execute_kw(self.model_name, 'unlink', [ids])
+    
+    def search_read(self, domain: List[tuple], fields: Optional[List[str]] = None, 
+                    limit: Optional[int] = None, offset: int = 0) -> List[Dict[str, Any]]:
+        """
+        Search and read in one call (more efficient).
         
-        return False
+        Args:
+            domain: Search domain
+            fields: Fields to read
+            limit: Maximum records
+            offset: Skip records
+        
+        Returns:
+            List of record dictionaries
+        
+        Example:
+            patients = odoo.env['res.partner'].search_read(
+                [('customer_rank', '>', 0)], 
+                ['name', 'email'], 
+                limit=10
+            )
+        """
+        kwargs = {'offset': offset}
+        if limit:
+            kwargs['limit'] = limit
+        if fields:
+            kwargs['fields'] = fields
+        
+        return self.client.execute_kw(self.model_name, 'search_read', [domain], kwargs)
 
 
 class RecordSet:
     """
     Represents a set of Odoo records.
-    Allows iteration and attribute access.
+    Allows iteration and indexing.
     """
     
     def __init__(self, records: List[Dict[str, Any]], model_name: str, model: OdooModel):
@@ -352,7 +342,7 @@ class OdooEnvironment:
     Provides access to models.
     """
     
-    def __init__(self, client: 'OdooWrapper'):
+    def __init__(self, client: OdooXMLRPCClient):
         self.client = client
     
     def __getitem__(self, model_name: str) -> OdooModel:
@@ -367,7 +357,7 @@ class OdooEnvironment:
 
 class OdooWrapper:
     """
-    OdooRPC-compatible wrapper for MockOdoo.
+    Wrapper for Odoo XML-RPC client.
     
     Provides the same interface as OdooRPC:
     - odoo.env['model.name'].search(domain)
@@ -378,54 +368,44 @@ class OdooWrapper:
     - odoo.env['model.name'].unlink(ids)
     """
     
-    def __init__(self, use_mock: bool = True):
+    def __init__(self, url: str, db: str, username: str, password: str):
         """
-        Initialize Odoo client.
+        Initialize Odoo wrapper.
         
         Args:
-            use_mock: If True, use MockOdoo. If False, use real Odoo (future).
-        """
-        self.use_mock = use_mock
-        
-        if use_mock:
-            self._mock = RealisticMockOdooClient()
-            self.env = OdooEnvironment(self)
-        else:
-            # TODO: Initialize real OdooRPC client
-            raise NotImplementedError("Real Odoo not implemented yet. Use use_mock=True.")
-    
-    def login(self, database: str, username: str, password: str) -> bool:
-        """
-        Login to Odoo.
-        
-        Args:
-            database: Database name
+            url: Odoo URL
+            db: Database name
             username: Username
             password: Password
-        
-        Returns:
-            True if successful
         """
-        if self.use_mock:
-            return self._mock.authenticate()
-        else:
-            # TODO: Real Odoo login
-            raise NotImplementedError("Real Odoo not implemented yet.")
+        self.client = OdooXMLRPCClient(url, db, username, password)
+        self.env = OdooEnvironment(self.client)
+
+
+# Singleton instance
+_odoo_client = None
 
 
 def get_odoo_client() -> OdooWrapper:
     """
-    Get Odoo client (Mock or Real based on environment variable).
-    
-    Environment Variables:
-        USE_MOCK_ODOO: If "true", use MockOdoo. If "false", use real Odoo.
+    Get Odoo client (singleton).
     
     Returns:
         OdooWrapper instance
     
     Example:
         odoo = get_odoo_client()
-        patient_ids = odoo.env['res.partner'].search([('is_patient', '=', True)])
+        patient_ids = odoo.env['res.partner'].search([('customer_rank', '>', 0)])
     """
-    use_mock = os.getenv('USE_MOCK_ODOO', 'true').lower() == 'true'
-    return OdooWrapper(use_mock=use_mock)
+    global _odoo_client
+    
+    if _odoo_client is None:
+        # Get credentials from environment
+        url = os.getenv('ODOO_URL', 'http://3.87.175.126:8069')
+        db = os.getenv('ODOO_DB', 'dental_prod')
+        username = os.getenv('ODOO_USERNAME', 'admin')
+        password = os.getenv('ODOO_PASSWORD', 'Goline055#')
+        
+        _odoo_client = OdooWrapper(url, db, username, password)
+    
+    return _odoo_client
