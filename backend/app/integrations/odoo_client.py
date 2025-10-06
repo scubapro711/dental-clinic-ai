@@ -42,7 +42,8 @@ class OdooClient:
             >>> print(patient_ids)
             [1, 5, 12]
         """
-        domain = [('is_patient', '=', True)]
+        # Use customer_rank for Odoo 19 (replaces is_patient)
+        domain = [('customer_rank', '>', 0)]
         
         if name:
             domain.append(('name', 'ilike', name))
@@ -69,7 +70,7 @@ class OdooClient:
         """
         results = self._odoo.env['res.partner'].read(
             [patient_id],
-            ['name', 'email', 'phone', 'mobile', 'street', 'city', 'age', 'gender']
+            ['name', 'email', 'phone', 'street', 'city']
         )
         return results[0] if results else None
     
@@ -151,7 +152,7 @@ class OdooClient:
         Returns:
             Number of patients
         """
-        return self._odoo.env['res.partner'].search_count([('is_patient', '=', True)])
+        return self._odoo.env['res.partner'].search_count([('customer_rank', '>', 0)])
     
     # Appointment Management
     
