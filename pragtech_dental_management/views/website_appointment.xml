@@ -1,0 +1,49 @@
+<odoo>
+    <data>
+        <!-- Website Menu Item -->
+        <record id="appointment_page_menu" model="website.menu">
+            <field name="name">Appointments</field>
+            <field name="url">/my_appointments/appointments/page</field>
+            <field name="parent_id" ref="website.main_menu" />
+            <field name="sequence" type="int">11</field>
+        </record>
+
+        <!-- Appointment Page Template -->
+        <template id="appointment_page_template">
+            <t t-call="website.layout">
+                <div class="container mt-5">
+                    <!-- Carousel -->
+                    <div id="appointmentCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+                        <div class="carousel-inner rounded shadow">
+                            <div class="carousel-item active">
+                                <img src="/pragtech_dental_management/static/icon/image4.jpg" class="d-block w-100" alt="Clinic 1" style="width: 100px; height: 400px; object-fit: cover;" />
+                            </div>
+                            <div class="carousel-item">
+                                <img src="/pragtech_dental_management/static/icon/image2.jpg" class="d-block w-100" alt="Clinic 2" style="width: 100px; height: 400px; object-fit: cover;" />
+                            </div>
+                            <div class="carousel-item">
+                                <img src="/pragtech_dental_management/static/icon/image3.png" class="d-block w-100" alt="Clinic 3" style="width: 100px; height: 400px; object-fit: cover;" />
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#appointmentCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#appointmentCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <!-- Heading -->
+                    <div class="text-center mb-4">
+                        <a href="/my_appointments/doctor/page" class="btn btn-primary btn-lg">
+                            <i class="fa fa-calendar-check-o me-2"></i> Create Appointment
+                        </a>
+                        <a href="/appointment/existing_appointments" class="btn btn-secondary btn-lg">
+                            <i class="fa fa-history me-2"></i> Existing Appointment
+                        </a>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

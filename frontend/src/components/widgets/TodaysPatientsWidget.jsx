@@ -9,10 +9,12 @@ import { cn } from '@/lib/utils';
  * Today's Patients Widget - Alex Agent
  * 
  * Shows today's patient appointments with quick actions
+ * Connected to real OdooClient API
  */
 export default function TodaysPatientsWidget({ onChatWithPatient }) {
   const [patients, setPatients] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchTodaysPatients();
@@ -20,173 +22,196 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
 
   const fetchTodaysPatients = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with real API call
-      // const response = await fetch('http://localhost:8000/api/v1/patients/today');
-      // const data = await response.json();
-      
-      // Mock data for now
-      const mockData = [
-        {
-          id: 1,
-          name: 'Sarah Johnson',
-          time: '9:00 AM',
-          treatment: 'Root Canal',
-          status: 'confirmed',
-          isFirstVisit: false
-        },
-        {
-          id: 2,
-          name: 'David Cohen',
-          time: '11:30 AM',
-          treatment: 'Cleaning',
-          status: 'unconfirmed',
-          isFirstVisit: false
-        },
-        {
-          id: 3,
-          name: 'Emma Wilson',
-          time: '2:00 PM',
-          treatment: 'First Visit',
-          status: 'confirmed',
-          isFirstVisit: true
+      const response = await fetch('http://localhost:8000/api/v1/dashboard/widgets/patients/today', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
         }
-      ];
+      });
       
-      setPatients(mockData);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      // Transform API data to widget format
+      const transformedData = data.map(appt => ({
+        id: appt.id,
+        name: appt.name,
+        time: new Date(appt.time).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }),
+        treatment: appt.treatment,
+        status: appt.status === 'confirmed' ? 'confirmed' : 'unconfirmed',
+        isFirstVisit: appt.isFirstVisit,
+        phone: appt.phone
+      }));
+      
+      setPatients(transformedData);
     } catch (error) {
       console.error('Error fetching patients:', error);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getStatusConfig = (status) => {
-    const configs = {
-      confirmed: {
-        icon: <CheckCircle2 className="w-4 h-4" />,
-        color: 'text-green-600 bg-green-100',
-        label: 'אושר'
-      },
-      unconfirmed: {
-        icon: <Clock className="w-4 h-4" />,
-        color: 'text-orange-600 bg-orange-100',
-        label: 'ממתין'
-      },
-      urgent: {
-        icon: <AlertCircle className="w-4 h-4" />,
-        color: 'text-red-600 bg-red-100',
-        label: 'דחוף'
-      }
+  const getStatusBadge = (status) => {
+    const variants = {
+      confirmed: { variant: 'default', text: 'אושר', icon: CheckCircle2, color: 'text-green-600' },
+      unconfirmed: { variant: 'secondary', text: 'ממתין', icon: Clock, color: 'text-yellow-600' },
     };
-    return configs[status] || configs.confirmed;
+    const config = variants[status] || variants.unconfirmed;
+    const Icon = config.icon;
+    
+    return (
+      <Badge variant={config.variant} className="flex items-center gap-1">
+        <Icon className={cn("w-3 h-3", config.color)} />
+        <span>{config.text}</span>
+      </Badge>
+    );
   };
 
-  const handleChatClick = (patient) => {
+  const handleChat = (patient) => {
     if (onChatWithPatient) {
-      onChatWithPatient(`Tell me about ${patient.name}'s appointment today`);
+      onChatWithPatient(`תספר לי על התור של ${patient.name} היום`);
     }
   };
+
+  const handleCall = (patient) => {
+    if (patient.phone) {
+      window.open(`tel:${patient.phone}`);
+    }
+  };
+
+  const handleConfirm = (patient) => {
+    if (onChatWithPatient) {
+      onChatWithPatient(`אשר את התור של ${patient.name}`);
+    }
+  };
+
+  const handleViewAll = () => {
+    if (onChatWithPatient) {
+      onChatWithPatient('הצג את כל התורים להיום');
+    }
+  };
+
+  if (error) {
+    return (
+      <BaseWidget
+        title="מטופלים היום"
+        subtitle={`שגיאה בטעינת נתונים`}
+        agent="alex"
+        icon={Calendar}
+      >
+        <div className="text-center py-4">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
+          <p className="text-sm text-gray-600">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={fetchTodaysPatients}
+            className="mt-2"
+          >
+            נסה שוב
+          </Button>
+        </div>
+      </BaseWidget>
+    );
+  }
 
   return (
     <BaseWidget
       title="מטופלים היום"
+      subtitle={`${patients.length} תורים`}
       agent="alex"
-      icon="👥"
-      badge={`${patients.length} תורים`}
+      icon={Calendar}
       isLoading={isLoading}
     >
       <div className="space-y-3">
-        {patients.length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-4">
-            אין תורים להיום
-          </div>
-        ) : (
-          patients.map((patient) => {
-            const statusConfig = getStatusConfig(patient.status);
-            
-            return (
-              <div
-                key={patient.id}
-                className={cn(
-                  'rounded-lg border-2 p-3 transition-all duration-200',
-                  'hover:shadow-md cursor-pointer',
-                  patient.status === 'confirmed' ? 'border-green-200 bg-green-50' :
-                  patient.status === 'unconfirmed' ? 'border-orange-200 bg-orange-50' :
-                  'border-red-200 bg-red-50'
-                )}
-              >
-                {/* Header */}
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm">{patient.name}</span>
-                      {patient.isFirstVisit && (
-                        <Badge variant="secondary" className="text-xs">
-                          ביקור ראשון
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-600 mt-1">
-                      <Calendar className="w-3 h-3" />
-                      <span>{patient.time}</span>
-                      <span className="mx-1">•</span>
-                      <span>{patient.treatment}</span>
-                    </div>
-                  </div>
-                  <Badge className={cn('text-xs flex items-center gap-1', statusConfig.color)}>
-                    {statusConfig.icon}
-                    {statusConfig.label}
-                  </Badge>
-                </div>
-
-                {/* Actions */}
-                <div className="flex gap-2 mt-3">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 text-xs h-7"
-                    onClick={() => handleChatClick(patient)}
-                  >
-                    <MessageSquare className="w-3 h-3 mr-1" />
-                    שיחה
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 text-xs h-7"
-                  >
-                    <Phone className="w-3 h-3 mr-1" />
-                    התקשר
-                  </Button>
-                  {patient.status === 'unconfirmed' && (
-                    <Button
-                      size="sm"
-                      className="flex-1 text-xs h-7 bg-green-600 hover:bg-green-700"
-                    >
-                      <CheckCircle2 className="w-3 h-3 mr-1" />
-                      אשר
-                    </Button>
+        {patients.map((patient) => (
+          <div
+            key={patient.id}
+            className={cn(
+              "p-3 rounded-lg border transition-all",
+              patient.isFirstVisit ? "bg-blue-50 border-blue-200" : "bg-white border-gray-200",
+              "hover:shadow-md"
+            )}
+          >
+            {/* Patient Header */}
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <h4 className="font-semibold text-gray-900">{patient.name}</h4>
+                  {patient.isFirstVisit && (
+                    <Badge variant="outline" className="text-xs">ביקור ראשון</Badge>
                   )}
                 </div>
+                <div className="flex items-center gap-3 mt-1 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {patient.time}
+                  </span>
+                  <span>•</span>
+                  <span>{patient.treatment}</span>
+                </div>
               </div>
-            );
-          })
-        )}
-      </div>
+              {getStatusBadge(patient.status)}
+            </div>
 
-      {/* Footer Action */}
-      {patients.length > 0 && (
-        <div className="mt-4 pt-3 border-t">
+            {/* Action Buttons */}
+            <div className="flex gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleChat(patient)}
+                className="flex-1 flex items-center justify-center gap-1"
+              >
+                <MessageSquare className="w-3 h-3" />
+                שיחה
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleCall(patient)}
+                className="flex-1 flex items-center justify-center gap-1"
+              >
+                <Phone className="w-3 h-3" />
+                התקשר
+              </Button>
+              {patient.status === 'unconfirmed' && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => handleConfirm(patient)}
+                  className="flex-1 flex items-center justify-center gap-1"
+                >
+                  <CheckCircle2 className="w-3 h-3" />
+                  אשר
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+
+        {patients.length === 0 && !isLoading && (
+          <div className="text-center py-8 text-gray-500">
+            <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>אין תורים היום</p>
+          </div>
+        )}
+
+        {/* View All Button */}
+        {patients.length > 0 && (
           <Button
-            variant="ghost"
-            className="w-full text-xs"
-            onClick={() => onChatWithPatient && onChatWithPatient('Show me all appointments for today')}
+            variant="outline"
+            className="w-full"
+            onClick={handleViewAll}
           >
             הצג את כל התורים להיום
           </Button>
-        </div>
-      )}
+        )}
+      </div>
     </BaseWidget>
   );
 }

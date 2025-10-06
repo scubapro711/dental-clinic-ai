@@ -1,7 +1,9 @@
 """
 CFO Agent Tools - Financial Data Access
 
-Tools for accessing and analyzing financial data from Mock Odoo.
+Tools for accessing and analyzing financial data from Odoo.
+
+Updated to use OdooClient with OdooRPC-compatible interface.
 """
 
 import logging
@@ -9,6 +11,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
+from app.integrations.odoo_client import odoo_client
 from app.integrations.mock_odoo_realistic import realistic_mock_odoo as mock_odoo
 
 
@@ -33,8 +36,15 @@ def get_revenue_overview_tool(days: int = 30) -> Dict[str, Any]:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get invoices from Mock Odoo
-        all_invoices = mock_odoo.get_invoices()
+        # Get all invoices using OdooClient
+        invoice_ids = odoo_client.search_invoices()
+        
+        # Get invoice details
+        all_invoices = []
+        for inv_id in invoice_ids:
+            inv = odoo_client.get_invoice_full(inv_id)
+            if inv:
+                all_invoices.append(inv)
         
         # Filter invoices by date range
         period_invoices = [
@@ -45,7 +55,7 @@ def get_revenue_overview_tool(days: int = 30) -> Dict[str, Any]:
         # Calculate metrics
         total_revenue = sum(inv["total_amount"] for inv in period_invoices)
         paid_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] == "paid")
-        pending_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] in ["draft", "unpaid"])
+        pending_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] in ["draft", "unpaid", "pending"])
         
         average_per_day = total_revenue / days if days > 0 else 0
         
@@ -98,8 +108,15 @@ def get_payment_status_tool(days: int = 30) -> Dict[str, Any]:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get invoices
-        all_invoices = mock_odoo.get_invoices()
+        # Get all invoices using OdooClient
+        invoice_ids = odoo_client.search_invoices()
+        
+        # Get invoice details
+        all_invoices = []
+        for inv_id in invoice_ids:
+            inv = odoo_client.get_invoice_full(inv_id)
+            if inv:
+                all_invoices.append(inv)
         
         period_invoices = [
             inv for inv in all_invoices
@@ -163,7 +180,9 @@ def get_top_treatments_tool(limit: int = 10, days: int = 30) -> List[Dict[str, A
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get treatment records
+        # Note: Treatment records are not yet in OdooClient
+        # Using mock_odoo directly for now
+        # TODO: Add treatment records to OdooClient in future
         all_treatments = mock_odoo.get_treatment_records()
         
         period_treatments = [
@@ -220,17 +239,24 @@ def get_outstanding_invoices_tool(limit: int = 20) -> List[Dict[str, Any]]:
     logger.info(f"Getting top {limit} outstanding invoices")
     
     try:
-        # Get all invoices
-        all_invoices = mock_odoo.get_invoices()
+        # Get all invoices using OdooClient
+        invoice_ids = odoo_client.search_invoices()
+        
+        # Get invoice details
+        all_invoices = []
+        for inv_id in invoice_ids:
+            inv = odoo_client.get_invoice_full(inv_id)
+            if inv:
+                all_invoices.append(inv)
         
         # Filter unpaid invoices (pending or overdue)
         outstanding = [
             inv for inv in all_invoices
-            if inv["status"] in ["pending", "overdue"]
+            if inv["status"] in ["pending", "overdue", "unpaid"]
         ]
         
-        # Sort by amount (highest first) and date (oldest first)
-        outstanding.sort(key=lambda x: (-x["amount"], x["date"]))
+        # Sort by outstanding amount (highest first) and date (oldest first)
+        outstanding.sort(key=lambda x: (-x.get("outstanding_amount", x.get("total_amount", 0)), x["issue_date"]))
         
         # Limit results
         outstanding = outstanding[:limit]
@@ -241,7 +267,9 @@ def get_outstanding_invoices_tool(limit: int = 20) -> List[Dict[str, Any]]:
             result.append({
                 "invoice_id": inv["id"],
                 "patient_id": inv["patient_id"],
+                "patient_name": inv.get("patient_name", "N/A"),
                 "amount": round(inv["total_amount"], 2),
+                "outstanding": round(inv.get("outstanding_amount", inv["total_amount"]), 2),
                 "status": inv["status"],
                 "date": inv["issue_date"],
                 "days_outstanding": (datetime.now() - datetime.fromisoformat(inv["issue_date"])).days,
@@ -272,14 +300,26 @@ def analyze_profitability_tool(days: int = 30) -> Dict[str, Any]:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get data
-        all_invoices = mock_odoo.get_invoices()
-        all_appointments = mock_odoo.get_appointments()
+        # Get invoices using OdooClient
+        invoice_ids = odoo_client.search_invoices()
+        all_invoices = []
+        for inv_id in invoice_ids:
+            inv = odoo_client.get_invoice_full(inv_id)
+            if inv:
+                all_invoices.append(inv)
         
         period_invoices = [
             inv for inv in all_invoices
             if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
         ]
+        
+        # Get appointments using OdooClient
+        appointment_ids = odoo_client.search_appointments()
+        all_appointments = []
+        for apt_id in appointment_ids:
+            apt = odoo_client.get_appointment_full(apt_id)
+            if apt:
+                all_appointments.append(apt)
         
         period_appointments = [
             apt for apt in all_appointments
@@ -334,8 +374,13 @@ def get_financial_trends_tool(days: int = 90) -> Dict[str, Any]:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get invoices
-        all_invoices = mock_odoo.get_invoices()
+        # Get invoices using OdooClient
+        invoice_ids = odoo_client.search_invoices()
+        all_invoices = []
+        for inv_id in invoice_ids:
+            inv = odoo_client.get_invoice_full(inv_id)
+            if inv:
+                all_invoices.append(inv)
         
         period_invoices = [
             inv for inv in all_invoices

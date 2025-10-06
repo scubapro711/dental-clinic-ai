@@ -1,0 +1,158 @@
+<odoo>
+    <data>
+        <template id="appointment_form_template">
+            <t t-call="website.layout">
+                <div class="container mt-5">
+                    <h2 class="mb-4">Book an Appointment</h2>
+                    <!-- new user appointment form -->
+                    <form role="form" action="/appointment/submit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="form-group mb-3">
+                            <label for="patient_name">Patient Name</label>
+                            <input type="text" id="patient_name" name="patient_name" class="form-control" required="required"/>                            
+
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" required="required"/>                            
+
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="from_time">Start Time</label>
+                            <!-- <t t-esc="from_time"/> -->
+                            <input type="datetime-local" id="from_time" name="from_time" class="form-control" t-att-value="from_time" readonly="True"/>
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="to_time">End Time</label>
+                            <input type="datetime-local" id="to_time" name="to_time" class="form-control" t-att-value="to_time" readonly="True"/>
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="physician_id">Physician</label>
+                        
+                            <input type="char" id="doctor" name="doctor" class="form-control" t-att-value="doctor" readonly="True"/>
+                            <input type="hidden" name="doctor_id" t-att-value="doctor_id"/>
+
+                            
+                        </div>
+        
+                        <div class="form-group mb-4">
+                            <label for="service_id">Consultation Service</label>
+                            <select id="service_id" name="service_id" class="form-control" required="required">
+                                <option value=""></option>
+                                <t t-foreach="services" t-as="service">
+                                    <option t-att-value="service.id"><t t-esc="service.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+        
+                        <div class="text-center mt-3 mb-4">
+                            <button type="submit" class="btn btn-primary">Submit Appointment</button>
+                        </div>                   
+                     </form>
+                </div>
+            </t>
+        </template>
+
+        <!-- Email Already Exist Mesasge -->
+        <template id="email_exists_page" name="Email Already Exists Page">
+            <t t-call="website.layout">
+                <div class="container my-5">
+                    <h2>Email Already Exists</h2>
+                    <p>The email <strong><t t-esc="email"/></strong> is already used for an appointment.</p>
+                    <a href="/my_appointments/appointments/page" class="btn btn-primary mt-3">Go Back to Home</a>
+                </div>
+            </t>
+        </template>
+
+        <!-- Existing User Appointment Form -->
+        <template id="appointment_form2_template">
+            <t t-call="website.layout">
+                <div class="container mt-5">
+                    <h2 class="mb-4">Book an Appointment</h2>
+                    <form role="form" action="/appointment/submit_existing_patient" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="form-group mb-3">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="Enter Email" required="required"/>
+                            <button type="button" id="search_patient_btn" class="btn btn-outline-secondary" title="Search Patient">
+                                <i class="fa fa-search"></i> <!-- Font Awesome icon (optional, or use any icon library) -->
+                            </button>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="patient_name">Patient Name</label>
+                            <input type="text" id="patient_name" name="patient_name" class="form-control" readonly="True" required="required"/>
+                            <input type="hidden" name="patient_id" id="patient_id"/>
+
+                        </div>
+
+                        <!-- <div class="form-group mb-3">
+                            <label for="patient_name">Patient Name</label>
+                            <select id="patient_id" name="patient_id" class="form-control" required="required">
+                                <option value=""></option>
+                                <t t-foreach="patient_name" t-as="patient">
+                                    <option t-att-value="patient.id"><t t-esc="patient.partner_id.name"/></option>
+                                </t>
+                            </select>
+
+                        </div> -->
+        
+                        <div class="form-group mb-3">
+                            <label for="from_time">Start Time</label>
+                            <!-- <t t-esc="from_time"/> -->
+                            <input type="datetime-local" id="from_time" name="from_time" class="form-control" t-att-value="from_time" readonly="True"/>
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="to_time">End Time</label>
+                            <input type="datetime-local" id="to_time" name="to_time" class="form-control" t-att-value="to_time" readonly="True"/>
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="physician_id">Physician</label>
+                        
+                            <input type="char" id="doctor" name="doctor" class="form-control" t-att-value="doctor" readonly="True"/>
+                            <input type="hidden" name="doctor_id" t-att-value="doctor_id"/>
+
+                            
+                        </div>
+        
+                        <div class="form-group mb-4">
+                            <label for="service_id">Consultation Service</label>
+                            <select id="service_id" name="service_id" class="form-control" required="required">
+                                <option value=""></option>
+                                <t t-foreach="services" t-as="service">
+                                    <option t-att-value="service.id"><t t-esc="service.name"/></option>
+                                </t>
+                            </select>
+                        </div>
+        
+                        <div class="text-center mt-3 mb-4">
+                            <button type="submit" class="btn btn-primary">Submit Appointment</button>
+                        </div>                   
+                     </form>
+                </div>
+            </t>
+        </template>
+
+
+
+
+        <template id="appointment_success_page">
+            <t t-call="website.layout">
+                <div class="container mt-5 mb-5">
+                    <div class="alert alert-success text-center" role="alert">
+                        <h2 class="mb-3">Appointment Created Successfully</h2>
+                        <p>Thank you for booking your appointment. We will contact you soon.</p>
+                        <a href="/my_appointments/appointments/page" class="btn btn-primary mt-3">Return to Home</a>
+                    </div>
+                </div>
+            </t>
+        </template>
+       
+
+    </data>
+</odoo>

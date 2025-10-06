@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div t-name="pragtech_dental_management.DentalAction" class="o_action o_spreadsheet_dashboard_action o_field_highlight">
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        <!-- <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/> -->
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
+        <!-- <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script> -->
+        <div class="chart_view_dashboard" style="width:100%; height:1000px">
+            <div>
+                <button id="close_screen" class = "close" name="Close">
+					Close
+				</button>
+            </div>
+            <div class = "mouth_selection">
+                <div class="squaredOne" style="margin-top: 50px;">
+                    <input type="checkbox" value="None" id="select_full_mouth" name="check" />
+                    <label for="squaredOne">
+						<strong>Full Mouth</strong>
+					</label>
+                </div>
+                <!-- <input type="checkbox" id = "select_full_mouth">
+				</input>
+				<span class = "test_full_mouth">
+				Full Mouth
+				</span> -->
+            </div>
+            <div class = "set_together">
+                <div style="margin-bottom: 10px; margin-left: -65px; min-width: 372px;">
+                    <input type="text" id="searchBar" placeholder="Search..." style="padding: 5px; width: 169px; margin-right: 5px; vertical-align: middle; display: inline-block;" />
+                    <button id="clearButton" style="padding: 5px 10px; vertical-align: middle; display: inline-block; background-color: red; color: white; border: none; cursor: pointer; margin-right: 5px;">
+                        X
+                    </button>
+                    <button id="searchButton" style="padding: 5px 10px; vertical-align: middle; display: inline-block;">
+                        Search
+                    </button>
+                </div>
+                <div class = "procedure_label">
+					Procedures
+				</div>
+                <div style="border:1px;width:200px;height:540px;overflow:scroll;">
+                    <div id = "categ_list" class = "categs">
+                        <div id = "total_list_div" class="panel panel-default">
+						</div>
+                    </div>
+                </div>
+            </div>
+            <div class="right_col">
+                <div class = "teeth_chart" style="width:80%; height:60%;top: 130px;">
+                    <table class = "numbering">
+                        <tr id="upper_teeths">
+						</tr>
+                    </table>
+                    <table>
+                    <body>
+                        <div class = "surface1" id="teeth-surface-1">
+						</div>
+                        <div class="page">
+                            <div class="svg-layer">
+                                <svg id = "svg_object" width="960"
+								height="110">
+								</svg>
+                            </div>
+                            <div class="html-layer"/>
+						</div>
+                        <div class = "surface2" id="teeth-surface-2">
+						</div>
+                    </body>
+                    </table>
+                    <table class = "numbering_below">
+                        <tr id="lower_teeths">
+						</tr>
+                    </table>
+
+                </div>
+                <div class = "states" width = "100%" style="margin-top: 311px;margin-left: -86px;">
+                    <div style="margin-top: 30px;">
+                    <button id = "in_progress" class = "myButton">
+								In Progress
+							</button>
+                    <button id = 'completed' class = "myButton" style="margin-top: 20px;">
+								Complete
+							</button>
+                    <label id = 'planned' class="hidden" style="margin-left: 10px;">
+		                        <strong>Planned</strong>
+		            </label>
+                </div>
+                </div>
+
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <div class = "progress_report" style="top: 480px; overflow-y: auto; max-height: 300px;">
+                    <table id = "operations" class = 'CSSTableGenerator'>
+                        <thead>
+                            <tr id = "heading">
+                                <td>
+									Date/Time Created
+								</td>
+                                <td>
+									Description
+								</td>
+                                <td>
+									Tooth
+								</td>
+                                <td>
+									Status
+								</td>
+                                <td>
+									Surface
+								</td>
+                                <td>
+									Dentist
+								</td>
+                                <td>
+									Amount
+								</td>
+                                <td>
+									Action
+								</td>
+                                <td style = "background:white" class = "delete_td">
+								</td>
+                                <td style = "display:none">
+									Previous Record
+								</td>
+                            </tr>
+                        </thead>
+                        <tbody id = "progres_table">
+                            <tr>
+							</tr>
+                        </tbody>
+                    </table>
+                    <!-- <td>
+                    <button id="show_table_button" class="myButtonx" t-on-click="(ev) => this.onClickRevenue(ev)" name="ShowTable" style="margin-top: 30px; margin-right:20px; margin-bottom:20px;">
+                        Material Consumptions
+                    </button>
+                    </td>
+
+                    <div class="d-none" id="table_matierial" >
+                     
+                    <table id="bodyMaterialTable"
+                       class="mb32 o_list_table table table-sm table-hover table-striped o_list_table_ungrouped o_section_and_note_list_view Cssborder">
+                    <thead class="CSSTableGenerator_style">
+                        <tr>
+                            <td class="text-left" width="20%">Product</td>
+                            <td class="text-left" width="17%">Onhand Quantity</td>
+                            <td class="text-left"  width="17%">Quantity</td>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                    <tr>
+
+                    </tr>
+                    </tbody>
+                    </table>
+
+                   
+
+                    <div class="col-md-12 col-12 text-right pt-3">
+                            <a class="btn btn-primary mt-3 text-white" t-on-click="(ev) => this._onClickAddBodyMaterialBtn(ev)" id="addBodyMaterial">Add a material</a>
+                        <br/>
+                        <br/>
+                        <a id="saveMaterialBodyBtn" t-on-click="(ev) => this._onClickSaveMaterial(ev)" class="btn btn-success mx-3 px-5 text-white d-none">SAVE</a>
+                        <a id="editMaterialBodyBtn" t-on-click="(ev) => this._onClickEditMaterialBodyBtn(ev)" class="btn btn-info mx-3 px-5 text-white d-none">EDIT</a>
+
+                        </div>
+
+                        
+                    
+    
+                    </div> -->
+
+                    
+                    
+                </div>
+               
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+
+    
+
+
+</templates>

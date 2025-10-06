@@ -37,7 +37,13 @@ export default function BaseWidget({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
-            {icon && <span className="text-lg">{icon}</span>}
+            {icon && (
+              typeof icon === 'string' ? (
+                <span className="text-lg">{icon}</span>
+              ) : (
+                React.createElement(icon, { className: "w-4 h-4" })
+              )
+            )}
             {title}
           </CardTitle>
           <div className="flex items-center gap-2">

@@ -1,0 +1,61 @@
+<odoo>
+    <data>
+        <template id="calendar_appointment_page_template">
+            <t t-call="website.layout">
+                <t t-set="doctor_name" t-value="doctor.res_partner_medical_physician_id.name" />
+
+                <div class="container mt-4">
+                    <h1 class="mb-4">Appointment for <t t-esc="doctor_name" /></h1>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="calendar"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <h2>Select a date and time</h2>
+                            <div id="slot-list" class="row">
+                                <div class="col-12">
+                                    <p>Select a date to see available slots.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pass slots JSON to JavaScript -->
+                <script>
+                    <!-- window.doctorId = <t t-esc="doctor_id" /> -->
+                    window.weekdaySlots = <t t-raw="grouped_slots_json" />
+                    window.bookedSlotsByDate = <t t-raw="booked_slots_json" />;
+                    <t t-if="app_id_json">
+                        window.app_id = <t t-raw="app_id_json" />;
+                    </t>
+                    <!-- window.app_id = <t t-raw="app_id_json" />; -->
+
+                </script>
+
+                <!-- FullCalendar CSS -->
+                <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+
+                <!-- jQuery -->
+                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+                <!-- FullCalendar JS -->
+                <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+                <!-- Your custom JS -->
+                <script src="/your_module_name/static/src/js/appointment_calendar.js"></script>
+
+                <style>
+                    #calendar {
+                        max-width: 100%;
+                        background-color: white;
+                        padding: 15px;
+                        border-radius: 10px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                    }
+                </style>
+            </t>
+        </template>
+    </data>
+</odoo>

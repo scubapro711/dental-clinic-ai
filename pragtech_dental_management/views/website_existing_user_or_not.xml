@@ -1,0 +1,42 @@
+<odoo>
+    <data>
+        <template id="existing_user_or_not_check_template">
+            <t t-call="website.layout">
+                <div class="container mt-5">
+                    <!-- Carousel -->
+                    <div id="appointmentCarousel" class="carousel slide mb-5" data-bs-ride="carousel" style="width: 600px; height: 350px; margin: auto;">
+                        <div class="carousel-inner rounded shadow" style="width: 100%; height: 100%;">
+                            <div class="carousel-item active">
+                                <img src="/pragtech_dental_management/static/icon/image5.jpeg"
+                                     class="d-block w-100 rounded"
+                                     alt="Appointment Banner"
+                                     style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
+                        </div>
+                    </div>
+        
+                    <!-- User Type Buttons -->
+                    <div class="text-center">
+                        <h3 class="mb-4">Choose Patient Type</h3>
+                        <div class="d-flex justify-content-center gap-4 mb-4">
+                            <!-- New User Button with hidden values passed as query params -->
+                            <a t-att-href="'/appointment/appointment_form?from_time=%s&amp;to_time=%s&amp;doctor_id=%s' % (from_time, to_time, doctor_id)"
+                            class="btn btn-outline-primary d-flex align-items-center gap-2 px-4 py-2 rounded-pill">
+                                <i class="fa fa-user-plus"></i>
+                                New Patient
+                            </a>
+
+                            <!-- Existing User Button -->
+                            <a t-att-href="'/appointment/appointment_form2?from_time=%s&amp;to_time=%s&amp;doctor_id=%s' % (from_time, to_time, doctor_id)"
+                            class="btn btn-outline-primary d-flex align-items-center gap-2 px-4 py-2 rounded-pill">
+                            
+                            <i class="fa fa-check"></i> 
+                                Existing Patient
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

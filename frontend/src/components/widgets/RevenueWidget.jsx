@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import BaseWidget from './BaseWidget';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 /**
  * Revenue Widget - Marcus CFO Agent
  * 
  * Shows revenue overview with trends and insights
+ * Connected to real OdooClient API
  */
 export default function RevenueWidget({ onChatWithAgent }) {
   const [revenue, setRevenue] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchRevenue();
+    
+    // Refresh every 5 minutes
+    const interval = setInterval(fetchRevenue, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchRevenue = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      // TODO: Replace with real API call
-      // const response = await fetch('http://localhost:8000/api/v1/dashboard/revenue');
-      // const data = await response.json();
+      const response = await fetch('http://localhost:8000/api/v1/dashboard/widgets/revenue/summary', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
+        }
+      });
       
-      // Mock data for now
-      const mockData = {
-        thisMonth: 45000,
-        lastMonth: 39000,
-        change: 15.4,
-        trend: 'up',
-        insight: 'הכנסות עלו ב-15% לעומת החודש הקודם',
-        recommendation: 'מרקוס ממליץ: התמקדו בטיפולים מורכבים - הם מניבים 40% מההכנסות'
-      };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       
-      setRevenue(mockData);
+      const data = await response.json();
+      setRevenue(data);
     } catch (error) {
       console.error('Error fetching revenue:', error);
+      setError(error.message);
     } finally {
       setIsLoading(false);
     }
@@ -50,6 +55,41 @@ export default function RevenueWidget({ onChatWithAgent }) {
     }).format(amount);
   };
 
+  const handleViewDetails = () => {
+    if (onChatWithAgent) {
+      onChatWithAgent('מרקוס, תן לי פירוט מלא של ההכנסות החודש');
+    }
+  };
+
+  const handleViewRecommendations = () => {
+    if (onChatWithAgent) {
+      onChatWithAgent('מרקוס, מה ההצעות שלך לשיפור ההכנסות?');
+    }
+  };
+
+  if (error) {
+    return (
+      <BaseWidget
+        title="הכנסות חודשיות"
+        agent="marcus"
+        icon={DollarSign}
+      >
+        <div className="text-center py-4">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-2" />
+          <p className="text-sm text-gray-600">{error}</p>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={fetchRevenue}
+            className="mt-2"
+          >
+            נסה שוב
+          </Button>
+        </div>
+      </BaseWidget>
+    );
+  }
+
   if (!revenue) return null;
 
   const isPositive = revenue.trend === 'up';
@@ -58,22 +98,22 @@ export default function RevenueWidget({ onChatWithAgent }) {
     <BaseWidget
       title="הכנסות חודשיות"
       agent="marcus"
-      icon="💰"
+      icon={DollarSign}
       isLoading={isLoading}
     >
       <div className="space-y-4">
-        {/* Main Revenue */}
+        {/* Main Revenue Display */}
         <div className="text-center">
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-4xl font-bold text-gray-900">
             {formatCurrency(revenue.thisMonth)}
           </div>
-          <div className="text-xs text-gray-500 mt-1">החודש הנוכחי</div>
+          <div className="text-sm text-gray-500 mt-1">החודש הנוכחי</div>
         </div>
 
-        {/* Trend */}
+        {/* Trend Indicator */}
         <div className={cn(
-          'flex items-center justify-center gap-2 p-3 rounded-lg',
-          isPositive ? 'bg-green-100' : 'bg-red-100'
+          "flex items-center justify-center gap-2 p-3 rounded-lg",
+          isPositive ? "bg-green-50" : "bg-red-50"
         )}>
           {isPositive ? (
             <TrendingUp className="w-5 h-5 text-green-600" />
@@ -81,41 +121,44 @@ export default function RevenueWidget({ onChatWithAgent }) {
             <TrendingDown className="w-5 h-5 text-red-600" />
           )}
           <span className={cn(
-            'text-sm font-semibold',
-            isPositive ? 'text-green-700' : 'text-red-700'
+            "text-lg font-semibold",
+            isPositive ? "text-green-600" : "text-red-600"
           )}>
-            {isPositive ? '+' : ''}{revenue.change}%
+            {isPositive ? '+' : ''}{revenue.change.toFixed(1)}%
           </span>
-          <span className="text-xs text-gray-600">
-            לעומת חודש שעבר
-          </span>
+          <span className="text-sm text-gray-600">לעומת חודש שעבר</span>
         </div>
 
         {/* Comparison */}
-        <div className="grid grid-cols-2 gap-3 text-center">
-          <div className="p-2 bg-gray-50 rounded-lg">
-            <div className="text-xs text-gray-500">חודש שעבר</div>
-            <div className="text-sm font-semibold mt-1">
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="text-gray-600">חודש שעבר</div>
+            <div className="font-semibold text-gray-900 mt-1">
               {formatCurrency(revenue.lastMonth)}
             </div>
           </div>
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <div className="text-xs text-gray-500">שינוי</div>
-            <div className="text-sm font-semibold mt-1 text-green-600">
-              +{formatCurrency(revenue.thisMonth - revenue.lastMonth)}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="text-gray-600">שינוי</div>
+            <div className={cn(
+              "font-semibold mt-1",
+              isPositive ? "text-green-600" : "text-red-600"
+            )}>
+              {isPositive ? '+' : ''}{formatCurrency(revenue.thisMonth - revenue.lastMonth)}
             </div>
           </div>
         </div>
 
-        {/* Insight from Marcus */}
-        <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3">
+        {/* Marcus Insight */}
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <div className="flex items-start gap-2">
-            <div className="text-lg">💼</div>
+            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-sm font-bold">💼</span>
+            </div>
             <div className="flex-1">
               <div className="text-xs font-semibold text-blue-900 mb-1">
                 תובנה של מרקוס:
               </div>
-              <div className="text-xs text-blue-800">
+              <div className="text-sm text-blue-800">
                 {revenue.insight}
               </div>
             </div>
@@ -123,35 +166,38 @@ export default function RevenueWidget({ onChatWithAgent }) {
         </div>
 
         {/* Recommendation */}
-        <div className="bg-green-50 border-2 border-green-200 rounded-lg p-3">
+        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div className="flex items-start gap-2">
             <div className="text-lg">💡</div>
-            <div className="flex-1">
-              <div className="text-xs text-green-800">
-                {revenue.recommendation}
-              </div>
+            <div className="flex-1 text-sm text-yellow-900">
+              {revenue.recommendation}
             </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-2 pt-2 border-t">
+        {/* Payment Stats */}
+        {revenue.invoiceCount > 0 && (
+          <div className="text-xs text-gray-600 text-center">
+            {revenue.paidCount} מתוך {revenue.invoiceCount} חשבונות שולמו ({revenue.paymentRate.toFixed(0)}%)
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
           <Button
-            size="sm"
             variant="outline"
-            className="flex-1 text-xs"
-            onClick={() => onChatWithAgent && onChatWithAgent('Show me detailed revenue breakdown')}
+            size="sm"
+            onClick={handleViewDetails}
+            className="flex-1"
           >
-            <DollarSign className="w-3 h-3 mr-1" />
             פירוט מלא
           </Button>
           <Button
-            size="sm"
             variant="outline"
-            className="flex-1 text-xs"
-            onClick={() => onChatWithAgent && onChatWithAgent('What can we do to increase revenue?')}
+            size="sm"
+            onClick={handleViewRecommendations}
+            className="flex-1"
           >
-            <ArrowUpRight className="w-3 h-3 mr-1" />
             הצעות לשיפור
           </Button>
         </div>

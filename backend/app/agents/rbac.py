@@ -27,6 +27,7 @@ class UserRole(str, Enum):
     """User roles in the system."""
     PATIENT = "patient"
     DOCTOR = "doctor"
+    ADMIN = "admin"
     OWNER = "owner"
 
 
@@ -89,6 +90,19 @@ ROLE_PERMISSIONS: Dict[UserRole, List[Permission]] = {
         Permission.ACCESS_ALEX,
         Permission.ACCESS_CFO,  # For treatment profitability stats
         Permission.ACCESS_ADMIN,  # For schedule management
+    ],
+    
+    UserRole.ADMIN: [
+        # Admins manage operations and scheduling
+        Permission.READ_ALL_APPOINTMENTS,
+        Permission.WRITE_ALL_APPOINTMENTS,
+        Permission.READ_ALL_SCHEDULES,
+        Permission.WRITE_SCHEDULES,
+        Permission.MANAGE_STAFF,
+        # Admins can access operational agents
+        Permission.ACCESS_ALEX,
+        Permission.ACCESS_ADMIN,
+        # Note: Admins CANNOT see financial data or medical records
     ],
     
     UserRole.OWNER: [

@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 15 Database
+  db:
+    image: postgres:15
+    container_name: dental_postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    networks:
+      - odoo-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Odoo 19.0
+  odoo:
+    image: odoo:19.0
+    container_name: dental_odoo19
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+      - DB_PORT=5432
+    ports:
+      - "8069:8069"
+      - "8072:8072"  # Longpolling port
+    volumes:
+      # Odoo data
+      - odoo-web-data:/var/lib/odoo
+      # Custom addons (Pragtech module)
+      - ./pragtech_dental_management:/mnt/extra-addons/pragtech_dental_management
+      # Odoo config (optional)
+      - ./odoo.conf:/etc/odoo/odoo.conf
+    networks:
+      - odoo-network
+    restart: unless-stopped
+    command: --
+      --db_host=db
+      --db_port=5432
+      --db_user=odoo
+      --db_password=odoo
+      --addons-path=/mnt/extra-addons,/usr/lib/python3/dist-packages/odoo/addons
+      --xmlrpc-port=8069
+      --longpolling-port=8072
+      --workers=2
+      --max-cron-threads=1
+      --limit-memory-hard=2684354560
+      --limit-memory-soft=2147483648
+      --limit-request=8192
+      --limit-time-cpu=600
+      --limit-time-real=1200
+      --log-level=info
+
+volumes:
+  odoo-db-data:
+    driver: local
+  odoo-web-data:
+    driver: local
+
+networks:
+  odoo-network:
+    driver: bridge

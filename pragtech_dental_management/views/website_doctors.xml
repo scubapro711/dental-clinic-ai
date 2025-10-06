@@ -1,0 +1,53 @@
+<odoo>
+    <data>
+        <template id="doctor_page_template">
+            <t t-call="website.layout">
+                <div class="container">
+                    <div class="row">
+                        <t t-foreach="doctors" t-as="doctor" t-index="index">
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 text-center shadow-sm">
+                                    <a t-att-href="apt_id and '/calendar_appointment/%s?apt_id=%s' % (doctor.doctor_id.id, apt_id) or '/calendar_appointment/%s' % doctor.doctor_id.id">
+                                    <!-- <a t-att-href="'/calendar_appointment/%s' % doctor.doctor_id.id"> -->
+                                        <t t-if="doctor.doctor_id.res_partner_medical_physician_id.image_1920">
+                                            <img
+                                                t-attf-src="data:image/png;base64, #{doctor.doctor_id.res_partner_medical_physician_id.image_1920}"
+                                                class="card-img-top img-fluid" alt="Doctor Image"
+                                                style="height: 250px; object-fit: cover;" />
+                                        </t>
+                                        <t t-else="">
+                                            <img
+                                                src="/pragtech_dental_management/static/icon/user.png"
+                                                class="card-img-top img-fluid"
+                                                alt="Default Doctor Image"
+                                                style="height: 250px; object-fit: cover;" />
+                                        </t>
+                                        <!-- <img
+                                            t-attf-src="data:image/png;base64, #{doctor.doctor_id.name.image_1920}"
+                                            class="card-img-top img-fluid" alt="Doctor Image"
+                                            style="height: 250px; object-fit: cover;" /> -->
+                                    </a>
+                                    <div class="card-body">
+                                        <h5 class="card-title">
+
+                                            <t t-esc="doctor.doctor_id.res_partner_medical_physician_id.name" />
+                                        </h5>
+                                        
+                                        <p class="card-text">
+                                            <t t-esc="doctor.doctor_id.speciality_id.name" />
+                                        </p>
+                                        <t t-if="apt_id">
+                                            <input type="hidden" t-att-value="apt_id" name="apt_id" />
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+            </t>
+        </template>
+
+    </data>
+</odoo>

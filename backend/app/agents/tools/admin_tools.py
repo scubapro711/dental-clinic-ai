@@ -2,6 +2,8 @@
 Practice Admin Agent Tools - Operations & Scheduling Management
 
 Tools for managing clinic operations, scheduling, and workflow optimization.
+
+Updated to use OdooClient with OdooRPC-compatible interface.
 """
 
 import logging
@@ -9,7 +11,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.mock_odoo import mock_odoo_client
+from app.integrations.odoo_client import odoo_client
 
 logger = logging.getLogger(__name__)
 
@@ -37,11 +39,18 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
         
         end_date = start_date + timedelta(days=days)
         
-        # Get appointments in date range
-        appointments = mock_odoo_client.get_appointments(
-            start_date=start_date.strftime("%Y-%m-%d"),
-            end_date=end_date.strftime("%Y-%m-%d")
+        # Get appointments in date range using OdooClient
+        appointment_ids = odoo_client.search_appointments(
+            date_from=start_date.strftime("%Y-%m-%d"),
+            date_to=end_date.strftime("%Y-%m-%d")
         )
+        
+        # Get appointment details
+        appointments = []
+        for apt_id in appointment_ids:
+            apt = odoo_client.get_appointment_full(apt_id)
+            if apt:
+                appointments.append(apt)
         
         # Find conflicts
         conflicts = []
@@ -63,18 +72,19 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
                 apt2 = sorted_apts[i + 1]
                 
                 # Check if same doctor
-                if apt1.get("doctor_id") == apt2.get("doctor_id"):
-                    # Check time overlap (assuming 30min appointments)
+                if apt1.get("dentist") == apt2.get("dentist"):
+                    # Check time overlap
                     time1 = datetime.strptime(apt1["time"], "%H:%M")
                     time2 = datetime.strptime(apt2["time"], "%H:%M")
+                    duration1 = apt1.get("duration_minutes", 30) * 60  # Convert to seconds
                     
-                    if (time2 - time1).seconds < 1800:  # Less than 30 minutes
+                    if (time2 - time1).seconds < duration1:
                         conflicts.append({
                             "type": "double_booking",
                             "date": date_key,
                             "time1": apt1["time"],
                             "time2": apt2["time"],
-                            "doctor": apt1.get("doctor_name", "Unknown"),
+                            "doctor": apt1.get("dentist", "Unknown"),
                             "patient1": apt1.get("patient_name"),
                             "patient2": apt2.get("patient_name"),
                             "severity": "high"
@@ -113,11 +123,18 @@ def get_available_slots_tool(date: str, doctor_id: Optional[int] = None, duratio
     try:
         logger.info(f"Getting available slots for {date}")
         
-        # Get appointments for the date
-        appointments = mock_odoo_client.get_appointments(
-            start_date=date,
-            end_date=date
+        # Get appointments for the date using OdooClient
+        appointment_ids = odoo_client.search_appointments(
+            date_from=date,
+            date_to=date
         )
+        
+        # Get appointment details
+        appointments = []
+        for apt_id in appointment_ids:
+            apt = odoo_client.get_appointment(apt_id)
+            if apt:
+                appointments.append(apt)
         
         # Clinic hours: 8:00 - 18:00
         clinic_start = datetime.strptime("08:00", "%H:%M")
@@ -167,14 +184,27 @@ def reschedule_appointment_tool(appointment_id: int, new_date: str, new_time: st
     try:
         logger.info(f"Rescheduling appointment {appointment_id}")
         
-        # In real system, this would update the database
-        # For now, simulate success
+        # Get old appointment details
+        old_apt = odoo_client.get_appointment(appointment_id)
+        
+        if not old_apt:
+            return json.dumps({
+                "success": False,
+                "error": f"Appointment {appointment_id} not found"
+            })
+        
+        # Update appointment using OdooClient
+        success = odoo_client.update_appointment(
+            appointment_id,
+            date=new_date,
+            time=new_time
+        )
         
         result = {
-            "success": True,
+            "success": success,
             "appointment_id": appointment_id,
-            "old_date": "2025-10-05",  # Simulated
-            "old_time": "14:00",  # Simulated
+            "old_date": old_apt["date"],
+            "old_time": old_apt["time"],
             "new_date": new_date,
             "new_time": new_time,
             "reason": reason,
@@ -209,6 +239,7 @@ def get_staff_schedule_tool(date: Optional[str] = None, staff_type: str = "all")
             date = datetime.now().strftime("%Y-%m-%d")
         
         # Simulated staff schedule
+        # TODO: Add staff management to OdooClient in future
         staff = [
             {
                 "id": 1,
@@ -279,6 +310,7 @@ def get_room_availability_tool(date: str, time_slot: Optional[str] = None) -> st
         logger.info(f"Getting room availability for {date}")
         
         # Simulated rooms
+        # TODO: Add room management to OdooClient in future
         rooms = [
             {"id": 1, "name": "Room 1", "type": "treatment", "available": True},
             {"id": 2, "name": "Room 2", "type": "treatment", "available": True},
@@ -319,14 +351,14 @@ def optimize_schedule_tool(date: str, optimization_goal: str = "minimize_gaps") 
     try:
         logger.info(f"Optimizing schedule for {date}")
         
-        # Get appointments
-        appointments = mock_odoo_client.get_appointments(
-            start_date=date,
-            end_date=date
+        # Get appointments using OdooClient
+        appointment_ids = odoo_client.search_appointments(
+            date_from=date,
+            date_to=date
         )
         
         # Analyze schedule
-        total_appointments = len([a for a in appointments if a["date"] == date])
+        total_appointments = len(appointment_ids)
         
         # Generate optimization suggestions
         suggestions = []
@@ -392,14 +424,21 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
     try:
         logger.info(f"Getting operational metrics for {date_range} days")
         
-        # Get appointments
+        # Get appointments using OdooClient
         end_date = datetime.now()
         start_date = end_date - timedelta(days=date_range)
         
-        appointments = mock_odoo_client.get_appointments(
-            start_date=start_date.strftime("%Y-%m-%d"),
-            end_date=end_date.strftime("%Y-%m-%d")
+        appointment_ids = odoo_client.search_appointments(
+            date_from=start_date.strftime("%Y-%m-%d"),
+            date_to=end_date.strftime("%Y-%m-%d")
         )
+        
+        # Get appointment details
+        appointments = []
+        for apt_id in appointment_ids:
+            apt = odoo_client.get_appointment_full(apt_id)
+            if apt:
+                appointments.append(apt)
         
         # Calculate metrics
         total_appointments = len(appointments)
@@ -445,7 +484,6 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
         return f"Error: {str(e)}"
 
 
-
 @tool
 def cancel_appointment_tool(appointment_id: int, reason: str, notify_patient: bool = True) -> str:
     """
@@ -462,14 +500,15 @@ def cancel_appointment_tool(appointment_id: int, reason: str, notify_patient: bo
     try:
         logger.info(f"Cancelling appointment {appointment_id}")
         
-        # In real system, this would:
-        # 1. Update appointment status to "cancelled"
-        # 2. Free up the time slot
-        # 3. Send notification to patient
-        # 4. Update doctor's schedule
-        # 5. Log the cancellation
+        # Cancel appointment using OdooClient
+        success = odoo_client.cancel_appointment(appointment_id)
         
-        # For now, simulate success
+        if not success:
+            return json.dumps({
+                "success": False,
+                "error": f"Failed to cancel appointment {appointment_id}"
+            })
+        
         result = {
             "success": True,
             "appointment_id": appointment_id,

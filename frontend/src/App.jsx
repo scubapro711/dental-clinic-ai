@@ -1,172 +1,49 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import { API_ENDPOINTS } from './config'
 
 // Error Boundary
 import ErrorBoundary from './components/ErrorBoundary'
 
-// Pages
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import ChatPage from './pages/ChatPage'
-import ChatPageWithTransparency from './pages/ChatPageWithTransparency'
+// Pages - Only the new Agentic Dashboard
 import AgenticDashboard from './pages/AgenticDashboard'
-import DashboardPage from './pages/DashboardPage'
-import MissionControlPage from './pages/MissionControlPage'
-import MissionControlPageV2 from './pages/MissionControlPageV2'
-import MissionControlPageV3 from './pages/MissionControlPageV3'
-import MissionControlPageV1Enhanced from './pages/MissionControlPageV1Enhanced'
-import VercelAIChatTest from './components/VercelAIChatTest'
 
 function App() {
   // DEMO MODE: Skip authentication for testing
-  const [isAuthenticated, setIsAuthenticated] = useState(true)
-  const [user, setUser] = useState({
+  const [isAuthenticated] = useState(true)
+  const [user] = useState({
     id: 'demo-user',
-    name: 'Demo User',
+    name: 'Dr. User',
     email: 'demo@dentalai.com',
-    role: 'admin'
+    role: 'owner' // Full access for demo
   })
 
-  // Check if user is logged in (check localStorage)
-  // DISABLED FOR DEMO
-  // useState(() => {
-  //   const token = localStorage.getItem('access_token')
-  //   if (token) {
-  //     setIsAuthenticated(true)
-  //     // Fetch user info
-  //     fetch(API_ENDPOINTS.auth.me, {
-  //       headers: {
-  //         'Authorization': `Bearer ${token}`
-  //       }
-  //     })
-  //       .then(res => res.json())
-  //       .then(data => setUser(data))
-  //       .catch(() => {
-  //         localStorage.removeItem('access_token')
-  //         setIsAuthenticated(false)
-  //       })
-  //   }
-  // }, [])
-
-  const handleLogin = (token, userData) => {
-    localStorage.setItem('access_token', token)
-    setIsAuthenticated(true)
-    setUser(userData)
-  }
-
   const handleLogout = () => {
-    localStorage.removeItem('access_token')
-    setIsAuthenticated(false)
-    setUser(null)
+    // For demo, just reload
+    window.location.reload()
   }
 
   return (
     <ErrorBoundary>
       <Router>
         <Routes>
+          {/* Main Dashboard - Agentic Dashboard Only */}
           <Route
-            path="/login"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/chat" replace />
-              ) : (
-                <LoginPage onLogin={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              isAuthenticated ? (
-                <Navigate to="/chat" replace />
-              ) : (
-                <RegisterPage onRegister={handleLogin} />
-              )
-            }
-          />
-          <Route
-            path="/chat"
-            element={
-              isAuthenticated ? (
-                <ChatPageWithTransparency user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/vercel-ai-test"
-            element={
-              isAuthenticated ? (
-                <VercelAIChatTest />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/agentic-dashboard"
+            path="/dashboard"
             element={
               isAuthenticated ? (
                 <AgenticDashboard user={user} onLogout={handleLogout} />
               ) : (
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
               )
             }
           />
-          <Route
-            path="/dashboard/*"
-            element={
-              isAuthenticated ? (
-                <MissionControlPageV2 user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/dashboard-v3"
-            element={
-              isAuthenticated ? (
-                <MissionControlPageV3 user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/dashboard-v2"
-            element={
-              isAuthenticated ? (
-                <MissionControlPageV2 user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/dashboard-v1"
-            element={
-              isAuthenticated ? (
-                <MissionControlPage user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
-          <Route
-            path="/dashboard-old"
-            element={
-              isAuthenticated ? (
-                <DashboardPage user={user} onLogout={handleLogout} />
-              ) : (
-                <Navigate to="/login" replace />
-              )
-            }
-          />
+          
+          {/* Root redirects to dashboard */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Catch all - redirect to dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </Router>
     </ErrorBoundary>

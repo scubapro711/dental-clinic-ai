@@ -1,0 +1,306 @@
+<odoo>
+    <data>
+
+        <!-- Enter Enter patient email -->
+        <template id="existing_appointment_page_template">
+            <t t-call="website.layout">
+                <div class="container-fluid"> <!-- fixed typo in class name -->
+                    <div class="row align-items-center">
+                        <!-- Left Column: Image -->
+                        <div class="col-6 text-center" style="margin-top:30px; margin-bottom:30px;">
+                            <img src="/pragtech_dental_management/static/icon/image1.jpg"
+                                class="img-fluid rounded" />
+                        </div>
+
+                        <!-- Right Column: Form -->
+                        <div class="col-6">
+                            <form action="/email/submit" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="csrf_token"
+                                    t-att-value="request.csrf_token()" />
+                                <div class="form-group mb-3">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" />
+                                </div>
+                                <div class="text-center mt-3 mb-4">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- existing appointment details -->
+        <template id="existing_appointment_details_page_template">
+            <t t-call="website.layout">
+                <div class="container my-5">
+                    <h2 class="text-center mb-4">Existing Appointments</h2>
+                    <table class="table table-bordered table-striped">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th>Appointment ID</th>
+                                <th>Patient Name</th>
+                                <th>Doctor</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Consultation Service</th>
+                                <th>Status</th>
+                                <th>Reschedule</th>
+                                <th>Cancel</th>
+                                <!-- <th>Edit</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="appointments_data" t-as="data">
+                                <tr>
+
+                                    <td>
+                                        <t t-esc="data['appointment_id']" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="data['patient_name']" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="data['doctor']" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="data['appointment_s_date']" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="data['appointment_e_date']" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="data['consultaion_service']" />
+                                    </td>
+                                    <td>
+                                        
+                                        <t t-if="data['state'] == 'draft'">
+                                            Draft
+                                        </t>
+                                        <t t-if="data['state'] == 'confirmed'">
+                                            Confirmed
+                                        </t>
+                                        <t t-if="data['state'] == 'done'">
+                                            Completed
+                                        </t>
+                                        <t t-if="data['state'] == 'cancel'">
+                                            Cancelled
+                                        </t>
+                                        <t t-if="data['is_reshedule']">
+                                            <span style="font-size: 12px; color: #555;">(Rescheduled)</span>
+                                        </t>
+                                     
+                                    </td>
+                                    <td>
+                                        <t t-if="data['state'] in ['cancel', 'confirmed', 'done']">
+                                            <a href="javascript:void(0);"
+                                               class="btn btn-sm disabled"
+                                               style="background-color: #e2e3e5; color: #6c757d; border-color: #d6d8db; cursor: not-allowed; font-size: 14px;">
+                                               Reschedule
+                                            </a>
+                                        </t>
+                                        <t t-else="">
+                                            <a t-att-href="'/my_appointments/doctor/page/%s' % data['apt_id']"
+                                               class="btn btn-sm"
+                                               style="background-color: #cce5ff; color: #004085; border-color: #b8daff; font-size: 14px;">
+                                               Reschedule
+                                            </a>
+                                        </t>
+                                        <!-- <a t-att-href="'/edit_appointment/%s' % data['apt_id']" class="btn btn-sm" style="background-color: #cce5ff; color: #004085; border-color: #b8daff;" t-att-disabled="'disabled' if data['state'] == 'cancel' else None">
+                                            
+                                           Reshedule
+                                        </a> -->
+                                    </td>
+                                    <td>
+                                    <t t-if="data['state'] in ['cancel', 'done']">
+                                        <a href="javascript:void(0);"
+                                           class="btn btn-sm btn-danger disabled"
+                                           style="background-color: #e2e3e5; color: #6c757d; border-color: #d6d8db; cursor: not-allowed; font-size: 14px;">
+                                           Cancel
+                                        </a>
+                                    </t>
+                                    <t t-else="">
+                                        <a t-att-href="'/cancel_appointment/%s' % data['apt_id']"
+                                           class="btn btn-sm btn-danger"
+                                           style="background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; font-size: 14px;"
+                                           onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                                           Cancel
+                                        </a>
+                                    </t>
+                                </td>
+                                    
+                                    <!-- <td>
+                                        <a t-att-href="'/delete_appointment/%s' % data['apt_id']" class="btn btn-sm btn-danger">Delete</a>
+                                    </td> -->
+                                </tr>
+
+
+                            </t>
+
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </template>
+
+
+        <!-- edit existing appointment -->
+        <template id="edit_existing_appointment_template">
+            <t t-call="website.layout">
+                <div class="container mt-5">
+                    <form role="form" action="/edit_appointment/submit" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="apt_id" t-att-value="apt_id"/>
+
+                        <div class="form-group mb-3">
+                            <label for="patient_name">Patient Name</label>
+                            <input type="text" id="patient_name" name="patient_name" class="form-control" t-att-value="patient_name" readonly="True"/>                            
+
+                        </div>
+                      
+        
+                        <div class="form-group mb-3">
+                            <label for="from_time">Start Time</label>
+                            <!-- <t t-esc="from_time"/> -->
+                            <input type="datetime-local" id="from_time" name="from_time" class="form-control" t-att-value="appointment_s_date" readonly="True"/>
+                            <input type="hidden" name="appointment_old_s_date" t-att-value="appointment_old_s_date"/>
+                            
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="to_time">End Time</label>
+                            <input type="datetime-local" id="to_time" name="to_time" class="form-control" t-att-value="appointment_e_date" readonly="True"/>
+                            <input type="hidden" name="appointment_old_e_date" t-att-value="appointment_old_e_date"/>
+
+                        </div>
+        
+                        <div class="form-group mb-3">
+                            <label for="physician_id">Physician</label>
+                            <input type="text" id="doctor_id" name="doctor_name" class="form-control" t-att-value="doctor" readonly="True"/>
+
+                            <!-- <select id="physician_id" name="physician_id" class="form-control" required="required">
+                                <t t-foreach="psysician" t-as="doc">
+                                    <option t-att-value="doc.id" t-att-selected="str(doc.id) == str(doctor_id)">
+                                        <t t-esc="doc.res_partner_medical_physician_id.name"/>
+                                    </option>
+                                </t>
+                            </select> -->
+                            <!-- <input type="char" id="doctor" name="doctor" class="form-control" t-att-value="doctor"/> -->
+                            <input type="hidden" name="doctor_id" t-att-value="doctor_id"/>
+                            <input type="hidden" name="old_doctor_id" t-att-value="old_doctor_id"/>
+
+
+                            
+                        </div>
+        
+                        <div class="form-group mb-4">
+                            <label for="service_id">Consultation Service</label>
+                            <select id="service_id" name="service_id" class="form-control" required="required">
+                                <!-- <option t-att-value="consultaion_service"></option> -->
+                                <t t-foreach="services" t-as="service">
+                                    <option t-att-value="service.id" t-att-selected="str(service.id) == str(consultaion_service)">
+                                        <t t-esc="service.name"/>
+                                    </option>
+                                    <!-- <option t-att-value="service.id"><t t-esc="service.name"/></option> -->
+                                </t>
+                            </select>
+                            <input type="hidden" name="consultaion_service" t-att-value="consultaion_service"/>
+                            <input type="hidden" name="service_id" t-att-value="service_id"/>
+                        </div>
+        
+                        <div class="text-center mt-3 mb-4">
+                            <button type="submit" class="btn btn-primary">Submit Appointment</button>
+                        </div>                   
+                     </form>
+                </div>
+
+                
+            </t>
+            
+        </template>
+
+        <!-- Edited appointment success notification page -->
+        <template id="edited_appointment_success_page">
+            <t t-call="website.layout">
+                <div class="container mt-5 mb-5">
+                    <div class="alert alert-success text-center" role="alert">
+                        <h2 class="mb-3">Appointment Rescheduled Successfully</h2>
+                        <p>Thank you for booking your appointment. We will contact you soon.</p>
+                        <a href="/my_appointments/appointments/page" class="btn btn-primary mt-3">Return to Home</a>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <!-- Cancel appointment success notification page -->
+        <template id="cancel_existing_appointment_template_message">
+            <t t-call="website.layout">
+                <div class="container mt-5 mb-5">
+                    <div class="alert alert-success text-center" role="alert">
+                        <h2 class="mb-3">Appointment Cancelled Successfully</h2>
+                        <p>Thank you</p>
+                        <a href="/my_appointments/appointments/page" class="btn btn-primary mt-3">Return to Home</a>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+
+
+        <!-- Edited appointment overlapping message -->
+        <template id="template_error_page" name="Appointment Error Page">
+            <t t-call="website.layout">
+                <div class="container">
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Appointment Overlapping</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <a href="/appointment/existing_appointments" class="btn btn-primary">Go Back</a>                </div>
+            </t>
+        </template>
+
+
+        <!-- when resheduling the slot unavailabe message -->
+        <template id="template_slot_unavailable_error_page" name="Time Slot Not Available">
+            <t t-call="website.layout">
+                <div class="container my-5">
+                    <div class="alert alert-danger text-center" role="alert" style="font-size: 1.2rem;">
+                        <strong>Time Slot Not Available</strong><br/>
+                        The appointment time you selected is outside the doctor's available hours.<br/>
+                        Please choose a different time slot.
+                    </div>
+        
+                    <div class="text-center mt-4">
+                        <a href="/appointment/existing_appointments" class="btn btn-primary">Go to Home</a>
+                    </div>
+                </div>
+            </t>
+        </template>
+        
+        <!-- Deleted Appointment notification message -->
+        <!-- <template id="delete_appointment_success_page">
+            <t t-call="website.layout">
+                <div class="container mt-5 mb-5">
+                    <div class="alert alert-success text-center" role="alert">
+                        <h2 class="mb-3">Appointment Deleted Successfully</h2>
+                        <p>Thank you for booking your appointment. We will contact you soon.</p>
+                        <a href="/my_appointments/doctor/page" class="btn btn-primary mt-3">Return to Home</a>
+                    </div>
+                </div>
+            </t>
+        </template> -->
+
+        <!-- <template id="doyenne_footer" name="Doyenne Footer"
+    inherit_id="website.layout">
+    <xpath expr="//footer" position="replace"></xpath>
+    </template> -->
+
+    <template id="doyenne_footer" name="Doyenne Footer"
+    inherit_id="website.layout">
+    <xpath expr="//div[@id='footer']" position="replace"></xpath>
+    </template>
+
+
+    </data>
+</odoo>

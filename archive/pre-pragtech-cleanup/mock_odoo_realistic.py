@@ -90,12 +90,32 @@ class RealisticMockOdooClient:
         results = []
         
         for patient in self.patients:
+            match = False
+            
+            # Check name match
             if name and name.lower() in patient["name"].lower():
-                results.append(patient["id"])
-            elif phone and phone in patient["phone"]:
+                match = True
+            
+            # Check phone match
+            if phone and phone in patient.get("phone", ""):
+                match = True
+            
+            # If no filters provided, match all
+            if not name and not phone:
+                match = True
+            
+            if match:
                 results.append(patient["id"])
         
         return results
+    
+    def update_patient(self, patient_id: int, values: Dict[str, Any]) -> bool:
+        """Update patient information."""
+        if patient_id in self.patients_by_id:
+            patient = self.patients_by_id[patient_id]
+            patient.update(values)
+            return True
+        return False
     
     def get_patient(self, patient_id: int) -> Optional[Dict[str, Any]]:
         """Get patient details by ID."""
@@ -196,6 +216,14 @@ class RealisticMockOdooClient:
         self.appointments_by_patient[patient_id].append(appointment)
         
         return appointment_id
+    
+    def update_appointment(self, appointment_id: int, values: Dict[str, Any]) -> bool:
+        """Update an appointment."""
+        appointment = self.appointments_by_id.get(appointment_id)
+        if appointment:
+            appointment.update(values)
+            return True
+        return False
     
     def cancel_appointment(self, appointment_id: int) -> bool:
         """Cancel an appointment."""
