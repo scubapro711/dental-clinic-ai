@@ -23,7 +23,14 @@ from app.agents.tools.agent_tools import (
     create_appointment_tool,
     get_patient_invoices_tool,
     get_invoice_details_tool,
-    search_patient_tool,
+)
+# Import Odoo tools with RBAC support
+from app.agents.tools.alex_odoo_tools import (
+    search_patient_odoo,
+    get_patient_details_odoo,
+    create_patient_odoo,
+    update_patient_odoo,
+    get_doctors_list_odoo,
 )
 
 logger = logging.getLogger(__name__)
@@ -215,10 +222,16 @@ When appropriate, offer next steps:
 🛠️  YOUR CAPABILITIES (Tools Available)
 ═══════════════════════════════════════════════════════════════════
 
+**Patient Management (Odoo Integration):**
+- search_patient_odoo() - Search for patients by name, phone, or email
+- get_patient_details_odoo() - Get detailed patient information
+- create_patient_odoo() - Create new patient records (staff only)
+- update_patient_odoo() - Update patient information
+- get_doctors_list_odoo() - Get list of available doctors
+
 **Scheduling:**
 - get_available_slots_tool() - Check calendar for open appointments
 - create_appointment_tool() - Book appointments
-- search_patient_tool() - Find patient records
 
 **Billing:**
 - get_patient_invoices_tool() - Retrieve patient invoices
@@ -232,6 +245,31 @@ When appropriate, offer next steps:
 
 **IMPORTANT:** You can READ medical information but CANNOT provide 
 medical advice based on it. Always defer to Dr. Smith.
+
+═══════════════════════════════════════════════════════════════════
+🔒  PRIVACY & ACCESS CONTROL (RBAC)
+═══════════════════════════════════════════════════════════════════
+
+**Patient Users:**
+- Can ONLY view and update their OWN information
+- CANNOT access other patients' data
+- CANNOT create new patient records
+
+**Staff Users (Doctors, Admin, Owner):**
+- Can view ALL patient information
+- Can create and update patient records
+- Can search for any patient
+
+**When Access is Denied:**
+If a patient tries to access another patient's information, you will 
+receive an error message. In this case, politely explain:
+
+"I understand you're looking for that information, but for privacy 
+reasons, I can only show you your own patient records. If you need 
+information about another patient, please ask them to contact us 
+directly or speak with our staff."
+
+**Always respect patient privacy and HIPAA compliance.**
 
 ═══════════════════════════════════════════════════════════════════
 🌐  MULTILINGUAL SUPPORT
@@ -403,7 +441,7 @@ makes sure patients get the right help at the right time! 😊
     def __init__(self):
         """Initialize Alex agent."""
         self.llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.7,  # Natural conversation
             api_key=settings.OPENAI_API_KEY,
         )
@@ -428,19 +466,61 @@ makes sure patients get the right help at the right time! 😊
         messages = state.get("messages", [])
         last_message = messages[-1].content if messages else ""
         
+        # Get user context for RBAC
+        user_role = state.get("user_role", "patient")
+        
         # CRITICAL: Check for medical escalation needs
         escalation_level = self._check_escalation(last_message)
         
         # Check if user is asking about specific topics that need tools
         tool_results = []
         
-        # Scheduling inquiry
+        # Patient search inquiry
+        if any(word in last_message.lower() for word in ["find patient", "search patient", "patient named", "patient called", "חפש מטופל", "מטופל בשם"]):
+            logger.info(f"Alex detected patient search inquiry for user {user_id}")
+            # Extract patient name from message (simple extraction)
+            import re
+            name_match = re.search(r'(?:named|called|בשם)\s+([A-Za-z\u0590-\u05FF\s]+)', last_message, re.IGNORECASE)
+            if name_match:
+                patient_name = name_match.group(1).strip()
+                search_result = search_patient_odoo(
+                    name=patient_name,
+                    requesting_user_id=user_id,
+                    requesting_user_role=user_role
+                )
+                tool_results.append(f"🔍 *Searching for patient...*\n\n{search_result}")
+        
+        # Patient details inquiry
+        if any(word in last_message.lower() for word in ["patient details", "patient info", "show patient", "פרטי מטופל", "מידע על מטופל"]):
+            logger.info(f"Alex detected patient details inquiry for user {user_id}")
+            # Extract patient ID from message (simple extraction)
+            import re
+            id_match = re.search(r'(?:id|מזהה)[\s:]*(\d+)', last_message, re.IGNORECASE)
+            if id_match:
+                patient_id = int(id_match.group(1))
+                details_result = get_patient_details_odoo(
+                    patient_id=patient_id,
+                    requesting_user_id=user_id,
+                    requesting_user_role=user_role
+                )
+                tool_results.append(f"📋 *Retrieving patient details...*\n\n{details_result}")
+        
+        # Doctors list inquiry
+        if any(word in last_message.lower() for word in ["doctors", "dentists", "who are the doctors", "available doctors", "רופאים", "רופאי שיניים"]):
+            logger.info(f"Alex detected doctors list inquiry for user {user_id}")
+            doctors_result = get_doctors_list_odoo(
+                requesting_user_id=user_id,
+                requesting_user_role=user_role
+            )
+            tool_results.append(f"👨‍⚕️ *Getting list of doctors...*\n\n{doctors_result}")
+        
+        # Scheduling inquiry (using existing mock tool for now)
         if any(word in last_message.lower() for word in ["available", "availability", "when", "schedule", "book", "appointment", "פנוי", "תור"]):
             logger.info(f"Alex detected scheduling inquiry for user {user_id}")
             slots_result = get_available_slots_tool(days_ahead=7)
             tool_results.append(f"📅 *Checking calendar...*\n\n{slots_result}")
         
-        # Billing inquiry
+        # Billing inquiry (using existing mock tool for now)
         if any(word in last_message.lower() for word in ["invoice", "bill", "payment", "owe", "balance", "חשבונית", "תשלום"]):
             logger.info(f"Alex detected billing inquiry for user {user_id}")
             if "my invoice" in last_message.lower() or "my bill" in last_message.lower():

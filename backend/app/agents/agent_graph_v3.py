@@ -105,7 +105,7 @@ class AgentGraphV3:
         
         # Initialize supervisor LLM
         self.supervisor_llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.1,  # Low temperature for consistent routing
         )
         
