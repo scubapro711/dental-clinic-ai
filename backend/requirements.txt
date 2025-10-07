@@ -56,7 +56,7 @@ celery==5.3.6
 flower==2.0.1
 
 # Email
-python-email-validator==2.1.0
+email-validator==2.1.0
 
 # File handling
 python-magic==0.4.27
@@ -67,7 +67,6 @@ openpyxl==3.1.2
 pandas==2.2.0
 
 # Odoo Integration
-xmlrpc==1.0.1
 
 # Rate Limiting
 slowapi==0.1.9

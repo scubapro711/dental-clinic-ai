@@ -10,8 +10,11 @@ from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from uuid import uuid4
 
 from app.integrations.telegram_client import telegram_client
-from app.agents.agent_graph import agent_graph_v2
+from app.agents.agent_graph_v3 import AgentGraphV3
 from app.core.config import settings
+
+# Initialize Multi-Agent Graph (V3 with Supervisor)
+agent_graph_v3 = AgentGraphV3()
 
 logger = logging.getLogger(__name__)
 
@@ -95,7 +98,7 @@ async def handle_message(message: Dict[str, Any]):
         )
         
         # Route to Alex agent
-        response = await agent_graph_v2.process_message(
+        response = agent_graph_v3.process_message(
             user_id=str(user_id),
             organization_id="telegram",  # Default org for Telegram users
             conversation_id=conversation_id,

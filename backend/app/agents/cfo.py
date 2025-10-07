@@ -1,3 +1,4 @@
+import os
 """
 CFO Agent - Financial Management & Analysis
 
@@ -160,7 +161,7 @@ Revenue up 25% this quarter! Great job!
     def __init__(self):
         """Initialize CFO Agent."""
         self.llm = ChatOpenAI(
-            model="gpt-4.1-mini",
+            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
             temperature=0.3,  # Slightly creative for recommendations
         )
         

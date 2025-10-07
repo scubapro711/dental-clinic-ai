@@ -16,6 +16,7 @@ Key Features:
 
 import logging
 import json
+import os
 from typing import Dict, Any, List, Literal
 from langgraph.graph import StateGraph, END
 from langgraph.types import Command
@@ -104,7 +105,7 @@ class AgentGraphV3:
         
         # Initialize supervisor LLM
         self.supervisor_llm = ChatOpenAI(
-            model="gpt-4.1-mini",
+            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
             temperature=0.1,  # Low temperature for consistent routing
         )
         
