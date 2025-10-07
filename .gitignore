@@ -316,3 +316,7 @@ alembic/versions/*.pyc
 
 # Keep vision document
 !docs/vision_document.pdf
+
+# Backup and original files
+*-original.json
+*-extended.json

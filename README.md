@@ -1,8 +1,8 @@
 # DentalAI SaaS Platform
 
-**Version:** 14.0  
-**Status:** In Development  
-**Started:** 2025-10-02
+**Version:** 14.2.0  
+**Status:** Production Ready  
+**Last Updated:** October 7, 2025
 
 ---
 
@@ -18,10 +18,19 @@ DentalAI is a state-of-the-art, AI-powered SaaS platform for dental clinics, pro
 
 ## 📚 Documentation
 
+### Release Notes
+- **[v14.2.0 Release Notes](./RELEASE_NOTES_V14.2.md)** - Hebrew Localization & RTL Support (Latest)
+- **[v14.1.0 Release Notes](./RELEASE_NOTES_V14.1.md)** - Production-Ready Feedback System
+- **[v14.0 Release Notes](./RELEASE_NOTES_V14.0.md)** - Agent-Driven System
+
+### Development
 - **[Work Plan V14.0](./WORK_PLAN_V14.0.md)** - Complete development plan (16 weeks, 12 Epics)
 - **[Vision Document](./docs/vision_document.pdf)** - Original vision and requirements
+
+### Legal
 - **[LICENSE](./LICENSE)** - Apache 2.0 License
 - **[NOTICE](./NOTICE)** - Third-party attributions
+- **[Privacy Policy (Hebrew)](./docs/privacy-policy-he.md)** - מדיניות פרטיות
 
 ---
 
@@ -81,20 +90,24 @@ docker-compose up
 
 ## 📋 Development Status
 
-**Current Phase:** Epic 0 - Project Setup & Infrastructure  
-**Progress:** 0% (Just started!)
+**Current Version:** 14.2.0  
+**Current Phase:** Hebrew Localization & RTL Support  
+**Progress:** Production Ready ✅
 
-### Milestones
+### Recent Milestones
 
-- [ ] Week -1: Deep Learning Phase
-- [ ] Week 0: Project Setup & Infrastructure
-- [ ] Week 0.5: Migration, Demo Data & Backups
-- [ ] Week 1: SaaS Foundation & Security
-- [ ] Weeks 2-3: Agent Architecture & State Management
-- [ ] Week 3.5: Streaming & Real-Time Updates
-- [ ] Week 4: Centralized Odoo Integration
-- [ ] **MVP Deployment** (End of Week 4)
-- [ ] Weeks 5-13: Post-MVP Features
+- [x] v14.0 - Agent-Driven System
+- [x] v14.1 - Production-Ready Feedback & Fine-Tuning
+- [x] v14.2 - Complete Hebrew Localization & RTL Support (100%)
+- [ ] v14.3 - Pragtech Module Translation (Planned)
+
+### v14.2 Achievements
+
+- ✅ **Complete RTL Support** - 450+ CSS rules for full right-to-left layout
+- ✅ **Hebrew Localization** - 100% Hebrew interface support
+- ✅ **Israeli Features** - Health Fund integration, Israeli ID validation
+- ✅ **Enhanced Security** - Audit logging, encryption, enhanced RBAC
+- ✅ **Production Ready** - Automated deployment, comprehensive documentation
 
 ---
 
