@@ -8,36 +8,20 @@ import { LogOut, Sparkles, MessageSquare, Calendar, DollarSign, Stethoscope, Arr
 export default function DashboardPage({ user, onLogout }) {
   const agents = [
     {
-      name: 'Dana',
-      role: 'Coordinator',
-      description: 'Routes conversations and coordinates other agents',
-      icon: MessageSquare,
-      color: 'from-blue-500 to-blue-600',
+      name: 'Alex',
+      role: 'AI Dental Assistant',
+      description: 'Unified AI assistant handling appointments, billing, medical triage, and general inquiries. Powered by GPT-5-mini with medical safety protocols.',
+      icon: Sparkles,
+      color: 'from-blue-600 to-purple-600',
       status: 'active',
-    },
-    {
-      name: 'Dr. Michal',
-      role: 'Dentist',
-      description: 'Answers medical questions and provides treatment information',
-      icon: Stethoscope,
-      color: 'from-purple-500 to-purple-600',
-      status: 'active',
-    },
-    {
-      name: 'Yosef',
-      role: 'Accountant',
-      description: 'Handles billing, payments, and financial inquiries',
-      icon: DollarSign,
-      color: 'from-green-500 to-green-600',
-      status: 'active',
-    },
-    {
-      name: 'Sarah',
-      role: 'Scheduler',
-      description: 'Manages appointments and scheduling',
-      icon: Calendar,
-      color: 'from-pink-500 to-pink-600',
-      status: 'active',
+      capabilities: [
+        'Appointment Scheduling',
+        'Billing & Payments',
+        'Medical Triage',
+        'General Inquiries',
+        'Multilingual Support (EN/HE)',
+        'Emergency Escalation'
+      ]
     },
   ]
 
@@ -91,11 +75,11 @@ export default function DashboardPage({ user, onLogout }) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Agents</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">AI Assistant</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">4</div>
-              <p className="text-xs text-gray-500 mt-1">All systems operational</p>
+              <div className="text-3xl font-bold">Alex</div>
+              <p className="text-xs text-gray-500 mt-1">System operational</p>
             </CardContent>
           </Card>
           <Card>

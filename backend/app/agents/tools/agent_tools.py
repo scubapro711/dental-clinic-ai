@@ -3,29 +3,83 @@ Agent Tools - Simplified tool integration for agents
 
 This module provides tools that agents can use to interact with Odoo
 and other external systems.
+
+Enhanced with RBAC (Role-Based Access Control) for data privacy and security.
 """
 
 from typing import Optional
 from datetime import datetime, timedelta
+import logging
 
 from app.integrations.mock_odoo_realistic import realistic_mock_odoo
+from app.agents.rbac import (
+    has_permission,
+    can_access_resource,
+    get_permission_denied_message,
+    log_access_attempt,
+    Permission,
+)
+
+logger = logging.getLogger(__name__)
 
 # Use realistic mock Odoo client with 1500+ patients
 mock_odoo = realistic_mock_odoo
 
 
-def search_patient_tool(name: Optional[str] = None, phone: Optional[str] = None) -> str:
+def search_patient_tool(
+    name: Optional[str] = None,
+    phone: Optional[str] = None,
+    requesting_user_id: Optional[str] = None,
+    requesting_user_role: Optional[str] = None,
+) -> str:
     """
     Search for a patient by name or phone number.
+    
+    RBAC: Patients can only search for themselves, staff can search all.
     
     Args:
         name: Patient name (partial match allowed)
         phone: Patient phone number
+        requesting_user_id: ID of user making the request
+        requesting_user_role: Role of user making the request
         
     Returns:
         String with patient information or "not found" message
     """
     try:
+        # RBAC Check: Patients can only search for themselves
+        if requesting_user_role == "patient":
+            # For patients, we assume they're searching for themselves
+            # In real implementation, we'd verify the name/phone matches their record
+            log_access_attempt(
+                requesting_user_id,
+                requesting_user_role,
+                "search_patient",
+                "patient",
+                None,
+                True
+            )
+        elif requesting_user_role in ["doctor", "owner"]:
+            # Doctors and owners can search all patients
+            log_access_attempt(
+                requesting_user_id,
+                requesting_user_role,
+                "search_patient",
+                "patient",
+                None,
+                True
+            )
+        else:
+            log_access_attempt(
+                requesting_user_id or "unknown",
+                requesting_user_role or "unknown",
+                "search_patient",
+                "patient",
+                None,
+                False
+            )
+            return get_permission_denied_message(requesting_user_role or "unknown", "search_patients")
+        
         patient_ids = mock_odoo.search_patients(name=name, phone=phone)
         
         if not patient_ids:
@@ -34,10 +88,15 @@ def search_patient_tool(name: Optional[str] = None, phone: Optional[str] = None)
         # Get details of first matching patient
         patient = mock_odoo.get_patient(patient_ids[0])
         if patient:
+            # For patients, only return if it's their own record
+            if requesting_user_role == "patient" and str(patient['id']) != requesting_user_id:
+                return get_permission_denied_message(requesting_user_role, "view_other_patients")
+            
             return f"Found patient: {patient['name']}, Phone: {patient.get('phone', 'N/A')}, Email: {patient.get('email', 'N/A')}, ID: {patient['id']}"
         else:
             return "Patient found but could not retrieve details"
     except Exception as e:
+        logger.error(f"Error in search_patient_tool: {str(e)}")
         return f"Error searching patient: {str(e)}"
 
 
