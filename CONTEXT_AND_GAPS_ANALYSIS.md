@@ -333,34 +333,102 @@ clean_messages = remove_handoff_messages(state["messages"])
 
 ---
 
-### 2.3 Odoo Integration Details
+### 2.3 Odoo Integration Details ✅ **מתועד!**
 
-**מה אני צריך להבין:**
+**ממצאים מהמחקר:** (ראה `ODOO_INTEGRATION_COMPLETE.md`)
 
-| נושא | שאלות | חשיבות |
-| :--- | :--- | :--- |
-| **Patient Model** | מה השדות המלאים של res.partner? | 🔴 קריטי |
-| **Appointment Model** | מה השדות של medical.appointment? | 🔴 קריטי |
-| **Doctor Model** | איזה מודל משמש לרופאים? (hr.employee?) | 🔴 קריטי |
-| **Invoice Model** | איזה מודל לחשבוניות? (account.move?) | 🟡 חשוב |
-| **Treatment Model** | איזה מודל לטיפולים? | 🟡 חשוב |
-| **Constraints** | מה כל ה-constraints במסד? (למה doctor_id נכשל?) | 🔴 קריטי |
-| **Required Fields** | מה שדות חובה ליצירת רשומות? | 🔴 קריטי |
-| **Default Values** | מה ברירות המחדל? | 🟢 רצוי |
+#### פרטי חיבור
 
-**מה אני צריך:**
+```
+URL: https://dentaflow.ai
+DB: dental_prod
+Version: Odoo 19.0
+Modules: pragtech_dental_management, dental_israel
+```
+
+#### מודלים מתועדים
+
+**1. res.partner (מטופלים) ✅ עובד מלא**
+
 ```python
-# דוגמה למבנה Appointment
-medical_appointment = {
-    "patient_id": int,           # Required - מה הסוג? many2one?
-    "doctor_id": int,            # Required - מה הבעיה?
-    "appointment_sdate": str,    # Required - פורמט?
-    "appointment_edate": str,    # Required - פורמט?
-    "patient_state": str,        # Required - ערכים אפשריים?
-    "state": str,                # ערכים אפשריים?
-    # מה עוד?
+{
+    "id": int,
+    "name": str,              # חובה
+    "email": str,
+    "phone": str,
+    "mobile": str,
+    "street": str,
+    "city": str,
+    "zip": str,
+    "country_id": [id, name], # many2one
+    "customer_rank": int,     # > 0 = לקוח
 }
 ```
+
+פעולות: ✅ search, read, create, write
+
+**2. medical.appointment (תורים) ⚠️ בעייתי**
+
+```python
+{
+    "id": int,
+    "patient_id": [id, name],      # many2one, חובה
+    "doctor_id": [id, name],       # many2one, חובה
+    "appointment_sdate": datetime, # חובה
+    "appointment_edate": datetime, # חובה
+    "patient_state": str,          # 'new'/'old', חובה
+    "state": str,
+    "operations_ids": [[ids]],     # one2many
+    "inv_id": [id, name],
+    "room_id": [id, name],
+    "urgency": bool,
+}
+```
+
+פעולות: ✅ search, read | ❌ create (constraint error) | ❓ write
+
+**בעיה:** `create_appointment` נכשל עם "trying to delete... constraint on doctor_id"
+
+**3. hr.employee (רופאים) ✅ קריאה בלבד**
+
+```python
+{
+    "id": int,
+    "name": str,
+    "job_id": [id, name],
+    "department_id": [id, name],
+    "work_email": str,
+    "work_phone": str,
+    "user_id": [id, name],
+}
+```
+
+פעולות: ✅ search, read
+
+**4. account.move (חשבוניות) ❓ לא מיושם**
+
+**5. product.product (טיפולים) ❓ לא מיושם**
+
+#### סטטוס אינטגרציה
+
+| תכונה | סטטוס | הערות |
+|-------|--------|-------|
+| חיפוש מטופלים | ✅ | עם RBAC |
+| יצירת/עדכון מטופל | ✅ | עם RBAC |
+| רשימת רופאים | ✅ | All users |
+| קריאת תורים | ✅ | Read only |
+| **יצירת תורים** | ❌ | **Constraint error** |
+| חשבוניות | ❌ | לא מיושם |
+| טיפולים | ❌ | לא מיישם |
+
+#### TODO קריטי
+
+- 🔴 לפתור create_appointment (doctor_id constraint)
+- 🔴 לממש billing integration (account.move)
+- 🟡 לממש available_slots
+- 🟡 לממש treatments/services
+
+**סטטוס:** ✅ מתועד, ⚠️ חלקי, צריך תיקונים
 
 ---
 
