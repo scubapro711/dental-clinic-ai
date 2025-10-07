@@ -18,19 +18,21 @@ from app.agents.error_handler import (
     rate_limiter,
     RateLimitError,
 )
+# Mock tools - TEMPORARY until Odoo appointment/billing is fixed
 from app.agents.tools.agent_tools import (
-    get_available_slots_tool,
-    create_appointment_tool,
-    get_patient_invoices_tool,
-    get_invoice_details_tool,
+    get_available_slots_tool,  # TODO: Replace with Odoo when appointment creation works
+    create_appointment_tool,   # TODO: Replace with Odoo when appointment creation works
+    get_patient_invoices_tool, # TODO: Replace with Odoo billing integration
+    get_invoice_details_tool,  # TODO: Replace with Odoo billing integration
 )
-# Import Odoo tools with RBAC support
+
+# Production Odoo tools with RBAC support
 from app.agents.tools.alex_odoo_tools import (
-    search_patient_odoo,
-    get_patient_details_odoo,
-    create_patient_odoo,
-    update_patient_odoo,
-    get_doctors_list_odoo,
+    search_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
+    get_patient_details_odoo,  # ✅ PRODUCTION - Real Odoo integration
+    create_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
+    update_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
+    get_doctors_list_odoo,     # ✅ PRODUCTION - Real Odoo integration
 )
 
 logger = logging.getLogger(__name__)
@@ -441,7 +443,7 @@ makes sure patients get the right help at the right time! 😊
     def __init__(self):
         """Initialize Alex agent."""
         self.llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
             temperature=0.7,  # Natural conversation
             api_key=settings.OPENAI_API_KEY,
         )

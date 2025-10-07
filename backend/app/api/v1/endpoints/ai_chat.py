@@ -155,10 +155,15 @@ async def stream_agent_response(
         # The graph.astream() method yields state updates as they happen
         logger.info(f"Starting stream for conversation {conversation_id}")
         
-        # Determine user role (for now, default to "patient" for testing RBAC)
-        # In production, this should come from JWT token or user database
-        user_role = "owner"  # TODO: Get from authentication
-        user_permissions = []  # TODO: Get from RBAC system
+        # SECURITY: Get user role from authentication
+        # For now, default to "owner" for testing, but this MUST be replaced
+        # with actual JWT token parsing in production
+        user_role = "owner"  # FIXME: Get from JWT token - current_user["role"]
+        user_permissions = []  # FIXME: Get from RBAC system based on role
+        
+        # TODO: Implement proper authentication
+        # user_role = current_user.get("role", "patient")
+        # user_permissions = get_user_permissions(user_id, user_role)
         
         # Stream the graph execution
         initial_state = {
