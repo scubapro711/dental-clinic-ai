@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentaFlow - מערכת סוכנים אוטונומיים למרפאות שיניים</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="badge fade-in">🚧 בפיתוח | זמין בקרוב</div>
+                <h1 class="hero-title fade-in-up">
+                    לא עוד בוטים.<br/>
+                    <span class="gradient-text">4 סוכנים אוטונומיים</span><br/>
+                    שעובדים בשבילך 24/7
+                </h1>
+                <p class="hero-subtitle fade-in-up delay-1">
+                    <strong>DentaFlow</strong> היא המערכת הראשונה בישראל שמשלבת סוכני AI אוטונומיים עם מערכת ניהול מרפאה מלאה (Odoo HIPAA-Compliant).
+                </p>
+                <p class="hero-stats fade-in-up delay-2">
+                    🇮🇱 <strong>8,000+</strong> רופאי שיניים בישראל | <strong>1:750</strong> יחס רופא-תושבים | <strong>30%</strong> ביטולי תורים
+                </p>
+                <div class="cta-group fade-in-up delay-3">
+                    <button class="btn btn-primary btn-large" onclick="scrollToNotify()">
+                        הירשם לגישה מוקדמת →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Difference: Agent vs Bot -->
+    <section class="key-difference">
+        <div class="container">
+            <h2 class="section-title">מה ההבדל בין בוט רגיל לסוכן אוטונומי?</h2>
+            <p class="section-subtitle">
+                רוב המערכות היום הן <strong>LLM + Code + Chat</strong> - סתם צ'אטבוט חכם.<br/>
+                <strong>DentaFlow</strong> משתמשת ב<strong>סוכנים אוטונומיים</strong> - מערכת שפועלת בעצמה.
+            </p>
+            
+            <div class="comparison-visual">
+                <div class="comparison-side bot-side">
+                    <div class="comparison-header">
+                        <div class="icon">🤖</div>
+                        <h3>בוט רגיל + LLM</h3>
+                        <span class="label label-danger">מגיב בלבד</span>
+                    </div>
+                    <div class="flow-diagram">
+                        <div class="flow-step">User</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Chatbot</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">LLM</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Response</div>
+                    </div>
+                    <ul class="feature-list">
+                        <li class="negative">❌ רק עונה לשאלות</li>
+                        <li class="negative">❌ מחכה שתפנה אליו</li>
+                        <li class="negative">❌ אין לו הקשר</li>
+                        <li class="negative">❌ לא יכול לפעול (רק לדבר)</li>
+                        <li class="negative">❌ אין גישה למערכות</li>
+                    </ul>
+                </div>
+
+                <div class="vs-divider">
+                    <span>VS</span>
+                </div>
+
+                <div class="comparison-side agent-side">
+                    <div class="comparison-header">
+                        <div class="icon">🤖✨</div>
+                        <h3>סוכן אוטונומי (Agent)</h3>
+                        <span class="label label-success">פרואקטיבי</span>
+                    </div>
+                    <div class="flow-diagram">
+                        <div class="flow-step">Event</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Supervisor</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Agent</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Tools</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Action</div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">Memory</div>
+                    </div>
+                    <ul class="feature-list">
+                        <li class="positive">✅ <strong>פרואקטיבי</strong> - פועל בעצמו</li>
+                        <li class="positive">✅ <strong>כלים</strong> - גישה ל-Odoo, DB, Telegram</li>
+                        <li class="positive">✅ <strong>זיכרון</strong> - זוכר ומעקב ארוך טווח</li>
+                        <li class="positive">✅ <strong>תכנון</strong> - מתכנן צעדים מורכבים</li>
+                        <li class="positive">✅ <strong>Multi-agent</strong> - שיתוף פעולה בין סוכנים</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Phone Comparison: Bot vs Agent -->
+    <section class="phone-comparison">
+        <div class="container">
+            <h2 class="section-title">ראה את ההבדל בפעולה</h2>
+            <p class="section-subtitle">אותו תרחיש, שתי תגובות שונות לחלוטין</p>
+            
+            <div class="scenario-tabs">
+                <button class="scenario-tab active" data-scenario="1">תרחיש 1: ביטול תור</button>
+                <button class="scenario-tab" data-scenario="2">תרחיש 2: שאלה על מחיר</button>
+                <button class="scenario-tab" data-scenario="3">תרחיש 3: לקוח חדש</button>
+                <button class="scenario-tab" data-scenario="4">תרחיש 4: תזרים נמוך</button>
+                <button class="scenario-tab" data-scenario="5">תרחיש 5: מלאי נגמר</button>
+            </div>
+
+            <div class="phones-container">
+                <!-- Bot Phone -->
+                <div class="phone-mockup bot-phone">
+                    <div class="phone-header">
+                        <div class="phone-notch"></div>
+                        <div class="phone-status">
+                            <span>9:41</span>
+                            <div class="phone-icons">📶 📡 🔋</div>
+                        </div>
+                    </div>
+                    <div class="phone-app-header">
+                        <div class="back-btn">←</div>
+                        <div class="app-title">
+                            <div class="avatar">🤖</div>
+                            <div>
+                                <div class="name">בוט רגיל</div>
+                                <div class="status">מחובר ל-LLM</div>
+                            </div>
+                        </div>
+                        <div class="more-btn">⋮</div>
+                    </div>
+                    <div class="phone-chat" id="bot-chat">
+                        <!-- Messages will be inserted by JS -->
+                    </div>
+                    <div class="phone-input">
+                        <input type="text" placeholder="הקלד הודעה..." disabled>
+                        <button>📎</button>
+                        <button>🎤</button>
+                    </div>
+                </div>
+
+                <!-- Agent Phone -->
+                <div class="phone-mockup agent-phone">
+                    <div class="phone-header">
+                        <div class="phone-notch"></div>
+                        <div class="phone-status">
+                            <span>9:41</span>
+                            <div class="phone-icons">📶 📡 🔋</div>
+                        </div>
+                    </div>
+                    <div class="phone-app-header">
+                        <div class="back-btn">←</div>
+                        <div class="app-title">
+                            <div class="avatar">🤖✨</div>
+                            <div>
+                                <div class="name">Alex (DentaFlow Agent)</div>
+                                <div class="status">פעיל • מחובר ל-Odoo</div>
+                            </div>
+                        </div>
+                        <div class="more-btn">⋮</div>
+                    </div>
+                    <div class="phone-chat" id="agent-chat">
+                        <!-- Messages will be inserted by JS -->
+                    </div>
+                    <div class="phone-input">
+                        <input type="text" placeholder="הקלד הודעה..." disabled>
+                        <button>📎</button>
+                        <button>🎤</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenario-result">
+                <div class="result-box bot-result">
+                    <h4>תוצאה: בוט רגיל</h4>
+                    <p id="bot-result-text">המשתמש קיבל תשובה, אבל לא קרה כלום במערכת.</p>
+                </div>
+                <div class="result-box agent-result">
+                    <h4>תוצאה: DentaFlow Agent</h4>
+                    <p id="agent-result-text">המערכת פעלה אוטומטית, חסכה זמן וכסף, ושמרה על שקיפות מלאה.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Transparency Dashboard -->
+    <section class="transparency">
+        <div class="container">
+            <h2 class="section-title">שקיפות מלאה: אתה רואה הכל</h2>
+            <p class="section-subtitle">
+                כל פעולה של הסוכנים מתועדת ומוצגת בזמן אמת בדשבורד.<br/>
+                <strong>אתה תמיד בשליטה.</strong>
+            </p>
+
+            <div class="dashboard-preview">
+                <div class="dashboard-header">
+                    <div class="dashboard-title">
+                        <span class="icon">📊</span>
+                        <span>דשבורד אגנטי - תצוגה בזמן אמת</span>
+                    </div>
+                    <div class="dashboard-time">עודכן לפני 2 שניות</div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="agent-activity">
+                        <div class="activity-item">
+                            <div class="activity-agent">
+                                <div class="agent-avatar alex">A</div>
+                                <div class="agent-info">
+                                    <div class="agent-name">Alex</div>
+                                    <div class="activity-time">לפני 30 שניות</div>
+                                </div>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">✅ מילא תור פנוי מרשימת המתנה</div>
+                                <div class="activity-data">
+                                    <span class="data-item">מטופל: דוד כהן</span>
+                                    <span class="data-item">תור: מחר 15:00</span>
+                                    <span class="data-item">הכנסה: ₪450</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-agent">
+                                <div class="agent-avatar marcus">M</div>
+                                <div class="agent-info">
+                                    <div class="agent-name">Marcus</div>
+                                    <div class="activity-time">לפני 5 דקות</div>
+                                </div>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">⚠️ זיהה תזרים נמוך - שלח התראה</div>
+                                <div class="activity-data">
+                                    <span class="data-item">תזרים החודש: -15%</span>
+                                    <span class="data-item">המלצה: הצע מבצע</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-agent">
+                                <div class="agent-avatar sophia">S</div>
+                                <div class="agent-info">
+                                    <div class="agent-name">Sophia</div>
+                                    <div class="activity-time">לפני 15 דקות</div>
+                                </div>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-action">📦 הזמינה חומר איטום מספק חדש</div>
+                                <div class="activity-data">
+                                    <span class="data-item">חיסכון: ₪320</span>
+                                    <span class="data-item">זמן אספקה: 24 שעות</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="transparency-features">
+                <div class="transparency-card">
+                    <div class="card-icon">👁️</div>
+                    <h3>ראות מלאה</h3>
+                    <p>כל פעולה של כל סוכן מתועדת ומוצגת בזמן אמת</p>
+                </div>
+                <div class="transparency-card">
+                    <div class="card-icon">🛑</div>
+                    <h3>שליטה מלאה</h3>
+                    <p>אפשרות לעצור, לשנות או לאשר כל פעולה</p>
+                </div>
+                <div class="transparency-card">
+                    <div class="card-icon">📝</div>
+                    <h3>תיעוד מלא</h3>
+                    <p>היסטוריה שלמה של כל החלטה והסבר למה</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet the Agents -->
+    <section class="agents">
+        <div class="container">
+            <h2 class="section-title">הכר את הצוות שלך</h2>
+            <p class="section-subtitle">4 סוכנים מתמחים, כל אחד עם תפקיד ייחודי</p>
+
+            <div class="agents-grid">
+                <!-- Alex -->
+                <div class="agent-card">
+                    <div class="agent-card-header">
+                        <div class="agent-avatar-large alex">A</div>
+                        <div>
+                            <h3>Alex</h3>
+                            <p class="agent-role">מנהל קשרי לקוחות</p>
+                        </div>
+                    </div>
+                    <p class="agent-description">"אני דואג שכל מטופל מרגיש מוערך ושאף תור לא נשאר ריק"</p>
+                    <div class="agent-capabilities">
+                        <h4>מה Alex עושה:</h4>
+                        <ul>
+                            <li>📅 ניהול תורים חכם (תזכורות, ביטולים, רשימת המתנה)</li>
+                            <li>💬 תקשורת עם מטופלים (SMS, Telegram, WhatsApp)</li>
+                            <li>🔄 מילוי תורים פנויים אוטומטית</li>
+                            <li>📊 מעקב אחר שביעות רצון</li>
+                        </ul>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="stat">
+                            <div class="stat-value">↓30%</div>
+                            <div class="stat-label">ביטולים</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">↑95%</div>
+                            <div class="stat-label">תפוסה</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marcus -->
+                <div class="agent-card">
+                    <div class="agent-card-header">
+                        <div class="agent-avatar-large marcus">M</div>
+                        <div>
+                            <h3>Marcus</h3>
+                            <p class="agent-role">מנהל פיננסי (CFO)</p>
+                        </div>
+                    </div>
+                    <p class="agent-description">"אני מוודא שהכסף זורם, החשבוניות משולמות, והרווחיות עולה"</p>
+                    <div class="agent-capabilities">
+                        <h4>מה Marcus עושה:</h4>
+                        <ul>
+                            <li>💰 ניהול תזרים מזומנים ותחזיות</li>
+                            <li>📈 ניתוח רווחיות לפי טיפול/מטופל</li>
+                            <li>🔔 התראות על חובות ותשלומים</li>
+                            <li>📊 דוחות פיננסיים אוטומטיים</li>
+                        </ul>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="stat">
+                            <div class="stat-value">↑25%</div>
+                            <div class="stat-label">תזרים</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">↓40%</div>
+                            <div class="stat-label">חובות</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sophia -->
+                <div class="agent-card">
+                    <div class="agent-card-header">
+                        <div class="agent-avatar-large sophia">S</div>
+                        <div>
+                            <h3>Sophia</h3>
+                            <p class="agent-role">מנהלת תפעול</p>
+                        </div>
+                    </div>
+                    <p class="agent-description">"אני דואגת שהכל רץ חלק - מלאי, לוח זמנים, ציוד"</p>
+                    <div class="agent-capabilities">
+                        <h4>מה Sophia עושה:</h4>
+                        <ul>
+                            <li>📦 ניהול מלאי והזמנות אוטומטיות</li>
+                            <li>🗓️ אופטימיזציה של לוח הזמנים</li>
+                            <li>🔧 מעקב אחר תחזוקת ציוד</li>
+                            <li>⚡ זיהוי צווארי בקבוק ופתרונות</li>
+                        </ul>
+                    </div>
+                    <div class="agent-stats">
+                        <div class="stat">
+                            <div class="stat-value">↓50%</div>
+                            <div class="stat-label">חסרים</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">↑20%</div>
+                            <div class="stat-label">יעילות</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sarah (Coming Soon) -->
+                <div class="agent-card coming-soon">
+                    <div class="agent-card-header">
+                        <div class="agent-avatar-large sarah">S</div>
+                        <div>
+                            <h3>Sarah</h3>
+                            <p class="agent-role">מנהלת קלינית</p>
+                            <span class="badge-soon">בקרוב</span>
+                        </div>
+                    </div>
+                    <p class="agent-description">"אני אדאג לתיעוד קליני מושלם בלי שתרים אצבע"</p>
+                    <div class="agent-capabilities">
+                        <h4>מה Sarah תעשה:</h4>
+                        <ul>
+                            <li>📝 תיעוד קליני אוטומטי (Progress Notes)</li>
+                            <li>🦷 ניהול Odontogram חכם</li>
+                            <li>📋 תוכניות טיפול מבוססות AI</li>
+                            <li>🔬 המלצות קליניות מבוססות נתונים</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Odoo -->
+    <section class="why-odoo">
+        <div class="container">
+            <h2 class="section-title">למה Odoo? הבסיס החזק שלנו</h2>
+            <p class="section-subtitle">
+                DentaFlow בנויה על <strong>Odoo</strong> - מערכת ERP מובילה עולמית.<br/>
+                זה לא סתם בחירה, זה יתרון אסטרטגי.
+            </p>
+
+            <div class="odoo-benefits">
+                <div class="odoo-card">
+                    <div class="odoo-icon">🔒</div>
+                    <h3>HIPAA Compliant</h3>
+                    <p>עומד בתקני אבטחה פדרליים אמריקאיים להגנה על מידע רפואי</p>
+                    <ul>
+                        <li>✅ הצפנת PHI/ePHI</li>
+                        <li>✅ Audit Logging מלא</li>
+                        <li>✅ Access Control מתקדם</li>
+                        <li>✅ Auto Logoff</li>
+                    </ul>
+                </div>
+
+                <div class="odoo-card">
+                    <div class="odoo-icon">🏢</div>
+                    <h3>ERP מלא, לא רק תורים</h3>
+                    <p>מערכת ניהול עסקית שלמה, לא סתם תוכנה לניהול תורים</p>
+                    <ul>
+                        <li>✅ ניהול מטופלים</li>
+                        <li>✅ ניהול פיננסי</li>
+                        <li>✅ ניהול מלאי</li>
+                        <li>✅ ניהול משאבי אנוש</li>
+                        <li>✅ דיווחים ואנליטיקה</li>
+                    </ul>
+                </div>
+
+                <div class="odoo-card">
+                    <div class="odoo-icon">🌍</div>
+                    <h3>Open Source + Enterprise</h3>
+                    <p>קוד פתוח עם תמיכה ארגונית מקצועית</p>
+                    <ul>
+                        <li>✅ שקיפות מלאה</li>
+                        <li>✅ קהילה עולמית</li>
+                        <li>✅ עדכונים תכופים</li>
+                        <li>✅ תמיכה 24/7</li>
+                    </ul>
+                </div>
+
+                <div class="odoo-card">
+                    <div class="odoo-icon">🔌</div>
+                    <h3>API מלא ל-Agents</h3>
+                    <p>הסוכנים שלנו מתחברים ישירות ל-Odoo דרך XML-RPC</p>
+                    <ul>
+                        <li>✅ גישה לכל הנתונים</li>
+                        <li>✅ פעולות בזמן אמת</li>
+                        <li>✅ סנכרון מושלם</li>
+                        <li>✅ אבטחה מובנית</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="odoo-architecture">
+                <h3>הארכיטקטורה שלנו</h3>
+                <div class="architecture-diagram">
+                    <div class="arch-layer">
+                        <div class="arch-box">
+                            <strong>Frontend</strong>
+                            <span>React + Vercel AI SDK</span>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-box">
+                            <strong>Backend API</strong>
+                            <span>FastAPI + Python</span>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-box highlight">
+                            <strong>Multi-Agent System</strong>
+                            <span>LangGraph + Supervisor</span>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-box">
+                            <strong>Odoo ERP</strong>
+                            <span>HIPAA Compliant</span>
+                        </div>
+                    </div>
+                    <div class="arch-arrow">↓</div>
+                    <div class="arch-layer">
+                        <div class="arch-box">
+                            <strong>Database</strong>
+                            <span>PostgreSQL + Redis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ROI Calculator -->
+    <section class="roi-calculator">
+        <div class="container">
+            <h2 class="section-title">כמה תחסוך עם DentaFlow?</h2>
+            <p class="section-subtitle">חשבון פשוט מבוסס נתונים אמיתיים</p>
+
+            <div class="calculator-container">
+                <div class="calculator-inputs">
+                    <div class="input-group">
+                        <label>כמה תורים יש לך בשבוע?</label>
+                        <input type="number" id="appointments-week" value="100" min="10" max="500">
+                    </div>
+                    <div class="input-group">
+                        <label>מה ממוצע המחיר לטיפול? (₪)</label>
+                        <input type="number" id="avg-price" value="450" min="100" max="5000">
+                    </div>
+                    <div class="input-group">
+                        <label>כמה שעות בשבוע אתה מבזבז על ניהול?</label>
+                        <input type="number" id="admin-hours" value="10" min="1" max="40">
+                    </div>
+                </div>
+
+                <div class="calculator-results">
+                    <h3>החיסכון השנתי שלך:</h3>
+                    <div class="result-item">
+                        <div class="result-label">מניעת ביטולים (30% → 10%)</div>
+                        <div class="result-value" id="cancellation-savings">₪0</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">חיסכון בזמן ניהול (₪200/שעה)</div>
+                        <div class="result-value" id="time-savings">₪0</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">שיפור תזרים (15%)</div>
+                        <div class="result-value" id="cashflow-savings">₪0</div>
+                    </div>
+                    <div class="result-total">
+                        <div class="result-label"><strong>סה"כ חיסכון שנתי:</strong></div>
+                        <div class="result-value total" id="total-savings">₪0</div>
+                    </div>
+                    <div class="result-note">
+                        * חישוב משוער מבוסס נתונים ממוצעים של מרפאות בישראל
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Market Data -->
+    <section class="market-data">
+        <div class="container">
+            <h2 class="section-title">השוק הישראלי: הזדמנות ענקית</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">8,000+</div>
+                    <div class="stat-label">רופאי שיניים בישראל</div>
+                    <div class="stat-note">אחד הגבוהים בעולם לנפש</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">1:750</div>
+                    <div class="stat-label">יחס רופא-תושבים</div>
+                    <div class="stat-note">תחרות גבוהה = צורך בייעול</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">30%</div>
+                    <div class="stat-label">ביטולי תורים</div>
+                    <div class="stat-note">הפסד של מיליארדי ₪ בשנה</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">₪450</div>
+                    <div class="stat-label">ממוצע לטיפול</div>
+                    <div class="stat-note">כל תור שנחסך = הפסד כבד</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="notify" id="notify">
+        <div class="container">
+            <div class="notify-content">
+                <h2>הירשם לגישה מוקדמת</h2>
+                <p>המערכת בפיתוח ותהיה זמינה בקרוב. הירשם עכשיו וקבל:</p>
+                <ul class="benefits-list">
+                    <li>🎁 <strong>50% הנחה</strong> ל-6 החודשים הראשונים</li>
+                    <li>🚀 גישה מוקדמת לבטא</li>
+                    <li>👨‍💻 תמיכה VIP והדרכה אישית</li>
+                    <li>🎯 השפעה על פיתוח התכונות</li>
+                </ul>
+                <form class="notify-form" id="notify-form">
+                    <input type="text" class="form-input" placeholder="שם מלא*" required>
+                    <input type="email" class="form-input" placeholder="אימייל*" required>
+                    <input type="tel" class="form-input" placeholder="טלפון*" required>
+                    <input type="text" class="form-input" placeholder="שם המרפאה">
+                    <button type="submit" class="btn btn-primary btn-large">
+                        שלח בקשה →
+                    </button>
+                </form>
+                <p class="privacy-note">
+                    🔒 המידע שלך מוגן ולא ישותף עם צדדים שלישיים
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <h3>DentaFlow</h3>
+                    <p>מערכת סוכנים אוטונומיים למרפאות שיניים</p>
+                </div>
+                <div class="footer-links">
+                    <a href="#hero">ראשי</a>
+                    <a href="#agents">הסוכנים</a>
+                    <a href="#roi-calculator">מחשבון ROI</a>
+                    <a href="#notify">הרשמה</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 DentaFlow. All rights reserved. | Built with ❤️ in Israel</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
