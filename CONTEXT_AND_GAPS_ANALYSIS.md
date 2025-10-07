@@ -581,6 +581,355 @@ class OdooClient:
 
 ---
 
+### 2.4 Data Architecture: PostgreSQL vs. Odoo 🔴 **קריטי!**
+
+**מקור:** `DEPTH_ANALYSIS_ODOO_INTEGRATION.md`
+
+#### הארכיטקטורה האמיתית: שתי מערכות נפרדות!
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      DentaFlow System                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────┐         ┌──────────────────┐          │
+│  │  PostgreSQL DB   │         │   Odoo 19.0      │          │
+│  │  (dentalai)      │         │   (dental_prod)  │          │
+│  ├──────────────────┤         ├──────────────────┤          │
+│  │ • users          │         │ • res.partner    │          │
+│  │ • organizations  │         │ • medical.appt   │          │
+│  │ • conversations  │         │ • hr.employee    │          │
+│  │ • messages       │         │ • account.move   │          │
+│  │ • audit_logs     │         │ • product.product│          │
+│  │ • consent        │         │ • (17 models)    │          │
+│  └──────────────────┘         └──────────────────┘          │
+│         ↑                              ↑                     │
+│         │                              │                     │
+│         │                              │                     │
+│  ┌──────┴──────────────────────────────┴──────┐             │
+│  │         Backend (FastAPI)                  │             │
+│  │  ┌──────────────┐  ┌──────────────────┐   │             │
+│  │  │ Auth & Users │  │ Odoo Integration │   │             │
+│  │  │ (SQLAlchemy) │  │ (XML-RPC)        │   │             │
+│  │  └──────────────┘  └──────────────────┘   │             │
+│  │                                            │             │
+│  │  ┌──────────────────────────────────────┐ │             │
+│  │  │   LangGraph Agent System             │ │             │
+│  │  │  ┌──────┐  ┌───────┐  ┌────────┐    │ │             │
+│  │  │  │ Alex │  │Marcus │  │ Sophia │    │ │             │
+│  │  │  └──────┘  └───────┘  └────────┘    │ │             │
+│  │  └──────────────────────────────────────┘ │             │
+│  └────────────────────────────────────────────┘             │
+│                        ↓                                     │
+│  ┌────────────────────────────────────────────┐             │
+│  │         Frontend (React)                   │             │
+│  └────────────────────────────────────────────┘             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### חלוקת אחריות בין המערכות
+
+| נתון | PostgreSQL | Odoo | מסונכרן? |
+|------|-----------|------|----------|
+| **User (email, password)** | ✅ Primary | ❌ | - |
+| **Organization** | ✅ Primary | ❌ | - |
+| **Conversation** | ✅ Primary | ❌ | - |
+| **Messages** | ✅ Primary | ❌ | - |
+| **Audit Logs** | ✅ Primary | ❌ | - |
+| **Consent** | ✅ Primary | ❌ | - |
+| **Patient (clinical data)** | ❌ | ✅ Primary | ❓ Unknown |
+| **Appointment** | ❌ | ✅ Primary | ❓ Unknown |
+| **Doctor** | ❌ | ✅ Primary | ❓ Unknown |
+| **Invoice** | ❌ | ✅ Primary | ❓ Unknown |
+| **Treatment** | ❌ | ✅ Primary | ❓ Unknown |
+
+**מסקנה:**
+- **PostgreSQL** = Authentication, Authorization, Conversations, Audit
+- **Odoo** = Clinical Data, Operations, Billing
+
+#### 🔴 הבעיה הקריטית: User ↔ Patient Mapping
+
+**השאלה המרכזית:**
+> איך User ב-PostgreSQL (UUID) קשור ל-Patient ב-Odoo (integer ID)?
+
+**מה שמצאתי בקוד:**
+
+```python
+# backend/app/models/user.py
+class User(Base):
+    id = Column(UUID)              # UUID format
+    email = Column(String)
+    organization_id = Column(UUID)
+    role = Column(Enum(UserRole))
+    # ❌ אין patient_id!
+    # ❌ אין odoo_partner_id!
+```
+
+```python
+# Odoo: res.partner (Patient)
+{
+    "id": 456,  # Integer ID
+    "name": "John Doe",
+    "email": "patient@example.com",
+    "phone": "+972501234567"
+}
+```
+
+```python
+# backend/app/agents/tools/alex_odoo_tools.py
+def search_patient_odoo(query: str, user_id: str, user_role: str):
+    if user_role == "patient":
+        # ❌ בעיה: user_id הוא UUID, אבל Odoo מצפה ל-integer!
+        return odoo_client.search_patients(
+            query, 
+            filters={"id": user_id}  # ← זה לא יכול לעבוד!
+        )
+```
+
+**הבעיה:**
+- RBAC מנסה לסנן לפי `user_id` (UUID)
+- אבל Odoo מצפה ל-`patient_id` (integer)
+- **אין קישור מתועד בין השניים!**
+
+#### אפשרויות לפתרון
+
+**אפשרות 1: Loose Coupling (Email-based) ⚠️ נוכחי?**
+
+```python
+# Link by email matching
+user.email == patient.email
+
+# Pros:
+# - פשוט
+# - לא צריך שדה נוסף
+
+# Cons:
+# - מה אם email משתנה?
+# - מה אם 2 patients עם אותו email?
+# - איטי (חיפוש לפי email בכל פעם)
+```
+
+**אפשרות 2: Tight Coupling (ID Mapping) ✅ מומלץ**
+
+```python
+# Add field to User model
+class User(Base):
+    id = Column(UUID)
+    email = Column(String)
+    odoo_partner_id = Column(Integer, nullable=True)  # ← NEW!
+
+# Pros:
+# - מהיר (direct lookup)
+# - אמין
+# - RBAC עובד
+
+# Cons:
+# - צריך migration
+# - צריך לנהל sync
+```
+
+**אפשרות 3: Hybrid (Organization-level Mapping) ✅ הכי טוב**
+
+```python
+# Add to OrganizationMembership
+class OrganizationMembership(Base):
+    user_id = Column(UUID)
+    organization_id = Column(UUID)
+    organization_role = Column(Enum)
+    functional_role = Column(Enum)
+    odoo_partner_id = Column(Integer, nullable=True)  # ← NEW!
+
+# Pros:
+# - תומך ב-multi-tenancy
+# - patient יכול להיות במספר מרפאות
+# - odoo_partner_id שונה לכל ארגון
+
+# Cons:
+# - מורכב יותר
+# - צריך OrganizationMembership table
+```
+
+#### תרחישי שימוש קריטיים
+
+**תרחיש 1: Patient נרשם למערכת**
+
+```python
+# Current (assumed):
+1. Frontend: POST /api/v1/auth/register
+   {
+     "email": "patient@example.com",
+     "password": "...",
+     "full_name": "John Doe",
+     "phone": "+972501234567"
+   }
+
+2. Backend creates User in PostgreSQL:
+   user = User(
+       email="patient@example.com",
+       hashed_password="...",
+       full_name="John Doe",
+       phone="+972501234567",
+       role=UserRole.ORG_STAFF  # ← או ORG_VIEWER?
+   )
+
+3. ❓ Patient נוצר ב-Odoo?
+   - אם כן, מתי? איך?
+   - אם לא, מתי נוצר?
+
+4. ❓ הקישור נשמר?
+   - איפה?
+   - איך?
+```
+
+**תרחיש 2: Patient מבקש לראות תורים**
+
+```python
+# Current flow:
+1. Frontend: GET /api/v1/ai/chat
+   Headers: Authorization: Bearer <JWT>
+   Body: {"message": "מה התורים שלי?"}
+
+2. Backend extracts user from JWT:
+   user_id = "uuid-123"  # From JWT
+   user_role = "org_staff"  # From JWT
+
+3. Alex agent calls search_patient_odoo:
+   search_patient_odoo(
+       query="",
+       user_id="uuid-123",  # ← UUID
+       user_role="patient"
+   )
+
+4. ❌ RBAC filter:
+   if user_role == "patient":
+       filters={"id": "uuid-123"}  # ← Odoo expects integer!
+
+5. ❌ Odoo search fails or returns nothing
+```
+
+**מה צריך לקרות:**
+
+```python
+# Fixed flow:
+3. Alex agent calls search_patient_odoo:
+   # First, get odoo_partner_id from User or OrganizationMembership
+   odoo_partner_id = get_odoo_partner_id(user_id, organization_id)
+   
+   search_patient_odoo(
+       query="",
+       odoo_partner_id=456,  # ← Integer!
+       user_role="patient"
+   )
+
+4. ✅ RBAC filter:
+   if user_role == "patient":
+       filters={"id": 456}  # ← Works!
+```
+
+**תרחיש 3: Staff יוצר מטופל חדש**
+
+```python
+# Current flow (assumed):
+1. Receptionist: "צור מטופל חדש: John Doe, 050-1234567"
+
+2. Alex calls create_patient_odoo:
+   patient_id = odoo_client.create_patient({
+       "name": "John Doe",
+       "phone": "050-1234567",
+       "email": "john@example.com"
+   })
+   # Returns: 456 (Odoo integer ID)
+
+3. ❓ User נוצר ב-PostgreSQL?
+   - אם כן, איך?
+   - אם לא, מתי?
+
+4. ❓ הקישור נשמר?
+   - איפה?
+   - איך?
+```
+
+**מה צריך לקרות:**
+
+```python
+# Option A: Patient-only (no login)
+1. Create patient in Odoo only
+2. No User in PostgreSQL
+3. Patient can't login (only staff can see them)
+
+# Option B: Patient with login
+1. Create patient in Odoo
+2. Create User in PostgreSQL
+3. Link them:
+   user.odoo_partner_id = patient_id
+   # OR
+   membership.odoo_partner_id = patient_id
+4. Send invitation email
+```
+
+#### Synchronization Strategy 🔴 **חסר!**
+
+**מה צריך לקרות כש:**
+
+| אירוע | PostgreSQL | Odoo | סנכרון |
+|-------|-----------|------|--------|
+| **Patient משנה email** | ✅ Update User.email | ✅ Update partner.email | ❓ לא מתועד |
+| **Patient משנה טלפון** | ⚠️ Update User.phone? | ✅ Update partner.phone | ❓ לא מתועד |
+| **Patient משנה סיסמה** | ✅ Update User.hashed_password | ❌ לא רלוונטי | - |
+| **Staff מעדכן פרטי patient ב-Odoo** | ❓ Update User? | ✅ Update partner | ❓ לא מתועד |
+| **Patient נמחק** | ⚠️ Soft delete (deleted_at) | ⚠️ Archive (active=False) | ❓ לא מתועד |
+
+**אסטרטגיות אפשריות:**
+
+1. **One-way sync: PostgreSQL → Odoo**
+   - User changes propagate to Odoo
+   - Odoo changes don't propagate back
+   - **Pros:** פשוט
+   - **Cons:** data drift
+
+2. **Two-way sync**
+   - Changes in either system sync to the other
+   - **Pros:** always in sync
+   - **Cons:** מורכב, conflict resolution
+
+3. **Master-slave:**
+   - Odoo is master for clinical data
+   - PostgreSQL is master for auth data
+   - **Pros:** clear ownership
+   - **Cons:** need to define boundaries
+
+#### 🚨 מה צריך לעשות עכשיו?
+
+**קריטי 🔴**
+
+1. **לברר את המצב הנוכחי:**
+   - [ ] לבדוק איך RBAC עובד בפועל
+   - [ ] לבדוק איך patient נוצר
+   - [ ] לבדוק אם יש קישור User ↔ Patient
+
+2. **לתכנן את הפתרון:**
+   - [ ] להחליט על אסטרטגיית mapping (אפשרות 2 או 3)
+   - [ ] להחליט על אסטרטגיית sync
+   - [ ] לתכנן migration
+
+3. **ליישם:**
+   - [ ] להוסיף `odoo_partner_id` ל-User או OrganizationMembership
+   - [ ] לתקן RBAC ב-alex_odoo_tools.py
+   - [ ] ליישם sync logic
+   - [ ] לכתוב tests
+
+**חשוב 🟡**
+
+4. **לתעד:**
+   - [ ] Registration flows
+   - [ ] Data sync flows
+   - [ ] Error handling
+   - [ ] Edge cases
+
+**סטטוס:** 🔴 **קריטי - לא מיושם, לא מתועד, כנראה לא עובד!**
+
+---
+
 ## 📋 חלק 3: Business Logic & Requirements
 
 **מקור:** `DENTAL_CLINIC_OPERATIONS_RESEARCH.md` + `DENTAFLOW_GAP_FILLING_PROPOSAL.md`
