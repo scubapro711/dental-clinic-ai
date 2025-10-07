@@ -432,64 +432,146 @@ Modules: pragtech_dental_management, dental_israel
 
 ---
 
-## 📋 חלק 3: Business Logic & Requirements
+## 📋 חלק 3: Business Logic & Requirements ⚠️ **מתועד חלקית**
 
-### 3.1 Appointment Scheduling
+**ממצאים מהמחקר:** (ראה `BUSINESS_LOGIC_REQUIREMENTS.md`)
 
-**מה אני צריך להבין:**
+### 3.1 Appointment Scheduling ⚠️ **משוער - צריך אישור**
 
-| נושא | שאלות | חשיבות |
-| :--- | :--- | :--- |
-| **Working Hours** | מה שעות הפעילות של המרפאה? | 🔴 קריטי |
-| **Appointment Duration** | כמה זמן כל תור? (30 דק? 60 דק?) | 🔴 קריטי |
-| **Buffer Time** | האם יש זמן buffer בין תורים? | 🟡 חשוב |
-| **Doctor Availability** | איך מוגדרת זמינות רופאים? | 🔴 קריטי |
-| **Room Management** | האם יש ניהול חדרי טיפול? | 🟡 חשוב |
-| **Appointment Types** | איזה סוגי תורים יש? (ראשוני, המשך, דחוף) | 🟡 חשוב |
-| **Cancellation Policy** | מה מדיניות הביטולים? | 🟢 רצוי |
+**מה שמצאתי בקוד:**
 
-**מה אני צריך:**
 ```python
-# Business Rules
-CLINIC_HOURS = {
-    "sunday": {"start": "08:00", "end": "18:00"},
-    "monday": {"start": "08:00", "end": "18:00"},
-    # ...
-}
+# מ-mock data
+DEFAULT_APPOINTMENT_DURATION = 30  # דקות
+BUFFER_TIME = 10  # דקות
 
-APPOINTMENT_DURATION = 30  # minutes
-BUFFER_TIME = 10  # minutes between appointments
+APPOINTMENT_STATUSES = [
+    "scheduled", "confirmed", "completed", 
+    "cancelled", "no_show"
+]
 ```
 
----
+**❓ חסר ונדרש:**
+- שעות פעילות מרפאה (לפי יום)
+- חגים וימים מיוחדים
+- סוגי תורים ומשכים (בדיקה, טיפול שורש, וכו')
+- זמינות רופאים (לוח זמנים)
+- ניהול חדרי טיפול
+- מדיניות ביטולים
 
-### 3.2 Billing & Invoicing
-
-**מה אני צריך להבין:**
-
-| נושא | שאלות | חשיבות |
-| :--- | :--- | :--- |
-| **Payment Methods** | מה אמצעי התשלום? (מזומן, אשראי, העברה) | 🟡 חשוב |
-| **Insurance** | האם יש אינטגרציה עם קופות חולים? | 🔴 קריטי |
-| **Pricing** | איך מחושב מחיר טיפול? | 🟡 חשוב |
-| **Tax** | מה שיעור המע"מ? | 🟡 חשוב |
-| **Invoice Format** | מה הפורמט הנדרש? (חשבונית מס?) | 🟡 חשוב |
-| **Payment Terms** | מה תנאי התשלום? | 🟢 רצוי |
+**סטטוס:** ⚠️ יש defaults, צריך אישור מבעל המרפאה
 
 ---
 
-### 3.3 Clinical Workflow
+### 3.2 Billing & Invoicing ⚠️ **משוער - צריך אישור**
 
-**מה אני צריך להבין:**
+**מה שמצאתי בקוד:**
 
-| נושא | שאלות | חשיבות |
-| :--- | :--- | :--- |
-| **Treatment Plans** | מה המבנה של תוכנית טיפול? | 🟡 חשוב |
-| **Progress Notes** | מה צריך להיות בהערת התקדמות? | 🟡 חשוב |
-| **Odontogram** | האם יש מערכת odontogram? | 🟡 חשוב |
-| **Medical History** | מה צריך לתעד בהיסטוריה רפואית? | 🟡 חשוב |
-| **Consent Forms** | איזה טפסי הסכמה נדרשים? | 🟢 רצוי |
-| **Prescriptions** | האם יש מערכת מרשמים? | 🟢 רצוי |
+```python
+# מ-mock data - דוגמאות
+TREATMENT_PRICES = {
+    "checkup": 200,
+    "cleaning": 350,
+    "filling": 500,
+    "root_canal": 1500,
+    "crown": 2500,
+    "implant": 5000,
+}
+```
+
+**❓ חסר ונדרש:**
+- מחירון מלא ומאושר
+- אמצעי תשלום (מזומן, אשראי, ביט, וכו')
+- תנאי תשלום (תשלומים, פיקדון)
+- קופות חולים וביטוחים (הסכמים, אחוזי כיסוי)
+- מדיניות חוב וגבייה
+- מע\"מ ופורמט חשבונית
+
+**סטטוס:** ⚠️ יש mock prices, צריך מחירון אמיתי
+
+---
+
+### 3.3 Medical Safety ✅ **מתועד!**
+
+**מתועד ב-alex.py:**
+
+**Escalation Protocol:**
+- 🔴 Level 1: EMERGENCY (חירום מיידי)
+- 🟡 Level 2: DOCTOR REQUIRED (רופא נדרש תוך שעתיים)
+- 🟢 Level 3: ROUTINE (רגיל)
+
+**AI Boundaries:**
+- ❌ אסור: אבחון, מרשם תרופות, החלטות קליניות
+- ✅ מותר: מידע כללי, קביעת תורים, escalation
+
+**סטטוס:** ✅ מיושם בקוד
+
+---
+
+### 3.4 Communication & Notifications ❓ **חסר**
+
+**❓ חסר ונדרש:**
+- תזכורות לתורים (מתי, באילו ערוצים)
+- הודעות אוטומטיות (תודה, ביקורת, follow-up)
+- ערוצי תקשורת (SMS, Email, WhatsApp, Telegram)
+
+**סטטוס:** ⚠️ יש Telegram bot, חסר SMS/Email/WhatsApp
+
+---
+
+### 3.5 Staff Management ✅ **מתועד!**
+
+**מתועד ב-ROLE_SYSTEM_RECOMMENDATIONS.md:**
+- תפקידים במרפאה
+- הרשאות לפי תפקיד
+- Agent access matrix
+
+**❓ חסר ונדרש:**
+- משמרות ולוח זמנים
+- ניהול חופשות ומחלות
+
+**סטטוס:** ✅ Roles מתועדים, ❓ Scheduling חסר
+
+---
+
+### 3.6 Reports & Analytics ⚠️ **מתועד חלקית**
+
+**מה שמצאתי בקוד:**
+
+**Marcus (CFO) Tools:**
+- דוח הכנסות
+- סטטוס תשלומים
+- טיפולים רווחיים
+- חשבוניות פתוחות
+- ניתוח רווחיות
+
+**Sophia (Admin) Tools:**
+- קונפליקטים בלוח זמנים
+- ניצולת מרפאה
+- אחוז no-show
+- מדדי תפעול
+
+**❓ חסר ונדרש:**
+- דוחות קליניים
+- KPIs חשובים
+- תדירות דוחות (יומי, שבועי, חודשי)
+
+**סטטוס:** ⚠️ יש mock reports, צריך דרישות אמיתיות
+
+---
+
+**סיכום חלק 3:**
+
+| קטגוריה | סטטוס | פעולה נדרשת |
+|----------|--------|--------------|
+| Appointment Scheduling | ⚠️ משוער | פגישה עם בעל מרפאה |
+| Billing & Invoicing | ⚠️ משוער | מחירון + מדיניות |
+| Medical Safety | ✅ מתועד | - |
+| Communication | ❓ חסר | הגדרת מדיניות |
+| Staff Management | ⚠️ חלקי | Scheduling |
+| Reports | ⚠️ חלקי | דרישות KPIs |
+
+**המלצה:** לתזמן פגישה עם בעל המרפאה למילוי הפערים הקריטיים
 
 ---
 
