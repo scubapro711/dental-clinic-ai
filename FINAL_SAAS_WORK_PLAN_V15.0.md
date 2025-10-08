@@ -74,8 +74,25 @@
 | **API Registration** | ✅ הושלם | `25a7415` |
 | **Startup Script** | ✅ הושלם | `9fc89d4` |
 | **Testing Plan** | ✅ הושלם | `fc491fe` |
+| **HIPAA Compliance 100%** | ✅ הושלם | `99b8c7f` |
 
-**סה"כ: 17 קומפוננטות הושלמו בהצלחה! 🎉**
+**סה"כ: 18 קומפוננטות הושלמו בהצלחה! 🎉**
+
+### 🔴 מה שטרם הושלם (נוסף: 8 באוקטובר 2025)
+
+| רכיב | סטטוס | עדיפות | תיעוד |
+|------|--------|---------|-------|
+| **Clinic Onboarding Flow** | ⏳ ממתין | 🔴 קריטי | `CLINIC_ONBOARDING_WORK_PLAN.md` |
+| **Organization Registration API** | ⏳ ממתין | 🔴 קריטי | קומפוננטה 1 |
+| **Email Verification System** | ⏳ ממתין | 🔴 קריטי | קומפוננטה 2 |
+| **BAA Electronic Signature** | ⏳ ממתין | 🔴 קריטי (HIPAA) | קומפוננטה 3 |
+| **Team Invitation System** | ⏳ ממתין | 🟡 גבוה | קומפוננטה 4 |
+| **Onboarding Frontend (React)** | ⏳ ממתין | 🟡 גבוה | קומפוננטה 5 |
+| **User ↔ Patient Mapping Fix** | ⏳ ממתין | 🔴 קריטי | `CONTEXT_AND_GAPS_ANALYSIS.md` |
+| **Remove Hardcoded Values** | ⏳ ממתין | 🔴 קריטי | `ai_chat.py` |
+| **Fix Test Suite** | ⏳ ממתין | 🟡 גבוה | `langgraph` import errors |
+
+**סה"כ: 9 קומפוננטות נותרות לביצוע**
 
 **מקור:** `COMPLETION_SUMMARY.md` - סיכום מפורט של כל העבודה
 
