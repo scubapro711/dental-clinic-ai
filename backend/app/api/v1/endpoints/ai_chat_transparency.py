@@ -31,10 +31,21 @@ router = APIRouter()
 
 
 async def get_current_user(user_obj = FastAPIDepends(get_user_obj)) -> Dict[str, Any]:
-    """Convert user object to dict for compatibility."""
+    """
+    Convert user object to dict for compatibility.
+    
+    Raises:
+        HTTPException: If user has no organization_id
+    """
+    if not user_obj.organization_id:
+        raise HTTPException(
+            status_code=403,
+            detail="User not associated with any organization. Please contact support."
+        )
+    
     return {
         "user_id": str(user_obj.id),
-        "organization_id": str(user_obj.organization_id) if user_obj.organization_id else "demo_org",
+        "organization_id": str(user_obj.organization_id),
         "email": user_obj.email,
         "role": user_obj.role.value if hasattr(user_obj.role, 'value') else str(user_obj.role),
     }

@@ -30,10 +30,21 @@ router = APIRouter()
 
 
 async def get_current_user(user_obj = FastAPIDepends(get_user_obj)) -> Dict[str, Any]:
-    """Convert user object to dict for compatibility."""
+    """
+    Convert user object to dict for compatibility.
+    
+    Raises:
+        HTTPException: If user has no organization_id
+    """
+    if not user_obj.organization_id:
+        raise HTTPException(
+            status_code=403,
+            detail="User not associated with any organization. Please contact support."
+        )
+    
     return {
         "user_id": str(user_obj.id),
-        "organization_id": str(user_obj.organization_id) if user_obj.organization_id else "demo_org",
+        "organization_id": str(user_obj.organization_id),
         "email": user_obj.email,
         "role": user_obj.role.value if hasattr(user_obj.role, 'value') else str(user_obj.role),
     }
@@ -330,7 +341,10 @@ async def stream_agent_response(
 
 
 @router.post("/chat", response_model=None)
-async def chat(request: ChatRequest):
+async def chat(
+    request: ChatRequest,
+    current_user: Dict[str, Any] = FastAPIDepends(get_current_user)
+):
     """
     Chat endpoint compatible with Vercel AI SDK.
     
@@ -339,16 +353,20 @@ async def chat(request: ChatRequest):
     
     Args:
         request: Chat request with messages and options
-        current_user: Current authenticated user
+        current_user: Current authenticated user from JWT token
         
     Returns:
         StreamingResponse for streaming mode, ChatResponse for non-streaming
     """
     try:
-        # Extract user info (use demo user for now)
-        # TODO: Get from JWT token in production
-        user_id = "demo_user"
-        organization_id = "demo_org"
+        # Extract user info from authenticated user
+        user_id = current_user["user_id"]
+        organization_id = current_user["organization_id"]
+        
+        logger.info(
+            f"Chat request from authenticated user {user_id} "
+            f"(role: {current_user['role']}) in org {organization_id}"
+        )
         
         # Generate conversation ID if not provided
         conversation_id = request.conversation_id
