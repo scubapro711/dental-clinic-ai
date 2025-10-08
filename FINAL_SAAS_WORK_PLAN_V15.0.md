@@ -93,12 +93,12 @@
 | **Google OAuth Integration** | ✅ הושלם | 🔴 קריטי | `b09fac4` |
 | **Email + SMS Verification System** | ✅ הושלם | 🔴 קריטי | `7f410b6` |
 | **BAA Electronic Signature** | ✅ הושלם | 🔴 קריטי (HIPAA) | `ea8fd54` |
-| **Team Invitation System** | ⏳ ממתין | 🟡 גבוה | קומפוננטה 5 |
-| **Auth System Updates for Invitations** | ⏳ ממתין | 🟡 גבוה | קומפוננטה 6 |
+| **Team Invitation System** | ✅ הושלם | 🟡 גבוה | `2e864a4` |
+| **Auth System Updates for Invitations** | ✅ הושלם | 🟡 גבוה | `2e864a4` |
 | **Onboarding Frontend (React)** | ⏳ ממתין | 🟡 גבוה | קומפוננטה 7 |
-**סה"כ: 3 קומפוננטות נותרות לביצוע**
+**סה"כ: 1 קומפוננטה נותרה לביצוע**
 
-**אחוז השלמה: 90.6% (29/32)**
+**אחוז השלמה: 96.875% (31/32)**
 
 **מקור:** `COMPLETION_SUMMARY.md` - סיכום מפורט של כל העבודה
 
