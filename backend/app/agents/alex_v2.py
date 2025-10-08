@@ -27,12 +27,10 @@ from app.agents.tools.agent_tools import (
 )
 
 # Production Odoo tools with RBAC support
-from app.agents.tools.alex_odoo_tools import (
-    search_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
-    get_patient_details_odoo,  # ✅ PRODUCTION - Real Odoo integration
-    create_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
-    update_patient_odoo,       # ✅ PRODUCTION - Real Odoo integration
-    get_doctors_list_odoo,     # ✅ PRODUCTION - Real Odoo integration
+from app.agents.tools.odoo_tools_v3 import (
+    get_my_appointments,
+    book_appointment,
+    get_available_appointment_slots,
 )
 
 logger = logging.getLogger(__name__)

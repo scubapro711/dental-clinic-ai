@@ -24,7 +24,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, Base
 from langchain_openai import ChatOpenAI
 
 from app.agents.graph_state import AgentState
-from app.agents.alex import AlexAgent
+from app.agents.alex_v2 import AlexAgent
 from app.agents.cfo import CFOAgent
 from app.agents.practice_admin import PracticeAdminAgent
 from app.core.memory import get_memory_saver
