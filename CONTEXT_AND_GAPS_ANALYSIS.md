@@ -624,13 +624,16 @@ class AgentState(TypedDict):
     session_id: str
 ```
 
-**Memory Management:**
+**Memory Management (UPDATED - Best Practice):**
 
 ```python
-# LangGraph MemorySaver (in-memory checkpointer)
-from langgraph.checkpoint.memory import MemorySaver
+# LangGraph PostgresSaver (persistent checkpointer)
+# Best Practice: Use PostgreSQL for development AND production
+from langgraph.checkpoint.postgres import PostgresSaver
+from app.core.memory import get_memory_saver
 
-checkpointer = MemorySaver()
+# Get PostgreSQL checkpointer (singleton)
+checkpointer = get_memory_saver()
 
 graph = agent_graph.compile(
     checkpointer=checkpointer,
@@ -642,9 +645,29 @@ graph = agent_graph.compile(
 config = {"configurable": {"thread_id": "user-123-conv-456"}}
 result = graph.invoke(state, config)
 
-# Conversation history is automatically saved
+# Conversation history is automatically saved to PostgreSQL
 # Next invoke with same thread_id will have full context
+# Persists across server restarts!
 ```
+
+**Why PostgresSaver?**
+- ✅ **Persistent** - survives restarts
+- ✅ **Development/Production Parity** - same DB everywhere
+- ✅ **Automatic** - LangGraph manages checkpoints
+- ✅ **Scalable** - PostgreSQL handles concurrency
+- ✅ **Single Database** - no separate memory store needed
+
+**Implementation:**
+```python
+# app/core/memory.py
+def get_memory_saver() -> PostgresSaver:
+    """Get PostgreSQL memory saver for LangGraph."""
+    memory = PostgresSaver.from_conn_string(str(settings.DATABASE_URL))
+    memory.setup()  # Creates checkpoints/writes tables
+    return memory
+```
+
+**Documentation:** See `backend/docs/LANGGRAPH_MEMORY.md` for full details
 
 **Performance Optimization:**
 

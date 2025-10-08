@@ -5,7 +5,7 @@ This module uses pydantic-settings to load configuration from environment variab
 """
 
 from typing import List
-from pydantic import Field, PostgresDsn, RedisDsn
+from pydantic import Field, RedisDsn
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -33,16 +33,16 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30)
     REFRESH_TOKEN_EXPIRE_DAYS: int = Field(default=7)
 
-    # Database
-    DATABASE_URL: PostgresDsn = Field(...)
+    # Database (accepts PostgreSQL or SQLite for testing)
+    DATABASE_URL: str = Field(...)
 
     # Redis
     REDIS_URL: RedisDsn = Field(...)
 
-    # Neo4j
-    NEO4J_URI: str = Field(...)
-    NEO4J_USER: str = Field(...)
-    NEO4J_PASSWORD: str = Field(...)
+    # Neo4j (Optional - not currently used per CONTEXT_AND_GAPS_ANALYSIS.md)
+    NEO4J_URI: str = Field(default="bolt://localhost:7687")
+    NEO4J_USER: str = Field(default="neo4j")
+    NEO4J_PASSWORD: str = Field(default="password")
 
     # Odoo
     ODOO_URL: str = Field(...)

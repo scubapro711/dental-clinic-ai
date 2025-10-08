@@ -80,3 +80,4 @@ python-jose[cryptography]>=3.3.0
 
 # Encryption
 cryptography>=41.0.0
+langgraph-checkpoint-postgres>=1.0.0

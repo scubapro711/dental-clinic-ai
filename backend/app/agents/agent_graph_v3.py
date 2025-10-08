@@ -27,9 +27,7 @@ from app.agents.graph_state import AgentState
 from app.agents.alex import AlexAgent
 from app.agents.cfo import CFOAgent
 from app.agents.practice_admin import PracticeAdminAgent
-from app.agents.cfo import CFOAgent
-from app.agents.practice_admin import PracticeAdminAgent
-from langgraph.checkpoint.memory import MemorySaver
+from app.core.memory import get_memory_saver
 
 
 logger = logging.getLogger(__name__)
@@ -96,7 +94,7 @@ class AgentGraphV3:
         Initialize agent graph with supervisor and agents.
         
         Args:
-            memory: Optional memory checkpointer (for testing). Defaults to MemorySaver.
+            memory: Optional memory checkpointer (for testing). Defaults to PostgresSaver.
         """
         # Initialize agents
         self.alex = AlexAgent()
@@ -109,8 +107,9 @@ class AgentGraphV3:
             temperature=0.1,  # Low temperature for consistent routing
         )
         
-        # LangGraph Memory (replaces Neo4j!)
-        self.memory = memory if memory is not None else MemorySaver()
+        # LangGraph Memory with PostgreSQL (Best Practice!)
+        # Uses same DB as application for parity and persistence
+        self.memory = memory if memory is not None else get_memory_saver()
         
         # Build the graph
         self.graph = self._build_graph()
