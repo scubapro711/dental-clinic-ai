@@ -23,11 +23,13 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     - **password**: Minimum 8 characters
     - **full_name**: User's full name
     - **phone**: Optional phone number
+    - **invitation_token**: Optional invitation token (if joining via invitation)
     
     This endpoint now automatically:
     1. Creates a user in PostgreSQL
     2. Creates a corresponding patient in Odoo
     3. Links them via UserSyncService
+    4. If invitation_token provided, accepts invitation and creates membership
     """
     # Check if user already exists
     existing_user = AuthService.get_user_by_email(db, user_data.email)
@@ -37,18 +39,46 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
             detail="Email already registered",
         )
 
-    # Get default organization (first one) for MVP
-    # TODO: In production, this should be based on invitation or signup flow
+    # Determine organization based on invitation token or default
     from app.models.organization import Organization
+    from app.models.organization_membership import OrganizationMembership
     from app.services.user_sync_service import UserSyncService
+    from app.services.team_invitation_service import team_invitation_service
     
-    default_org = db.query(Organization).first()
+    organization_id = None
+    user_role = "patient"  # Default role
+    invitation = None
     
-    if not default_org:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="No organization found. Please contact support.",
-        )
+    # Check if registration is via invitation
+    if hasattr(user_data, 'invitation_token') and user_data.invitation_token:
+        invitation = team_invitation_service.validate_token(db, user_data.invitation_token)
+        
+        if not invitation:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="הזמנה לא תקפה או פגה תוקפה"
+            )
+        
+        # Verify email matches invitation
+        if invitation.invitee_email != user_data.email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="האימייל לא תואם להזמנה"
+            )
+        
+        organization_id = invitation.organization_id
+        user_role = invitation.invitee_role
+    else:
+        # Get default organization (first one) for direct signup
+        default_org = db.query(Organization).first()
+        
+        if not default_org:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="No organization found. Please contact support.",
+            )
+        
+        organization_id = default_org.id
     
     # Create new user
     user = AuthService.create_user(
@@ -57,7 +87,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         password=user_data.password,
         full_name=user_data.full_name,
         phone=user_data.phone,
-        organization_id=default_org.id,
+        organization_id=organization_id,
+        role=user_role,
     )
     
     # Sync user with Odoo (create patient record)
@@ -65,17 +96,16 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     try:
         odoo_partner_id = sync_service.sync_user_to_odoo(
             user_id=user.id,
-            organization_id=default_org.id,
+            organization_id=organization_id,
             user_email=user.email,
             user_name=user.full_name,
             user_phone=user.phone,
         )
         
         # Update user's membership with Odoo partner ID
-        from app.models.organization_membership import OrganizationMembership
         membership = db.query(OrganizationMembership).filter(
             OrganizationMembership.user_id == user.id,
-            OrganizationMembership.organization_id == default_org.id
+            OrganizationMembership.organization_id == organization_id
         ).first()
         
         if membership:
@@ -88,6 +118,10 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to sync user {user.id} to Odoo: {str(e)}")
+    
+    # If registration was via invitation, accept it
+    if invitation:
+        team_invitation_service.accept_invitation(db, invitation, str(user.id))
 
     return user
 

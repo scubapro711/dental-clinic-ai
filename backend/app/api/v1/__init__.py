@@ -18,7 +18,8 @@ from app.api.v1.endpoints import (
     organizations,
     email_verification,
     sms_verification,
-    baa_signature
+    baa_signature,
+    team_invitations
 )
 
 # Create main API router
@@ -38,6 +39,7 @@ api_router.include_router(telegram.router, prefix="/telegram", tags=["telegram"]
 # Organization management
 api_router.include_router(organizations.router, tags=["organizations"])
 api_router.include_router(memberships.router, prefix="/memberships", tags=["memberships"])
+api_router.include_router(team_invitations.router, tags=["invitations"])
 api_router.include_router(clinic_settings.router, prefix="/clinic-settings", tags=["clinic-settings"])
 api_router.include_router(treatment_prices.router, prefix="/treatment-prices", tags=["treatment-prices"])
 
