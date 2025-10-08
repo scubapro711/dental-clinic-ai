@@ -71,11 +71,7 @@ async def get_todays_appointments(
                 'patient_id',
                 'doctor_id',
                 'appointment_sdate',
-                'appointment_edate',
-                'duration',
-                'patient_status',
-                'room',
-                'clinic_center'
+                'appointment_edate'
             ]}
         )
         
@@ -179,11 +175,7 @@ async def get_appointment(
                 'patient_id',
                 'doctor_id',
                 'appointment_sdate',
-                'appointment_edate',
-                'duration',
-                'patient_status',
-                'room',
-                'clinic_center'
+                'appointment_edate'
             ]}
         )
         
