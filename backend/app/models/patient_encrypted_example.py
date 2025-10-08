@@ -4,7 +4,7 @@ Example: Patient model with encrypted PHI fields.
 Demonstrates how to use encryption for HIPAA-compliant data storage.
 """
 from sqlalchemy import Column, String, Date, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 import uuid
 
 from app.core.database import Base

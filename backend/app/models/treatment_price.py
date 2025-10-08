@@ -12,7 +12,7 @@ from sqlalchemy import (
     Boolean, Column, DateTime, Integer, Numeric,
     String, Text, ForeignKey, UniqueConstraint
 )
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship, validates
 
 from app.core.database import Base

@@ -12,7 +12,7 @@ from sqlalchemy import (
     Boolean, Column, DateTime, Integer, Numeric, 
     String, Text, Time, ForeignKey, UniqueConstraint, JSON
 )
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship, validates
 from sqlalchemy.ext.hybrid import hybrid_property
 
