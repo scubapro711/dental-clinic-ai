@@ -42,6 +42,8 @@ class User(Base):
     # Profile
     full_name = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=True)
+    google_id = Column(String(255), nullable=True, unique=True, index=True)
+    picture_url = Column(String(500), nullable=True)
 
     # Authorization
     role = Column(Enum(UserRole), nullable=False, default=UserRole.ORG_STAFF)

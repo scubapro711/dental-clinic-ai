@@ -67,6 +67,11 @@ class Settings(BaseSettings):
     COGNITO_CLIENT_ID: str = Field(default="")
     COGNITO_CLIENT_SECRET: str = Field(default="")
     COGNITO_REGION: str = Field(default="us-east-1")
+    
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = Field(default="")
+    GOOGLE_CLIENT_SECRET: str = Field(default="")
+    GOOGLE_REDIRECT_URI: str = Field(default="http://localhost:8000/api/v1/auth/google/callback")
 
     # CORS
     CORS_ORIGINS: str = Field(
