@@ -84,5 +84,8 @@ class Conversation(Base):
     # Soft delete
     deleted_at = Column(DateTime, nullable=True)
 
+    # Relationships
+    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
+
     def __repr__(self) -> str:
         return f"<Conversation {self.id} - {self.primary_agent}>"
