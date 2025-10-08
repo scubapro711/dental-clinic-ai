@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     )
 
     # Application
-    APP_ENV: Literal["development", "staging", "production"] = Field(default="development")
+    APP_ENV: Literal["development", "staging", "production", "test"] = Field(default="development")
     DEBUG: bool = Field(default=False)
     LOG_LEVEL: str = Field(default="INFO")
     APP_HOST: str = Field(default="0.0.0.0")
