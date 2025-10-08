@@ -23,6 +23,11 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     - **password**: Minimum 8 characters
     - **full_name**: User's full name
     - **phone**: Optional phone number
+    
+    This endpoint now automatically:
+    1. Creates a user in PostgreSQL
+    2. Creates a corresponding patient in Odoo
+    3. Links them via UserSyncService
     """
     # Check if user already exists
     existing_user = AuthService.get_user_by_email(db, user_data.email)
@@ -35,7 +40,15 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     # Get default organization (first one) for MVP
     # TODO: In production, this should be based on invitation or signup flow
     from app.models.organization import Organization
+    from app.services.user_sync_service import UserSyncService
+    
     default_org = db.query(Organization).first()
+    
+    if not default_org:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="No organization found. Please contact support.",
+        )
     
     # Create new user
     user = AuthService.create_user(
@@ -44,8 +57,37 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
         password=user_data.password,
         full_name=user_data.full_name,
         phone=user_data.phone,
-        organization_id=default_org.id if default_org else None,
+        organization_id=default_org.id,
     )
+    
+    # Sync user with Odoo (create patient record)
+    sync_service = UserSyncService(db)
+    try:
+        odoo_partner_id = sync_service.sync_user_to_odoo(
+            user_id=user.id,
+            organization_id=default_org.id,
+            user_email=user.email,
+            user_name=user.full_name,
+            user_phone=user.phone,
+        )
+        
+        # Update user's membership with Odoo partner ID
+        from app.models.organization_membership import OrganizationMembership
+        membership = db.query(OrganizationMembership).filter(
+            OrganizationMembership.user_id == user.id,
+            OrganizationMembership.organization_id == default_org.id
+        ).first()
+        
+        if membership:
+            membership.odoo_partner_id = odoo_partner_id
+            db.commit()
+            
+    except Exception as e:
+        # Log error but don't fail registration
+        # User can still use the system, sync can be retried later
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Failed to sync user {user.id} to Odoo: {str(e)}")
 
     return user
 
@@ -75,12 +117,27 @@ async def login(credentials: UserLogin, db: Session = Depends(get_db)):
     # Update last login
     AuthService.update_last_login(db, user.id)
 
-    # Create tokens
+    # Get user's membership to include odoo_partner_id in token
+    from app.models.organization_membership import OrganizationMembership
+    membership = None
+    odoo_partner_id = None
+    
+    if user.organization_id:
+        membership = db.query(OrganizationMembership).filter(
+            OrganizationMembership.user_id == user.id,
+            OrganizationMembership.organization_id == user.organization_id
+        ).first()
+        
+        if membership:
+            odoo_partner_id = membership.odoo_partner_id
+
+    # Create tokens with odoo_partner_id
     token_data = {
         "sub": str(user.id),
         "email": user.email,
         "role": user.role.value,
         "organization_id": str(user.organization_id) if user.organization_id else None,
+        "odoo_partner_id": odoo_partner_id,  # Include Odoo link
     }
 
     access_token = AuthService.create_access_token(token_data)
