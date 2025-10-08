@@ -50,6 +50,8 @@ api_router.include_router(proactive_suggestions.router, prefix="/suggestions", t
 # Dashboard & Appointments
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
+from app.api.v1 import agent_actions
+api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
 
 # Monitoring & Compliance
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])

@@ -22,12 +22,21 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const fetchDecisions = async () => {
     setIsLoading(true);
     try {
-      // TODO: Replace with real API call
-      // const response = await fetch('http://localhost:8000/api/v1/decisions/queue');
-      // const data = await response.json();
+      // Fetch real agent actions from Backend
+      const response = await fetch('/api/v1/agent-actions/queue?status=pending', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        }
+      });
       
-      // Mock data for now
-      const mockData = [
+      if (response.ok) {
+        const data = await response.json();
+        setDecisions(data);
+      } else {
+        // Fallback to mock data
+        console.warn('Agent actions API failed, using mock data');
+        const mockData = [
         {
           id: 1,
           priority: 'high',
@@ -120,14 +129,57 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
     return `לפני ${Math.floor(seconds / 86400)} ימים`;
   };
 
-  const handleApprove = (decision) => {
-    console.log('Approved:', decision);
-    // TODO: Implement approval logic
+  const handleApprove = async (decision) => {
+    try {
+      const response = await fetch(`/api/v1/agent-actions/${decision.id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        },
+        body: JSON.stringify({
+          execute: true,
+          reason: 'Approved by user'
+        })
+      });
+      
+      if (response.ok) {
+        // Remove from list
+        setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        console.log('Action approved and executed:', decision);
+      } else {
+        console.error('Failed to approve action');
+      }
+    } catch (error) {
+      console.error('Error approving action:', error);
+    }
   };
 
-  const handleReject = (decision) => {
-    console.log('Rejected:', decision);
-    // TODO: Implement rejection logic
+  const handleReject = async (decision) => {
+    try {
+      const response = await fetch(`/api/v1/agent-actions/${decision.id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        },
+        body: JSON.stringify({
+          reason: 'Rejected by user'
+        })
+      });
+      
+      if (response.ok) {
+        // Remove from list
+        setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        console.log('Action rejected:', decision);
+      } else {
+        console.error('Failed to reject action');
+      }
+    } catch (error) {
+      console.error('Error rejecting action:', error);
+    }
   };
 
   const handleChatAbout = (decision) => {
