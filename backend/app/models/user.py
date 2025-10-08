@@ -42,6 +42,7 @@ class User(Base):
     # Profile
     full_name = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=True)
+    phone_verified = Column(Boolean, default=False, nullable=False)
     google_id = Column(String(255), nullable=True, unique=True, index=True)
     picture_url = Column(String(500), nullable=True)
 
@@ -56,6 +57,12 @@ class User(Base):
     
     # New multi-tenancy via memberships
     memberships = relationship("OrganizationMembership", back_populates="user", cascade="all, delete-orphan")
+    
+    # Email verification
+    verification_tokens = relationship("EmailVerificationToken", back_populates="user", cascade="all, delete-orphan")
+    
+    # SMS verification
+    sms_verification_codes = relationship("SMSVerificationCode", back_populates="user", cascade="all, delete-orphan")
 
     # MFA (optional)
     mfa_enabled = Column(Boolean, default=False, nullable=False)

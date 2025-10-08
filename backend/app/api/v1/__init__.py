@@ -15,7 +15,9 @@ from app.api.v1.endpoints import (
     auth_google,
     audit_logs,
     proactive_suggestions,
-    organizations
+    organizations,
+    email_verification,
+    sms_verification
 )
 
 # Create main API router
@@ -25,6 +27,8 @@ api_router = APIRouter(prefix="/api/v1")
 api_router.include_router(auth.router, tags=["auth"])
 api_router.include_router(auth_cognito.router, prefix="/auth", tags=["auth"])
 api_router.include_router(auth_google.router, tags=["auth"])
+api_router.include_router(email_verification.router, tags=["auth"])
+api_router.include_router(sms_verification.router, tags=["auth"])
 
 # Core features
 api_router.include_router(chat.router, tags=["chat"])
