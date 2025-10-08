@@ -23,10 +23,18 @@ import TaskQueue from '../components/dashboard/TaskQueue';
 export default function MissionControlDashboard() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   
+  // TODO: Replace with real API calls in Phase 2
+  // For now, using mock data for demo
+  const USE_MOCK_DATA = true;
+  
   // Fetch dashboard metrics (real-time, updates every 5 seconds)
   const { data: metrics, isLoading, error } = useQuery({
     queryKey: ['dashboard-metrics'],
     queryFn: async () => {
+      if (USE_MOCK_DATA) {
+        const { mockAPI } = await import('../lib/mockData');
+        return mockAPI.getDashboardMetrics();
+      }
       const response = await fetch('/api/v1/dashboard-metrics', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -44,6 +52,10 @@ export default function MissionControlDashboard() {
   const { data: conversations } = useQuery({
     queryKey: ['conversations'],
     queryFn: async () => {
+      if (USE_MOCK_DATA) {
+        const { mockAPI } = await import('../lib/mockData');
+        return mockAPI.getConversations('all');
+      }
       const response = await fetch('/api/v1/conversations?status=active', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -60,6 +72,10 @@ export default function MissionControlDashboard() {
   const { data: tasks } = useQuery({
     queryKey: ['tasks'],
     queryFn: async () => {
+      if (USE_MOCK_DATA) {
+        const { mockAPI } = await import('../lib/mockData');
+        return mockAPI.getTasks('pending');
+      }
       const response = await fetch('/api/v1/agent-actions?status=pending', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

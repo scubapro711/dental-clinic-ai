@@ -5,6 +5,7 @@ import { API_ENDPOINTS } from './config'
 
 // Pages
 import LoginPage from './pages/LoginPage'
+import MockLoginPage from './pages/MockLoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
@@ -53,9 +54,9 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to="/chat" replace />
+              <Navigate to="/mission-control" replace />
             ) : (
-              <LoginPage onLogin={handleLogin} />
+              <MockLoginPage onLogin={handleLogin} />
             )
           }
         />
