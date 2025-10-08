@@ -17,7 +17,8 @@ from app.api.v1.endpoints import (
     proactive_suggestions,
     organizations,
     email_verification,
-    sms_verification
+    sms_verification,
+    baa_signature
 )
 
 # Create main API router
@@ -45,6 +46,7 @@ api_router.include_router(proactive_suggestions.router, prefix="/suggestions", t
 
 # Monitoring & Compliance
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
+api_router.include_router(baa_signature.router, tags=["compliance"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
 
 __all__ = ["api_router"]
