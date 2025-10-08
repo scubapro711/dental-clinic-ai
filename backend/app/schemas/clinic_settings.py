@@ -13,7 +13,7 @@ class OperatingHoursSchema(BaseModel):
     open: Optional[time] = Field(None, description="Opening time")
     close: Optional[time] = Field(None, description="Closing time")
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_hours(cls, values):
         """Validate that close time is after open time."""
         open_time = values.get('open')
@@ -85,7 +85,7 @@ class AppointmentSettingsSchema(BaseModel):
         description="Deposit amount if required (ILS)"
     )
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_deposit(cls, values):
         """Validate deposit settings."""
         require_deposit = values.get('require_deposit')
@@ -121,7 +121,7 @@ class CommunicationSettingsSchema(BaseModel):
         description="Send recall reminder after X months"
     )
     
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validate_at_least_one_channel(cls, values):
         """Ensure at least one communication channel is enabled."""
         if not any([

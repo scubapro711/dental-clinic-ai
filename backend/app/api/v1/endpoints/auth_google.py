@@ -14,6 +14,7 @@ from datetime import datetime
 from uuid import uuid4
 from typing import Optional
 import secrets
+from app.core.auth import get_current_user
 
 from app.core.database import get_db
 from app.core.config import Settings
@@ -248,7 +249,7 @@ async def google_callback(
 @router.post("/link", response_model=GoogleAuthResponse)
 async def link_google_account(
     code: str,
-    current_user: User = Depends(AuthService.get_current_user),
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """

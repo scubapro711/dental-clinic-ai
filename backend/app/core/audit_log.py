@@ -69,7 +69,7 @@ class AuditLog(Base):
     
     # Details
     changes = Column(JSONB)  # Before/after values for updates
-    metadata = Column(JSONB)  # Additional context
+    audit_metadata = Column(JSONB)  # Additional context
     
     # Organization (for multi-tenancy)
     organization_id = Column(PGUUID(as_uuid=True), index=True)
@@ -105,7 +105,7 @@ def log_audit_event(
     endpoint: Optional[str] = None,
     method: Optional[str] = None,
     changes: Optional[Dict[str, Any]] = None,
-    metadata: Optional[Dict[str, Any]] = None,
+    audit_metadata: Optional[Dict[str, Any]] = None,
     organization_id: Optional[UUID] = None,
     status: str = 'success',
     error_message: Optional[str] = None
@@ -148,7 +148,7 @@ def log_audit_event(
         endpoint=endpoint,
         method=method,
         changes=changes,
-        metadata=metadata,
+        audit_metadata=audit_metadata,
         organization_id=organization_id,
         status=status,
         error_message=error_message
@@ -206,7 +206,7 @@ def log_phi_access(
         resource_id=str(patient_id),
         ip_address=ip_address,
         reason=reason,
-        metadata={'fields_accessed': fields_accessed},
+        audit_metadata={'fields_accessed': fields_accessed},
         organization_id=organization_id
     )
 
