@@ -56,5 +56,8 @@ class Message(Base):
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
+    # Relationships
+    conversation = relationship("Conversation", back_populates="messages")
+
     def __repr__(self) -> str:
         return f"<Message {self.id} - {self.role}>"

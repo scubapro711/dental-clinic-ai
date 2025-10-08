@@ -7,7 +7,7 @@ Critical tests for liability protection.
 import pytest
 import asyncio
 from uuid import uuid4
-from app.agents.agent_graph import AgentGraphV2
+from app.agents.agent_graph_v3 import AgentGraphV3 as AgentGraphV2
 
 
 @pytest.mark.asyncio
