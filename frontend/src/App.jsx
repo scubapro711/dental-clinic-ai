@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
+import MissionControlDashboard from './pages/MissionControlDashboard'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -88,7 +89,17 @@ function App() {
             )
           }
         />
-        <Route path="/" element={<Navigate to="/chat" replace />} />
+        <Route
+          path="/mission-control"
+          element={
+            isAuthenticated ? (
+              <MissionControlDashboard user={user} onLogout={handleLogout} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route path="/" element={<Navigate to="/mission-control" replace />} />
       </Routes>
     </Router>
   )
