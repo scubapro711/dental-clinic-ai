@@ -13,7 +13,8 @@ from app.api.v1.endpoints import (
     treatment_prices,
     auth_cognito,
     audit_logs,
-    proactive_suggestions
+    proactive_suggestions,
+    organizations
 )
 
 # Create main API router
@@ -28,6 +29,7 @@ api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(telegram.router, prefix="/telegram", tags=["telegram"])
 
 # Organization management
+api_router.include_router(organizations.router, tags=["organizations"])
 api_router.include_router(memberships.router, prefix="/memberships", tags=["memberships"])
 api_router.include_router(clinic_settings.router, prefix="/clinic-settings", tags=["clinic-settings"])
 api_router.include_router(treatment_prices.router, prefix="/treatment-prices", tags=["treatment-prices"])
