@@ -71,7 +71,8 @@ class Organization(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     # Relationships
-    users = relationship("User", back_populates="organization")
+    users = relationship("User", back_populates="organization")  # Legacy
+    memberships = relationship("OrganizationMembership", back_populates="organization", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Organization {self.name}>"

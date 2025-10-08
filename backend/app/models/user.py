@@ -46,11 +46,14 @@ class User(Base):
     # Authorization
     role = Column(Enum(UserRole), nullable=False, default=UserRole.ORG_STAFF)
 
-    # Multi-tenancy
+    # Multi-tenancy (legacy - will be deprecated)
     organization_id = Column(
         UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=True
     )
     organization = relationship("Organization", back_populates="users")
+    
+    # New multi-tenancy via memberships
+    memberships = relationship("OrganizationMembership", back_populates="user", cascade="all, delete-orphan")
 
     # MFA (optional)
     mfa_enabled = Column(Boolean, default=False, nullable=False)
