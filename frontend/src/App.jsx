@@ -9,7 +9,7 @@ import MockLoginPage from './pages/MockLoginPage'
 import RegisterPage from './pages/RegisterPage'
 import ChatPage from './pages/ChatPage'
 import DashboardPage from './pages/DashboardPage'
-import MissionControlDashboard from './pages/MissionControlDashboard'
+import AgenticDashboard from './pages/AgenticDashboard'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -54,7 +54,7 @@ function App() {
           path="/login"
           element={
             isAuthenticated ? (
-              <Navigate to="/mission-control" replace />
+              <Navigate to="/agentic" replace />
             ) : (
               <MockLoginPage onLogin={handleLogin} />
             )
@@ -91,16 +91,16 @@ function App() {
           }
         />
         <Route
-          path="/mission-control"
+          path="/agentic"
           element={
             isAuthenticated ? (
-              <MissionControlDashboard user={user} onLogout={handleLogout} />
+              <AgenticDashboard user={user} onLogout={handleLogout} />
             ) : (
               <Navigate to="/login" replace />
             )
           }
         />
-        <Route path="/" element={<Navigate to="/mission-control" replace />} />
+        <Route path="/" element={<Navigate to="/agentic" replace />} />
       </Routes>
     </Router>
   )

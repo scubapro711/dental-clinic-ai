@@ -36,7 +36,18 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       } else {
         // Fallback to mock data
         console.warn('Agent actions API failed, using mock data');
-        const mockData = [
+        useMockData();
+      }
+    } catch (error) {
+      console.error('Error fetching decisions:', error);
+      useMockData();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const useMockData = () => {
+    const mockData = [
         {
           id: 1,
           priority: 'high',
@@ -75,16 +86,11 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
         }
       ];
       
-      // Sort by priority
-      const priorityOrder = { high: 0, medium: 1, low: 2 };
-      mockData.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-      
-      setDecisions(mockData);
-    } catch (error) {
-      console.error('Error fetching decisions:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Sort by priority
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    mockData.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    
+    setDecisions(mockData);
   };
 
   const getPriorityConfig = (priority) => {

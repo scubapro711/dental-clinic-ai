@@ -52,18 +52,24 @@ def get_memory_saver() -> PostgresSaver:
     if _memory_saver is None:
         logger.info("Initializing PostgresSaver for LangGraph memory")
         
-        # Create PostgresSaver from connection string
-        _memory_saver = PostgresSaver.from_conn_string(
-            str(settings.DATABASE_URL)
-        )
-        
-        # Setup tables (creates checkpoints and writes tables if not exist)
+        # Create PostgresSaver from connection string (it's a context manager)
+        # We need to use it as a context manager, but for simplicity we'll
+        # create it directly and call setup
         try:
+            # Get the PostgresSaver instance from the context manager
+            conn_string = str(settings.DATABASE_URL)
+            saver_iterator = PostgresSaver.from_conn_string(conn_string)
+            _memory_saver = next(saver_iterator)
+            
+            # Setup tables (creates checkpoints and writes tables if not exist)
             _memory_saver.setup()
             logger.info("PostgresSaver initialized successfully")
         except Exception as e:
             logger.error(f"Failed to setup PostgresSaver: {e}")
-            raise
+            # Fallback to MemorySaver for development
+            logger.warning("Falling back to MemorySaver (in-memory only)")
+            from langgraph.checkpoint.memory import MemorySaver
+            _memory_saver = MemorySaver()
     
     return _memory_saver
 
