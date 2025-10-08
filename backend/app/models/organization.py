@@ -74,6 +74,7 @@ class Organization(Base):
     users = relationship("User", back_populates="organization")  # Legacy
     memberships = relationship("OrganizationMembership", back_populates="organization", cascade="all, delete-orphan")
     settings = relationship("ClinicSettings", back_populates="organization", uselist=False, cascade="all, delete-orphan")
+    treatment_prices = relationship("TreatmentPrice", back_populates="organization", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Organization {self.name}>"
