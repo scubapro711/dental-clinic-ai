@@ -21,6 +21,7 @@ from app.api.v1.endpoints import (
     baa_signature,
     team_invitations
 )
+from app.api.v1 import appointments, dashboard
 
 # Create main API router
 api_router = APIRouter(prefix="/api/v1")
@@ -45,6 +46,10 @@ api_router.include_router(treatment_prices.router, prefix="/treatment-prices", t
 
 # AI features
 api_router.include_router(proactive_suggestions.router, prefix="/suggestions", tags=["suggestions"])
+
+# Dashboard & Appointments
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 
 # Monitoring & Compliance
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])

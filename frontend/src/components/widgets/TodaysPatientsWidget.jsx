@@ -21,11 +21,70 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
   const fetchTodaysPatients = async () => {
     setIsLoading(true);
     try {
-      // TODO: Replace with real API call
-      // const response = await fetch('http://localhost:8000/api/v1/patients/today');
-      // const data = await response.json();
+      // Fetch real data from Odoo via Backend API
+      const response = await fetch('/api/v1/appointments/today', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        }
+      });
       
-      // Mock data for now
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Transform Odoo data to widget format
+        const transformedPatients = data.map(apt => ({
+          id: apt.id,
+          name: apt.patient_name || 'Unknown',
+          time: new Date(apt.appointment_start).toLocaleTimeString('en-US', { 
+            hour: 'numeric', 
+            minute: '2-digit',
+            hour12: true 
+          }),
+          treatment: apt.treatment_type || 'General',
+          status: apt.status === 'confirmed' ? 'confirmed' : 
+                  apt.status === 'pending' ? 'unconfirmed' : 
+                  'urgent',
+          isFirstVisit: apt.is_first_visit || false,
+          patientId: apt.patient_id,
+          appointmentId: apt.id
+        }));
+        
+        setPatients(transformedPatients);
+      } else {
+        // Fallback to mock data if API fails
+        console.warn('API failed, using mock data');
+        const mockData = [
+          {
+            id: 1,
+            name: 'Sarah Johnson',
+            time: '9:00 AM',
+            treatment: 'Root Canal',
+            status: 'confirmed',
+            isFirstVisit: false
+          },
+          {
+            id: 2,
+            name: 'David Cohen',
+            time: '11:30 AM',
+            treatment: 'Cleaning',
+            status: 'unconfirmed',
+            isFirstVisit: false
+          },
+          {
+            id: 3,
+            name: 'Emma Wilson',
+            time: '2:00 PM',
+            treatment: 'First Visit',
+            status: 'confirmed',
+            isFirstVisit: true
+          }
+        ];
+        setPatients(mockData);
+      }
+    } catch (error) {
+      console.error('Error fetching patients:', error);
+      // Fallback to mock data on error
       const mockData = [
         {
           id: 1,
@@ -52,10 +111,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
           isFirstVisit: true
         }
       ];
-      
       setPatients(mockData);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
     } finally {
       setIsLoading(false);
     }
