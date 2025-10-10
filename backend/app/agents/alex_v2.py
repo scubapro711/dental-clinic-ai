@@ -36,12 +36,19 @@ from app.agents.tools.odoo_tools_v3 import (
 # RAG tool for general knowledge
 from app.agents.tools.rag_tools import search_general_knowledge_tool
 
-# Patient management tools (Phase 5.5 Week 1)
+# Patient management tools (Phase 5.5 Week 1 Day 1-2)
 from app.agents.tools.alex_patient_tools import (
     create_patient_tool,
     update_patient_info_tool,
     get_patient_full_context_tool,
     add_patient_note_tool,
+)
+
+# Communications tools (Phase 5.5 Week 1 Day 3-4)
+from app.agents.tools.alex_communications_tools import (
+    send_sms_tool,
+    send_email_tool,
+    send_telegram_message_tool,
 )
 
 logger = logging.getLogger(__name__)
@@ -453,11 +460,15 @@ makes sure patients get the right help at the right time! 😊
         """Initialize Alex agent."""
         # Define all available tools
         self.tools = [
-            # Patient management (Phase 5.5 Week 1)
+            # Patient management (Phase 5.5 Week 1 Day 1-2)
             create_patient_tool,
             update_patient_info_tool,
             get_patient_full_context_tool,
             add_patient_note_tool,
+            # Communications (Phase 5.5 Week 1 Day 3-4)
+            send_sms_tool,
+            send_email_tool,
+            send_telegram_message_tool,
             # Appointments
             get_available_slots_tool,
             create_appointment_tool,
