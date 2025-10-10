@@ -248,7 +248,34 @@ Revenue up 25% this quarter! Great job!
         from app.agents.tools.rag_tools import search_financial_knowledge_tool
         
         # Bind tools to LLM (financial + tax + referral + RAG)
-        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + [search_financial_knowledge_tool]
+        from app.agents.tools.marcus_financial_tools import (
+    create_invoice_tool,
+    send_invoice_tool,
+    record_payment_tool,
+    void_invoice_tool,
+    create_expense_tool,
+    get_budget_tool,
+    create_budget_tool,
+    submit_insurance_claim_tool,
+    get_insurance_claims_tool,
+    export_to_accounting_tool,
+    generate_tax_report_tool,
+)
+
+all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + [
+    search_financial_knowledge_tool,
+    create_invoice_tool,
+    send_invoice_tool,
+    record_payment_tool,
+    void_invoice_tool,
+    create_expense_tool,
+    get_budget_tool,
+    create_budget_tool,
+    submit_insurance_claim_tool,
+    get_insurance_claims_tool,
+    export_to_accounting_tool,
+    generate_tax_report_tool,
+]
         self.llm_with_tools = self.llm.bind_tools(all_tools)
         
         logger.info("CFO Agent initialized")

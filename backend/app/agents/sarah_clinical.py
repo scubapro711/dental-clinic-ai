@@ -32,10 +32,18 @@ from app.agents.tools.odoo_tools_v2 import (
 # Phase 5.5 Week 2 Day 8-9: Advanced Clinical Tools
 from app.agents.tools.sarah_advanced_clinical_tools import (
     create_referral_tool,
+    get_referrals_tool,
     order_xray_tool,
+    upload_xray_tool,
+    get_xrays_tool,
+    analyze_xray_tool,
     order_lab_test_tool,
+    get_lab_results_tool,
     create_clinical_note_tool,
+    get_clinical_notes_tool,
+    schedule_followup_tool,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -146,11 +154,18 @@ def create_sarah_agent() -> AgentExecutor:
         get_patient_by_id_tool,
         get_appointments_tool,
         search_clinical_knowledge_tool,  # RAG for treatment guidelines
-        # Phase 5.5 Week 2 Day 8-9: Advanced Clinical
+        # Phase 5.5 Week 2 Day 8-10: Advanced Clinical
         create_referral_tool,
+        get_referrals_tool,
         order_xray_tool,
+        upload_xray_tool,
+        get_xrays_tool,
+        analyze_xray_tool,
         order_lab_test_tool,
+        get_lab_results_tool,
         create_clinical_note_tool,
+        get_clinical_notes_tool,
+        schedule_followup_tool,
     ]
     
     # Create prompt

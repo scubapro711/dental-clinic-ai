@@ -317,7 +317,15 @@ Respond in Hebrew or English based on the user's language."""
                 get_staff_performance_tool,
                 balance_staff_workload_tool,
                 generate_staff_report_tool,
+                send_staff_notification_tool,
+                track_staff_certifications_tool,
+                create_staff_training_tool,
             )
+            from app.agents.tools.sophia_inventory_tools import (
+                get_patient_satisfaction_tool,
+                get_no_show_rate_tool,
+            )
+
             
             # Import compliance & facilities tools
             from app.agents.tools.sophia_compliance_tools import (
@@ -347,7 +355,7 @@ Respond in Hebrew or English based on the user's language."""
                 get_room_availability_tool,
                 optimize_schedule_tool,
                 get_operational_metrics_tool,
-                # Inventory tools (10)
+                # Inventory tools (12)
                 check_inventory_levels_tool,
                 get_low_stock_alerts_tool,
                 track_expiring_products_tool,
@@ -358,7 +366,9 @@ Respond in Hebrew or English based on the user's language."""
                 suggest_reorder_quantities_tool,
                 get_storage_locations_tool,
                 generate_inventory_report_tool,
-                # Staff management tools (10)
+                get_patient_satisfaction_tool,
+                get_no_show_rate_tool,
+                # Staff management tools (13)
                 get_staff_list_tool,
                 get_doctor_availability_tool,
                 create_staff_schedule_tool,
@@ -369,6 +379,9 @@ Respond in Hebrew or English based on the user's language."""
                 get_staff_performance_tool,
                 balance_staff_workload_tool,
                 generate_staff_report_tool,
+                send_staff_notification_tool,
+                track_staff_certifications_tool,
+                create_staff_training_tool,
                 # Compliance & facilities tools (10)
                 get_rooms_list_tool,
                 get_room_schedule_tool,
