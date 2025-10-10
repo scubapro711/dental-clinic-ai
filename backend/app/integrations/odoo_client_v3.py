@@ -1143,15 +1143,10 @@ class OdooClientV3(OdooClientV2):
             }
 
 
-# Global instance
-odoo_client_v3 = OdooClientV3()
+# ==========================================
+# INVENTORY & SUPPLY MANAGEMENT (10 models)
+# ==========================================
 
-
-
-    # ==========================================
-    # INVENTORY & SUPPLY MANAGEMENT (10 models)
-    # ==========================================
-    
     def get_stock_alerts(self, alert_type: Optional[str] = None) -> List[Dict]:
         """
         Get low stock alerts for dental supplies.
@@ -1471,10 +1466,6 @@ odoo_client_v3 = OdooClientV3()
             }
 
 
-# Global instance
-odoo_client_v3 = OdooClientV3()
-
-
 
     # ==========================================
     # HR & STAFF MANAGEMENT (8 models)
@@ -1772,10 +1763,6 @@ odoo_client_v3 = OdooClientV3()
         except Exception as e:
             logger.error(f"Failed to get staff performance metrics: {e}")
             return []
-
-
-# Global instance
-odoo_client_v3 = OdooClientV3()
 
 
 
@@ -2125,6 +2112,7 @@ odoo_client_v3 = OdooClientV3()
             return []
 
 
+
+
 # Global instance
 odoo_client_v3 = OdooClientV3()
-

@@ -15,6 +15,17 @@ from app.integrations.odoo_client_v3 import odoo_client_v3
 
 logger = logging.getLogger(__name__)
 
+# Initialize __all__ list
+__all__ = [
+    'get_revenue_overview',
+    'get_outstanding_invoices',
+    'get_top_treatments_by_revenue',
+    'get_payment_collection_status',
+    'get_financial_summary',
+    'analyze_patient_financial_status',
+    'get_monthly_revenue_trend',
+]
+
 
 @tool
 def get_revenue_overview(
@@ -387,10 +398,10 @@ def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
         # In a real implementation, this would call the Green Invoice API
         invoice_data = green_invoice.create_invoice(patient, treatment_ids)
 
-        note = f"🧾 **חשבונית נוצרה (Green Invoice)**\n\n**מספר חשבונית:** {invoice_data["invoice_number"]}\n**סכום:** {invoice_data["amount"]}"
+        note = f"🧾 **חשבונית נוצרה (Green Invoice)**\n\n**מספר חשבונית:** {invoice_data['invoice_number']}\n**סכום:** {invoice_data['amount']}"
         odoo.create_patient_note(patient_id, note, note_type="invoice")
 
-        return f"✅ **חשבונית נוצרה בהצלחה**\n\n**מטופל:** {patient.get("name")}\n**מספר חשבונית:** {invoice_data["invoice_number"]}\n**קישור לחשבונית:** {invoice_data["pdf_url"]}"
+        return f"✅ **חשבונית נוצרה בהצלחה**\n\n**מטופל:** {patient.get('name')}\n**מספר חשבונית:** {invoice_data['invoice_number']}\n**קישור לחשבונית:** {invoice_data['pdf_url']}"
     except Exception as e:
         logger.error(f"Error creating invoice: {e}")
         return f"❌ שגיאה ביצירת חשבונית: {str(e)}"
@@ -584,7 +595,7 @@ def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None) -> 
         if not claims:
             return "No insurance claims found for this patient."
 
-        return "\n\n---\n\n".join([f"**תביעה:** {claim["id"]}, **סטטוס:** {claim["status"]}" for claim in claims])
+        return "\n\n---\n\n".join([f"**תביעה:** {claim['id']}, **סטטוס:** {claim['status']}" for claim in claims])
     except Exception as e:
         logger.error(f"Error getting insurance claims: {e}")
         return f"❌ שגיאה בקבלת תביעות ביטוח: {str(e)}"
@@ -640,4 +651,26 @@ def generate_tax_report_tool(year: int) -> str:
 
 # Update __all__
 __all__.extend(["export_to_accounting_tool", "generate_tax_report_tool"])
+
+# Build marcus_financial_tools list for agent
+marcus_financial_tools = [
+    get_revenue_overview,
+    get_outstanding_invoices,
+    get_top_treatments_by_revenue,
+    get_payment_collection_status,
+    get_financial_summary,
+    analyze_patient_financial_status,
+    get_monthly_revenue_trend,
+    create_invoice_tool,
+    send_invoice_tool,
+    record_payment_tool,
+    void_invoice_tool,
+    create_expense_tool,
+    get_budget_tool,
+    create_budget_tool,
+    submit_insurance_claim_tool,
+    get_insurance_claims_tool,
+    export_to_accounting_tool,
+    generate_tax_report_tool,
+]
 

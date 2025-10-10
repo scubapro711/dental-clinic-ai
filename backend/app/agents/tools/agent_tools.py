@@ -101,14 +101,10 @@ def search_patient_tool(
 
 
 def get_available_slots_tool(days_ahead: int = 7) -> str:
-    """
-    Get available appointment slots for the next N days.
+    """Get available appointment slots for the next N days.
     
     Args:
         days_ahead: Number of days to look ahead (default: 7)
-        
-    Returns:
-        String with available time slots
     """
     try:
         date_from = datetime.now()
@@ -135,17 +131,13 @@ def create_appointment_tool(
     appointment_date: str,
     notes: Optional[str] = None,
 ) -> str:
-    """
-    Create a new appointment for a patient.
+    """Create a new appointment for a patient.
     
     Args:
         patient_name: Full name of the patient
         patient_phone: Patient phone number
         appointment_date: Date and time in format "YYYY-MM-DD HH:MM"
         notes: Optional notes about the appointment
-        
-    Returns:
-        Confirmation message with appointment details
     """
     try:
         # Search for existing patient
@@ -186,15 +178,11 @@ def create_appointment_tool(
 
 
 def get_patient_invoices_tool(patient_name: str, patient_phone: Optional[str] = None) -> str:
-    """
-    Get invoices for a patient.
+    """Get invoices for a patient.
     
     Args:
         patient_name: Patient name
         patient_phone: Patient phone (optional)
-        
-    Returns:
-        String with invoice information
     """
     try:
         # Search for patient
@@ -227,14 +215,10 @@ def get_patient_invoices_tool(patient_name: str, patient_phone: Optional[str] = 
 
 
 def get_invoice_details_tool(invoice_id: int) -> str:
-    """
-    Get detailed information about an invoice.
+    """Get detailed information about an invoice.
     
     Args:
         invoice_id: Invoice ID
-        
-    Returns:
-        String with detailed invoice information
     """
     try:
         invoice = mock_odoo.get_invoice(invoice_id)

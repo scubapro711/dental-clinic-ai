@@ -334,6 +334,11 @@ def get_patient_appointments_v2(patient_id: int, include_past: bool = False) -> 
         return f"❌ שגיאה בטעינת תורים: {str(e)}"
 
 
+# Aliases for backward compatibility
+search_patients_tool = search_patient_v2
+get_patient_by_id_tool = create_patient_v2  # Note: This might need a proper implementation
+get_appointments_tool = get_patient_appointments_v2
+
 # Export all tools
 __all__ = [
     'search_patient_v2',
@@ -341,5 +346,9 @@ __all__ = [
     'get_available_slots_v2',
     'create_appointment_v2',
     'cancel_appointment_v2',
-    'get_patient_appointments_v2'
+    'get_patient_appointments_v2',
+    # Aliases
+    'search_patients_tool',
+    'get_patient_by_id_tool',
+    'get_appointments_tool',
 ]

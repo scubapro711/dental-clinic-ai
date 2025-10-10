@@ -84,3 +84,8 @@ langgraph-checkpoint-postgres>=1.0.0
 boto3
 psutil
 redis[hiredis]
+
+# Phase 6 - Testing Dependencies
+pinecone>=3.0.0
+langgraph-checkpoint-postgres>=1.0.0
+psycopg[binary]>=3.1.0

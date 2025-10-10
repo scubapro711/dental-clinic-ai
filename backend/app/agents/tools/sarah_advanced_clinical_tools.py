@@ -725,7 +725,9 @@ def analyze_xray_tool(xray_id: int) -> str:
                 "impacted_48": 0.98
             }
         }
-        return f"✅ **ניתוח צילום AI (דמו)**\n\n**ממצאים:**\n- {mock_analysis["findings"][0]}\n- {mock_analysis["findings"][1]}\n- {mock_analysis["findings"][2]}\n\n**רמת ביטחון:**\n- עששת בשן 14: {mock_analysis["confidence_scores"]["caries_14"]*100}%\n- אובדן עצם בשן 36: {mock_analysis["confidence_scores"]["bone_loss_36"]*100}%\n- שן בינה כלואה #48: {mock_analysis["confidence_scores"]["impacted_48"]*100}%"
+        findings = mock_analysis['findings']
+        scores = mock_analysis['confidence_scores']
+        return f"✅ **ניתוח צילום AI (דמו)**\n\n**ממצאים:**\n- {findings[0]}\n- {findings[1]}\n- {findings[2]}\n\n**רמת ביטחון:**\n- עששת בשן 14: {scores['caries_14']*100}%\n- אובדן עצם בשן 36: {scores['bone_loss_36']*100}%\n- שן בינה כלואה #48: {scores['impacted_48']*100}%"
 
     except Exception as e:
         logger.error(f"Error analyzing X-ray: {e}")
@@ -752,10 +754,11 @@ def schedule_followup_tool(patient_id: int, reason: str, days_from_now: int) -> 
         appointment_date = datetime.now() + timedelta(days=days_from_now)
 
         # This is a mock implementation. In a real scenario, this would create an appointment in Odoo.
-        note = f"🗓️ **תור מעקב נקבע**\n\n**סיבה:** {reason}\n**תאריך:** {appointment_date.strftime("%d/%m/%Y")}"
+        date_str = appointment_date.strftime("%d/%m/%Y")
+        note = f"🗓️ **תור מעקב נקבע**\n\n**סיבה:** {reason}\n**תאריך:** {date_str}"
         odoo.create_patient_note(patient_id, note, note_type="appointment")
 
-        return f"✅ **תור מעקב נקבע בהצלחה**\n\n**מטופל:** {patient_id}\n**סיבה:** {reason}\n**תאריך:** {appointment_date.strftime("%d/%m/%Y")}"
+        return f"✅ **תור מעקב נקבע בהצלחה**\n\n**מטופל:** {patient_id}\n**סיבה:** {reason}\n**תאריך:** {date_str}"
     except Exception as e:
         logger.error(f"Error scheduling follow-up: {e}")
         return f"❌ שגיאה בקביעת תור מעקב: {str(e)}"
