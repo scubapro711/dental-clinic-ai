@@ -13,6 +13,9 @@ from app.integrations.odoo_client_v3 import odoo_client_v3
 
 logger = logging.getLogger(__name__)
 
+# Initialize __all__ list
+__all__ = []
+
 
 @tool
 def get_staff_list_tool(department: Optional[str] = None, active_only: bool = True) -> str:

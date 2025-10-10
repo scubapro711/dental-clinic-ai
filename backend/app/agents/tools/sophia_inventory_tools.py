@@ -13,6 +13,9 @@ from app.integrations.odoo_client_v3 import odoo_client_v3
 
 logger = logging.getLogger(__name__)
 
+# Initialize __all__ list
+__all__ = []
+
 
 @tool
 def check_inventory_levels_tool(category: Optional[str] = None, low_stock_only: bool = False) -> str:
@@ -446,8 +449,6 @@ def generate_inventory_report_tool(report_type: str = "summary", days_back: int 
         logger.error(f"Error generating inventory report: {e}")
         return f"Error: {str(e)}"
 
-
-_spec.py
 
 @tool
 def get_patient_satisfaction_tool(days_back: int = 30) -> str:
