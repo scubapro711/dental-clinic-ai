@@ -58,6 +58,12 @@ from app.agents.tools.alex_financial_tools import (
     check_insurance_coverage_tool,
 )
 
+# Scheduling tools (Phase 5.5 Week 1 Day 7)
+from app.agents.tools.alex_scheduling_tools import (
+    bulk_reschedule_appointments_tool,
+    manage_waitlist_tool,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -480,7 +486,10 @@ makes sure patients get the right help at the right time! 😊
             process_payment_tool,
             create_payment_plan_tool,
             check_insurance_coverage_tool,
-            # Appointments
+            # Advanced Scheduling (Phase 5.5 Week 1 Day 7)
+            bulk_reschedule_appointments_tool,
+            manage_waitlist_tool,
+            # Appointments (existing)
             get_available_slots_tool,
             create_appointment_tool,
             get_my_appointments,
