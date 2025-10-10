@@ -306,22 +306,29 @@ If the request is complete or unclear, respond with: end
         # Clean messages for Alex (remove supervisor routing)
         clean_messages = remove_handoff_messages(state["messages"])
         
+        # Prepare state for Alex
+        alex_state = {
+            "messages": clean_messages,
+            "organization_id": state.get("organization_id"),
+            "user_role": state.get("user_role", "patient"),
+            "user_id": state.get("user_id", "unknown")
+        }
+        
         # Call Alex agent
-        response = self.alex.run(
-            messages=clean_messages,
-            organization_id=state.get("organization_id"),
-            user_role=state.get("user_role", "patient")
-        )
+        response_state = self.alex.process(alex_state)
+        
+        # Extract response from state
+        response_message = response_state["messages"][-1]
         
         # Add Alex's response to messages
-        state["messages"].append(AIMessage(content=response["output"]))
+        state["messages"].append(response_message)
         
         # Update current agent
         state["current_agent"] = "alex"
         
         # Preserve suggested actions if Alex set any
-        if "suggested_actions" in response:
-            state["suggested_actions"] = response["suggested_actions"]
+        if "suggested_actions" in response_state:
+            state["suggested_actions"] = response_state["suggested_actions"]
         
         return state
     
@@ -372,15 +379,22 @@ If the request is complete or unclear, respond with: end
         # Clean messages for Marcus (remove supervisor routing)
         clean_messages = remove_handoff_messages(state["messages"])
         
+        # Prepare state for Marcus
+        marcus_state = {
+            "messages": clean_messages,
+            "organization_id": state.get("organization_id"),
+            "user_role": state.get("user_role", "staff"),
+            "user_id": state.get("user_id", "unknown")
+        }
+        
         # Call Marcus agent
-        response = self.marcus.run(
-            messages=clean_messages,
-            organization_id=state.get("organization_id"),
-            user_role=state.get("user_role", "staff")
-        )
+        response_state = self.marcus.process(marcus_state)
+        
+        # Extract response from state
+        response_message = response_state["messages"][-1]
         
         # Add Marcus's response to messages
-        state["messages"].append(AIMessage(content=response["output"]))
+        state["messages"].append(response_message)
         
         # Update current agent
         state["current_agent"] = "marcus"
@@ -402,15 +416,22 @@ If the request is complete or unclear, respond with: end
         # Clean messages for Sophia (remove supervisor routing)
         clean_messages = remove_handoff_messages(state["messages"])
         
+        # Prepare state for Sophia
+        sophia_state = {
+            "messages": clean_messages,
+            "organization_id": state.get("organization_id"),
+            "user_role": state.get("user_role", "staff"),
+            "user_id": state.get("user_id", "unknown")
+        }
+        
         # Call Sophia agent
-        response = self.sophia.run(
-            messages=clean_messages,
-            organization_id=state.get("organization_id"),
-            user_role=state.get("user_role", "staff")
-        )
+        response_state = self.sophia.process(sophia_state)
+        
+        # Extract response from state
+        response_message = response_state["messages"][-1]
         
         # Add Sophia's response to messages
-        state["messages"].append(AIMessage(content=response["output"]))
+        state["messages"].append(response_message)
         
         # Update current agent
         state["current_agent"] = "sophia"
