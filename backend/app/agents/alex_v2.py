@@ -51,6 +51,13 @@ from app.agents.tools.alex_communications_tools import (
     send_telegram_message_tool,
 )
 
+# Financial tools (Phase 5.5 Week 1 Day 5-6)
+from app.agents.tools.alex_financial_tools import (
+    process_payment_tool,
+    create_payment_plan_tool,
+    check_insurance_coverage_tool,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -469,6 +476,10 @@ makes sure patients get the right help at the right time! 😊
             send_sms_tool,
             send_email_tool,
             send_telegram_message_tool,
+            # Financial (Phase 5.5 Week 1 Day 5-6)
+            process_payment_tool,
+            create_payment_plan_tool,
+            check_insurance_coverage_tool,
             # Appointments
             get_available_slots_tool,
             create_appointment_tool,
