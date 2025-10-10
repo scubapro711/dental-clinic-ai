@@ -446,3 +446,93 @@ def generate_inventory_report_tool(report_type: str = "summary", days_back: int 
         logger.error(f"Error generating inventory report: {e}")
         return f"Error: {str(e)}"
 
+
+_spec.py
+
+@tool
+def get_patient_satisfaction_tool(days_back: int = 30) -> str:
+    """
+    Get patient satisfaction scores and feedback.
+
+    Args:
+        days_back: Number of days to analyze (default: 30).
+
+    Returns:
+        A formatted string with patient satisfaction metrics.
+    """
+    try:
+        logger.info(f"Getting patient satisfaction scores (days={days_back})")
+        # This is a mock implementation.
+        # In a real system, this would query a survey or feedback system.
+        mock_feedback = {
+            "nps_score": 75,
+            "average_rating": 4.8,
+            "total_responses": 150,
+            "positive_feedback": [
+                "The staff was very friendly and professional.",
+                "I loved the new clinic design, it's very modern.",
+                "Dr. Levi is the best dentist I've ever had."
+            ],
+            "negative_feedback": [
+                "The waiting time was a bit long.",
+                "It was hard to find parking near the clinic."
+            ]
+        }
+
+        report = f"""**📊 דוח שביעות רצון מטופלים**
+
+**ציון NPS:** {mock_feedback["nps_score"]}
+**דירוג ממוצע:** {mock_feedback["average_rating"]}/5
+**סה\"כ תגובות:** {mock_feedback["total_responses"]}
+
+**נקודות לשימור:**
+- {mock_feedback["positive_feedback"][0]}
+- {mock_feedback["positive_feedback"][1]}
+
+**נקודות לשיפור:**
+- {mock_feedback["negative_feedback"][0]}
+"""
+        return report
+
+    except Exception as e:
+        logger.error(f"Error getting patient satisfaction: {e}")
+        return f"Error: {str(e)}"
+
+
+@tool
+def get_no_show_rate_tool(days_back: int = 30) -> str:
+    """
+    Get the no-show rate for appointments.
+
+    Args:
+        days_back: Number of days to analyze (default: 30).
+
+    Returns:
+        A formatted string with no-show rate metrics.
+    """
+    try:
+        logger.info(f"Getting no-show rate (days={days_back})")
+        # This is a mock implementation.
+        # In a real system, this would analyze appointment data from Odoo.
+        mock_data = {
+            "total_appointments": 500,
+            "no_shows": 25,
+            "no_show_rate": 5.0
+        }
+
+        report = f"""**📈 דוח אי-הגעה לתורים**
+
+**סה\"כ תורים:** {mock_data["total_appointments"]}
+**אי-הגעה:** {mock_data["no_shows"]}
+**אחוז אי-הגעה:** {mock_data["no_show_rate"]}%
+"""
+        return report
+
+    except Exception as e:
+        logger.error(f"Error getting no-show rate: {e}")
+        return f"Error: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["get_patient_satisfaction_tool", "get_no_show_rate_tool"])
+

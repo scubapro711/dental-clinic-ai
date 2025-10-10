@@ -361,3 +361,283 @@ marcus_financial_tools = [
     get_monthly_revenue_trend,
 ]
 
+
+
+
+@tool
+def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
+    """
+    Create an invoice using Green Invoice integration.
+
+    Args:
+        patient_id: Patient ID in Odoo
+        treatment_ids: List of treatment IDs to include in the invoice.
+
+    Returns:
+        A success message with the invoice details.
+    """
+    try:
+        odoo = OdooClientV3()
+        green_invoice = GreenInvoiceClient()
+
+        patient = odoo.get_patient(patient_id)
+        if not patient:
+            return f"❌ Patient {patient_id} not found"
+
+        # In a real implementation, this would call the Green Invoice API
+        invoice_data = green_invoice.create_invoice(patient, treatment_ids)
+
+        note = f"🧾 **חשבונית נוצרה (Green Invoice)**\n\n**מספר חשבונית:** {invoice_data["invoice_number"]}\n**סכום:** {invoice_data["amount"]}"
+        odoo.create_patient_note(patient_id, note, note_type="invoice")
+
+        return f"✅ **חשבונית נוצרה בהצלחה**\n\n**מטופל:** {patient.get("name")}\n**מספר חשבונית:** {invoice_data["invoice_number"]}\n**קישור לחשבונית:** {invoice_data["pdf_url"]}"
+    except Exception as e:
+        logger.error(f"Error creating invoice: {e}")
+        return f"❌ שגיאה ביצירת חשבונית: {str(e)}"
+
+
+@tool
+def send_invoice_tool(invoice_id: int, method: str = "email") -> str:
+    """
+    Send an invoice to the patient.
+
+    Args:
+        invoice_id: The ID of the invoice to send.
+        method: The method to send the invoice - "email" or "sms".
+
+    Returns:
+        A success message.
+    """
+    try:
+        green_invoice = GreenInvoiceClient()
+        # In a real implementation, this would call the Green Invoice API
+        status = green_invoice.send_invoice(invoice_id, method)
+        return f"✅ חשבונית {invoice_id} נשלחה בהצלחה באמצעות {method}."
+    except Exception as e:
+        logger.error(f"Error sending invoice: {e}")
+        return f"❌ שגיאה בשליחת חשבונית: {str(e)}"
+
+
+@tool
+def record_payment_tool(invoice_id: int, amount: float, payment_method: str) -> str:
+    """
+    Record a payment for an invoice.
+
+    Args:
+        invoice_id: The ID of the invoice.
+        amount: The amount paid.
+        payment_method: The method of payment (e.g., "credit_card", "cash", "bank_transfer").
+
+    Returns:
+        A success message.
+    """
+    try:
+        green_invoice = GreenInvoiceClient()
+        # In a real implementation, this would call the Green Invoice API
+        payment_id = green_invoice.record_payment(invoice_id, amount, payment_method)
+        return f"✅ תשלום בסך {amount} עבור חשבונית {invoice_id} נרשם בהצלחה. מזהה תשלום: {payment_id}"
+    except Exception as e:
+        logger.error(f"Error recording payment: {e}")
+        return f"❌ שגיאה ברישום תשלום: {str(e)}"
+
+
+@tool
+def void_invoice_tool(invoice_id: int, reason: str) -> str:
+    """
+    Void an invoice.
+
+    Args:
+        invoice_id: The ID of the invoice to void.
+        reason: The reason for voiding the invoice.
+
+    Returns:
+        A success message.
+    """
+    try:
+        green_invoice = GreenInvoiceClient()
+        # In a real implementation, this would call the Green Invoice API
+        status = green_invoice.void_invoice(invoice_id, reason)
+        return f"✅ חשבונית {invoice_id} בוטלה בהצלחה. סיבה: {reason}"
+    except Exception as e:
+        logger.error(f"Error voiding invoice: {e}")
+        return f"❌ שגיאה בביטול חשבונית: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["create_invoice_tool", "send_invoice_tool", "record_payment_tool", "void_invoice_tool"])
+
+
+
+
+@tool
+def create_expense_tool(amount: float, category: str, description: str) -> str:
+    """
+    Record a clinic expense.
+
+    Args:
+        amount: The amount of the expense.
+        category: The category of the expense (e.g., "supplies", "rent", "salaries").
+        description: A description of the expense.
+
+    Returns:
+        A success message with the expense details.
+    """
+    try:
+        odoo = OdooClientV3()
+        # In a real implementation, this would create an expense record in Odoo.
+        expense_id = odoo.create_expense(amount, category, description)
+        return f"✅ הוצאה בסך {amount} נרשמה בהצלחה. קטגוריה: {category}. מזהה: {expense_id}"
+    except Exception as e:
+        logger.error(f"Error creating expense: {e}")
+        return f"❌ שגיאה ביצירת הוצאה: {str(e)}"
+
+
+@tool
+def get_budget_tool(department: str) -> str:
+    """
+    Get the budget for a specific department.
+
+    Args:
+        department: The department to get the budget for (e.g., "clinical", "marketing", "admin").
+
+    Returns:
+        A formatted string with the budget details.
+    """
+    try:
+        odoo = OdooClientV3()
+        # This is a mock implementation.
+        budget_data = odoo.get_budget(department)
+        return f"📊 **תקציב למחלקת {department}**\n\n**תקציב מאושר:** {budget_data['allocated']}\n**ניצול עד כה:** {budget_data['spent']}\n**יתרה:** {budget_data['remaining']}"
+    except Exception as e:
+        logger.error(f"Error getting budget: {e}")
+        return f"❌ שגיאה בקבלת תקציב: {str(e)}"
+
+
+@tool
+def create_budget_tool(department: str, amount: float, year: int) -> str:
+    """
+    Create a budget for a department for a specific year.
+
+    Args:
+        department: The department to create the budget for.
+        amount: The budget amount.
+        year: The year the budget is for.
+
+    Returns:
+        A success message.
+    """
+    try:
+        odoo = OdooClientV3()
+        # In a real implementation, this would create a budget record in Odoo.
+        budget_id = odoo.create_budget(department, amount, year)
+        return f"✅ תקציב בסך {amount} למחלקת {department} לשנת {year} נוצר בהצלחה. מזהה: {budget_id}"
+    except Exception as e:
+        logger.error(f"Error creating budget: {e}")
+        return f"❌ שגיאה ביצירת תקציב: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["create_expense_tool", "get_budget_tool", "create_budget_tool"])
+
+
+
+
+@tool
+def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_company: str) -> str:
+    """
+    Submit an insurance claim for a patient.
+
+    Args:
+        patient_id: Patient ID in Odoo
+        invoice_id: The ID of the invoice to claim.
+        insurance_company: The name of the insurance company.
+
+    Returns:
+        A success message with the claim details.
+    """
+    try:
+        odoo = OdooClientV3()
+        # In a real implementation, this would integrate with Israeli insurance APIs.
+        claim_id = odoo.submit_insurance_claim(patient_id, invoice_id, insurance_company)
+        return f"✅ תביעת ביטוח נשלחה בהצלחה עבור מטופל {patient_id} לחברת {insurance_company}. מספר תביעה: {claim_id}"
+    except Exception as e:
+        logger.error(f"Error submitting insurance claim: {e}")
+        return f"❌ שגיאה בשליחת תביעת ביטוח: {str(e)}"
+
+
+@tool
+def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None) -> str:
+    """
+    Get a list of insurance claims for a patient.
+
+    Args:
+        patient_id: Patient ID in Odoo
+        status: Filter claims by status - "submitted", "approved", "rejected", "paid".
+
+    Returns:
+        A formatted string with the claims list.
+    """
+    try:
+        odoo = OdooClientV3()
+        # This is a mock implementation.
+        claims = odoo.get_insurance_claims(patient_id, status)
+        if not claims:
+            return "No insurance claims found for this patient."
+
+        return "\n\n---\n\n".join([f"**תביעה:** {claim["id"]}, **סטטוס:** {claim["status"]}" for claim in claims])
+    except Exception as e:
+        logger.error(f"Error getting insurance claims: {e}")
+        return f"❌ שגיאה בקבלת תביעות ביטוח: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["submit_insurance_claim_tool", "get_insurance_claims_tool"])
+
+
+
+
+@tool
+def export_to_accounting_tool(format: str = "csv") -> str:
+    """
+    Export financial data to an accounting file.
+
+    Args:
+        format: The format of the export file - "csv" or "excel".
+
+    Returns:
+        A success message with the file path.
+    """
+    try:
+        odoo = OdooClientV3()
+        # In a real implementation, this would generate a file with financial data.
+        file_path = odoo.export_to_accounting(format)
+        return f"✅ נתונים פיננסיים יוצאו בהצלחה לקובץ: {file_path}"
+    except Exception as e:
+        logger.error(f"Error exporting to accounting: {e}")
+        return f"❌ שגיאה ביצוא נתונים: {str(e)}"
+
+
+@tool
+def generate_tax_report_tool(year: int) -> str:
+    """
+    Generate a tax report for a specific year.
+
+    Args:
+        year: The year to generate the report for.
+
+    Returns:
+        A success message with the report file path.
+    """
+    try:
+        odoo = OdooClientV3()
+        # In a real implementation, this would generate a tax report compliant with Israeli tax law.
+        report_path = odoo.generate_tax_report(year)
+        return f"✅ דוח מס לשנת {year} נוצר בהצלחה: {report_path}"
+    except Exception as e:
+        logger.error(f"Error generating tax report: {e}")
+        return f"❌ שגיאה ביצירת דוח מס: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["export_to_accounting_tool", "generate_tax_report_tool"])
+

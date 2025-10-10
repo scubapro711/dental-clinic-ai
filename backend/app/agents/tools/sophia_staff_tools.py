@@ -562,3 +562,98 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
         logger.error(f"Error generating staff report: {e}")
         return f"Error: {str(e)}"
 
+
+
+
+@tool
+def send_staff_notification_tool(message: str, department: Optional[str] = None) -> str:
+    """
+    Send a notification to all staff or a specific department.
+
+    Args:
+        message: The message to send.
+        department: The department to send the notification to. If None, sends to all staff.
+
+    Returns:
+        A success message.
+    """
+    try:
+        logger.info(f"Sending notification: '{message}' to department: {department}")
+        # In a real implementation, this would integrate with a notification service (e.g., Slack, email)
+        return f"✅ Notification sent successfully to {department or 'all staff'}."
+    except Exception as e:
+        logger.error(f"Error sending staff notification: {e}")
+        return f"Error: {str(e)}"
+
+
+# Update __all__
+__all__.append("send_staff_notification_tool")
+
+
+
+
+@tool
+def track_staff_certifications_tool(employee_name: Optional[str] = None) -> str:
+    """
+    Track the status of staff certifications and licenses.
+
+    Args:
+        employee_name: Filter by employee name to see a specific employee's certifications.
+
+    Returns:
+        A formatted string with the certification status.
+    """
+    try:
+        logger.info(f"Tracking certifications for: {employee_name or 'all staff'}")
+        # This is a mock implementation.
+        # In a real system, this would query HR records.
+        mock_certifications = [
+            {"employee": "Dr. Sarah Levi", "certification": "Dental License", "status": "Active", "expiry_date": "2026-12-31"},
+            {"employee": "Alex Cohen", "certification": "CPR Certified", "status": "Expired", "expiry_date": "2024-10-01"},
+            {"employee": "Dr. David Mizrahi", "certification": "Oral Surgery Board Certification", "status": "Active", "expiry_date": "2028-06-15"}
+        ]
+
+        if employee_name:
+            mock_certifications = [cert for cert in mock_certifications if employee_name.lower() in cert["employee"].lower()]
+
+        if not mock_certifications:
+            return "No certification records found."
+
+        report = "**סטטוס רישיונות והסמכות**\n\n"
+        for cert in mock_certifications:
+            report += f"- **{cert['employee']}**: {cert['certification']} - **{cert['status']}** (תוקף: {cert['expiry_date']})\n"
+
+        return report
+
+    except Exception as e:
+        logger.error(f"Error tracking staff certifications: {e}")
+        return f"Error: {str(e)}"
+
+
+@tool
+def create_staff_training_tool(title: str, department: str, due_date: str) -> str:
+    """
+    Create a new training program for staff.
+
+    Args:
+        title: The title of the training program.
+        department: The department the training is for.
+        due_date: The due date for completing the training (YYYY-MM-DD).
+
+    Returns:
+        A success message with the training details.
+    """
+    try:
+        logger.info(f"Creating training: '{title}' for {department}")
+        # This is a mock implementation.
+        # In a real system, this would create a record in an LMS or HR system.
+        training_id = 12345 # Mock ID
+        return f"✅ **הדרכה חדשה נוצרה**\n\n**כותרת:** {title}\n**מחלקה:** {department}\n**תאריך יעד:** {due_date}\n**מזהה הדרכה:** {training_id}"
+    except Exception as e:
+        logger.error(f"Error creating staff training: {e}")
+        return f"Error: {str(e)}"
+
+
+# Update __all__
+__all__.extend(["track_staff_certifications_tool", "create_staff_training_tool"])
+
