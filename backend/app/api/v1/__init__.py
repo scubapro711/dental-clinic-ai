@@ -63,8 +63,9 @@ api_router.include_router(statistics.router, prefix="/statistics", tags=["statis
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])
 # Patient Portal with Odoo Integration
-from app.api.v1.endpoints import patient_portal_odoo
+from app.api.v1.endpoints import patient_portal_odoo, user_patient_mapping
 api_router.include_router(patient_portal_odoo.router, tags=["patient-portal-odoo"])
+api_router.include_router(user_patient_mapping.router, tags=["user-patient-mapping"])
 api_router.include_router(invoices.router, tags=["invoices"])
 
 __all__ = ["api_router"]

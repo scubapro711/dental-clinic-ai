@@ -13,6 +13,7 @@ from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
 from app.integrations.odoo_client_v2 import OdooClientV2, OdooConnectionError
+from app.crud import user_patient_mapping as mapping_crud
 
 logger = logging.getLogger(__name__)
 
@@ -26,27 +27,65 @@ except Exception as e:
     odoo_client = None
 
 
-def get_odoo_patient_id(user: User) -> Optional[int]:
+def get_odoo_patient_id(user: User, db: Session) -> Optional[int]:
     """
-    Get Odoo patient ID for a user.
+    Get Odoo patient ID for a user using the mapping table.
     
-    For now, we'll search by email. In production, this should be stored
-    in a user-patient mapping table.
+    This function:
+    1. Checks the user_patient_mapping table first (fast)
+    2. Falls back to Odoo search by email if no mapping exists
+    3. Creates a mapping if found via email search
+    
+    Args:
+        user: Current user
+        db: Database session
+    
+    Returns:
+        Odoo patient ID or None
     """
     if not odoo_client:
+        logger.error("Odoo client not initialized")
         return None
     
     try:
-        # Search for patient by email
+        # Step 1: Try to get from mapping table (fast)
+        mapping = mapping_crud.get_mapping_by_user_id(db, user.id)
+        if mapping:
+            logger.info(f"Found mapping for user {user.id} -> patient {mapping.odoo_patient_id}")
+            return mapping.odoo_patient_id
+        
+        # Step 2: No mapping found, search Odoo by email (slow)
+        logger.info(f"No mapping found for user {user.id}, searching Odoo by email")
         patients = odoo_client.search_patients(email=user.email)
-        if patients and len(patients) > 0:
-            # patients is a list of dicts, get the ID from the first one
-            patient = patients[0]
-            if isinstance(patient, dict) and 'id' in patient:
-                return patient['id']
-            elif isinstance(patient, int):
-                return patient
-        return None
+        
+        if not patients or len(patients) == 0:
+            logger.warning(f"No patient found in Odoo for email {user.email}")
+            return None
+        
+        # Get patient ID from search results
+        patient = patients[0]
+        if isinstance(patient, dict) and 'id' in patient:
+            patient_id = patient['id']
+            patient_name = patient.get('name', user.full_name)
+        elif isinstance(patient, int):
+            patient_id = patient
+            patient_name = user.full_name
+        else:
+            logger.error(f"Unexpected patient data format: {patient}")
+            return None
+        
+        # Step 3: Create mapping for future lookups
+        logger.info(f"Creating mapping for user {user.id} -> patient {patient_id}")
+        mapping_crud.create_mapping(
+            db=db,
+            user_id=user.id,
+            odoo_patient_id=patient_id,
+            email=user.email,
+            full_name=patient_name
+        )
+        
+        return patient_id
+        
     except Exception as e:
         logger.error(f"Error finding patient ID for user {user.email}: {e}")
         import traceback
@@ -64,7 +103,7 @@ async def get_patient_profile(
         raise HTTPException(status_code=503, detail="Odoo service unavailable")
     
     try:
-        patient_id = get_odoo_patient_id(current_user)
+        patient_id = get_odoo_patient_id(current_user, db)
         
         if not patient_id:
             # Return basic user info if not found in Odoo
@@ -119,7 +158,7 @@ async def get_health_score(
         raise HTTPException(status_code=503, detail="Odoo service unavailable")
     
     try:
-        patient_id = get_odoo_patient_id(current_user)
+        patient_id = get_odoo_patient_id(current_user, db)
         
         if not patient_id:
             # Return default score for new patients
@@ -218,7 +257,7 @@ async def get_appointments(
         raise HTTPException(status_code=503, detail="Odoo service unavailable")
     
     try:
-        patient_id = get_odoo_patient_id(current_user)
+        patient_id = get_odoo_patient_id(current_user, db)
         
         if not patient_id:
             return {
