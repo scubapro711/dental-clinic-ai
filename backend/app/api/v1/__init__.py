@@ -6,7 +6,8 @@ from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, 
     chat, 
-    telegram, 
+    telegram,
+    telegram_admin,
     statistics,
     memberships,
     clinic_settings,
@@ -38,6 +39,7 @@ api_router.include_router(sms_verification.router, tags=["auth"])
 # Core features
 api_router.include_router(chat.router, tags=["chat"])
 api_router.include_router(telegram.router, prefix="/telegram", tags=["telegram"])
+api_router.include_router(telegram_admin.router, tags=["telegram-admin"])
 
 # Organization management
 api_router.include_router(organizations.router, tags=["organizations"])
