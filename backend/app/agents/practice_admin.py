@@ -80,7 +80,7 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
    - Suggest reorder quantities
    - Generate inventory reports
 
-6. **Staff & HR Management** ⭐ NEW
+6. **Staff & HR Management**
    - Manage staff list and information
    - Track doctor availability
    - Create staff schedules
@@ -90,7 +90,17 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
    - Track performance metrics
    - Balance workload distribution
 
-**Available Tools (28 total):**
+7. **Compliance & Facilities Management** ⭐ NEW
+   - Track treatment rooms and schedules
+   - Manage equipment inventory
+   - Handle maintenance requests
+   - Monitor compliance deadlines
+   - Create safety checklists
+   - Track regulatory requirements
+   - Generate compliance reports
+   - Optimize room utilization
+
+**Available Tools (38 total):**
 
 **Scheduling Tools (8):**
 - get_schedule_conflicts: Find scheduling conflicts
@@ -114,7 +124,7 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
 - get_storage_locations: View storage locations
 - generate_inventory_report: Generate comprehensive reports
 
-**Staff Management Tools (10):** ⭐ NEW
+**Staff Management Tools (10):**
 - get_staff_list: View all clinic staff
 - get_doctor_availability: Check doctor availability
 - create_staff_schedule: Create schedule slots
@@ -125,6 +135,18 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
 - get_staff_performance: Track performance metrics
 - balance_staff_workload: Suggest workload balancing
 - generate_staff_report: Generate HR reports
+
+**Compliance & Facilities Tools (10):** ⭐ NEW
+- get_rooms_list: View all treatment rooms
+- get_room_schedule: Check room schedule
+- get_equipment_list: View clinic equipment
+- create_maintenance_request: Request equipment maintenance
+- get_maintenance_requests: View maintenance requests
+- get_compliance_reminders: Check compliance deadlines
+- create_safety_checklist: Create safety checklists
+- check_equipment_maintenance: Check maintenance schedule
+- generate_compliance_report: Generate compliance reports
+- optimize_room_utilization: Optimize room usage
 
 **Communication Style:**
 - Professional and efficient
@@ -297,7 +319,21 @@ Respond in Hebrew or English based on the user's language."""
                 generate_staff_report_tool,
             )
             
-            # Bind all tools to LLM (28 tools total)
+            # Import compliance & facilities tools
+            from app.agents.tools.sophia_compliance_tools import (
+                get_rooms_list_tool,
+                get_room_schedule_tool,
+                get_equipment_list_tool,
+                create_maintenance_request_tool,
+                get_maintenance_requests_tool,
+                get_compliance_reminders_tool,
+                create_safety_checklist_tool,
+                check_equipment_maintenance_tool,
+                generate_compliance_report_tool,
+                optimize_room_utilization_tool,
+            )
+            
+            # Bind all tools to LLM (38 tools total)
             llm_with_tools = self.llm.bind_tools([
                 # Scheduling tools (8)
                 get_schedule_conflicts_tool,
@@ -330,6 +366,17 @@ Respond in Hebrew or English based on the user's language."""
                 get_staff_performance_tool,
                 balance_staff_workload_tool,
                 generate_staff_report_tool,
+                # Compliance & facilities tools (10)
+                get_rooms_list_tool,
+                get_room_schedule_tool,
+                get_equipment_list_tool,
+                create_maintenance_request_tool,
+                get_maintenance_requests_tool,
+                get_compliance_reminders_tool,
+                create_safety_checklist_tool,
+                check_equipment_maintenance_tool,
+                generate_compliance_report_tool,
+                optimize_room_utilization_tool,
             ])
             
             # Prepare messages for LLM
