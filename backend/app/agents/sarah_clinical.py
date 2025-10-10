@@ -140,7 +140,7 @@ def create_sarah_agent() -> AgentExecutor:
     """
     # Initialize LLM
     llm = ChatOpenAI(
-        model="gpt-4",
+        model="gpt-4.1-mini",
         temperature=0.3,  # Lower temperature for clinical accuracy
         api_key=settings.OPENAI_API_KEY
     )
