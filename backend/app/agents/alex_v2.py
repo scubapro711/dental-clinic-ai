@@ -504,7 +504,7 @@ makes sure patients get the right help at the right time! 😊
         
         # Bind tools to LLM
         self.llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.7,  # Natural conversation
             api_key=settings.OPENAI_API_KEY,
         ).bind_tools(self.tools)

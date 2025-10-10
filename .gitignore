@@ -321,3 +321,4 @@ alembic/versions/*.pyc
 *-original.json
 *-extended.json
 docs/INTEGRATION_CREDENTIALS.md
+.secrets/
