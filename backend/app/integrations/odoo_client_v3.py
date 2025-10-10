@@ -1146,3 +1146,331 @@ class OdooClientV3(OdooClientV2):
 # Global instance
 odoo_client_v3 = OdooClientV3()
 
+
+
+    # ==========================================
+    # INVENTORY & SUPPLY MANAGEMENT (10 models)
+    # ==========================================
+    
+    def get_stock_alerts(self, alert_type: Optional[str] = None) -> List[Dict]:
+        """
+        Get low stock alerts for dental supplies.
+        
+        Args:
+            alert_type: Type of alert ('low_stock', 'expiring', 'out_of_stock')
+            
+        Returns:
+            List of stock alerts
+        """
+        try:
+            domain = []
+            if alert_type:
+                domain.append(('alert_type', '=', alert_type))
+            
+            alerts = self.search_read(
+                'stock.alert',
+                domain,
+                ['product_id', 'current_qty', 'min_qty', 'alert_date', 'alert_type', 'location_id']
+            )
+            
+            return alerts
+            
+        except Exception as e:
+            logger.error(f"Failed to get stock alerts: {e}")
+            return []
+    
+    def get_inventory_levels(self, location_id: Optional[int] = None, category_id: Optional[int] = None) -> List[Dict]:
+        """
+        Get current inventory levels.
+        
+        Args:
+            location_id: Filter by storage location
+            category_id: Filter by product category
+            
+        Returns:
+            List of products with quantity on hand
+        """
+        try:
+            domain = [('type', '=', 'product')]
+            if category_id:
+                domain.append(('categ_id', '=', category_id))
+            
+            products = self.search_read(
+                'product.product',
+                domain,
+                ['name', 'default_code', 'qty_available', 'virtual_available', 'categ_id', 'uom_id', 'list_price']
+            )
+            
+            # If location specified, get quants for that location
+            if location_id:
+                for product in products:
+                    quants = self.search_read(
+                        'stock.quant',
+                        [('product_id', '=', product['id']), ('location_id', '=', location_id)],
+                        ['quantity', 'reserved_quantity']
+                    )
+                    product['location_qty'] = sum(q.get('quantity', 0) for q in quants)
+                    product['reserved_qty'] = sum(q.get('reserved_quantity', 0) for q in quants)
+            
+            return products
+            
+        except Exception as e:
+            logger.error(f"Failed to get inventory levels: {e}")
+            return []
+    
+    def get_expiring_products(self, days_threshold: int = 30) -> List[Dict]:
+        """
+        Get products expiring within specified days.
+        
+        Args:
+            days_threshold: Number of days to look ahead
+            
+        Returns:
+            List of expiring products
+        """
+        try:
+            from datetime import datetime, timedelta
+            
+            threshold_date = (datetime.now() + timedelta(days=days_threshold)).strftime('%Y-%m-%d')
+            
+            # Get lots with expiration dates
+            lots = self.search_read(
+                'stock.production.lot',
+                [('expiration_date', '<=', threshold_date), ('expiration_date', '>=', datetime.now().strftime('%Y-%m-%d'))],
+                ['product_id', 'name', 'expiration_date', 'product_qty']
+            )
+            
+            return lots
+            
+        except Exception as e:
+            logger.error(f"Failed to get expiring products: {e}")
+            return []
+    
+    def create_purchase_order(self, supplier_id: int, order_lines: List[Dict], notes: Optional[str] = None) -> Dict:
+        """
+        Create a purchase order for supplies.
+        
+        Args:
+            supplier_id: Supplier/vendor partner ID
+            order_lines: List of order lines [{'product_id': int, 'quantity': float, 'price_unit': float}]
+            notes: Optional notes
+            
+        Returns:
+            Created purchase order
+        """
+        try:
+            order_data = {
+                'partner_id': supplier_id,
+                'date_order': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'notes': notes or '',
+                'order_line': [
+                    (0, 0, {
+                        'product_id': line['product_id'],
+                        'product_qty': line['quantity'],
+                        'price_unit': line.get('price_unit', 0),
+                    })
+                    for line in order_lines
+                ]
+            }
+            
+            order_id = self.create('purchase.order', order_data)
+            
+            # Get created order
+            order = self.search_read(
+                'purchase.order',
+                [('id', '=', order_id)],
+                ['name', 'partner_id', 'date_order', 'amount_total', 'state']
+            )
+            
+            return order[0] if order else {}
+            
+        except Exception as e:
+            logger.error(f"Failed to create purchase order: {e}")
+            return {}
+    
+    def get_purchase_orders(self, state: Optional[str] = None, date_from: Optional[str] = None) -> List[Dict]:
+        """
+        Get purchase orders.
+        
+        Args:
+            state: Filter by state ('draft', 'sent', 'purchase', 'done', 'cancel')
+            date_from: Filter orders from this date
+            
+        Returns:
+            List of purchase orders
+        """
+        try:
+            domain = []
+            if state:
+                domain.append(('state', '=', state))
+            if date_from:
+                domain.append(('date_order', '>=', date_from))
+            
+            orders = self.search_read(
+                'purchase.order',
+                domain,
+                ['name', 'partner_id', 'date_order', 'amount_total', 'state', 'notes']
+            )
+            
+            return orders
+            
+        except Exception as e:
+            logger.error(f"Failed to get purchase orders: {e}")
+            return []
+    
+    def get_stock_moves(self, product_id: Optional[int] = None, location_id: Optional[int] = None, date_from: Optional[str] = None) -> List[Dict]:
+        """
+        Get stock movements (in/out).
+        
+        Args:
+            product_id: Filter by product
+            location_id: Filter by location
+            date_from: Filter moves from this date
+            
+        Returns:
+            List of stock moves
+        """
+        try:
+            domain = [('state', '=', 'done')]
+            if product_id:
+                domain.append(('product_id', '=', product_id))
+            if location_id:
+                domain.append(('|'), ('location_id', '=', location_id), ('location_dest_id', '=', location_id))
+            if date_from:
+                domain.append(('date', '>=', date_from))
+            
+            moves = self.search_read(
+                'stock.move',
+                domain,
+                ['product_id', 'product_uom_qty', 'location_id', 'location_dest_id', 'date', 'reference', 'state']
+            )
+            
+            return moves
+            
+        except Exception as e:
+            logger.error(f"Failed to get stock moves: {e}")
+            return []
+    
+    def get_storage_locations(self) -> List[Dict]:
+        """
+        Get all storage locations in the clinic.
+        
+        Returns:
+            List of storage locations
+        """
+        try:
+            locations = self.search_read(
+                'stock.location',
+                [('usage', '=', 'internal')],
+                ['name', 'complete_name', 'parent_id', 'location_id']
+            )
+            
+            return locations
+            
+        except Exception as e:
+            logger.error(f"Failed to get storage locations: {e}")
+            return []
+    
+    def get_product_categories(self) -> List[Dict]:
+        """
+        Get product categories (for organizing supplies).
+        
+        Returns:
+            List of product categories
+        """
+        try:
+            categories = self.search_read(
+                'product.category',
+                [],
+                ['name', 'parent_id', 'product_count']
+            )
+            
+            return categories
+            
+        except Exception as e:
+            logger.error(f"Failed to get product categories: {e}")
+            return []
+    
+    def update_stock_quantity(self, product_id: int, location_id: int, quantity: float, reason: str = "Manual adjustment") -> Dict:
+        """
+        Update stock quantity (inventory adjustment).
+        
+        Args:
+            product_id: Product to adjust
+            location_id: Location of the stock
+            quantity: New quantity
+            reason: Reason for adjustment
+            
+        Returns:
+            Result of adjustment
+        """
+        try:
+            # Create inventory adjustment
+            adjustment_data = {
+                'product_id': product_id,
+                'location_id': location_id,
+                'product_qty': quantity,
+                'theoretical_qty': 0,  # Will be calculated
+                'name': reason,
+            }
+            
+            adjustment_id = self.create('stock.inventory.line', adjustment_data)
+            
+            return {
+                'success': True,
+                'adjustment_id': adjustment_id,
+                'product_id': product_id,
+                'location_id': location_id,
+                'new_quantity': quantity,
+                'reason': reason,
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to update stock quantity: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def get_inventory_valuation(self, location_id: Optional[int] = None) -> Dict:
+        """
+        Get total inventory valuation.
+        
+        Args:
+            location_id: Filter by location
+            
+        Returns:
+            Inventory valuation summary
+        """
+        try:
+            domain = [('type', '=', 'product')]
+            products = self.search_read(
+                'product.product',
+                domain,
+                ['name', 'qty_available', 'standard_price', 'list_price']
+            )
+            
+            total_cost = sum(p.get('qty_available', 0) * p.get('standard_price', 0) for p in products)
+            total_value = sum(p.get('qty_available', 0) * p.get('list_price', 0) for p in products)
+            total_items = len(products)
+            total_quantity = sum(p.get('qty_available', 0) for p in products)
+            
+            return {
+                'total_cost': total_cost,
+                'total_value': total_value,
+                'total_items': total_items,
+                'total_quantity': total_quantity,
+                'potential_profit': total_value - total_cost,
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get inventory valuation: {e}")
+            return {
+                'total_cost': 0,
+                'total_value': 0,
+                'total_items': 0,
+                'total_quantity': 0,
+                'potential_profit': 0,
+            }
+
+
+# Global instance
+odoo_client_v3 = OdooClientV3()
+

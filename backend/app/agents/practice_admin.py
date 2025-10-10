@@ -42,11 +42,12 @@ class PracticeAdminAgent:
             temperature=0.3,  # Lower temperature for consistent operations decisions
         )
         
-        self.system_prompt = """You are Sophia, the Practice Administrator Agent for a dental clinic.
+        self.system_prompt = """You are Sophia, the Operations Manager Agent for a dental clinic.
 
-Your role is to manage clinic operations, scheduling, and workflow optimization.
+Your role is to manage clinic operations, scheduling, workflow optimization, and inventory/supply management.
 
 **Core Responsibilities:**
+
 1. **Appointment Management**
    - Schedule new appointments
    - Handle rescheduling requests
@@ -70,14 +71,38 @@ Your role is to manage clinic operations, scheduling, and workflow optimization.
    - Coordinate breaks and shifts
    - Handle emergency coverage
 
-**Available Tools:**
+5. **Inventory & Supply Management** ⭐ NEW
+   - Monitor stock levels
+   - Track low stock alerts
+   - Manage expiring products
+   - Create purchase orders
+   - Track inventory valuation
+   - Suggest reorder quantities
+   - Generate inventory reports
+
+**Available Tools (18 total):**
+
+**Scheduling Tools (8):**
 - get_schedule_conflicts: Find scheduling conflicts
 - get_available_slots: Find available appointment slots
 - reschedule_appointment: Reschedule an appointment
+- cancel_appointment: Cancel an appointment
 - get_staff_schedule: View staff availability
 - get_room_availability: Check room availability
 - optimize_schedule: Optimize daily schedule
 - get_operational_metrics: View operations KPIs
+
+**Inventory Tools (10):** ⭐ NEW
+- check_inventory_levels: Check current stock levels
+- get_low_stock_alerts: Get low stock alerts
+- track_expiring_products: Track products expiring soon
+- create_purchase_order: Create purchase order for supplies
+- get_purchase_orders: View recent purchase orders
+- get_inventory_valuation: Get total inventory value
+- get_stock_movements: Track stock in/out movements
+- suggest_reorder_quantities: AI-powered reorder suggestions
+- get_storage_locations: View storage locations
+- generate_inventory_report: Generate comprehensive reports
 
 **Communication Style:**
 - Professional and efficient
@@ -210,7 +235,7 @@ Respond in Hebrew or English based on the user's language."""
             # Get conversation history
             messages = state["messages"]
             
-            # Import tools
+            # Import scheduling tools
             from app.agents.tools.admin_tools import (
                 get_schedule_conflicts_tool,
                 get_available_slots_tool,
@@ -222,8 +247,23 @@ Respond in Hebrew or English based on the user's language."""
                 get_operational_metrics_tool,
             )
             
-            # Bind tools to LLM
+            # Import inventory tools
+            from app.agents.tools.sophia_inventory_tools import (
+                check_inventory_levels_tool,
+                get_low_stock_alerts_tool,
+                track_expiring_products_tool,
+                create_purchase_order_tool,
+                get_purchase_orders_tool,
+                get_inventory_valuation_tool,
+                get_stock_movements_tool,
+                suggest_reorder_quantities_tool,
+                get_storage_locations_tool,
+                generate_inventory_report_tool,
+            )
+            
+            # Bind all tools to LLM (18 tools total)
             llm_with_tools = self.llm.bind_tools([
+                # Scheduling tools (8)
                 get_schedule_conflicts_tool,
                 get_available_slots_tool,
                 reschedule_appointment_tool,
@@ -232,6 +272,17 @@ Respond in Hebrew or English based on the user's language."""
                 get_room_availability_tool,
                 optimize_schedule_tool,
                 get_operational_metrics_tool,
+                # Inventory tools (10)
+                check_inventory_levels_tool,
+                get_low_stock_alerts_tool,
+                track_expiring_products_tool,
+                create_purchase_order_tool,
+                get_purchase_orders_tool,
+                get_inventory_valuation_tool,
+                get_stock_movements_tool,
+                suggest_reorder_quantities_tool,
+                get_storage_locations_tool,
+                generate_inventory_report_tool,
             ])
             
             # Prepare messages for LLM
