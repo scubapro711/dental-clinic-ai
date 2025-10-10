@@ -727,7 +727,7 @@ def analyze_xray_tool(xray_id: int) -> str:
         }
         findings = mock_analysis['findings']
         scores = mock_analysis['confidence_scores']
-        return f"✅ **ניתוח צילום AI (דמו)**\n\n**ממצאים:**\n- {findings[0]}\n- {findings[1]}\n- {findings[2]}\n\n**רמת ביטחון:**\n- עששת בשן 14: {scores['caries_14']*100}%\n- אובדן עצם בשן 36: {scores['bone_loss_36']*100}%\n- שן בינה כלואה #48: {scores['impacted_48']*100}%"
+        return f"✅ **ניתוח צילום AI (דמו)**\n\n**ממצאים:**\n- {findings[0]}\n- {findings[1]}\n- {findings[2]}\n\n**רמת ביטחון:**\n- עששת בשן 14: {scores['caries_14']*100}%\n- אובדן עצם בשן 36: {scores['bone_loss_36']*100}%\n- שן בינה כלואה #{48}: {scores['impacted_48']*100}%"
 
     except Exception as e:
         logger.error(f"Error analyzing X-ray: {e}")

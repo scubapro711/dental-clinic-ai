@@ -126,7 +126,7 @@ def calculate_vat_amount(
         
     except Exception as e:
         logger.error(f"Error calculating VAT: {e}")
-        return f'שגיאה בחישוב מע"מ: {str(e)}'
+        return f"שגיאה בחישוב מע\"מ: {str(e)}"
 
 
 @tool
