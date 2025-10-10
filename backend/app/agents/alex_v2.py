@@ -33,6 +33,9 @@ from app.agents.tools.odoo_tools_v3 import (
     get_available_appointment_slots,
 )
 
+# RAG tool for general knowledge
+from app.agents.tools.rag_tools import search_general_knowledge_tool
+
 logger = logging.getLogger(__name__)
 
 

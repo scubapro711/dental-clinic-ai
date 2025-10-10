@@ -244,8 +244,11 @@ Revenue up 25% this quarter! Great job!
             temperature=0.3,  # Slightly creative for recommendations
         )
         
-        # Bind tools to LLM (financial + tax + referral)
-        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools
+        # Import RAG tool for financial knowledge
+        from app.agents.tools.rag_tools import search_financial_knowledge_tool
+        
+        # Bind tools to LLM (financial + tax + referral + RAG)
+        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + [search_financial_knowledge_tool]
         self.llm_with_tools = self.llm.bind_tools(all_tools)
         
         logger.info("CFO Agent initialized")

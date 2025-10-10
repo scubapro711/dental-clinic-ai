@@ -333,7 +333,10 @@ Respond in Hebrew or English based on the user's language."""
                 optimize_room_utilization_tool,
             )
             
-            # Bind all tools to LLM (38 tools total)
+            # Import RAG tool for operational knowledge
+            from app.agents.tools.rag_tools import search_operational_knowledge_tool
+            
+            # Bind all tools to LLM (39 tools total: 38 + RAG)
             llm_with_tools = self.llm.bind_tools([
                 # Scheduling tools (8)
                 get_schedule_conflicts_tool,
@@ -377,6 +380,8 @@ Respond in Hebrew or English based on the user's language."""
                 check_equipment_maintenance_tool,
                 generate_compliance_report_tool,
                 optimize_room_utilization_tool,
+                # RAG tool (1)
+                search_operational_knowledge_tool,  # Safety protocols, compliance
             ])
             
             # Prepare messages for LLM

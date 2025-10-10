@@ -129,11 +129,15 @@ def create_sarah_agent() -> AgentExecutor:
         api_key=settings.OPENAI_API_KEY
     )
     
-    # Combine clinical tools with basic patient/appointment tools
+    # Import RAG tool for clinical knowledge
+    from app.agents.tools.rag_tools import search_clinical_knowledge_tool
+    
+    # Combine clinical tools with basic patient/appointment tools + RAG
     all_tools = CLINICAL_TOOLS + [
         search_patients_tool,
         get_patient_by_id_tool,
-        get_appointments_tool
+        get_appointments_tool,
+        search_clinical_knowledge_tool,  # RAG for treatment guidelines
     ]
     
     # Create prompt
