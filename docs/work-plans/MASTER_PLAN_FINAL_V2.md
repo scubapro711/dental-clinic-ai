@@ -2,16 +2,18 @@
 
 ## מערכת SaaS לניהול מרפאות שיניים עם סוכנים אוטונומיים
 
-**גרסה:** v22.0.0 (Final Master Plan V3 - Phase 1-3 Complete)  
+**גרסה:** v23.0.0 (Final Master Plan V3 - Phase 1-5 Complete + Phase 5.5 Added)  
 **תאריך עדכון:** אוקטובר 10, 2025  
-**סטטוס נוכחי:** Phase 3 Complete (90% overall - Phases 1-3 done)  
-**יעד:** שלושה דשבורדים מושלמים + 4 סוכנים פרואקטיביים + Super Admin Dashboard + פריסה לייצור
+**סטטוס נוכחי:** Phase 5 Complete (85% overall - Phases 1-5 done)  
+**יעד:** שלושה דשבורדים מושלמים + 4 סוכנים פרואקטיביים מלאים + Super Admin Dashboard + פריסה לייצור
 
-**🎉 השלמת Phases 1-3:**
+**🎉 השלמת Phases 1-5:**
 - ✅ **Phase 1:** שרה - עוזרת קלינית (95% complete)
 - ✅ **Phase 2:** Telegram Integration (90% complete)
 - ✅ **Phase 3:** Marcus - CFO Expansion + Israeli Tax (95% complete)
-- 🔄 **Phase 4:** Sophia - Operations Manager (Starting now)
+- ✅ **Phase 4:** Sophia - Operations Manager (90% complete)
+- ✅ **Phase 5:** Vector DB + RAG (60% complete - infrastructure ready)
+- 🔄 **Phase 5.5:** Complete Tools Expansion (Starting now - 3 weeks, 45 tools)
 
 **🆕 עדכונים בגרסה V3 (Phases 1-3):**
 
@@ -1500,24 +1502,374 @@ curl https://app.dentaflow.ai/health
 **Timeline:** 2-3 שבועות
 
 **אחרי Phase 4:**
-- Phase 5: Vector DB + RAG (2 weeks)
+- ✅ Phase 5: Vector DB + RAG (60% complete - infrastructure ready)
+- 🔄 **Phase 5.5: Complete Tools Expansion (3 weeks, 45 tools) - Starting NOW**
 - Phase 6: Portal Separation (1-2 weeks)
 - Phase 7: Super Admin Dashboard (2-3 weeks)
 - Phase 8: Testing (2-3 weeks)
 - Phase 9: Deployment (1-2 weeks)
 
-**Total Remaining:** 10-15 שבועות (2.5-3.5 חודשים) למערכת מושלמת 100%
+---
+
+### 🎯 **Phase 5.5: Complete Tools Expansion** ⭐ NEW!
+
+**Duration:** 3 שבועות  
+**Goal:** ציוד כל הסוכנים בכלים מלאים לפרודקשן  
+**Status:** Starting NOW  
+
+**📊 Current Coverage vs Target:**
+
+| Agent | Before | After | Tools Added | Priority |
+|-------|--------|-------|-------------|----------|
+| Alex | 60% 🔴 | 95% 🟢 | +12 tools | CRITICAL |
+| שרה | 75% 🟡 | 90% 🟢 | +10 tools | HIGH |
+| Marcus | 70% 🟡 | 95% 🟢 | +11 tools | HIGH |
+| Sophia | 85% 🟢 | 90% 🟢 | +5 tools | MEDIUM |
+| Browser | 0% ❌ | 100% 🟢 | +3 tools | HIGH |
+| Files | 0% ❌ | 100% 🟢 | +4 tools | HIGH |
+| **Total** | **72%** | **92%** | **+45 tools** | **ALL** |
+
+**🔴 Critical Problem:** Alex לא יכול לבצע פעולות בסיסיות מול מטופלים!
 
 ---
 
-## 🚀 מוכן להתחיל Phase 4?
+#### Week 1: Alex Critical Tools (12 tools)
+
+**A. Patient Management (4 tools)**
+1. `create_patient_tool` ⭐ CRITICAL
+   - רישום מטופלים חדשים
+   - Demographics, contact info, GDPR/HIPAA
+   - Integration: Odoo `res.partner` + `medical.patient`
+   - Return: patient_id, confirmation
+
+2. `update_patient_info_tool` ⭐ CRITICAL
+   - עדכון פרטים (טלפון, מייל, כתובת)
+   - Emergency contacts, preferences
+   - Return: updated_fields, confirmation
+
+3. `get_patient_full_context_tool` ⭐ HIGH
+   - Consolidates: history + appointments + invoices + notes
+   - Single tool call instead of 4-5
+   - Return: comprehensive patient snapshot
+
+4. `add_patient_note_tool` ⭐ HIGH
+   - הערות מהירות (אלרגיות, העדפות, תלונות)
+   - Timestamped, user-attributed
+   - Return: note_id, confirmation
+
+**B. Communications (3 tools)**
+5. `send_sms_tool` ⭐ CRITICAL
+   - תזכורות לתורים, אישורים, ביטולים
+   - Integration: Twilio/MessageBird
+   - Template support (Hebrew RTL)
+   - Return: delivery_status, message_id
+
+6. `send_email_tool` ⭐ CRITICAL
+   - חשבוניות, קבלות, טפסים
+   - Integration: SendGrid/AWS SES
+   - HTML templates, attachments
+   - Return: sent_status, message_id
+
+7. `send_telegram_message_tool` ⭐ HIGH
+   - למשתמשי Telegram
+   - Rich formatting, inline buttons
+   - Return: message_id
+
+**C. Financial (3 tools)**
+8. `process_payment_tool` ⭐ CRITICAL
+   - Tranzila integration
+   - Credit card, direct debit, cash
+   - PCI DSS compliance
+   - Return: transaction_id, receipt_url
+
+9. `create_payment_plan_tool` ⭐ HIGH
+   - תוכניות תשלומים
+   - חישוב תשלומים חודשיים
+   - Return: plan_id, payment_schedule
+
+10. `check_insurance_coverage_tool` ⭐ HIGH
+    - אימות זכאות ביטוח
+    - בדיקת גבולות כיסוי
+    - Integration: Israeli Insurance APIs
+    - Return: coverage_details, copay_amount
+
+**D. Scheduling Enhancement (2 tools)**
+11. `add_to_waitlist_tool` ⭐ MEDIUM
+    - רשימת המתנה לביטולים
+    - התראות אוטומטיות כשנפתח מקום
+    - Return: waitlist_position
+
+12. `get_clinic_policies_tool` ⭐ MEDIUM
+    - מדיניות ביטולים, תשלומים
+    - פרוטוקולי COVID
+    - Return: relevant_policy_text
+
+**External Integrations Week 1:**
+- Tranzila API (payment gateway)
+- Twilio/MessageBird (SMS)
+- SendGrid/AWS SES (Email)
+- Israeli Insurance APIs (verification)
+
+---
+
+#### Week 2: שרה + Marcus High Priority (17 tools)
+
+**שרה - Clinical Enhancement (10 tools)**
+
+**A. Referrals & Specialists (2 tools)**
+1. `create_referral_tool` ⭐ HIGH
+   - הפניה למומחים (אורתודנט, כירורג פה)
+   - Include clinical notes, x-rays
+   - Integration: Odoo `medical.physician`
+   - Return: referral_id, specialist_contact
+
+2. `get_referrals_tool` ⭐ MEDIUM
+   - מעקב סטטוס הפניות
+   - תזכורות follow-up
+   - Return: referral_list with status
+
+**B. Imaging & Diagnostics (3 tools)**
+3. `upload_xray_tool` ⭐ HIGH
+   - העלאת צילומי רנטגן, CBCT
+   - DICOM support
+   - Integration: PACS system / S3
+   - Return: image_id, thumbnail_url
+
+4. `get_xrays_tool` ⭐ HIGH
+   - צפייה בהיסטוריית צילומים
+   - Filter by date, type, tooth
+   - Return: image_list with metadata
+
+5. `analyze_xray_tool` ⭐ FUTURE (AI-powered)
+   - AI-assisted diagnosis
+   - Cavity detection, bone loss
+   - Return: findings, confidence_scores
+
+**C. Clinical Documentation (3 tools)**
+6. `create_clinical_note_tool` ⭐ HIGH
+   - SOAP notes (Subjective, Objective, Assessment, Plan)
+   - Voice-to-text support
+   - Integration: Odoo `medical.patient.evaluation`
+   - Return: note_id
+
+7. `get_clinical_notes_tool` ⭐ HIGH
+   - צפייה בהיסטוריית רשומות
+   - חיפוש לפי keyword, date
+   - Return: notes_list
+
+8. `schedule_followup_tool` ⭐ MEDIUM
+   - תזמון אוטומטי של תורי המשך
+   - Based on treatment plan
+   - Return: appointment_id
+
+**D. Lab Work (2 tools)**
+9. `create_lab_order_tool` ⭐ MEDIUM
+   - הזמנת בדיקות מעבדה (ביופסיה, תרבית)
+   - Integration: Lab partners
+   - Return: order_id, tracking_number
+
+10. `get_lab_results_tool` ⭐ MEDIUM
+    - מעקב תוצאות מעבדה
+    - התראות לממצאים חריגים
+    - Return: results with interpretation
+
+**Marcus - Financial Integration (7 tools)**
+
+**A. Green Invoice Integration (4 tools)**
+1. `create_invoice_tool` ⭐ CRITICAL
+   - Green Invoice API integration
+   - Auto-populate from treatments
+   - VAT calculations (17%)
+   - Return: invoice_id, pdf_url
+
+2. `send_invoice_tool` ⭐ CRITICAL
+   - משלוח Email/SMS
+   - קישור לפורטל מטופל
+   - Return: delivery_status
+
+3. `record_payment_tool` ⭐ CRITICAL
+   - רישום תשלומים מכל מקור
+   - עדכון סטטוס חשבונית
+   - Reconciliation
+   - Return: payment_id, updated_balance
+
+4. `void_invoice_tool` ⭐ HIGH
+   - ביטול/זיכוי חשבוניות
+   - Compliance with Israeli tax law
+   - Return: void_confirmation
+
+**B. Expenses (2 tools)**
+5. `create_expense_tool` ⭐ HIGH
+   - רישום הוצאות מרפאה
+   - קטגוריות, קבלות
+   - Integration: Odoo `account.expense`
+   - Return: expense_id
+
+6. `get_budget_tool` ⭐ MEDIUM
+   - תצוגת תקציב vs ביצוע
+   - פירוט לפי מחלקה
+   - Return: budget_summary
+
+**C. Insurance Claims (1 tool)**
+7. `submit_insurance_claim_tool` ⭐ HIGH
+   - הגשת תביעות לחברות ביטוח
+   - Israeli insurance APIs
+   - Return: claim_id, tracking_number
+
+**External Integrations Week 2:**
+- Green Invoice API (invoicing)
+- PACS System (medical imaging)
+- Lab Partners (lab orders)
+- Israeli Insurance APIs (claims)
+
+---
+
+#### Week 3: Sophia + Browser + Files (16 tools)
+
+**Sophia - Operations Enhancement (5 tools)**
+
+**A. Staff Management (3 tools)**
+1. `send_staff_notification_tool` ⭐ MEDIUM
+   - שידור לצוות (שינויי משמרות, הודעות)
+   - SMS/Email/Telegram
+   - Return: delivery_status
+
+2. `track_staff_certifications_tool` ⭐ LOW
+   - מעקב תוקף רישיונות
+   - תזכורות חידוש
+   - Return: certifications_list
+
+3. `create_staff_training_tool` ⭐ LOW
+   - תוכניות הדרכה
+   - מעקב השלמה
+   - Return: training_id
+
+**B. Analytics (2 tools)**
+4. `get_patient_satisfaction_tool` ⭐ MEDIUM
+   - תוצאות סקרים
+   - NPS scores
+   - Return: satisfaction_metrics
+
+5. `get_no_show_rate_tool` ⭐ MEDIUM
+   - אנליטיקת אי-הגעות
+   - דפוסים, מגמות
+   - Return: no_show_metrics
+
+**Browser Automation (3 tools)** ⭐ NEW CAPABILITY
+
+1. `browser_search_tool` ⭐ HIGH
+   - Google search + scrape results
+   - For research, drug information
+   - Integration: Playwright
+   - Return: search_results (title, snippet, url)
+
+2. `browser_scrape_tool` ⭐ HIGH
+   - חילוץ נתונים מכל אתר
+   - Insurance verification, protocols
+   - Return: structured_data
+
+3. `browser_fill_form_tool` ⭐ MEDIUM
+   - מילוי טפסים באתרים חיצוניים
+   - Insurance verification, referrals
+   - Return: form_submission_status
+
+**File Operations (4 tools)** ⭐ NEW CAPABILITY
+
+1. `generate_pdf_report_tool` ⭐ HIGH
+   - תוכניות טיפול, חשבוניות, דוחות
+   - Hebrew RTL support
+   - Integration: ReportLab/WeasyPrint
+   - Return: pdf_file_path, download_url
+
+2. `generate_excel_report_tool` ⭐ MEDIUM
+   - דוחות פיננסיים, רשימות מטופלים
+   - Integration: openpyxl
+   - Return: excel_file_path, download_url
+
+3. `upload_file_tool` ⭐ HIGH
+   - טיפול בהעלאות (S3/local)
+   - Virus scanning (ClamAV)
+   - Return: file_id, file_url
+
+4. `download_file_tool` ⭐ MEDIUM
+   - הורדה ממקורות חיצוניים
+   - Return: local_file_path
+
+**External Integrations Week 3:**
+- Playwright (browser automation)
+- AWS S3 (file storage)
+- ClamAV (virus scanning)
+- ReportLab/WeasyPrint (PDF generation)
+
+---
+
+#### Phase 5.5 Success Metrics
+
+**Coverage Targets:**
+- Alex: 60% → 95% (+35%) ✅
+- שרה: 75% → 90% (+15%) ✅
+- Marcus: 70% → 95% (+25%) ✅
+- Sophia: 85% → 90% (+5%) ✅
+- **Overall: 72% → 92% (+20%)** ✅
+
+**Functional Targets:**
+- ✅ New patient registration (Alex)
+- ✅ Payment processing (Alex + Tranzila)
+- ✅ Invoice generation (Marcus + Green Invoice)
+- ✅ SMS/Email notifications (Alex)
+- ✅ Insurance verification (Alex + Marcus)
+- ✅ Clinical documentation (שרה)
+- ✅ Referrals management (שרה)
+- ✅ Browser automation (All agents)
+- ✅ File operations (All agents)
+
+**Integration Targets:**
+- ✅ Tranzila (payment gateway)
+- ✅ Green Invoice (invoicing)
+- ✅ Twilio/MessageBird (SMS)
+- ✅ SendGrid/AWS SES (Email)
+- ✅ Israeli Insurance APIs
+- ✅ PACS System (imaging)
+- ✅ Playwright (browser)
+- ✅ AWS S3 (files)
+
+**Timeline:** 3 שבועות (21 ימים)
+- Week 1: Alex (12 tools) - 7 ימים
+- Week 2: שרה + Marcus (17 tools) - 7 ימים
+- Week 3: Sophia + Browser + Files (16 tools) - 7 ימים
+
+**Deliverables:**
+- 45 new tools implemented
+- 7 external integrations
+- 2 new capabilities (Browser, Files)
+- All agents 90%+ production-ready
+- Updated documentation
+- Comprehensive tests
+
+**After Phase 5.5:**
+- Phase 6: Portal Separation (1-2 weeks)
+- Phase 7: Super Admin Dashboard (2-3 weeks)
+- Phase 8: Testing (2-3 weeks)
+- Phase 9: Deployment (1-2 weeks)
+
+**Total Remaining:** 13-18 שבועות (3-4.5 חודשים) למערכת מושלמת 100%
+
+---
+
+**Total Remaining:** 13-18 שבועות (3-4.5 חודשים) למערכת מושלמת 100%
+
+---
+
+## 🚀 מוכן להתחיל Phase 5.5!
 
 **הכל מוכן:**
-- ✅ תוכנית אב מעודכנת
+- ✅ תוכנית אב מעודכנת (v23.0.0)
+- ✅ מחקר מעמיק (Anthropic best practices)
+- ✅ 45 tools מתוכננים
+- ✅ 7 אינטגרציות חיצוניות
 - ✅ כללי פיתוח ברורים
-- ✅ תוכנית גיבוי מפורטת
-- ✅ תוכנית פריסה מלאה
-- ✅ 90% השלמה כללית
+- ✅ תוכנית גיבוי + פריסה
+- ✅ 85% השלמה כללית
 
-**צא לדרך! 🔥**
+**אין קיצורי דרך - נעשה הכל! 🔥**
 
