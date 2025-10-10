@@ -36,6 +36,14 @@ from app.agents.tools.odoo_tools_v3 import (
 # RAG tool for general knowledge
 from app.agents.tools.rag_tools import search_general_knowledge_tool
 
+# Patient management tools (Phase 5.5 Week 1)
+from app.agents.tools.alex_patient_tools import (
+    create_patient_tool,
+    update_patient_info_tool,
+    get_patient_full_context_tool,
+    add_patient_note_tool,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -443,11 +451,32 @@ makes sure patients get the right help at the right time! 😊
 
     def __init__(self):
         """Initialize Alex agent."""
+        # Define all available tools
+        self.tools = [
+            # Patient management (Phase 5.5 Week 1)
+            create_patient_tool,
+            update_patient_info_tool,
+            get_patient_full_context_tool,
+            add_patient_note_tool,
+            # Appointments
+            get_available_slots_tool,
+            create_appointment_tool,
+            get_my_appointments,
+            book_appointment,
+            get_available_appointment_slots,
+            # Billing
+            get_patient_invoices_tool,
+            get_invoice_details_tool,
+            # Knowledge
+            search_general_knowledge_tool,
+        ]
+        
+        # Bind tools to LLM
         self.llm = ChatOpenAI(
             model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
             temperature=0.7,  # Natural conversation
             api_key=settings.OPENAI_API_KEY,
-        )
+        ).bind_tools(self.tools)
     
     @handle_agent_errors
     def process(self, state: Dict[str, Any]) -> Dict[str, Any]:
