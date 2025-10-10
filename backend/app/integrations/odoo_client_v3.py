@@ -797,6 +797,352 @@ class OdooClientV3(OdooClientV2):
             return []
 
 
+    # ========== FINANCIAL MODELS (10 methods) ==========
+    
+    def get_invoices(
+        self,
+        patient_id: Optional[int] = None,
+        state: Optional[str] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get invoices with optional filters.
+        
+        Model: account.move (Odoo standard)
+        
+        Args:
+            patient_id: Filter by patient ID
+            state: Filter by state (draft, posted, cancel)
+            date_from: Filter from date (YYYY-MM-DD)
+            date_to: Filter to date (YYYY-MM-DD)
+            limit: Maximum number of results
+            
+        Returns:
+            List of invoice dictionaries
+        """
+        try:
+            domain = [('move_type', '=', 'out_invoice')]
+            
+            if patient_id:
+                domain.append(('partner_id', '=', patient_id))
+            
+            if state:
+                domain.append(('state', '=', state))
+            
+            if date_from:
+                domain.append(('invoice_date', '>=', date_from))
+            
+            if date_to:
+                domain.append(('invoice_date', '<=', date_to))
+            
+            invoice_ids = self._execute('account.move', 'search', [domain], {'limit': limit})
+            
+            if not invoice_ids:
+                return []
+            
+            invoices = self._execute(
+                'account.move',
+                'read',
+                [invoice_ids],
+                {'fields': [
+                    'id', 'name', 'partner_id', 'invoice_date', 'amount_total',
+                    'amount_residual', 'state', 'payment_state', 'invoice_line_ids'
+                ]}
+            )
+            
+            return invoices
+            
+        except Exception as e:
+            logger.error(f"Failed to get invoices: {e}")
+            return []
+    
+    def get_payments(
+        self,
+        patient_id: Optional[int] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get payments with optional filters.
+        
+        Model: account.payment (Odoo standard)
+        
+        Args:
+            patient_id: Filter by patient ID
+            date_from: Filter from date (YYYY-MM-DD)
+            date_to: Filter to date (YYYY-MM-DD)
+            limit: Maximum number of results
+            
+        Returns:
+            List of payment dictionaries
+        """
+        try:
+            domain = [('payment_type', '=', 'inbound')]
+            
+            if patient_id:
+                domain.append(('partner_id', '=', patient_id))
+            
+            if date_from:
+                domain.append(('date', '>=', date_from))
+            
+            if date_to:
+                domain.append(('date', '<=', date_to))
+            
+            payment_ids = self._execute('account.payment', 'search', [domain], {'limit': limit})
+            
+            if not payment_ids:
+                return []
+            
+            payments = self._execute(
+                'account.payment',
+                'read',
+                [payment_ids],
+                {'fields': [
+                    'id', 'name', 'partner_id', 'date', 'amount',
+                    'state', 'payment_type', 'payment_method_id'
+                ]}
+            )
+            
+            return payments
+            
+        except Exception as e:
+            logger.error(f"Failed to get payments: {e}")
+            return []
+    
+    def get_revenue_by_period(
+        self,
+        date_from: str,
+        date_to: str,
+    ) -> Dict[str, Any]:
+        """
+        Get revenue summary for a time period.
+        
+        Args:
+            date_from: Start date (YYYY-MM-DD)
+            date_to: End date (YYYY-MM-DD)
+            
+        Returns:
+            Revenue summary dictionary
+        """
+        try:
+            invoices = self.get_invoices(
+                state='posted',
+                date_from=date_from,
+                date_to=date_to,
+                limit=10000,
+            )
+            
+            total_revenue = sum(inv.get('amount_total', 0) for inv in invoices)
+            invoice_count = len(invoices)
+            avg_invoice = total_revenue / invoice_count if invoice_count > 0 else 0
+            
+            return {
+                'period': {'from': date_from, 'to': date_to},
+                'total_revenue': total_revenue,
+                'invoice_count': invoice_count,
+                'average_invoice': avg_invoice,
+                'invoices': invoices,
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get revenue by period: {e}")
+            return {
+                'period': {'from': date_from, 'to': date_to},
+                'total_revenue': 0,
+                'invoice_count': 0,
+                'average_invoice': 0,
+                'invoices': [],
+            }
+    
+    def get_outstanding_balance(
+        self,
+        patient_id: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """
+        Get outstanding balance (unpaid invoices).
+        
+        Args:
+            patient_id: Optional patient ID filter
+            
+        Returns:
+            Outstanding balance summary
+        """
+        try:
+            domain = [
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+                ('payment_state', 'in', ['not_paid', 'partial'])
+            ]
+            
+            if patient_id:
+                domain.append(('partner_id', '=', patient_id))
+            
+            invoice_ids = self._execute('account.move', 'search', [domain], {'limit': 10000})
+            
+            if not invoice_ids:
+                return {
+                    'total_outstanding': 0,
+                    'invoice_count': 0,
+                    'invoices': [],
+                }
+            
+            invoices = self._execute(
+                'account.move',
+                'read',
+                [invoice_ids],
+                {'fields': [
+                    'id', 'name', 'partner_id', 'invoice_date',
+                    'amount_total', 'amount_residual', 'payment_state'
+                ]}
+            )
+            
+            total_outstanding = sum(inv.get('amount_residual', 0) for inv in invoices)
+            
+            return {
+                'total_outstanding': total_outstanding,
+                'invoice_count': len(invoices),
+                'invoices': invoices,
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get outstanding balance: {e}")
+            return {
+                'total_outstanding': 0,
+                'invoice_count': 0,
+                'invoices': [],
+            }
+    
+    def get_treatment_revenue(
+        self,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        limit: int = 20,
+    ) -> List[Dict[str, Any]]:
+        """
+        Get revenue by treatment type.
+        
+        Model: account.move.line (invoice lines)
+        
+        Args:
+            date_from: Start date (YYYY-MM-DD)
+            date_to: End date (YYYY-MM-DD)
+            limit: Maximum number of treatments
+            
+        Returns:
+            List of treatments with revenue
+        """
+        try:
+            domain = [('move_id.state', '=', 'posted'), ('move_id.move_type', '=', 'out_invoice')]
+            
+            if date_from:
+                domain.append(('move_id.invoice_date', '>=', date_from))
+            
+            if date_to:
+                domain.append(('move_id.invoice_date', '<=', date_to))
+            
+            line_ids = self._execute('account.move.line', 'search', [domain], {'limit': 10000})
+            
+            if not line_ids:
+                return []
+            
+            lines = self._execute(
+                'account.move.line',
+                'read',
+                [line_ids],
+                {'fields': ['product_id', 'name', 'quantity', 'price_subtotal']}
+            )
+            
+            # Aggregate by product
+            treatment_revenue = {}
+            for line in lines:
+                product_id = line.get('product_id')
+                if not product_id:
+                    continue
+                
+                product_key = product_id[0] if isinstance(product_id, list) else product_id
+                product_name = product_id[1] if isinstance(product_id, list) else line.get('name', 'Unknown')
+                
+                if product_key not in treatment_revenue:
+                    treatment_revenue[product_key] = {
+                        'product_id': product_key,
+                        'product_name': product_name,
+                        'quantity': 0,
+                        'revenue': 0,
+                    }
+                
+                treatment_revenue[product_key]['quantity'] += line.get('quantity', 0)
+                treatment_revenue[product_key]['revenue'] += line.get('price_subtotal', 0)
+            
+            # Sort by revenue and return top N
+            sorted_treatments = sorted(
+                treatment_revenue.values(),
+                key=lambda x: x['revenue'],
+                reverse=True
+            )
+            
+            return sorted_treatments[:limit]
+            
+        except Exception as e:
+            logger.error(f"Failed to get treatment revenue: {e}")
+            return []
+    
+    def get_financial_summary(
+        self,
+        date_from: str,
+        date_to: str,
+    ) -> Dict[str, Any]:
+        """
+        Get comprehensive financial summary.
+        
+        Args:
+            date_from: Start date (YYYY-MM-DD)
+            date_to: End date (YYYY-MM-DD)
+            
+        Returns:
+            Financial summary dictionary
+        """
+        try:
+            # Revenue
+            revenue = self.get_revenue_by_period(date_from, date_to)
+            
+            # Outstanding
+            outstanding = self.get_outstanding_balance()
+            
+            # Payments
+            payments = self.get_payments(date_from=date_from, date_to=date_to)
+            total_collected = sum(p.get('amount', 0) for p in payments)
+            
+            # Top treatments
+            top_treatments = self.get_treatment_revenue(date_from, date_to, limit=5)
+            
+            return {
+                'period': {'from': date_from, 'to': date_to},
+                'revenue': revenue,
+                'outstanding': {
+                    'total': outstanding['total_outstanding'],
+                    'invoice_count': outstanding['invoice_count'],
+                },
+                'payments': {
+                    'total_collected': total_collected,
+                    'payment_count': len(payments),
+                },
+                'top_treatments': top_treatments,
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get financial summary: {e}")
+            return {
+                'period': {'from': date_from, 'to': date_to},
+                'revenue': {'total_revenue': 0, 'invoice_count': 0},
+                'outstanding': {'total': 0, 'invoice_count': 0},
+                'payments': {'total_collected': 0, 'payment_count': 0},
+                'top_treatments': [],
+            }
+
+
 # Global instance
 odoo_client_v3 = OdooClientV3()
 

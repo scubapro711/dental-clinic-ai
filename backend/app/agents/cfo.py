@@ -21,14 +21,8 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from app.agents.graph_state import AgentState
-from app.agents.tools.cfo_tools import (
-    get_revenue_overview_tool,
-    get_payment_status_tool,
-    get_top_treatments_tool,
-    get_outstanding_invoices_tool,
-    analyze_profitability_tool,
-    get_financial_trends_tool,
-)
+from app.agents.tools.marcus_financial_tools import marcus_financial_tools
+from app.agents.tools.tax_tools import tax_tools
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +40,31 @@ class CFOAgent:
     - Monitor treatment profitability
     """
     
-    SYSTEM_PROMPT = """You are Marcus, the CFO Agent for a dental clinic.
+    SYSTEM_PROMPT = """You are Marcus, the CFO Agent for a dental clinic in Israel.
+
+**Tax Knowledge:**
+You have comprehensive knowledge of Israeli tax laws for 2025:
+- Income tax brackets (10%-50% for individuals, 23% for companies)
+- VAT (17%) - most dental treatments are EXEMPT
+- Recognized expenses for dental clinics
+- Tax optimization strategies
+- Reporting deadlines and requirements
+
+**Key Tax Facts:**
+- Most dental treatments: VAT EXEMPT
+- Aesthetic treatments (whitening, veneers): 17% VAT
+- Product sales: 17% VAT
+- Income tax: progressive rates 10%-50%
+- Corporate tax: flat 23%
+- Advance tax payments: 6 times/year
+- Annual report deadline: May 31
+
+**When discussing finances:**
+1. Always consider tax implications
+2. Mention VAT status when relevant
+3. Suggest tax-efficient strategies
+4. Remind about reporting deadlines
+5. Calculate net income (after tax)
 
 Your role:
 - Provide financial analysis and insights
@@ -165,15 +183,9 @@ Revenue up 25% this quarter! Great job!
             temperature=0.3,  # Slightly creative for recommendations
         )
         
-        # Bind tools to LLM
-        self.llm_with_tools = self.llm.bind_tools([
-            get_revenue_overview_tool,
-            get_payment_status_tool,
-            get_top_treatments_tool,
-            get_outstanding_invoices_tool,
-            analyze_profitability_tool,
-            get_financial_trends_tool,
-        ])
+        # Bind tools to LLM (financial + tax)
+        all_tools = marcus_financial_tools + tax_tools
+        self.llm_with_tools = self.llm.bind_tools(all_tools)
         
         logger.info("CFO Agent initialized")
     
@@ -215,6 +227,10 @@ Revenue up 25% this quarter! Great job!
             if response.tool_calls:
                 logger.info(f"CFO calling {len(response.tool_calls)} tool(s)")
                 
+                # Create tool map (financial + tax)
+                all_tools = marcus_financial_tools + tax_tools
+                tool_map = {tool.name: tool for tool in all_tools}
+                
                 # Execute tools
                 tool_results = {}
                 for tool_call in response.tool_calls:
@@ -224,18 +240,9 @@ Revenue up 25% this quarter! Great job!
                     logger.info(f"CFO executing tool: {tool_name}")
                     
                     # Execute the tool
-                    if tool_name == "get_revenue_overview_tool":
-                        result = get_revenue_overview_tool.invoke(tool_args)
-                    elif tool_name == "get_payment_status_tool":
-                        result = get_payment_status_tool.invoke(tool_args)
-                    elif tool_name == "get_top_treatments_tool":
-                        result = get_top_treatments_tool.invoke(tool_args)
-                    elif tool_name == "get_outstanding_invoices_tool":
-                        result = get_outstanding_invoices_tool.invoke(tool_args)
-                    elif tool_name == "analyze_profitability_tool":
-                        result = analyze_profitability_tool.invoke(tool_args)
-                    elif tool_name == "get_financial_trends_tool":
-                        result = get_financial_trends_tool.invoke(tool_args)
+                    tool = tool_map.get(tool_name)
+                    if tool:
+                        result = tool.invoke(tool_args)
                     else:
                         result = f"Unknown tool: {tool_name}"
                     

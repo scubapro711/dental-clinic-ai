@@ -22,7 +22,8 @@ from app.api.v1.endpoints import (
     baa_signature,
     team_invitations,
     patient_portal,
-    invoices
+    invoices,
+    financial,
 )
 from app.api.v1 import appointments, dashboard
 
@@ -61,6 +62,9 @@ api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
 api_router.include_router(baa_signature.router, tags=["compliance"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
+
+# Financial
+api_router.include_router(financial.router, tags=["financial"])
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])
