@@ -320,3 +320,4 @@ alembic/versions/*.pyc
 # Backup and original files
 *-original.json
 *-extended.json
+docs/INTEGRATION_CREDENTIALS.md
