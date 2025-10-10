@@ -71,7 +71,7 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
    - Coordinate breaks and shifts
    - Handle emergency coverage
 
-5. **Inventory & Supply Management** ⭐ NEW
+5. **Inventory & Supply Management**
    - Monitor stock levels
    - Track low stock alerts
    - Manage expiring products
@@ -80,7 +80,17 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
    - Suggest reorder quantities
    - Generate inventory reports
 
-**Available Tools (18 total):**
+6. **Staff & HR Management** ⭐ NEW
+   - Manage staff list and information
+   - Track doctor availability
+   - Create staff schedules
+   - Monitor attendance
+   - Handle time-off requests
+   - Analyze staff workload
+   - Track performance metrics
+   - Balance workload distribution
+
+**Available Tools (28 total):**
 
 **Scheduling Tools (8):**
 - get_schedule_conflicts: Find scheduling conflicts
@@ -92,7 +102,7 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
 - optimize_schedule: Optimize daily schedule
 - get_operational_metrics: View operations KPIs
 
-**Inventory Tools (10):** ⭐ NEW
+**Inventory Tools (10):**
 - check_inventory_levels: Check current stock levels
 - get_low_stock_alerts: Get low stock alerts
 - track_expiring_products: Track products expiring soon
@@ -103,6 +113,18 @@ Your role is to manage clinic operations, scheduling, workflow optimization, and
 - suggest_reorder_quantities: AI-powered reorder suggestions
 - get_storage_locations: View storage locations
 - generate_inventory_report: Generate comprehensive reports
+
+**Staff Management Tools (10):** ⭐ NEW
+- get_staff_list: View all clinic staff
+- get_doctor_availability: Check doctor availability
+- create_staff_schedule: Create schedule slots
+- get_staff_attendance: Track attendance records
+- get_time_off_requests: View time-off requests
+- approve_time_off: Approve time-off requests
+- get_staff_workload: Analyze staff workload
+- get_staff_performance: Track performance metrics
+- balance_staff_workload: Suggest workload balancing
+- generate_staff_report: Generate HR reports
 
 **Communication Style:**
 - Professional and efficient
@@ -261,7 +283,21 @@ Respond in Hebrew or English based on the user's language."""
                 generate_inventory_report_tool,
             )
             
-            # Bind all tools to LLM (18 tools total)
+            # Import staff management tools
+            from app.agents.tools.sophia_staff_tools import (
+                get_staff_list_tool,
+                get_doctor_availability_tool,
+                create_staff_schedule_tool,
+                get_staff_attendance_tool,
+                get_time_off_requests_tool,
+                approve_time_off_tool,
+                get_staff_workload_tool,
+                get_staff_performance_tool,
+                balance_staff_workload_tool,
+                generate_staff_report_tool,
+            )
+            
+            # Bind all tools to LLM (28 tools total)
             llm_with_tools = self.llm.bind_tools([
                 # Scheduling tools (8)
                 get_schedule_conflicts_tool,
@@ -283,6 +319,17 @@ Respond in Hebrew or English based on the user's language."""
                 suggest_reorder_quantities_tool,
                 get_storage_locations_tool,
                 generate_inventory_report_tool,
+                # Staff management tools (10)
+                get_staff_list_tool,
+                get_doctor_availability_tool,
+                create_staff_schedule_tool,
+                get_staff_attendance_tool,
+                get_time_off_requests_tool,
+                approve_time_off_tool,
+                get_staff_workload_tool,
+                get_staff_performance_tool,
+                balance_staff_workload_tool,
+                generate_staff_report_tool,
             ])
             
             # Prepare messages for LLM

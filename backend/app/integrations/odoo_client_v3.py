@@ -1474,3 +1474,306 @@ odoo_client_v3 = OdooClientV3()
 # Global instance
 odoo_client_v3 = OdooClientV3()
 
+
+
+    # ==========================================
+    # HR & STAFF MANAGEMENT (8 models)
+    # ==========================================
+    
+    def get_employees(self, department: Optional[str] = None, active_only: bool = True) -> List[Dict]:
+        """
+        Get clinic staff/employees.
+        
+        Args:
+            department: Filter by department
+            active_only: Show only active employees
+            
+        Returns:
+            List of employees
+        """
+        try:
+            domain = []
+            if active_only:
+                domain.append(('active', '=', True))
+            if department:
+                domain.append(('department_id.name', 'ilike', department))
+            
+            employees = self.search_read(
+                'hr.employee',
+                domain,
+                ['name', 'job_title', 'department_id', 'work_email', 'work_phone', 'resource_calendar_id', 'active']
+            )
+            
+            return employees
+            
+        except Exception as e:
+            logger.error(f"Failed to get employees: {e}")
+            return []
+    
+    def get_physicians(self, specialization: Optional[str] = None) -> List[Dict]:
+        """
+        Get physicians/doctors.
+        
+        Args:
+            specialization: Filter by specialization
+            
+        Returns:
+            List of physicians
+        """
+        try:
+            domain = []
+            if specialization:
+                domain.append(('specialization', 'ilike', specialization))
+            
+            physicians = self.search_read(
+                'medical.physician',
+                domain,
+                ['name', 'code', 'specialization', 'phone', 'email', 'active']
+            )
+            
+            return physicians
+            
+        except Exception as e:
+            logger.error(f"Failed to get physicians: {e}")
+            return []
+    
+    def get_doctor_slots(self, doctor_id: int, date: str) -> List[Dict]:
+        """
+        Get available time slots for a doctor.
+        
+        Args:
+            doctor_id: Physician ID
+            date: Date (YYYY-MM-DD)
+            
+        Returns:
+            List of available slots
+        """
+        try:
+            slots = self.search_read(
+                'doctor.slot',
+                [('doctor_id', '=', doctor_id), ('date', '=', date)],
+                ['start_time', 'end_time', 'available', 'appointment_id']
+            )
+            
+            return slots
+            
+        except Exception as e:
+            logger.error(f"Failed to get doctor slots: {e}")
+            return []
+    
+    def create_doctor_slot(self, doctor_id: int, date: str, start_time: str, end_time: str, duration: int = 30) -> Dict:
+        """
+        Create time slot for a doctor.
+        
+        Args:
+            doctor_id: Physician ID
+            date: Date (YYYY-MM-DD)
+            start_time: Start time (HH:MM)
+            end_time: End time (HH:MM)
+            duration: Slot duration in minutes
+            
+        Returns:
+            Created slot
+        """
+        try:
+            slot_data = {
+                'doctor_id': doctor_id,
+                'date': date,
+                'start_time': start_time,
+                'end_time': end_time,
+                'duration': duration,
+                'available': True,
+            }
+            
+            slot_id = self.create('doctor.slot', slot_data)
+            
+            # Get created slot
+            slot = self.search_read(
+                'doctor.slot',
+                [('id', '=', slot_id)],
+                ['doctor_id', 'date', 'start_time', 'end_time', 'available']
+            )
+            
+            return slot[0] if slot else {}
+            
+        except Exception as e:
+            logger.error(f"Failed to create doctor slot: {e}")
+            return {}
+    
+    def get_employee_attendance(self, employee_id: Optional[int] = None, date_from: Optional[str] = None, date_to: Optional[str] = None) -> List[Dict]:
+        """
+        Get employee attendance records.
+        
+        Args:
+            employee_id: Filter by employee
+            date_from: Start date
+            date_to: End date
+            
+        Returns:
+            List of attendance records
+        """
+        try:
+            domain = []
+            if employee_id:
+                domain.append(('employee_id', '=', employee_id))
+            if date_from:
+                domain.append(('check_in', '>=', date_from))
+            if date_to:
+                domain.append(('check_in', '<=', date_to))
+            
+            attendance = self.search_read(
+                'hr.attendance',
+                domain,
+                ['employee_id', 'check_in', 'check_out', 'worked_hours']
+            )
+            
+            return attendance
+            
+        except Exception as e:
+            logger.error(f"Failed to get attendance: {e}")
+            return []
+    
+    def get_time_off_requests(self, employee_id: Optional[int] = None, state: Optional[str] = None) -> List[Dict]:
+        """
+        Get time-off requests.
+        
+        Args:
+            employee_id: Filter by employee
+            state: Filter by state ('draft', 'confirm', 'validate', 'refuse')
+            
+        Returns:
+            List of time-off requests
+        """
+        try:
+            domain = []
+            if employee_id:
+                domain.append(('employee_id', '=', employee_id))
+            if state:
+                domain.append(('state', '=', state))
+            
+            requests = self.search_read(
+                'hr.leave',
+                domain,
+                ['employee_id', 'holiday_status_id', 'request_date_from', 'request_date_to', 'number_of_days', 'state', 'name']
+            )
+            
+            return requests
+            
+        except Exception as e:
+            logger.error(f"Failed to get time-off requests: {e}")
+            return []
+    
+    def approve_time_off_request(self, request_id: int) -> Dict:
+        """
+        Approve a time-off request.
+        
+        Args:
+            request_id: Time-off request ID
+            
+        Returns:
+            Result of approval
+        """
+        try:
+            # Call approve action
+            result = self.execute('hr.leave', 'action_approve', [request_id])
+            
+            return {
+                'success': True,
+                'request_id': request_id,
+                'message': 'Time-off request approved successfully'
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to approve time-off request: {e}")
+            return {'success': False, 'error': str(e)}
+    
+    def get_employee_workload(self, employee_id: int, date_from: str, date_to: str) -> Dict:
+        """
+        Get employee workload (appointments, hours).
+        
+        Args:
+            employee_id: Employee ID
+            date_from: Start date
+            date_to: End date
+            
+        Returns:
+            Workload summary
+        """
+        try:
+            # Get appointments assigned to this employee
+            appointments = self.search_read(
+                'medical.appointment',
+                [('doctor_id', '=', employee_id), ('appointment_date', '>=', date_from), ('appointment_date', '<=', date_to)],
+                ['appointment_date', 'duration', 'state']
+            )
+            
+            # Get attendance
+            attendance = self.get_employee_attendance(employee_id, date_from, date_to)
+            
+            # Calculate metrics
+            total_appointments = len(appointments)
+            completed_appointments = len([a for a in appointments if a.get('state') == 'done'])
+            total_hours = sum(a.get('worked_hours', 0) for a in attendance)
+            
+            return {
+                'employee_id': employee_id,
+                'period': {'from': date_from, 'to': date_to},
+                'appointments': {
+                    'total': total_appointments,
+                    'completed': completed_appointments,
+                    'completion_rate': f"{(completed_appointments / total_appointments * 100):.1f}%" if total_appointments > 0 else "0%"
+                },
+                'hours': {
+                    'total_worked': total_hours,
+                    'average_per_day': total_hours / 7 if total_hours > 0 else 0,  # Assuming weekly period
+                },
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get employee workload: {e}")
+            return {
+                'employee_id': employee_id,
+                'period': {'from': date_from, 'to': date_to},
+                'appointments': {'total': 0, 'completed': 0, 'completion_rate': '0%'},
+                'hours': {'total_worked': 0, 'average_per_day': 0},
+            }
+    
+    def get_staff_performance_metrics(self, date_from: str, date_to: str) -> List[Dict]:
+        """
+        Get performance metrics for all staff.
+        
+        Args:
+            date_from: Start date
+            date_to: End date
+            
+        Returns:
+            List of staff performance metrics
+        """
+        try:
+            # Get all physicians
+            physicians = self.get_physicians()
+            
+            metrics = []
+            for physician in physicians:
+                workload = self.get_employee_workload(physician['id'], date_from, date_to)
+                
+                metrics.append({
+                    'name': physician.get('name'),
+                    'specialization': physician.get('specialization'),
+                    'appointments': workload['appointments'],
+                    'hours': workload['hours'],
+                })
+            
+            # Sort by total appointments
+            metrics = sorted(metrics, key=lambda x: x['appointments']['total'], reverse=True)
+            
+            return metrics
+            
+        except Exception as e:
+            logger.error(f"Failed to get staff performance metrics: {e}")
+            return []
+
+
+# Global instance
+odoo_client_v3 = OdooClientV3()
+
