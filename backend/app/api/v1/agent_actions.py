@@ -10,7 +10,7 @@ from typing import List, Optional
 from pydantic import BaseModel
 import logging
 
-from app.database import get_db
+from app.core.database import get_db
 
 logger = logging.getLogger(__name__)
 

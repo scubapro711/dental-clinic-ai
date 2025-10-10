@@ -19,7 +19,9 @@ from app.api.v1.endpoints import (
     email_verification,
     sms_verification,
     baa_signature,
-    team_invitations
+    team_invitations,
+    patient_portal,
+    invoices
 )
 from app.api.v1 import appointments, dashboard
 
@@ -57,5 +59,12 @@ api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
 api_router.include_router(baa_signature.router, tags=["compliance"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
+
+# Patient Portal
+api_router.include_router(patient_portal.router, tags=["patient-portal"])
+# Patient Portal with Odoo Integration
+from app.api.v1.endpoints import patient_portal_odoo
+api_router.include_router(patient_portal_odoo.router, tags=["patient-portal-odoo"])
+api_router.include_router(invoices.router, tags=["invoices"])
 
 __all__ = ["api_router"]

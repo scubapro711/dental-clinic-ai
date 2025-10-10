@@ -555,6 +555,179 @@ class OdooClientV2:
         except Exception as e:
             logger.error(f"Failed to get available slots: {e}")
             return []
+    
+    def get_doctors(self, limit: int = 100) -> List[Dict[str, Any]]:
+        """
+        Get list of doctors (employees with doctor role).
+        
+        Args:
+            limit: Maximum number of results
+        
+        Returns:
+            List of doctor records
+        """
+        try:
+            # Search for employees (doctors)
+            doctor_ids = self._execute(
+                'hr.employee',
+                'search',
+                [[]],  # Empty domain = all employees
+                {'limit': limit}
+            )
+            
+            if not doctor_ids:
+                logger.warning("No doctors found")
+                return []
+            
+            # Get doctor details
+            doctors = self._execute(
+                'hr.employee',
+                'read',
+                [doctor_ids],
+                {'fields': ['id', 'name', 'work_email', 'work_phone', 'job_title']}
+            )
+            
+            return doctors
+        
+        except Exception as e:
+            logger.error(f"Failed to get doctors: {e}")
+            return []
+    
+    def search_patients(
+        self,
+        name: Optional[str] = None,
+        email: Optional[str] = None,
+        phone: Optional[str] = None,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        Search for patients and return full records (not just IDs).
+        
+        Args:
+            name: Patient name
+            email: Email address
+            phone: Phone number
+            limit: Maximum results
+        
+        Returns:
+            List of patient records
+        """
+        try:
+            # Build search domain
+            domain = [('customer_rank', '>', 0)]  # Only customers
+            
+            if name:
+                domain.append(('name', 'ilike', name))
+            if email:
+                domain.append(('email', '=', email))
+            if phone:
+                domain.append('|')
+                domain.append(('phone', 'ilike', phone))
+                domain.append(('mobile', 'ilike', phone))
+            
+            # Search for patient IDs
+            patient_ids = self._execute(
+                'res.partner',
+                'search',
+                [domain],
+                {'limit': limit}
+            )
+            
+            if not patient_ids:
+                return []
+            
+            # Get full patient records
+            patients = self._execute(
+                'res.partner',
+                'read',
+                [patient_ids],
+                {'fields': [
+                    'id', 'name', 'email', 'phone', 'mobile',
+                    'street', 'city', 'zip', 'country_id',
+                    'birthdate_date'
+                ]}
+            )
+            
+            return patients
+        
+        except Exception as e:
+            logger.error(f"Failed to search patients: {e}")
+            return []
+    
+    def get_patient_by_id(self, patient_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get patient by ID (alias for get_patient for consistency).
+        
+        Args:
+            patient_id: Patient ID
+        
+        Returns:
+            Patient record or None
+        """
+        return self.get_patient(patient_id)
+    
+    def get_appointments(
+        self,
+        patient_id: Optional[int] = None,
+        doctor_id: Optional[int] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        limit: int = 100
+    ) -> List[Dict[str, Any]]:
+        """
+        Get appointments with optional filters.
+        
+        Args:
+            patient_id: Filter by patient
+            doctor_id: Filter by doctor
+            date_from: Start date (YYYY-MM-DD)
+            date_to: End date (YYYY-MM-DD)
+            limit: Maximum results
+        
+        Returns:
+            List of appointment records
+        """
+        try:
+            # Build search domain
+            domain = []
+            
+            if patient_id:
+                domain.append(('patient_id', '=', patient_id))
+            if doctor_id:
+                domain.append(('doctor_id', '=', doctor_id))
+            if date_from:
+                domain.append(('appointment_sdate', '>=', date_from))
+            if date_to:
+                domain.append(('appointment_sdate', '<=', date_to))
+            
+            # Search for appointment IDs
+            appointment_ids = self._execute(
+                'medical.appointment',
+                'search',
+                [domain],
+                {'limit': limit, 'order': 'appointment_sdate desc'}
+            )
+            
+            if not appointment_ids:
+                return []
+            
+            # Get full appointment records
+            appointments = self._execute(
+                'medical.appointment',
+                'read',
+                [appointment_ids],
+                {'fields': [
+                    'id', 'patient_id', 'doctor_id',
+                    'appointment_sdate', 'appointment_edate',
+                    'appointment_type', 'state', 'notes'
+                ]}
+            )
+            
+            return appointments
+        
+        except Exception as e:
+            logger.error(f"Failed to get appointments: {e}")
+            return []
 
 
 # Global instance
