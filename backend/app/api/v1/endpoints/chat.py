@@ -19,12 +19,12 @@ from app.schemas.conversation import (
     ConversationWithMessages,
     MessageResponse,
 )
-from app.agents.agent_graph_v3 import AgentGraphV3
+from app.agents.agent_graph_v4 import AgentGraphV4
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
-# Initialize Multi-Agent Graph (V3 with Supervisor)
-agent_graph = AgentGraphV3()
+# Initialize Multi-Agent Graph (V4 with 4 Agents: Alex, שרה, Marcus, Sophia)
+agent_graph = AgentGraphV4()
 
 
 @router.post("/", response_model=ChatResponse)

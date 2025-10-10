@@ -29,7 +29,15 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
+import sqlalchemy as sa
 target_metadata = Base.metadata
+
+def render_item(type_, obj, autogen_context):
+    """Render a custom UUID type in Alembic migrations."""
+    if type_ == "type" and isinstance(obj, sa.types.TypeDecorator) and obj.impl is sa.UUID:
+        autogen_context.imports.add("import app.core.database_types as dt")
+        return "dt.UUID()"
+    return False
 
 
 def run_migrations_offline() -> None:
@@ -55,7 +63,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection, target_metadata=target_metadata, render_item=render_item)
 
         with context.begin_transaction():
             context.run_migrations()

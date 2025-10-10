@@ -60,6 +60,7 @@ class Permission(str, Enum):
     
     # Agent access permissions
     ACCESS_ALEX = "access:alex"
+    ACCESS_SARAH = "access:sarah"  # Clinical assistant
     ACCESS_CFO = "access:cfo"
     ACCESS_ADMIN = "access:admin"
 
@@ -87,6 +88,7 @@ ROLE_PERMISSIONS: Dict[UserRole, List[Permission]] = {
         Permission.READ_ALL_SCHEDULES,  # View only
         # Doctors can access all agents
         Permission.ACCESS_ALEX,
+        Permission.ACCESS_SARAH,  # Clinical assistant - PRIMARY for doctors
         Permission.ACCESS_CFO,  # For treatment profitability stats
         Permission.ACCESS_ADMIN,  # For schedule management
     ],
@@ -103,6 +105,7 @@ ROLE_PERMISSIONS: Dict[UserRole, List[Permission]] = {
         Permission.MANAGE_STAFF,
         # Owners can access all agents
         Permission.ACCESS_ALEX,
+        Permission.ACCESS_SARAH,  # Clinical assistant
         Permission.ACCESS_CFO,
         Permission.ACCESS_ADMIN,
         # Note: Owners CANNOT see individual patient medical records
@@ -157,6 +160,7 @@ def can_access_agent(user_role: str, agent_name: str) -> bool:
     """
     agent_permission_map = {
         "alex": Permission.ACCESS_ALEX.value,
+        "sarah": Permission.ACCESS_SARAH.value,
         "cfo": Permission.ACCESS_CFO.value,
         "admin": Permission.ACCESS_ADMIN.value,
     }
@@ -230,6 +234,7 @@ def get_permission_denied_message(user_role: str, requested_action: str) -> str:
     """
     messages = {
         UserRole.PATIENT: {
+            "access_sarah": "I'm sorry, but clinical operations are handled by medical staff only. I can help you with appointment scheduling and general questions. Is there anything else I can help you with?",
             "access_cfo": "I'm sorry, but financial information is only available to clinic management. Is there anything else I can help you with regarding your appointments or billing?",
             "access_admin": "I'm sorry, but operational information is only available to clinic staff. Is there anything else I can help you with?",
             "view_other_appointments": "I can only show you your own appointments. Would you like to see your upcoming appointments?",
