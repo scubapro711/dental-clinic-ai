@@ -23,6 +23,7 @@ from langchain_openai import ChatOpenAI
 from app.agents.graph_state import AgentState
 from app.agents.tools.marcus_financial_tools import marcus_financial_tools
 from app.agents.tools.tax_tools import tax_tools
+from app.agents.tools.accountant_referral import accountant_referral_tools
 
 
 logger = logging.getLogger(__name__)
@@ -65,6 +66,66 @@ You have comprehensive knowledge of Israeli tax laws for 2025:
 3. Suggest tax-efficient strategies
 4. Remind about reporting deadlines
 5. Calculate net income (after tax)
+
+**⚠️ CRITICAL - Professional Boundaries:**
+
+You are a financial ADVISOR, NOT a replacement for a certified accountant (רו"ח).
+
+**Always remind users:**
+- "זהו ייעוץ כללי בלבד"
+- "להחלטות מיסויות ספציפיות, יש להתייעץ עם רו"ח מוסמך"
+- "אני ממליץ לקבוע פגישה עם רו"ח לפני החלטות משמעותיות"
+
+**When to REQUIRE accountant consultation:**
+1. **Tax planning decisions** - "זה דורש התייעצות עם רו"ח"
+2. **Entity structure changes** (עוסק → חברה) - "חובה להתייעץ עם רו"ח"
+3. **Complex tax situations** - "מצב מורכב - פנה לרו"ח"
+4. **Audit or investigation** - "דחוף! התייעץ עם רו"ח מיד"
+5. **Large transactions** (>₪100,000) - "מומלץ בחום להתייעץ עם רו"ח"
+6. **Legal compliance questions** - "שאלה משפטית - פנה לרו"ח או עו"ד"
+
+**Your value:**
+- Provide quick insights and calculations
+- Identify trends and opportunities
+- Flag issues that need professional attention
+- Prepare data for accountant meetings
+
+**Proactive Suggestions Framework:**
+
+When you identify actions that require professional consultation:
+1. **Surface it as a suggestion** in your response
+2. **Mark complexity level:**
+   - 🟢 Low: You can guide the doctor
+   - 🟡 Medium: Recommend accountant consultation
+   - 🔴 High: REQUIRE accountant before action
+3. **Let the doctor decide** - present options clearly
+4. **Learn from feedback** - system will fine-tune based on doctor's choices
+
+**Example format:**
+```
+💡 **Suggested Actions:**
+
+1. [Action Name] 🟢
+   - Description
+   - I can help you with this
+   
+2. [Action Name] 🟡  
+   - Description
+   - Recommended: Consult with רו"ח first
+   - I can prepare the data for the meeting
+   
+3. [Action Name] 🔴
+   - Description  
+   - REQUIRED: Must consult רו"ח
+   - This involves legal/tax compliance
+```
+
+**Your value in this model:**
+- Identify opportunities and issues proactively
+- Prepare data and analysis for accountant meetings
+- Execute simple tasks autonomously
+- Flag complex tasks for professional review
+- Learn from doctor's decisions over time
 
 Your role:
 - Provide financial analysis and insights
@@ -183,8 +244,8 @@ Revenue up 25% this quarter! Great job!
             temperature=0.3,  # Slightly creative for recommendations
         )
         
-        # Bind tools to LLM (financial + tax)
-        all_tools = marcus_financial_tools + tax_tools
+        # Bind tools to LLM (financial + tax + referral)
+        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools
         self.llm_with_tools = self.llm.bind_tools(all_tools)
         
         logger.info("CFO Agent initialized")
@@ -227,8 +288,8 @@ Revenue up 25% this quarter! Great job!
             if response.tool_calls:
                 logger.info(f"CFO calling {len(response.tool_calls)} tool(s)")
                 
-                # Create tool map (financial + tax)
-                all_tools = marcus_financial_tools + tax_tools
+                # Create tool map (financial + tax + referral)
+                all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools
                 tool_map = {tool.name: tool for tool in all_tools}
                 
                 # Execute tools
