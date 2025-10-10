@@ -44,11 +44,6 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: RedisDsn = Field(...)
 
-    # Neo4j (Optional - not currently used per CONTEXT_AND_GAPS_ANALYSIS.md)
-    NEO4J_URI: str = Field(default="bolt://localhost:7687")
-    NEO4J_USER: str = Field(default="neo4j")
-    NEO4J_PASSWORD: str = Field(default="password")
-
     # Odoo
     ODOO_URL: str = Field(...)
     ODOO_DB: str = Field(...)

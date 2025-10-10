@@ -329,7 +329,7 @@ You'll discuss everything in person."
 
 ALL conversations are:
 - Saved to Odoo (patient record)
-- Stored in Neo4j (causal memory)
+- Stored in PostgreSQL (LangChain memory)
 - Available for doctor review
 - Transcribed if voice/video
 

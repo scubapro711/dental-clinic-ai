@@ -185,42 +185,9 @@ class TestMVPIntegration:
         print(f"   Turn 2 Agent: {response2['agent']}")
         print(f"   Turn 2: {response2['response'][:100]}...")
     
-    @pytest.mark.asyncio
-    async def test_scenario_8_causal_memory(self):
-        """
-        Scenario 8: Causal memory retrieves similar interactions
-        Expected: Similar past interactions are used for context
-        """
-        graph = AgentGraphV2()
-        
-        user_id = str(uuid4())
-        org_id = str(uuid4())
-        
-        # First interaction
-        response1 = await graph.process_message(
-            user_id=user_id,
-            organization_id=org_id,
-            conversation_id=str(uuid4()),
-            message="I have tooth pain",
-        )
-        
-        await asyncio.sleep(1)  # Wait for Neo4j to process
-        
-        # Similar interaction
-        response2 = await graph.process_message(
-            user_id=user_id,
-            organization_id=org_id,
-            conversation_id=str(uuid4()),
-            message="My tooth hurts",
-        )
-        
-        assert response1["response"]
-        assert response2["response"]
-        
-        print(f"\n✅ Scenario 8: Causal Memory")
-        print(f"   First interaction agent: {response1['agent']}")
-        print(f"   Second interaction agent: {response2['agent']}")
-        print(f"   Similar interactions found: {response2.get('similar_interactions', 0)}")
+    # Removed: test_scenario_8_causal_memory
+    # Neo4j causal memory has been removed from the project
+    # We use LangChain PostgresSaver for conversation memory instead
 
 
 if __name__ == "__main__":
