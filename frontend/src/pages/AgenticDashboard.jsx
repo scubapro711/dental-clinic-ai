@@ -83,10 +83,10 @@ export default function AgenticDashboard() {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                DentalAI Mission Control
+              <h1 className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                DentalAI<span className="hidden sm:inline"> Mission Control</span>
               </h1>
-              <p className="text-xs text-gray-500">מערכת ניהול אגנטית חכמה</p>
+              <p className="text-xs text-gray-500 hidden md:block">מערכת ניהול אגנטית חכמה</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -116,6 +116,7 @@ export default function AgenticDashboard() {
               variant="outline"
               size="sm"
               onClick={() => setShowLeftWidgets(!showLeftWidgets)}
+              className="hidden lg:flex"
             >
               {showLeftWidgets ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
             </Button>
@@ -123,6 +124,7 @@ export default function AgenticDashboard() {
               variant="outline"
               size="sm"
               onClick={() => setShowRightPanels(!showRightPanels)}
+              className="hidden lg:flex"
             >
               {showRightPanels ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
             </Button>
@@ -132,9 +134,9 @@ export default function AgenticDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Widgets Panel */}
+        {/* Left Widgets Panel - Hidden on mobile, show on desktop */}
         {showLeftWidgets && (
-          <div className="w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4">
+          <div className="hidden lg:block w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4">
             {/* Today's Patients - Staff and Admin only */}
             <ProtectedWidget widgetId="todays-patients">
               <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
@@ -163,9 +165,9 @@ export default function AgenticDashboard() {
           />
         </div>
 
-        {/* Right Panels */}
+        {/* Right Panels - Hidden on mobile, show on desktop */}
         {showRightPanels && (
-          <div className="w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto">
+          <div className="hidden lg:block w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto">
             <div className="p-4 space-y-4">
               {/* Revenue Widget - Admin only */}
               <ProtectedWidget widgetId="revenue">
