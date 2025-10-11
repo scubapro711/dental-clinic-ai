@@ -28,9 +28,14 @@ export default function PatientLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col" lang="en">
+      {/* Skip Navigation */}
+      <a href="#main-content" className="skip-navigation">
+        Skip to main content
+      </a>
+      
       {/* Patient Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-sm border-b border-gray-200" role="banner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -45,7 +50,7 @@ export default function PatientLayout() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-8">
+            <nav className="hidden md:flex space-x-8" aria-label="Main navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -76,11 +81,14 @@ export default function PatientLayout() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100 transition-colors"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6" aria-hidden="true" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -88,8 +96,8 @@ export default function PatientLayout() {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 bg-white">
-            <nav className="px-4 py-4 space-y-2">
+          <div id="mobile-menu" className="md:hidden border-t border-gray-200 bg-white">
+            <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -122,12 +130,12 @@ export default function PatientLayout() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" role="main">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-white border-t border-gray-200 mt-auto" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <p className="text-center text-xs sm:text-sm text-gray-500">
             © 2025 DentaFlow Patient Portal. Your dental health, simplified.

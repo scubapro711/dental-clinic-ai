@@ -29,31 +29,36 @@ export default function ClinicLayout() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 flex flex-col" lang="en">
+      {/* Skip Navigation */}
+      <a href="#main-content" className="skip-navigation">
+        Skip to main content
+      </a>
+      
       {/* Clinic Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg">
+      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg" role="banner">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/clinic/dashboard" className="flex items-center space-x-2">
-                <span className="text-2xl">🦷</span>
+                <span className="text-2xl" aria-hidden="true">🦷</span>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
                   <span className="text-lg sm:text-xl font-bold text-white">DentaFlow</span>
-                  <span className="text-xs sm:text-sm text-blue-200">Mission Control</span>
+                  <span className="text-xs sm:text-sm text-white">Mission Control</span>
                 </div>
               </Link>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-6" aria-label="Main navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
                   className="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  {link.icon} {link.label}
+                  <span aria-hidden="true">{link.icon}</span> {link.label}
                 </Link>
               ))}
             </nav>
@@ -63,12 +68,13 @@ export default function ClinicLayout() {
               {user && (
                 <div className="text-sm text-white">
                   <span className="font-medium">{user.full_name || user.email}</span>
-                  <span className="text-blue-200 ml-2">({user.role})</span>
+                  <span className="text-blue-100 ml-2">({user.role})</span>
                 </div>
               )}
               <button
                 onClick={handleLogout}
                 className="text-white hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                aria-label="Logout from clinic portal"
               >
                 Logout
               </button>
@@ -78,11 +84,14 @@ export default function ClinicLayout() {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-md text-white hover:bg-blue-700 transition-colors"
+              aria-label="Toggle navigation menu"
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-menu"
             >
               {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6" aria-hidden="true" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -90,8 +99,8 @@ export default function ClinicLayout() {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-blue-700 bg-blue-700">
-            <nav className="px-4 py-4 space-y-2">
+          <div id="mobile-menu" className="md:hidden border-t border-blue-700 bg-blue-700">
+            <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -99,14 +108,14 @@ export default function ClinicLayout() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
                 >
-                  {link.icon} {link.label}
+                  <span aria-hidden="true">{link.icon}</span> {link.label}
                 </Link>
               ))}
               <div className="border-t border-blue-600 pt-2 mt-2">
                 {user && (
                   <div className="px-3 py-2 text-sm text-white">
                     <span className="font-medium">{user.full_name || user.email}</span>
-                    <span className="text-blue-200 ml-2">({user.role})</span>
+                    <span className="text-blue-100 ml-2">({user.role})</span>
                   </div>
                 )}
                 <button
@@ -115,6 +124,7 @@ export default function ClinicLayout() {
                     setMobileMenuOpen(false);
                   }}
                   className="block w-full text-left text-red-300 hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                  aria-label="Logout from clinic portal"
                 >
                   Logout
                 </button>
@@ -125,12 +135,12 @@ export default function ClinicLayout() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" role="main">
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto">
+      <footer className="bg-white border-t border-gray-200 mt-auto" role="contentinfo">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
             <p>© 2025 DentaFlow Mission Control. AI-Powered Dental Management.</p>
