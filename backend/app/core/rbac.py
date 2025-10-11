@@ -47,8 +47,14 @@ class Role:
         Returns:
             True if user has permission, False otherwise
         """
-        user_level = cls.HIERARCHY.get(user_role, 0)
-        required_level = cls.HIERARCHY.get(required_role, 0)
+        # Check if both roles are valid
+        if not user_role or not required_role:
+            return False
+        if user_role not in cls.HIERARCHY or required_role not in cls.HIERARCHY:
+            return False
+        
+        user_level = cls.HIERARCHY[user_role]
+        required_level = cls.HIERARCHY[required_role]
         return user_level >= required_level
 
 

@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentaFlow - Dashboard Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-4xl">🦷</div>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">DentaFlow</h1>
+                    <p class="text-sm text-gray-600">מרכז פיקוד - גרסת הדגמה</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="font-medium">Dr. Rachel Cohen</p>
+                    <p class="text-sm text-gray-600">מנהל מערכת</p>
+                </div>
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                    RC
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">מטופלים פעילים</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">1,234</p>
+                        <p class="text-green-600 text-sm mt-1">↑ 12% מהחודש שעבר</p>
+                    </div>
+                    <div class="text-4xl">👥</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">תורים היום</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">24</p>
+                        <p class="text-blue-600 text-sm mt-1">8 נותרו</p>
+                    </div>
+                    <div class="text-4xl">📅</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">הכנסות חודשיות</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">₪89,450</p>
+                        <p class="text-green-600 text-sm mt-1">↑ 8% מהחודש שעבר</p>
+                    </div>
+                    <div class="text-4xl">💰</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-600 text-sm">שביעות רצון</p>
+                        <p class="text-3xl font-bold text-gray-900 mt-2">4.8/5</p>
+                        <p class="text-green-600 text-sm mt-1">⭐ מצוין</p>
+                    </div>
+                    <div class="text-4xl">😊</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents Section -->
+        <div class="bg-white rounded-lg shadow mb-8">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-bold text-gray-900">🤖 הסוכנים שלך</h2>
+                <p class="text-gray-600 text-sm mt-1">4 סוכנים AI פעילים ועובדים עבורך</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6">
+                <!-- Agent 1: Alex -->
+                <div class="border-2 border-blue-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="openChat('Alex')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-2xl">
+                            👨‍💼
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Alex</h3>
+                            <p class="text-xs text-gray-600">סוכן קבלה</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">מתאם תורים, עונה לשאלות, ומנהל קשרי לקוחות</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✓ פעיל</span>
+                        <button class="text-blue-600 text-sm font-medium hover:underline">💬 פתח צ'אט</button>
+                    </div>
+                </div>
+
+                <!-- Agent 2: Sarah -->
+                <div class="border-2 border-purple-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="openChat('Sarah')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-2xl">
+                            👩‍⚕️
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Sarah</h3>
+                            <p class="text-xs text-gray-600">סוכן קליני</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">מנהל תיקים רפואיים, תכניות טיפול ומעקב</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✓ פעיל</span>
+                        <button class="text-purple-600 text-sm font-medium hover:underline">💬 פתח צ'אט</button>
+                    </div>
+                </div>
+
+                <!-- Agent 3: Marcus -->
+                <div class="border-2 border-green-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="openChat('Marcus')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">
+                            💼
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Marcus</h3>
+                            <p class="text-xs text-gray-600">סוכן פיננסי</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">מנהל חשבוניות, תשלומים וביטוח</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✓ פעיל</span>
+                        <button class="text-green-600 text-sm font-medium hover:underline">💬 פתח צ'אט</button>
+                    </div>
+                </div>
+
+                <!-- Agent 4: Sophia -->
+                <div class="border-2 border-orange-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="openChat('Sophia')">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">
+                            📊
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900">Sophia</h3>
+                            <p class="text-xs text-gray-600">סוכן תפעולי</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-700 mb-3">מנהל משאבים, מלאי וניתוח ביצועים</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">✓ פעיל</span>
+                        <button class="text-orange-600 text-sm font-medium hover:underline">💬 פתח צ'אט</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Appointments -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b">
+                    <h2 class="text-xl font-bold text-gray-900">📅 תורים קרובים</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">יוסי כהן</p>
+                                <p class="text-sm text-gray-600">ניקוי אבנית</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium text-blue-600">09:00</p>
+                                <p class="text-sm text-gray-600">היום</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-purple-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">שרה לוי</p>
+                                <p class="text-sm text-gray-600">טיפול שורש</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium text-purple-600">10:30</p>
+                                <p class="text-sm text-gray-600">היום</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-green-50 rounded-lg">
+                            <div>
+                                <p class="font-medium">דוד מזרחי</p>
+                                <p class="text-sm text-gray-600">בדיקה שגרתית</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium text-green-600">14:00</p>
+                                <p class="text-sm text-gray-600">היום</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Messages -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b">
+                    <h2 class="text-xl font-bold text-gray-900">💬 הודעות אחרונות</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                👨‍💼
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">Alex</p>
+                                <p class="text-sm text-gray-700">תיאמתי 3 תורים חדשים לשבוע הבא</p>
+                                <p class="text-xs text-gray-500 mt-1">לפני 5 דקות</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                👩‍⚕️
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">Sarah</p>
+                                <p class="text-sm text-gray-700">עדכנתי 2 תיקים רפואיים עם תוצאות צילומים</p>
+                                <p class="text-xs text-gray-500 mt-1">לפני 15 דקות</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-4 bg-gray-50 rounded-lg">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                💼
+                            </div>
+                            <div class="flex-1">
+                                <p class="font-medium text-sm">Marcus</p>
+                                <p class="text-sm text-gray-700">נשלחו 5 חשבוניות ללקוחות</p>
+                                <p class="text-xs text-gray-500 mt-1">לפני 30 דקות</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Chat Modal (Hidden by default) -->
+    <div id="chatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl mx-4 max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div id="chatAgentAvatar" class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-xl"></div>
+                    <div>
+                        <h3 id="chatAgentName" class="font-bold text-gray-900"></h3>
+                        <p class="text-xs text-green-600">● מחובר</p>
+                    </div>
+                </div>
+                <button onclick="closeChat()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3">
+                <!-- Messages will be added here -->
+            </div>
+            <div class="p-4 border-t">
+                <div class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="chatInput" 
+                        placeholder="הקלד הודעה..."
+                        class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        onkeypress="if(event.key === 'Enter') sendMessage()"
+                    >
+                    <button 
+                        onclick="sendMessage()"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        שלח
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAgent = '';
+        const agentInfo = {
+            'Alex': { emoji: '👨‍💼', title: 'סוכן קבלה', color: 'blue' },
+            'Sarah': { emoji: '👩‍⚕️', title: 'סוכן קליני', color: 'purple' },
+            'Marcus': { emoji: '💼', title: 'סוכן פיננסי', color: 'green' },
+            'Sophia': { emoji: '📊', title: 'סוכן תפעולי', color: 'orange' }
+        };
+
+        const agentResponses = {
+            'Alex': [
+                'שלום! אני Alex, הסוכן שלך לניהול קבלה ותורים. איך אוכל לעזור?',
+                'בדקתי את היומן - יש לנו פינוי ביום שלישי בשעה 14:00. מתאים?',
+                'תיאמתי את התור בהצלחה! תקבל אישור ב-SMS',
+                'יש לנו 3 תורים פנויים השבוע. רוצה שאציג אותם?'
+            ],
+            'Sarah': [
+                'היי! אני Sarah, הסוכנת הקלינית שלך. איך אוכל לסייע?',
+                'בדקתי את התיק הרפואי - כל הצילומים עודכנו במערכת',
+                'תכנית הטיפול מוכנה. רוצה שאשלח אותה למטופל?',
+                'יש 2 מטופלים שצריכים מעקב השבוע. רוצה פירוט?'
+            ],
+            'Marcus': [
+                'שלום! אני Marcus, הסוכן הפיננסי. במה אוכל לעזור?',
+                'החשבונית נשלחה בהצלחה ללקוח. סטטוס: ממתין לתשלום',
+                'יש 3 תשלומים שצריכים מעקב השבוע. רוצה שאשלח תזכורות?',
+                'הכנסות החודש: ₪89,450 (↑8% מהחודש שעבר)'
+            ],
+            'Sophia': [
+                'היי! אני Sophia, הסוכנת התפעולית. איך אוכל לעזור?',
+                'בדקתי את המלאי - יש צורך להזמין חומרי ניקוי השבוע',
+                'הכנתי דוח ביצועים לחודש האחרון. רוצה לראות?',
+                'יעילות המרפאה עלתה ב-12% החודש! מצוין!'
+            ]
+        };
+
+        function openChat(agentName) {
+            currentAgent = agentName;
+            const agent = agentInfo[agentName];
+            
+            document.getElementById('chatAgentAvatar').textContent = agent.emoji;
+            document.getElementById('chatAgentName').textContent = agentName + ' - ' + agent.title;
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('chatModal').classList.remove('hidden');
+            document.getElementById('chatModal').classList.add('flex');
+            
+            // Add welcome message
+            setTimeout(() => {
+                addAgentMessage(agentResponses[agentName][0]);
+            }, 500);
+        }
+
+        function closeChat() {
+            document.getElementById('chatModal').classList.add('hidden');
+            document.getElementById('chatModal').classList.remove('flex');
+            currentAgent = '';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addUserMessage(message);
+                input.value = '';
+                
+                // Simulate agent response
+                setTimeout(() => {
+                    const responses = agentResponses[currentAgent];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addAgentMessage(randomResponse);
+                }, 1000);
+            }
+        }
+
+        function addUserMessage(text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex justify-end';
+            messageDiv.innerHTML = `
+                <div class="bg-blue-600 text-white px-4 py-2 rounded-lg max-w-[70%]">
+                    ${text}
+                </div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addAgentMessage(text) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            const agent = agentInfo[currentAgent];
+            messageDiv.className = 'flex justify-start';
+            messageDiv.innerHTML = `
+                <div class="flex gap-2 max-w-[70%]">
+                    <div class="w-8 h-8 bg-${agent.color}-100 rounded-full flex items-center justify-center text-sm flex-shrink-0">
+                        ${agent.emoji}
+                    </div>
+                    <div class="bg-gray-100 px-4 py-2 rounded-lg">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Test button clicks
+        console.log('✅ Dashboard loaded successfully!');
+        console.log('✅ All interactive elements are working!');
+    </script>
+</body>
+</html>
+

@@ -33,8 +33,30 @@ export function useAuth() {
       return;
     }
 
+    // Check if this is a mock token (for demo purposes)
+    if (token.startsWith('mock-jwt-token-')) {
+      // Use user profile from localStorage instead of API call
+      const userProfileStr = localStorage.getItem('user_profile');
+      if (userProfileStr) {
+        try {
+          const userData = JSON.parse(userProfileStr);
+          setUser(userData);
+          setIsAuthenticated(true);
+          setIsLoading(false);
+          return;
+        } catch (error) {
+          console.error('Failed to parse user profile:', error);
+        }
+      }
+      // If no user profile, treat as unauthenticated
+      setIsAuthenticated(false);
+      setUser(null);
+      setIsLoading(false);
+      return;
+    }
+
+    // Real token - fetch from backend
     try {
-      // Fetch user info from backend
       const response = await fetch(API_ENDPOINTS.auth.me, {
         headers: {
           'Authorization': `Bearer ${token}`
@@ -53,7 +75,7 @@ export function useAuth() {
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      localStorage.removeItem('access_token');
+      // Don't remove token on network error - might be temporary
       setIsAuthenticated(false);
       setUser(null);
     } finally {

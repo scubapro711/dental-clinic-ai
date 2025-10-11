@@ -340,7 +340,78 @@ async def stream_agent_response(
         yield f"data: {error_chunk.model_dump_json()}\n\n"
 
 
-@router.post("/chat", response_model=None)
+@router.post(
+    "/chat",
+    response_model=None,
+    tags=["AI Chat"],
+    summary="Chat with AI agents",
+    description="""
+    Send messages to the multi-agent AI system and receive intelligent responses.
+    
+    **Features:**
+    - Multi-agent routing (Alex, Marcus, Sarah, Sophia)
+    - Streaming responses via Server-Sent Events (SSE)
+    - Conversation memory and context
+    - Tool execution support
+    - Suggested actions generation
+    
+    **Authentication:** Requires valid JWT token in Authorization header
+    
+    **Example Request:**
+    ```json
+    {
+      "messages": [
+        {"role": "user", "content": "Show me today's appointments"}
+      ],
+      "conversation_id": "conv_abc123",
+      "stream": true
+    }
+    ```
+    
+    **Example Streaming Response:**
+    ```
+    data: {"type":"text","content":"I found 3 appointments for today...","metadata":{"agent":"alex"}}
+    
+    data: {"type":"suggested_actions","metadata":{"suggested_actions":[{"label":"View Details","action":"view_appointment"}]}}
+    
+    data: {"type":"done","content":"","metadata":{}}
+    ```
+    """,
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "text/event-stream": {
+                    "example": 'data: {"type":"text","content":"Hello! How can I help?"}\n\n'
+                }
+            }
+        },
+        401: {
+            "description": "Unauthorized - Invalid or missing JWT token",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Not authenticated"}
+                }
+            }
+        },
+        403: {
+            "description": "Forbidden - User not associated with organization",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "User not associated with any organization"}
+                }
+            }
+        },
+        500: {
+            "description": "Internal server error",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Error processing chat request"}
+                }
+            }
+        }
+    }
+)
 async def chat(
     request: ChatRequest,
     current_user: Dict[str, Any] = FastAPIDepends(get_current_user)

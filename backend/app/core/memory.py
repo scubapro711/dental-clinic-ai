@@ -21,8 +21,9 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 
-# Global memory saver instance
+# Global memory saver instance and context manager
 _memory_saver: Optional[PostgresSaver] = None
+_memory_context = None
 
 
 def get_memory_saver() -> PostgresSaver:
@@ -49,18 +50,36 @@ def get_memory_saver() -> PostgresSaver:
     """
     global _memory_saver
     
+    global _memory_context
+    
     if _memory_saver is None:
-        logger.info("Initializing memory saver for LangGraph")
+        logger.info("Initializing PostgreSQL memory saver for LangGraph")
         
-        # Use MemorySaver for development (in-memory, fast, no setup needed)
-        # TODO: Switch to PostgresSaver for production persistence
+        # Use PostgreSQL for persistent memory storage
         try:
-            from langgraph.checkpoint.memory import MemorySaver
-            _memory_saver = MemorySaver()
-            logger.info("MemorySaver initialized successfully (in-memory)")
+            # PostgreSQL connection string for checkpointer
+            # Format: postgresql://user:password@host:port/database
+            checkpoint_db_url = settings.CHECKPOINT_DATABASE_URL
+            
+            logger.info(f"Connecting to PostgreSQL checkpointer: {checkpoint_db_url.split('@')[1] if '@' in checkpoint_db_url else 'localhost'}")
+            
+            # Create PostgresSaver with connection string
+            # Note: PostgresSaver.from_conn_string returns a context manager
+            # We need to enter it and keep the context alive
+            _memory_context = PostgresSaver.from_conn_string(checkpoint_db_url)
+            _memory_saver = _memory_context.__enter__()
+            
+            logger.info("PostgresSaver initialized successfully (persistent storage)")
         except Exception as e:
-            logger.error(f"Failed to setup MemorySaver: {e}")
-            raise
+            logger.error(f"Failed to setup PostgresSaver: {e}")
+            logger.warning("Falling back to MemorySaver (in-memory, non-persistent)")
+            try:
+                from langgraph.checkpoint.memory import MemorySaver
+                _memory_saver = MemorySaver()
+                logger.info("MemorySaver initialized as fallback")
+            except Exception as fallback_error:
+                logger.error(f"Failed to setup fallback MemorySaver: {fallback_error}")
+                raise
     
     return _memory_saver
 

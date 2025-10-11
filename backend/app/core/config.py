@@ -40,6 +40,11 @@ class Settings(BaseSettings):
 
     # Database (accepts PostgreSQL or SQLite for testing)
     DATABASE_URL: str = Field(...)
+    
+    # LangGraph Checkpointer Database (PostgreSQL for persistent memory)
+    CHECKPOINT_DATABASE_URL: str = Field(
+        default="postgresql://dentaflow:dentaflow123@localhost:5432/dentaflow_checkpoints"
+    )
 
     # Redis
     REDIS_URL: RedisDsn = Field(...)

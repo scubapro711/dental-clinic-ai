@@ -1,24 +1,27 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import './App.css'
-
-// Routing components
 import { ProtectedRoute, RoleBasedRedirect } from './components/routing/ProtectedRoute'
 
-// Auth pages (public)
-import MockLoginPage from './pages/MockLoginPage'
+// Layouts
+import PatientLayout from './layouts/PatientLayout'
+import ClinicLayout from './layouts/ClinicLayout'
+
+// Auth Pages
+import SimpleMockLogin from './pages/SimpleMockLogin'
 import RegisterPage from './pages/RegisterPage'
 
-// Patient Portal pages
+// Patient Portal Pages
 import PatientDashboard from './pages/patient/PatientDashboard'
 import PatientAppointments from './pages/patient/PatientAppointments'
 import PatientMedicalRecords from './pages/patient/PatientMedicalRecords'
 import PatientBilling from './pages/patient/PatientBilling'
 import PatientProfile from './pages/patient/PatientProfile'
-import ChatPage from './pages/ChatPage'
 
-// Clinic Portal pages
+// Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
 import PatientsManagement from './pages/clinic/PatientsManagement'
+
+// Shared
+import ChatPage from './pages/ChatPage'
 
 // 404 Page
 function NotFoundPage() {
@@ -61,44 +64,44 @@ function App() {
         <Route path="/" element={<RoleBasedRedirect />} />
         
         {/* Auth Routes (Public) */}
-        <Route path="/login" element={<MockLoginPage />} />
+        <Route path="/login" element={<SimpleMockLogin />} />
         <Route path="/register" element={<RegisterPage />} />
         
         {/* Patient Portal Routes (ORG_VIEWER) */}
         <Route
-          path="/patient/*"
+          path="/patient"
           element={
             <ProtectedRoute allowedRoles={['org_viewer']}>
-              <Routes>
-                <Route path="dashboard" element={<PatientDashboard />} />
-                <Route path="appointments" element={<PatientAppointments />} />
-                <Route path="medical-records" element={<PatientMedicalRecords />} />
-                <Route path="billing" element={<PatientBilling />} />
-                <Route path="profile" element={<PatientProfile />} />
-                <Route path="chat" element={<ChatPage />} />
-                <Route path="*" element={<Navigate to="/patient/dashboard" replace />} />
-              </Routes>
+              <PatientLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="/patient/dashboard" replace />} />
+          <Route path="dashboard" element={<PatientDashboard />} />
+          <Route path="appointments" element={<PatientAppointments />} />
+          <Route path="medical-records" element={<PatientMedicalRecords />} />
+          <Route path="billing" element={<PatientBilling />} />
+          <Route path="profile" element={<PatientProfile />} />
+          <Route path="chat" element={<ChatPage />} />
+        </Route>
         
         {/* Clinic Portal Routes (ORG_ADMIN, ORG_STAFF) */}
         <Route
-          path="/clinic/*"
+          path="/clinic"
           element={
             <ProtectedRoute allowedRoles={['org_admin', 'org_staff']}>
-              <Routes>
-                <Route path="dashboard" element={<AgenticDashboard />} />
-                <Route path="patients" element={<PatientsManagement />} />
-                <Route path="schedule" element={<ComingSoon title="Schedule Management" />} />
-                <Route path="clinical" element={<ComingSoon title="Clinical Workspace" />} />
-                <Route path="financial" element={<ComingSoon title="Financial Management" />} />
-                <Route path="operations" element={<ComingSoon title="Operations Dashboard" />} />
-                <Route path="*" element={<Navigate to="/clinic/dashboard" replace />} />
-              </Routes>
+              <ClinicLayout />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="/clinic/dashboard" replace />} />
+          <Route path="dashboard" element={<AgenticDashboard />} />
+          <Route path="patients" element={<PatientsManagement />} />
+          <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
+          <Route path="agents" element={<ComingSoon title="AI Agents" />} />
+          <Route path="analytics" element={<ComingSoon title="Analytics" />} />
+          <Route path="settings" element={<ComingSoon title="Settings" />} />
+        </Route>
         
         {/* Admin Portal Routes (SUPER_ADMIN) */}
         <Route
@@ -122,6 +125,7 @@ function App() {
         <Route path="/dashboard" element={<Navigate to="/patient/dashboard" replace />} />
         <Route path="/agentic" element={<Navigate to="/clinic/dashboard" replace />} />
         <Route path="/chat" element={<Navigate to="/patient/chat" replace />} />
+        <Route path="/mission-control" element={<Navigate to="/clinic/dashboard" replace />} />
         
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
@@ -131,3 +135,4 @@ function App() {
 }
 
 export default App
+

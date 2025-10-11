@@ -23,7 +23,7 @@ export default function MockLoginPage({ onLogin }) {
         id: 1,
         name: 'Dr. Rachel Cohen',
         email: 'rachel@dentaflow.ai',
-        role: 'admin',
+        role: 'org_admin',
         organization_id: 1,
         organization_name: 'DentaFlow Clinic',
         avatar: null
@@ -35,11 +35,13 @@ export default function MockLoginPage({ onLogin }) {
       localStorage.setItem('organization_id', '1');
       localStorage.setItem('user_profile', JSON.stringify(mockUser));
       
-      // Call onLogin callback
-      onLogin(mockToken, mockUser);
+      // Call onLogin callback if provided
+      if (onLogin) {
+        onLogin(mockToken, mockUser);
+      }
       
-      // Navigate to Mission Control
-      navigate('/mission-control');
+      // Navigate to Clinic Dashboard (since role is org_admin)
+      navigate('/clinic/dashboard');
       
       setLoading(false);
     }, 500);

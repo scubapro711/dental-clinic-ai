@@ -5,7 +5,8 @@ API v1 router configuration.
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     auth, 
-    chat, 
+    chat,
+    ai_chat,
     telegram,
     telegram_admin,
     statistics,
@@ -16,6 +17,11 @@ from app.api.v1.endpoints import (
     auth_google,
     audit_logs,
     proactive_suggestions,
+    decision_queue,
+    tooth_chart,
+    medical_questionnaire,
+    xray,
+    treatment_categories,
     organizations,
     email_verification,
     sms_verification,
@@ -39,6 +45,7 @@ api_router.include_router(sms_verification.router, tags=["auth"])
 
 # Core features
 api_router.include_router(chat.router, tags=["chat"])
+api_router.include_router(ai_chat.router, prefix="/ai", tags=["ai-chat"])
 api_router.include_router(telegram.router, prefix="/telegram", tags=["telegram"])
 api_router.include_router(telegram_admin.router, tags=["telegram-admin"])
 
@@ -51,6 +58,13 @@ api_router.include_router(treatment_prices.router, prefix="/treatment-prices", t
 
 # AI features
 api_router.include_router(proactive_suggestions.router, prefix="/suggestions", tags=["suggestions"])
+api_router.include_router(decision_queue.router, prefix="/decision-queue", tags=["decision-queue"])
+
+# Dental features
+api_router.include_router(tooth_chart.router, prefix="/tooth-chart", tags=["tooth-chart"])
+api_router.include_router(medical_questionnaire.router, prefix="/medical-questionnaire", tags=["medical-questionnaire"])
+api_router.include_router(xray.router, prefix="/xray", tags=["xray"])
+api_router.include_router(treatment_categories.router, prefix="/treatment-categories", tags=["treatment-categories"])
 
 # Dashboard & Appointments
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
