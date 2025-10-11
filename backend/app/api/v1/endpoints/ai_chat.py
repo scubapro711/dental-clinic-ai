@@ -15,7 +15,7 @@ Key Features:
 import logging
 import json
 from typing import AsyncGenerator, Dict, Any, List
-from fastapi import APIRouter, HTTPException, Depends as FastAPIDepends
+from fastapi import APIRouter, HTTPException, Depends as FastAPIDepends, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -23,6 +23,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.agents.agent_graph_v3 import agent_graph_v3
 from app.api.dependencies import get_current_user as get_user_obj
 from app.agents.utils.guardrails import validate_input
+from app.middleware.rate_limiter import limiter, get_rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -412,7 +413,9 @@ async def stream_agent_response(
         }
     }
 )
+@limiter.limit(get_rate_limit("ai_chat"))
 async def chat(
+    http_request: FastAPIRequest,
     request: ChatRequest,
     current_user: Dict[str, Any] = FastAPIDepends(get_current_user)
 ):
