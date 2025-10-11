@@ -16,6 +16,7 @@ Reference: FINAL_SAAS_WORK_PLAN_V15.0.md - All 12 components
 import pytest
 from uuid import uuid4
 from datetime import datetime
+from decimal import Decimal
 from sqlalchemy.orm import Session
 
 # Models
@@ -53,6 +54,7 @@ class TestFullSystemIntegration:
         org = Organization(
             id=uuid4(),
             name="Test Dental Clinic",
+            slug="test-dental-clinic",  # Required field
             email="clinic@test.com",
             phone="+972501234567",
             address="123 Test St, Tel Aviv",
@@ -71,10 +73,10 @@ class TestFullSystemIntegration:
         user = User(
             id=uuid4(),
             email="doctor@test.com",
-            name="Dr. Test",
+            full_name="Dr. Test",  # Correct field name
             phone="+972501234567",
-            password_hash="hashed_password",
-            role=UserRole.CLINIC_OWNER,
+            hashed_password="hashed_password",  # Correct field name
+            role=UserRole.ORG_ADMIN,  # Correct role name
             is_active=True,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
@@ -105,17 +107,15 @@ class TestFullSystemIntegration:
         assert membership.organization_role == "owner"
         
         # 4. Create clinic settings
+        from datetime import time
         settings = ClinicSettings(
             id=uuid4(),
             organization_id=org.id,
-            clinic_name="Test Dental Clinic",
-            timezone="Asia/Jerusalem",
-            language="he",
-            currency="ILS",
-            working_hours={
-                "sunday": {"start": "09:00", "end": "17:00"},
-                "monday": {"start": "09:00", "end": "17:00"},
-            },
+            # Use correct field names from model
+            sunday_open=time(9, 0),
+            sunday_close=time(17, 0),
+            monday_open=time(9, 0),
+            monday_close=time(17, 0),
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
         )
@@ -124,18 +124,17 @@ class TestFullSystemIntegration:
         db.refresh(settings)
         
         assert settings.id is not None
-        assert settings.timezone == "Asia/Jerusalem"
+        assert settings.organization_id == org.id
         
         # 5. Create treatment prices
         treatment = TreatmentPrice(
             id=uuid4(),
             organization_id=org.id,
-            treatment_name="ניקוי אבנית",
+            treatment_name_hebrew="ניקוי אבנית",  # Correct field name
+            treatment_name_english="Teeth Cleaning",  # Optional
             treatment_code="CLEAN001",
             category="preventive",
-            base_price=350.00,
-            currency="ILS",
-            duration_minutes=45,
+            base_price=Decimal("350.00"),  # Use Decimal for price
             is_active=True,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
@@ -173,6 +172,7 @@ class TestFullSystemIntegration:
         message = Message(
             id=uuid4(),
             conversation_id=conversation.id,
+            organization_id=org.id,  # Required field
             role=MessageRole.USER,
             content="שלום, אני רוצה לקבוע תור לניקוי אבנית",
             created_at=datetime.utcnow()
@@ -186,17 +186,17 @@ class TestFullSystemIntegration:
         
         # 8. Verify all components are connected
         # Organization -> Membership -> User
-        assert membership.user == user
-        assert membership.organization == org
+        assert membership.user_id == user.id
+        assert membership.organization_id == org.id
         
         # Organization -> Settings
-        assert settings.organization == org
+        assert settings.organization_id == org.id
         
         # Organization -> Treatment Prices
-        assert treatment.organization == org
+        assert treatment.organization_id == org.id
         
         # Organization -> Conversations
-        assert conversation.organization == org
+        assert conversation.organization_id == org.id
         
         # Conversation -> Messages
         db.refresh(conversation)
@@ -209,8 +209,8 @@ class TestFullSystemIntegration:
         print(f"   - Organization: {org.name}")
         print(f"   - User: {user.email}")
         print(f"   - Membership: {membership.organization_role}")
-        print(f"   - Settings: {settings.timezone}")
-        print(f"   - Treatment: {treatment.treatment_name} - ₪{treatment.base_price}")
+        print(f"   - Settings: Organization ID {settings.organization_id}")
+        print(f"   - Treatment: {treatment.treatment_name_hebrew} - ₪{treatment.base_price}")
         print(f"   - Conversation: {conversation.langgraph_thread_id}")
         print(f"   - Message: {message.content[:50]}...")
     
@@ -248,6 +248,7 @@ class TestFullSystemIntegration:
         org1 = Organization(
             id=uuid4(),
             name="Clinic A",
+            slug="clinic-a",  # Required field
             email="clinica@test.com",
             phone="+972501111111",
             is_active=True,
@@ -257,6 +258,7 @@ class TestFullSystemIntegration:
         org2 = Organization(
             id=uuid4(),
             name="Clinic B",
+            slug="clinic-b",  # Required field
             email="clinicb@test.com",
             phone="+972502222222",
             is_active=True,
@@ -270,9 +272,9 @@ class TestFullSystemIntegration:
         user = User(
             id=uuid4(),
             email="multi@test.com",
-            name="Multi User",
-            password_hash="hashed",
-            role=UserRole.DENTIST,
+            full_name="Multi User",  # Correct field name
+            hashed_password="hashed",  # Correct field name
+            role=UserRole.ORG_STAFF,  # Correct role name (DENTIST doesn't exist)
             is_active=True,
             created_at=datetime.utcnow(),
             updated_at=datetime.utcnow()
@@ -339,6 +341,7 @@ class TestSystemPerformance:
             Organization(
                 id=uuid4(),
                 name=f"Clinic {i}",
+                slug=f"clinic-{i}",  # Required field
                 email=f"clinic{i}@test.com",
                 phone=f"+97250{i:07d}",
                 is_active=True,

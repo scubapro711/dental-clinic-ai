@@ -3,12 +3,10 @@ Audit Logging System
 For compliance and security monitoring
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Index
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String, DateTime, Text, JSON, Index, Boolean, ForeignKey
 from datetime import datetime
 from enum import Enum
-
-Base = declarative_base()
+from app.core.database import Base
 
 
 class AuditAction(str, Enum):

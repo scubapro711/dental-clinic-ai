@@ -18,12 +18,13 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 # Set test environment before importing app modules
 os.environ["APP_ENV"] = "test"
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+# Use PostgreSQL test database instead of SQLite
+os.environ["DATABASE_URL"] = "postgresql://dentalai_user:dentalai_password@localhost:5432/dentalai_test"
 os.environ["SECRET_KEY"] = "test-secret-key"
 os.environ["JWT_SECRET"] = "test-jwt-secret"
 os.environ["REDIS_URL"] = "redis://localhost:6379/0"
 os.environ["ODOO_URL"] = "http://localhost:8069"
-os.environ["ODOO_DB"] = "test"
+os.environ["ODOO_DB"] = "dentalai_odoo"
 os.environ["ODOO_USERNAME"] = "admin"
 os.environ["ODOO_PASSWORD"] = "admin"
 os.environ["TELEGRAM_BOT_TOKEN"] = "test-token"
@@ -33,13 +34,13 @@ from app.core.database import Base
 from app.models import *  # Import all models
 
 
-# Create in-memory SQLite engine for testing
-SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///:memory:"
+# Create PostgreSQL engine for testing (supports JSONB!)
+SQLALCHEMY_TEST_DATABASE_URL = "postgresql://dentalai_user:dentalai_password@localhost:5432/dentalai_test"
 
 test_engine = create_engine(
     SQLALCHEMY_TEST_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
+    pool_pre_ping=True,  # Verify connections before using
+    echo=False,  # Set to True for SQL debugging
 )
 
 TestingSessionLocal = sessionmaker(

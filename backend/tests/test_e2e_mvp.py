@@ -39,7 +39,7 @@ class TestMVPIntegration:
     async def test_scenario_2_medical_question(self):
         """
         Scenario 2: User asks medical question
-        Expected: Dana routes to Michal
+        Expected: Alex handles it (reception) or Sarah (clinical)
         """
         graph = AgentGraphV2()
         
@@ -51,7 +51,7 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["michal", "dana"]
+        assert response["agent"] in ["alex", "sarah"]  # Updated agent names
         print(f"\n✅ Scenario 2: Medical Question")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -60,7 +60,7 @@ class TestMVPIntegration:
     async def test_scenario_3_billing_inquiry(self):
         """
         Scenario 3: User asks about billing
-        Expected: Dana routes to Yosef
+        Expected: Alex (reception) or Marcus (CFO)
         """
         graph = AgentGraphV2()
         
@@ -72,7 +72,7 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["yosef", "dana"]
+        assert response["agent"] in ["alex", "marcus"]  # Updated agent names
         print(f"\n✅ Scenario 3: Billing Inquiry")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -94,7 +94,7 @@ class TestMVPIntegration:
         
         assert response["response"]
         # Any agent can handle appointment inquiries
-        assert response["agent"] in ["sarah", "dana", "michal"]
+        assert response["agent"] in ["alex", "sarah", "sophia"]  # Updated agent names
         print(f"\n✅ Scenario 4: Appointment Booking")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -170,12 +170,12 @@ class TestMVPIntegration:
         assert response1["response"]
         
         # Turn 2: Follow-up question
+        # LangGraph automatically maintains context via thread_id (conv_id)
         response2 = await graph.process_message(
             user_id=user_id,
             organization_id=org_id,
             conversation_id=conv_id,
             message="How much does it cost?",
-            message_history=response1["state"]["messages"],
         )
         
         assert response2["response"]

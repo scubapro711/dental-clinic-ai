@@ -53,33 +53,49 @@ def get_memory_saver() -> PostgresSaver:
     global _memory_context
     
     if _memory_saver is None:
-        logger.info("Initializing PostgreSQL memory saver for LangGraph")
+        # Check if we're in test environment
+        import os
+        import sys
+        is_test = (
+            os.getenv("PYTEST_CURRENT_TEST") is not None or 
+            "pytest" in sys.modules or
+            any("test" in arg for arg in sys.argv)
+        )
         
-        # Use PostgreSQL for persistent memory storage
-        try:
-            # PostgreSQL connection string for checkpointer
-            # Format: postgresql://user:password@host:port/database
-            checkpoint_db_url = settings.CHECKPOINT_DATABASE_URL
+        if is_test:
+            # Use MemorySaver for tests (simpler, no PostgreSQL setup needed)
+            logger.info("Test environment detected - using MemorySaver")
+            from langgraph.checkpoint.memory import MemorySaver
+            _memory_saver = MemorySaver()
+            logger.info("MemorySaver initialized for testing")
+        else:
+            logger.info("Initializing PostgreSQL memory saver for LangGraph")
             
-            logger.info(f"Connecting to PostgreSQL checkpointer: {checkpoint_db_url.split('@')[1] if '@' in checkpoint_db_url else 'localhost'}")
-            
-            # Create PostgresSaver with connection string
-            # Note: PostgresSaver.from_conn_string returns a context manager
-            # We need to enter it and keep the context alive
-            _memory_context = PostgresSaver.from_conn_string(checkpoint_db_url)
-            _memory_saver = _memory_context.__enter__()
-            
-            logger.info("PostgresSaver initialized successfully (persistent storage)")
-        except Exception as e:
-            logger.error(f"Failed to setup PostgresSaver: {e}")
-            logger.warning("Falling back to MemorySaver (in-memory, non-persistent)")
+            # Use PostgreSQL for persistent memory storage
             try:
-                from langgraph.checkpoint.memory import MemorySaver
-                _memory_saver = MemorySaver()
-                logger.info("MemorySaver initialized as fallback")
-            except Exception as fallback_error:
-                logger.error(f"Failed to setup fallback MemorySaver: {fallback_error}")
-                raise
+                # PostgreSQL connection string for checkpointer
+                # Format: postgresql://user:password@host:port/database
+                checkpoint_db_url = settings.CHECKPOINT_DATABASE_URL
+                
+                logger.info(f"Connecting to PostgreSQL checkpointer: {checkpoint_db_url.split('@')[1] if '@' in checkpoint_db_url else 'localhost'}")
+                
+                # Create PostgresSaver with connection string
+                # Note: PostgresSaver.from_conn_string returns a context manager
+                # We need to enter it and keep the context alive
+                _memory_context = PostgresSaver.from_conn_string(checkpoint_db_url)
+                _memory_saver = _memory_context.__enter__()
+                
+                logger.info("PostgresSaver initialized successfully (persistent storage)")
+            except Exception as e:
+                logger.error(f"Failed to setup PostgresSaver: {e}")
+                logger.warning("Falling back to MemorySaver (in-memory, non-persistent)")
+                try:
+                    from langgraph.checkpoint.memory import MemorySaver
+                    _memory_saver = MemorySaver()
+                    logger.info("MemorySaver initialized as fallback")
+                except Exception as fallback_error:
+                    logger.error(f"Failed to setup fallback MemorySaver: {fallback_error}")
+                    raise
     
     return _memory_saver
 

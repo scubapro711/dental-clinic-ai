@@ -15,7 +15,8 @@ class TelegramConversation(Base):
     __tablename__ = "telegram_conversations"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    telegram_user_id = Column(BigInteger, ForeignKey("telegram_users.telegram_user_id"), nullable=False, index=True)
+    # Reference telegram_users by primary key (id), not telegram_user_id
+    telegram_user_id = Column(UUID(as_uuid=True), ForeignKey("telegram_users.id"), nullable=False, index=True)
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
     conversation_id = Column(UUID(as_uuid=True), nullable=False, index=True) # Links to the main conversations table
 
