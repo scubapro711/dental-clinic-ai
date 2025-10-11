@@ -9,6 +9,10 @@ import ClinicLayout from './layouts/ClinicLayout'
 import SimpleMockLogin from './pages/SimpleMockLogin'
 import RegisterPage from './pages/RegisterPage'
 
+// Onboarding Pages
+import ClinicOnboardingWizard from './pages/ClinicOnboardingWizard'
+import OnboardingDashboard from './pages/OnboardingDashboard'
+
 // Patient Portal Pages
 import PatientDashboard from './pages/patient/PatientDashboard'
 import PatientAppointments from './pages/patient/PatientAppointments'
@@ -66,6 +70,10 @@ function App() {
         {/* Auth Routes (Public) */}
         <Route path="/login" element={<SimpleMockLogin />} />
         <Route path="/register" element={<RegisterPage />} />
+        
+        {/* Onboarding Routes (Public/Protected) */}
+        <Route path="/onboarding" element={<ClinicOnboardingWizard />} />
+        <Route path="/onboarding/dashboard" element={<OnboardingDashboard />} />
         
         {/* Patient Portal Routes (ORG_VIEWER) */}
         <Route
