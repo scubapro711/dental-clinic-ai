@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Send, Loader2, Sparkles, User, Bot, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import FeedbackButtons from './FeedbackButtons';
+import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
 
 /**
  * Professional AI Chat Component with Vercel AI SDK + LangGraph Integration
@@ -30,6 +31,9 @@ export default function AIChat({ user }) {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
+  
+  // ARIA live announcements for screen readers
+  const { message: ariaMessage, politeness, announcePolite, announceAssertive } = useAriaLive();
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -166,6 +170,9 @@ export default function AIChat({ user }) {
     setInput('');
     setIsLoading(true);
     setError(null);
+    
+    // Announce to screen readers
+    announcePolite('Sending message to AI agent');
 
     // Create abort controller for this request
     abortControllerRef.current = new AbortController();
@@ -197,10 +204,14 @@ export default function AIChat({ user }) {
       if (error.name !== 'AbortError') {
         console.error('Error sending message:', error);
         setError('Failed to send message. Please try again.');
+        announceAssertive('Error: Failed to send message. Please try again.');
       }
     } finally {
       setIsLoading(false);
       setCurrentAgent(null);
+      if (!error) {
+        announcePolite('Response received from AI agent');
+      }
     }
   };
 
@@ -502,6 +513,9 @@ export default function AIChat({ user }) {
           </form>
         </div>
       </CardContent>
+      
+      {/* ARIA Live Region for screen reader announcements */}
+      <AriaLiveRegion message={ariaMessage} politeness={politeness} />
     </Card>
   );
 }
