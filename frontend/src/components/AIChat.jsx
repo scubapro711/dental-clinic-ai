@@ -238,13 +238,15 @@ export default function AIChat({ user }) {
 
   // Agent badge component
   const AgentBadge = ({ agent }) => {
+    // 4 Agents from agent_graph_v4.py
     const agentConfig = {
-      alex: { label: 'Alex', color: 'bg-blue-500' },
-      cfo: { label: 'CFO', color: 'bg-green-500' },
-      admin: { label: 'Admin', color: 'bg-purple-500' },
+      alex: { label: 'Alex 🤖', color: 'bg-blue-500', description: 'Reception & Patient Relations' },
+      sarah: { label: 'שרה 👩‍⚕️', color: 'bg-green-500', description: 'Clinical Assistant' },
+      marcus: { label: 'Marcus 💰', color: 'bg-yellow-500', description: 'CFO - Financial Analysis' },
+      sophia: { label: 'Sophia 📊', color: 'bg-purple-500', description: 'Practice Administrator' },
     };
 
-    const config = agentConfig[agent] || { label: agent, color: 'bg-gray-500' };
+    const config = agentConfig[agent] || { label: agent, color: 'bg-gray-500', description: 'AI Agent' };
 
     return (
       <Badge className={cn('text-xs', config.color)}>
