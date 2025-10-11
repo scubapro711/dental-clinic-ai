@@ -30,8 +30,10 @@ from app.api.v1.endpoints import (
     patient_portal,
     invoices,
     financial,
+    dashboard,
+    dashboard_metrics,
 )
-from app.api.v1 import appointments, dashboard
+from app.api.v1 import appointments
 
 # Create main API router
 api_router = APIRouter(prefix="/api/v1")
@@ -68,6 +70,7 @@ api_router.include_router(treatment_categories.router, prefix="/treatment-catego
 
 # Dashboard & Appointments
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(dashboard_metrics.router, prefix="/dashboard/metrics", tags=["dashboard-metrics"])
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])

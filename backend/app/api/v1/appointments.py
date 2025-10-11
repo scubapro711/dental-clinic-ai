@@ -10,7 +10,7 @@ from typing import List, Optional
 import logging
 
 from app.core.database import get_db
-from app.integrations.odoo_client_v2 import OdooClientV2
+from app.integrations.odoo_client_v3 import OdooClientV3
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Initialize Odoo client
-odoo_client = OdooClientV2()
+odoo_client = OdooClientV3()
 
 
 @router.get("/today")
@@ -32,114 +32,67 @@ async def get_todays_appointments(
     Returns list of appointments with patient info
     """
     try:
-        # Connect to Odoo
-        if not odoo_client.authenticate():
-            raise HTTPException(status_code=500, detail="Failed to connect to Odoo")
-        
         # Get today's date range
         today = date.today()
         start_datetime = datetime.combine(today, datetime.min.time())
         end_datetime = datetime.combine(today, datetime.max.time())
         
-        # Search for today's appointments
-        appointment_ids = odoo_client.models.execute_kw(
-            odoo_client.db,
-            odoo_client.uid,
-            odoo_client.password,
+        # Search for today's appointments using V3 API
+        appointments = odoo_client.search_read(
             'medical.appointment',
-            'search',
-            [[
+            domain=[
                 ('appointment_sdate', '>=', start_datetime.strftime('%Y-%m-%d %H:%M:%S')),
                 ('appointment_sdate', '<=', end_datetime.strftime('%Y-%m-%d %H:%M:%S'))
-            ]]
-        )
-        
-        if not appointment_ids:
-            logger.info("No appointments found for today")
-            return []
-        
-        # Read appointment details
-        appointments = odoo_client.models.execute_kw(
-            odoo_client.db,
-            odoo_client.uid,
-            odoo_client.password,
-            'medical.appointment',
-            'read',
-            [appointment_ids],
-            {'fields': [
+            ],
+            fields=[
                 'id',
                 'patient_id',
                 'doctor_id',
                 'appointment_sdate',
-                'appointment_edate'
-            ]}
+                'appointment_edate',
+                'duration',
+                'patient_status',
+                'state',
+                'urgency'
+            ]
         )
+        
+        if not appointments:
+            logger.info("No appointments found for today")
+            return []
         
         # Transform to frontend format
         result = []
         for apt in appointments:
-            # Get patient name
+            # Extract patient info (V3 returns [id, name] for Many2one fields)
+            patient_id = None
             patient_name = "Unknown"
             if apt.get('patient_id'):
-                patient_id = apt['patient_id'][0] if isinstance(apt['patient_id'], list) else apt['patient_id']
-                try:
-                    patient = odoo_client.models.execute_kw(
-                        odoo_client.db,
-                        odoo_client.uid,
-                        odoo_client.password,
-                        'medical.patient',
-                        'read',
-                        [patient_id],
-                        {'fields': ['partner_id']}
-                    )
-                    if patient and patient[0].get('partner_id'):
-                        partner_id = patient[0]['partner_id'][0] if isinstance(patient[0]['partner_id'], list) else patient[0]['partner_id']
-                        partner = odoo_client.models.execute_kw(
-                            odoo_client.db,
-                            odoo_client.uid,
-                            odoo_client.password,
-                            'res.partner',
-                            'read',
-                            [partner_id],
-                            {'fields': ['name']}
-                        )
-                        if partner:
-                            patient_name = partner[0]['name']
-                except Exception as e:
-                    logger.error(f"Error fetching patient name: {e}")
+                if isinstance(apt['patient_id'], list):
+                    patient_id = apt['patient_id'][0]
+                    patient_name = apt['patient_id'][1] if len(apt['patient_id']) > 1 else "Unknown"
+                else:
+                    patient_id = apt['patient_id']
             
-            # Get doctor name
+            # Extract doctor info
             doctor_name = "Unknown"
             if apt.get('doctor_id'):
-                doctor_id = apt['doctor_id'][0] if isinstance(apt['doctor_id'], list) else apt['doctor_id']
-                try:
-                    doctor = odoo_client.models.execute_kw(
-                        odoo_client.db,
-                        odoo_client.uid,
-                        odoo_client.password,
-                        'medical.physician',
-                        'read',
-                        [doctor_id],
-                        {'fields': ['name']}
-                    )
-                    if doctor:
-                        doctor_name = doctor[0]['name']
-                except Exception as e:
-                    logger.error(f"Error fetching doctor name: {e}")
+                if isinstance(apt['doctor_id'], list):
+                    doctor_name = apt['doctor_id'][1] if len(apt['doctor_id']) > 1 else "Unknown"
             
             result.append({
                 'id': apt['id'],
-                'patient_id': apt.get('patient_id', [None])[0] if isinstance(apt.get('patient_id'), list) else apt.get('patient_id'),
+                'patient_id': patient_id,
                 'patient_name': patient_name,
                 'doctor_name': doctor_name,
                 'appointment_start': apt.get('appointment_sdate'),
                 'appointment_end': apt.get('appointment_edate'),
                 'duration': apt.get('duration'),
-                'status': apt.get('patient_status', 'pending'),
+                'status': apt.get('state', 'draft'),
+                'patient_status': apt.get('patient_status', 'pending'),
                 'treatment_type': 'General',  # TODO: Add treatment type field
-                'is_first_visit': False,  # TODO: Add first visit detection
-                'room': apt.get('room'),
-                'clinic_center': apt.get('clinic_center')
+                'is_first_visit': apt.get('patient_status') == 'new',
+                'urgency': apt.get('urgency', False)
             })
         
         logger.info(f"Found {len(result)} appointments for today")
@@ -160,32 +113,51 @@ async def get_appointment(
     Get specific appointment details
     """
     try:
-        if not odoo_client.authenticate():
-            raise HTTPException(status_code=500, detail="Failed to connect to Odoo")
-        
-        appointment = odoo_client.models.execute_kw(
-            odoo_client.db,
-            odoo_client.uid,
-            odoo_client.password,
+        # Use V3 search_read for single appointment
+        appointments = odoo_client.search_read(
             'medical.appointment',
-            'read',
-            [appointment_id],
-            {'fields': [
+            domain=[('id', '=', appointment_id)],
+            fields=[
                 'id',
                 'patient_id',
                 'doctor_id',
                 'appointment_sdate',
-                'appointment_edate'
-            ]}
+                'appointment_edate',
+                'duration',
+                'state',
+                'patient_status',
+                'urgency',
+                'comments'
+            ],
+            limit=1
         )
         
-        if not appointment:
+        if not appointments:
             raise HTTPException(status_code=404, detail="Appointment not found")
         
-        return appointment[0]
+        apt = appointments[0]
+        
+        # Format response
+        result = {
+            'id': apt['id'],
+            'patient_id': apt['patient_id'][0] if isinstance(apt.get('patient_id'), list) else apt.get('patient_id'),
+            'patient_name': apt['patient_id'][1] if isinstance(apt.get('patient_id'), list) and len(apt['patient_id']) > 1 else "Unknown",
+            'doctor_id': apt['doctor_id'][0] if isinstance(apt.get('doctor_id'), list) else apt.get('doctor_id'),
+            'doctor_name': apt['doctor_id'][1] if isinstance(apt.get('doctor_id'), list) and len(apt['doctor_id']) > 1 else "Unknown",
+            'appointment_start': apt.get('appointment_sdate'),
+            'appointment_end': apt.get('appointment_edate'),
+            'duration': apt.get('duration'),
+            'state': apt.get('state', 'draft'),
+            'patient_status': apt.get('patient_status'),
+            'urgency': apt.get('urgency', False),
+            'comments': apt.get('comments')
+        }
+        
+        return result
         
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error fetching appointment {appointment_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+

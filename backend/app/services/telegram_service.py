@@ -13,7 +13,7 @@ from sqlalchemy import and_
 from app.models.telegram_user import TelegramUser, TelegramUserStatus
 from app.models.telegram_conversation import TelegramConversation
 from app.models.telegram_invite_code import TelegramInviteCode, InviteCodeStatus
-from app.integrations.odoo_client_v2 import OdooClientV2
+from app.integrations.odoo_client_v3 import OdooClientV3
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class TelegramService:
     
     def __init__(self, db: Session):
         self.db = db
-        self.odoo_client = OdooClientV2()
+        self.odoo_client = OdooClientV3()
     
     def get_or_create_user(
         self,

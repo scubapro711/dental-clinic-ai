@@ -6,7 +6,10 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.odoo_client import odoo_client
+from app.integrations.odoo_client_v3 import OdooClientV3
+
+# Initialize V3 client
+odoo_client = OdooClientV3()
 
 
 @tool
