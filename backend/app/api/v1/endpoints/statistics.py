@@ -6,18 +6,31 @@ Provides clinic statistics and analytics for the dashboard.
 
 import logging
 from typing import Dict, Any
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timedelta
 
-from app.integrations.mock_odoo_realistic import realistic_mock_odoo
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
+def get_odoo_client() -> OdooClientV3:
+    """Dependency to get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
+
+
 @router.get("/overview")
-async def get_overview_statistics() -> Dict[str, Any]:
+async def get_overview_statistics(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> Dict[str, Any]:
     """
     Get overview statistics for the clinic dashboard.
     
@@ -25,26 +38,65 @@ async def get_overview_statistics() -> Dict[str, Any]:
         Dictionary with clinic statistics
     """
     try:
-        stats = realistic_mock_odoo.get_statistics()
+        # Get total patients
+        total_patients = odoo.search_count('res.partner', [('is_patient', '=', True)])
+        
+        # Get total appointments
+        total_appointments = odoo.search_count('medical.appointment', [])
+        
+        # Get completed appointments
+        completed_appointments = odoo.search_count(
+            'medical.appointment',
+            [('state', '=', 'done')]
+        )
+        
+        # Get total invoices
+        total_invoices = odoo.search_count(
+            'account.move',
+            [('move_type', '=', 'out_invoice'), ('state', '=', 'posted')]
+        )
+        
+        # Get paid invoices
+        paid_invoices = odoo.search_count(
+            'account.move',
+            [
+                ('move_type', '=', 'out_invoice'),
+                ('state', '=', 'posted'),
+                ('payment_state', '=', 'paid')
+            ]
+        )
+        
+        # Get total revenue
+        invoices = odoo.search_read(
+            'account.move',
+            domain=[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')],
+            fields=['amount_total']
+        )
+        total_revenue = sum(inv['amount_total'] for inv in invoices)
         
         # Calculate additional metrics
         completion_rate = (
-            stats["completed_appointments"] / stats["total_appointments"] * 100
-            if stats["total_appointments"] > 0 else 0
+            completed_appointments / total_appointments * 100
+            if total_appointments > 0 else 0
         )
         
         payment_rate = (
-            stats["paid_invoices"] / stats["total_invoices"] * 100
-            if stats["total_invoices"] > 0 else 0
+            paid_invoices / total_invoices * 100
+            if total_invoices > 0 else 0
         )
         
         avg_revenue_per_patient = (
-            stats["total_revenue"] / stats["total_patients"]
-            if stats["total_patients"] > 0 else 0
+            total_revenue / total_patients
+            if total_patients > 0 else 0
         )
         
         return {
-            **stats,
+            "total_patients": total_patients,
+            "total_appointments": total_appointments,
+            "completed_appointments": completed_appointments,
+            "total_invoices": total_invoices,
+            "paid_invoices": paid_invoices,
+            "total_revenue": total_revenue,
             "completion_rate": round(completion_rate, 1),
             "payment_rate": round(payment_rate, 1),
             "avg_revenue_per_patient": round(avg_revenue_per_patient, 2),
@@ -57,7 +109,9 @@ async def get_overview_statistics() -> Dict[str, Any]:
 
 
 @router.get("/patients")
-async def get_patient_statistics() -> Dict[str, Any]:
+async def get_patient_statistics(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> Dict[str, Any]:
     """
     Get patient-related statistics.
     
@@ -65,34 +119,51 @@ async def get_patient_statistics() -> Dict[str, Any]:
         Dictionary with patient statistics
     """
     try:
-        # Get all patients
-        patients = realistic_mock_odoo.patients
-        
-        # Calculate statistics
-        total_patients = len(patients)
-        
-        # Patients with outstanding balance
-        patients_with_balance = len([p for p in patients if p["outstanding_balance"] > 0])
+        # Get total patients
+        total_patients = odoo.search_count('res.partner', [('is_patient', '=', True)])
         
         # New patients (registered in last 30 days)
         thirty_days_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-        new_patients = len([
-            p for p in patients 
-            if p["registration_date"] >= thirty_days_ago
-        ])
+        new_patients = odoo.search_count(
+            'res.partner',
+            [
+                ('is_patient', '=', True),
+                ('create_date', '>=', thirty_days_ago)
+            ]
+        )
         
-        # Active patients (visited in last 90 days)
+        # Active patients (with appointments in last 90 days)
         ninety_days_ago = (datetime.now() - timedelta(days=90)).strftime("%Y-%m-%d")
-        active_patients = len([
-            p for p in patients 
-            if p["last_visit"] and p["last_visit"] >= ninety_days_ago
-        ])
         
-        # Insurance distribution
-        insurance_dist = {}
-        for patient in patients:
-            provider = patient.get("insurance_provider", "None")
-            insurance_dist[provider] = insurance_dist.get(provider, 0) + 1
+        # Get patients with recent appointments
+        recent_appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', f"{ninety_days_ago} 00:00:00"),
+                ('state', '=', 'done')
+            ],
+            fields=['patient_id']
+        )
+        
+        # Count unique patients
+        active_patient_ids = set()
+        for appt in recent_appointments:
+            patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
+            active_patient_ids.add(patient_id)
+        active_patients = len(active_patient_ids)
+        
+        # Patients with outstanding balance
+        patients_with_balance = odoo.search_count(
+            'res.partner',
+            [
+                ('is_patient', '=', True),
+                ('credit', '>', 0)  # Odoo tracks receivables in 'credit' field
+            ]
+        )
+        
+        # Insurance distribution (if available)
+        # TODO: Add insurance field to res.partner
+        insurance_dist = {"None": total_patients}  # Placeholder
         
         return {
             "total_patients": total_patients,
@@ -109,7 +180,9 @@ async def get_patient_statistics() -> Dict[str, Any]:
 
 
 @router.get("/appointments")
-async def get_appointment_statistics() -> Dict[str, Any]:
+async def get_appointment_statistics(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> Dict[str, Any]:
     """
     Get appointment-related statistics.
     
@@ -117,30 +190,34 @@ async def get_appointment_statistics() -> Dict[str, Any]:
         Dictionary with appointment statistics
     """
     try:
-        appointments = realistic_mock_odoo.appointments
+        # Get all appointments
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[],
+            fields=['id', 'state', 'appointment_sdate']
+        )
         
         # Status distribution
         status_dist = {}
         for appt in appointments:
-            status = appt["status"]
+            status = appt['state']
             status_dist[status] = status_dist.get(status, 0) + 1
         
         # Upcoming appointments (next 7 days)
         today = datetime.now().strftime("%Y-%m-%d")
         seven_days = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
-        upcoming = len([
-            a for a in appointments
-            if a["status"] == "scheduled" and today <= a["date"] <= seven_days
-        ])
+        upcoming = odoo.search_count(
+            'medical.appointment',
+            [
+                ('state', 'in', ['draft', 'confirmed']),
+                ('appointment_sdate', '>=', f"{today} 00:00:00"),
+                ('appointment_sdate', '<=', f"{seven_days} 23:59:59")
+            ]
+        )
         
         # Treatment type distribution
-        treatment_dist = {}
-        for appt in appointments:
-            treatment = appt["treatment_type"]
-            treatment_dist[treatment] = treatment_dist.get(treatment, 0) + 1
-        
-        # Sort by popularity
-        treatment_dist = dict(sorted(treatment_dist.items(), key=lambda x: x[1], reverse=True))
+        # TODO: Add treatment_type field or use product.product
+        treatment_dist = {"General Checkup": len(appointments)}  # Placeholder
         
         return {
             "total_appointments": len(appointments),
@@ -156,7 +233,9 @@ async def get_appointment_statistics() -> Dict[str, Any]:
 
 
 @router.get("/revenue")
-async def get_revenue_statistics() -> Dict[str, Any]:
+async def get_revenue_statistics(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> Dict[str, Any]:
     """
     Get revenue and financial statistics.
     
@@ -164,39 +243,40 @@ async def get_revenue_statistics() -> Dict[str, Any]:
         Dictionary with revenue statistics
     """
     try:
-        invoices = realistic_mock_odoo.invoices
+        # Get all posted invoices
+        invoices = odoo.search_read(
+            'account.move',
+            domain=[('move_type', '=', 'out_invoice'), ('state', '=', 'posted')],
+            fields=['amount_total', 'amount_residual', 'payment_state', 'invoice_date']
+        )
         
         # Total revenue
-        total_revenue = sum(inv["total_amount"] for inv in invoices)
+        total_revenue = sum(inv['amount_total'] for inv in invoices)
         
         # Outstanding balance
-        outstanding = sum(inv["outstanding_amount"] for inv in invoices)
+        outstanding = sum(inv['amount_residual'] for inv in invoices)
         
-        # Paid vs unpaid
-        paid_amount = sum(inv["paid_amount"] for inv in invoices)
+        # Paid amount
+        paid_amount = total_revenue - outstanding
         
         # Revenue by treatment type
-        revenue_by_treatment = {}
-        for inv in invoices:
-            treatment = inv["treatment"]
-            revenue_by_treatment[treatment] = revenue_by_treatment.get(treatment, 0) + inv["total_amount"]
-        
-        # Sort by revenue
-        revenue_by_treatment = dict(sorted(revenue_by_treatment.items(), key=lambda x: x[1], reverse=True))
+        # TODO: Add treatment type from invoice lines
+        revenue_by_treatment = {"General Treatment": total_revenue}  # Placeholder
         
         # Monthly revenue (last 12 months)
         monthly_revenue = {}
         for inv in invoices:
-            month = inv["issue_date"][:7]  # YYYY-MM
-            monthly_revenue[month] = monthly_revenue.get(month, 0) + inv["total_amount"]
+            if inv.get('invoice_date'):
+                month = str(inv['invoice_date'])[:7]  # YYYY-MM
+                monthly_revenue[month] = monthly_revenue.get(month, 0) + inv['amount_total']
         
         # Sort by month
         monthly_revenue = dict(sorted(monthly_revenue.items()))
         
         return {
-            "total_revenue": total_revenue,
-            "paid_amount": paid_amount,
-            "outstanding_balance": outstanding,
+            "total_revenue": round(total_revenue, 2),
+            "paid_amount": round(paid_amount, 2),
+            "outstanding_balance": round(outstanding, 2),
             "collection_rate": round(paid_amount / total_revenue * 100, 1) if total_revenue > 0 else 0,
             "revenue_by_treatment": revenue_by_treatment,
             "monthly_revenue": monthly_revenue,
@@ -209,39 +289,64 @@ async def get_revenue_statistics() -> Dict[str, Any]:
 
 
 @router.get("/top-patients")
-async def get_top_patients(limit: int = 10) -> Dict[str, Any]:
+async def get_top_patients(
+    limit: int = 10,
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> Dict[str, Any]:
     """
     Get top patients by revenue.
     
     Args:
         limit: Number of top patients to return
+        odoo: Odoo client instance
         
     Returns:
         List of top patients
     """
     try:
-        # Calculate revenue per patient
-        patient_revenue = {}
-        for inv in realistic_mock_odoo.invoices:
-            patient_id = inv["patient_id"]
-            patient_revenue[patient_id] = patient_revenue.get(patient_id, 0) + inv["total_amount"]
+        # Get all patients with their total receivables
+        patients = odoo.search_read(
+            'res.partner',
+            domain=[('is_patient', '=', True)],
+            fields=['id', 'name', 'phone', 'credit', 'debit'],
+            limit=limit * 3,  # Get more to filter
+            order='debit DESC'  # Order by total invoiced (debit)
+        )
+        
+        # Get patient details with appointment count
+        result = []
+        for patient in patients[:limit]:
+            # Get appointment count
+            appt_count = odoo.search_count(
+                'medical.appointment',
+                [('patient_id', '=', patient['id']), ('state', '=', 'done')]
+            )
+            
+            # Get total revenue (from invoices)
+            patient_invoices = odoo.search_read(
+                'account.move',
+                domain=[
+                    ('partner_id', '=', patient['id']),
+                    ('move_type', '=', 'out_invoice'),
+                    ('state', '=', 'posted')
+                ],
+                fields=['amount_total', 'amount_residual']
+            )
+            
+            total_revenue = sum(inv['amount_total'] for inv in patient_invoices)
+            outstanding_balance = sum(inv['amount_residual'] for inv in patient_invoices)
+            
+            result.append({
+                "patient_id": patient['id'],
+                "name": patient['name'],
+                "phone": patient.get('phone'),
+                "total_revenue": round(total_revenue, 2),
+                "total_visits": appt_count,
+                "outstanding_balance": round(outstanding_balance, 2),
+            })
         
         # Sort by revenue
-        top_patients = sorted(patient_revenue.items(), key=lambda x: x[1], reverse=True)[:limit]
-        
-        # Get patient details
-        result = []
-        for patient_id, revenue in top_patients:
-            patient = realistic_mock_odoo.get_patient(patient_id)
-            if patient:
-                result.append({
-                    "patient_id": patient_id,
-                    "name": patient["name"],
-                    "phone": patient["phone"],
-                    "total_revenue": revenue,
-                    "total_visits": patient["total_visits"],
-                    "outstanding_balance": patient["outstanding_balance"],
-                })
+        result.sort(key=lambda x: x['total_revenue'], reverse=True)
         
         return {
             "top_patients": result,
@@ -251,3 +356,4 @@ async def get_top_patients(limit: int = 10) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Error getting top patients: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
