@@ -30,7 +30,7 @@ class TelegramUser(Base):
     is_verified = Column(Boolean, default=False)
 
     # Preferences
-    language = Column(String(10), default=\'he\')
+    language = Column(String(10), default='he')
     notifications_enabled = Column(Boolean, default=True)
 
     # Metadata
@@ -42,4 +42,16 @@ class TelegramUser(Base):
 
     def __repr__(self):
         return f"<TelegramUser(telegram_id={self.telegram_user_id}, org_id={self.organization_id})>"
+
+
+
+
+# Enum for Telegram User Status
+from enum import Enum
+
+class TelegramUserStatus(str, Enum):
+    PENDING = "pending"
+    ACTIVE = "active"
+    BLOCKED = "blocked"
+    INACTIVE = "inactive"
 

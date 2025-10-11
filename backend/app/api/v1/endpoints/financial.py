@@ -36,7 +36,7 @@ class FinancialSummaryResponse(BaseModel):
 def get_financial_summary(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get comprehensive financial summary.
@@ -69,7 +69,7 @@ def get_financial_summary(
 def get_revenue(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get revenue overview for a time period.
@@ -93,7 +93,7 @@ def get_revenue(
 @router.get("/outstanding")
 def get_outstanding(
     patient_id: Optional[int] = Query(None, description="Filter by patient ID"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get outstanding balance (unpaid invoices).
@@ -113,7 +113,7 @@ def get_treatment_revenue(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     limit: int = Query(20, description="Number of top treatments"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get revenue by treatment type.
@@ -145,7 +145,7 @@ def get_invoices(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     limit: int = Query(100, description="Maximum number of results"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN, UserRole.DOCTOR])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get invoices with optional filters.
@@ -172,7 +172,7 @@ def get_payments(
     date_from: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
     date_to: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
     limit: int = Query(100, description="Maximum number of results"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
 ):
     """
     Get payments with optional filters.

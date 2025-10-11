@@ -5,7 +5,7 @@ Stores the context and state of a conversation with a user on Telegram.
 """
 
 import uuid
-from sqlalchemy import Column, BigInteger, ForeignKey, DateTime, Integer
+from sqlalchemy import Column, BigInteger, ForeignKey, DateTime, Integer, String
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
 

@@ -2,18 +2,25 @@
 
 ## מערכת SaaS לניהול מרפאות שיניים עם סוכנים אוטונומיים
 
-**גרסה:** v23.0.0 (Final Master Plan V3 - Phase 1-5 Complete + Phase 5.5 Added)  
-**תאריך עדכון:** אוקטובר 10, 2025  
-**סטטוס נוכחי:** Phase 5 Complete (85% overall - Phases 1-5 done)  
-**יעד:** שלושה דשבורדים מושלמים + 4 סוכנים פרואקטיביים מלאים + Super Admin Dashboard + פריסה לייצור
+**גרסה:** v24.0.0 (Final Master Plan V4 - Phase 6 Complete, Phase 7 In Progress)  
+**תאריך עדכון:** אוקטובר 11, 2025  
+**סטטוס נוכחי:** Phase 6 Complete (88% overall - Phases 1-6 done)  
+**יעד:** שלושה פורטלים מופרדים + 4 סוכנים מלאים + Super Admin Dashboard + פריסה לייצור
 
-**🎉 השלמת Phases 1-5:**
+**🎉 השלמת Phases 1-6:**
 - ✅ **Phase 1:** שרה - עוזרת קלינית (95% complete)
 - ✅ **Phase 2:** Telegram Integration (90% complete)
 - ✅ **Phase 3:** Marcus - CFO Expansion + Israeli Tax (95% complete)
 - ✅ **Phase 4:** Sophia - Operations Manager (90% complete)
 - ✅ **Phase 5:** Vector DB + RAG (60% complete - infrastructure ready)
-- 🔄 **Phase 5.5:** Complete Tools Expansion (Starting now - 3 weeks, 45 tools)
+- ✅ **Phase 5.5:** Complete Tools Expansion (100% complete - 125 tools, 92.5% coverage)
+- ✅ **Phase 6:** Testing (100% complete - 142/142 tests passing)
+  - ✅ 6.1: Initialization Tests (5/5)
+  - ✅ 6.2: Functional Tests (101/101)
+  - ✅ 6.3: Integration Tests (16/16)
+  - ✅ 6.4: E2E Tests (8/8)
+  - ✅ 6.5: Performance Tests (12/12)
+- 🔄 **Phase 7:** Portal Separation (Starting now - 1-2 weeks)
 
 **🆕 עדכונים בגרסה V3 (Phases 1-3):**
 
@@ -721,6 +728,179 @@ class StripeClient:
 ---
 
 ## 📊 Timeline & Phases
+
+### Phase 6: Testing (2 שבועות) ✅ **COMPLETED**
+**מטרה:** בדיקות מקיפות לכל המערכת
+
+**תוצאות:**
+- ✅ **142/142 tests passing (100%)**
+- ✅ Phase 6.1: Initialization Tests (5/5)
+- ✅ Phase 6.2: Functional Tests (101/101)
+- ✅ Phase 6.3: Integration Tests (16/16)
+- ✅ Phase 6.4: E2E Tests (8/8)
+- ✅ Phase 6.5: Performance Tests (12/12)
+
+**מדדי ביצועים:**
+- Average response time: 3.3s
+- Concurrent users: 10 (stable)
+- Memory usage: Stable (no leaks)
+- All agents operational
+
+**קבצים:**
+- `backend/app/tests/test_agent_initialization.py`
+- `backend/app/tests/test_alex_functional.py`
+- `backend/app/tests/test_sarah_functional.py`
+- `backend/app/tests/test_marcus_functional.py`
+- `backend/app/tests/test_sophia_functional.py`
+- `backend/app/tests/test_integration_*.py`
+- `backend/app/tests/test_e2e_*.py`
+- `backend/app/tests/test_performance_*.py`
+
+**דוחות:**
+- `PHASE_6.5_COMPLETION_REPORT.md`
+- `PROJECT_STATUS_PHASE_6_COMPLETE.md`
+
+**References:**
+- `backend/app/tests/PERFORMANCE_TEST_PLAN.md`
+- All test files in `backend/app/tests/`
+
+---
+
+### Phase 7: Portal Separation (1-2 שבועות) 🚪 **IN PROGRESS**
+**מטרה:** הפרדת 3 פורטלים נפרדים עם RBAC מלא
+
+**סטטוס נוכחי:**
+- ✅ Code inventory complete
+- ✅ Existing components mapped
+- 🔄 Phase 7.1: Routing Infrastructure (in progress)
+
+**קבצים קיימים (לא צריך ליצור!):**
+```
+✅ frontend/src/pages/AgenticDashboard.jsx         # Clinic Portal (מלא!)
+✅ frontend/src/pages/DashboardPage.jsx            # Patient Portal (בסיסי)
+✅ frontend/src/components/dashboard/MissionControlLayout.jsx  # Layout מלא
+✅ frontend/src/components/routing/ProtectedRoute.jsx          # Protected routes
+✅ frontend/src/components/widgets/*               # 13 widgets
+✅ frontend/src/components/transparency/*          # 6 transparency components
+✅ frontend/src/components/ui/*                    # 40+ UI components (shadcn/ui)
+```
+
+**Week 1: Routing & Patient Portal**
+
+**Day 1: Routing Infrastructure**
+- [x] `ProtectedRoute` component (already exists!)
+- [ ] `RoleBasedRedirect` component
+- [ ] Update `App.jsx` with 3 portal routes:
+  ```
+  /patient/*   → Patient Portal (ORG_VIEWER)
+  /clinic/*    → Clinic Portal (ORG_ADMIN, ORG_STAFF)
+  /admin/*     → Admin Portal (SUPER_ADMIN)
+  ```
+- [ ] Role-based redirects
+- [ ] 404 page
+
+**Files to update:**
+```
+frontend/src/App.jsx                               # Main routing
+frontend/src/components/routing/RoleBasedRedirect.jsx  # New
+```
+
+**Day 2-3: Patient Portal Pages**
+- [ ] `PatientAppointments.jsx` - ניהול תורים
+- [ ] `PatientMedicalRecords.jsx` - רשומות רפואיות
+- [ ] `PatientBilling.jsx` - תשלומים
+- [ ] `PatientProfile.jsx` - פרופיל אישי
+- [ ] `PatientChat.jsx` - צ'אט עם Alex
+
+**Base:** `DashboardPage.jsx` (already exists!)
+**Layout:** Use `MissionControlLayout` with patient-specific nav
+
+**Files to create:**
+```
+frontend/src/pages/patient/PatientDashboard.jsx    # Based on DashboardPage.jsx
+frontend/src/pages/patient/PatientAppointments.jsx
+frontend/src/pages/patient/PatientMedicalRecords.jsx
+frontend/src/pages/patient/PatientBilling.jsx
+frontend/src/pages/patient/PatientProfile.jsx
+frontend/src/pages/patient/PatientChat.jsx
+```
+
+**Day 4-5: Clinic Portal Pages**
+- [ ] `PatientsManagement.jsx` - ניהול מטופלים
+- [ ] `ScheduleManagement.jsx` - לוח זמנים
+- [ ] `ClinicalWorkspace.jsx` - עבודה קלינית
+- [ ] `FinancialManagement.jsx` - פיננסי
+- [ ] `OperationsDashboard.jsx` - תפעול
+
+**Base:** `AgenticDashboard.jsx` (already exists!)
+**Layout:** Use `MissionControlLayout` (already exists!)
+
+**Files to create:**
+```
+frontend/src/pages/clinic/ClinicDashboard.jsx      # Based on AgenticDashboard.jsx
+frontend/src/pages/clinic/PatientsManagement.jsx
+frontend/src/pages/clinic/ScheduleManagement.jsx
+frontend/src/pages/clinic/ClinicalWorkspace.jsx
+frontend/src/pages/clinic/FinancialManagement.jsx
+frontend/src/pages/clinic/OperationsDashboard.jsx
+```
+
+**Week 2: Admin Portal & RBAC**
+
+**Day 1-3: Admin Portal Pages**
+- [ ] `AdminDashboard.jsx` - סקירה כללית
+- [ ] `OrganizationsManagement.jsx` - ניהול ארגונים
+- [ ] `UsersManagement.jsx` - ניהול משתמשים
+- [ ] `SystemSettings.jsx` - הגדרות מערכת
+- [ ] `SystemMonitoring.jsx` - ניטור
+- [ ] `AgentManagement.jsx` - ניהול agents
+
+**Layout:** Use `MissionControlLayout` with admin-specific nav
+
+**Files to create:**
+```
+frontend/src/pages/admin/AdminDashboard.jsx
+frontend/src/pages/admin/OrganizationsManagement.jsx
+frontend/src/pages/admin/UsersManagement.jsx
+frontend/src/pages/admin/SystemSettings.jsx
+frontend/src/pages/admin/SystemMonitoring.jsx
+frontend/src/pages/admin/AgentManagement.jsx
+```
+
+**Day 4: RBAC Implementation**
+- [ ] Widget permissions system
+- [ ] Role-based component rendering
+- [ ] Permission checks in routes
+- [ ] Backend RBAC decorators (already exists partially!)
+
+**Files to update:**
+```
+backend/app/api/dependencies.py                    # Update require_role
+frontend/src/components/widgets/BaseWidget.jsx    # Add permissions
+frontend/src/utils/permissions.js                  # New
+```
+
+**Day 5: Testing & Documentation**
+- [ ] E2E tests for all portals
+- [ ] Role switching tests
+- [ ] Widget permission tests
+- [ ] Update documentation
+
+**Success Criteria:**
+- ✅ 3 portals fully separated
+- ✅ Role-based routing works
+- ✅ Widget permissions enforced
+- ✅ All existing features work in new structure
+- ✅ Tests pass
+
+**References:**
+- `PHASE_7_CODE_INVENTORY.md` - מלאי קוד מלא
+- `PHASE_7_PORTAL_ARCHITECTURE_CONTEXT.md` - הקשר ארכיטקטורה
+- `docs/work-plans/CLINIC_PORTAL_WORK_PLAN_V2.md`
+- `docs/work-plans/PHASE_3_PATIENT_PORTAL.md`
+- `CLINIC_PORTAL_TECHNICAL_DEEP_DIVE.md`
+
+---
 
 ### Phase 0: Foundation Updates (1 שבוע) 🔧
 **מטרה:** הכנת התשתית ל-Super Admin

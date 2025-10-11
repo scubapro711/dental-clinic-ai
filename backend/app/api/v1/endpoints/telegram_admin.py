@@ -91,7 +91,7 @@ class TelegramConversationResponse(BaseModel):
 @router.post("/invite-codes", response_model=InviteCodeResponse)
 def create_invite_code(
     data: InviteCodeCreate,
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -132,7 +132,7 @@ def create_invite_code(
 @router.get("/invite-codes", response_model=List[InviteCodeResponse])
 def list_invite_codes(
     status: Optional[InviteCodeStatus] = Query(None, description="Filter by status"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -153,7 +153,7 @@ def list_invite_codes(
 @router.delete("/invite-codes/{code}")
 def deactivate_invite_code(
     code: str,
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -181,7 +181,7 @@ def deactivate_invite_code(
 @router.get("/users", response_model=List[TelegramUserResponse])
 def list_telegram_users(
     status: Optional[TelegramUserStatus] = Query(None, description="Filter by status"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -202,7 +202,7 @@ def list_telegram_users(
 @router.get("/users/{telegram_user_id}", response_model=TelegramUserResponse)
 def get_telegram_user(
     telegram_user_id: int,
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -225,7 +225,7 @@ def get_telegram_user(
 @router.delete("/users/{telegram_user_id}")
 def unlink_telegram_user(
     telegram_user_id: int,
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -258,7 +258,7 @@ def unlink_telegram_user(
 @router.get("/conversations", response_model=List[TelegramConversationResponse])
 def list_conversations(
     active_only: bool = Query(True, description="Show only active conversations"),
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """
@@ -278,7 +278,7 @@ def list_conversations(
 
 @router.get("/stats")
 def get_telegram_stats(
-    current_user: User = Depends(require_role([UserRole.OWNER, UserRole.ADMIN])),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ):
     """

@@ -5,6 +5,7 @@ Maps DentaFlow users to Odoo patients for efficient data retrieval.
 """
 
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, Index
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -34,7 +35,7 @@ class UserPatientMapping(Base):
     id = Column(Integer, primary_key=True, index=True)
     
     # User identification
-    user_id = Column(String, nullable=False, index=True, unique=True)
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True, unique=True)
     
     # Odoo patient identification
     odoo_patient_id = Column(Integer, nullable=False, index=True)

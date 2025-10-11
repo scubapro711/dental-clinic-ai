@@ -441,6 +441,8 @@ Respond in Hebrew or English based on the user's language."""
                     tool_results[tool_name] = result
                 
                 # Store tool results in state
+                if "tool_results" not in state:
+                    state["tool_results"] = {}
                 state["tool_results"].update(tool_results)
                 
                 # Generate final response with tool results

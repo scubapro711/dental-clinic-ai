@@ -46,7 +46,7 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     from app.services.team_invitation_service import team_invitation_service
     
     organization_id = None
-    user_role = "patient"  # Default role
+    user_role = "PATIENT"  # Default role (must be uppercase for enum)
     invitation = None
     
     # Check if registration is via invitation

@@ -28,11 +28,12 @@ security = HTTPBearer()
 
 async def get_current_cognito_user(
     credentials: HTTPAuthorizationCredentials = Depends(security)
-) -> CognitoUser:
+) -> Optional[CognitoUser]:
     """
     Get current user from Cognito JWT token.
     
     Validates token and extracts user information.
+    Returns None if Cognito is not configured.
     
     Raises:
         HTTPException: If token is invalid or expired
@@ -41,6 +42,11 @@ async def get_current_cognito_user(
     
     try:
         cognito_client = get_cognito_client()
+        
+        # If Cognito is not configured, return None (will fallback to JWT)
+        if cognito_client is None:
+            return None
+        
         cognito_user = cognito_client.get_user_from_token(token)
         
         return cognito_user
@@ -54,26 +60,55 @@ async def get_current_cognito_user(
         )
     except Exception as e:
         logger.error(f"Authentication error: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication failed",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
+        # If Cognito fails, return None to allow fallback
+        return None
 
 
 async def get_current_user(
-    cognito_user: CognitoUser = Depends(get_current_cognito_user),
+    cognito_user: Optional[CognitoUser] = Depends(get_current_cognito_user),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """
     Get current DentaFlow user from database.
     
-    Links Cognito user to DentaFlow User model.
-    Creates user if doesn't exist (auto-registration).
+    Supports both Cognito and JWT authentication.
+    Falls back to JWT if Cognito is not configured.
     
     Raises:
         HTTPException: If user cannot be found or created
     """
+    # If Cognito is not configured or failed, use JWT authentication
+    if cognito_user is None:
+        from app.services.auth_service import AuthService
+        
+        token = credentials.credentials
+        token_data = AuthService.verify_token(token)
+        
+        if token_data is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        user = AuthService.get_user_by_id(db, token_data.user_id)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        
+        if not user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Inactive user",
+            )
+        
+        return user
+    
+    # Cognito authentication
     # Find user by Cognito sub (UUID)
     user = db.query(User).filter(User.cognito_sub == cognito_user.sub).first()
     

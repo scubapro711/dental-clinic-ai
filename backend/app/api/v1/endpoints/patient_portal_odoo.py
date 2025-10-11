@@ -10,21 +10,18 @@ from datetime import datetime, timedelta, date
 import logging
 
 from app.core.database import get_db
-from app.core.auth import get_current_user
+from app.api.dependencies import get_current_user
 from app.models.user import User
-from app.integrations.odoo_client_v2 import OdooClientV2, OdooConnectionError
+from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
 from app.crud import user_patient_mapping as mapping_crud
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize Odoo client
-try:
-    odoo_client = OdooClientV2()
-except Exception as e:
-    logger.error(f"Failed to initialize Odoo client: {e}")
-    odoo_client = None
+# Initialize Mock Odoo client
+odoo_client = RealisticMockOdooClient()
+logger.info("RealisticMockOdooClient initialized successfully")
 
 
 def get_odoo_patient_id(user: User, db: Session) -> Optional[int]:
@@ -54,37 +51,9 @@ def get_odoo_patient_id(user: User, db: Session) -> Optional[int]:
             logger.info(f"Found mapping for user {user.id} -> patient {mapping.odoo_patient_id}")
             return mapping.odoo_patient_id
         
-        # Step 2: No mapping found, search Odoo by email (slow)
-        logger.info(f"No mapping found for user {user.id}, searching Odoo by email")
-        patients = odoo_client.search_patients(email=user.email)
-        
-        if not patients or len(patients) == 0:
-            logger.warning(f"No patient found in Odoo for email {user.email}")
-            return None
-        
-        # Get patient ID from search results
-        patient = patients[0]
-        if isinstance(patient, dict) and 'id' in patient:
-            patient_id = patient['id']
-            patient_name = patient.get('name', user.full_name)
-        elif isinstance(patient, int):
-            patient_id = patient
-            patient_name = user.full_name
-        else:
-            logger.error(f"Unexpected patient data format: {patient}")
-            return None
-        
-        # Step 3: Create mapping for future lookups
-        logger.info(f"Creating mapping for user {user.id} -> patient {patient_id}")
-        mapping_crud.create_mapping(
-            db=db,
-            user_id=user.id,
-            odoo_patient_id=patient_id,
-            email=user.email,
-            full_name=patient_name
-        )
-        
-        return patient_id
+        # Step 2: No mapping found - user must create mapping via /patients/search and /mappings/me
+        logger.warning(f"No mapping found for user {user.id}. User must complete onboarding.")
+        return None
         
     except Exception as e:
         logger.error(f"Error finding patient ID for user {user.email}: {e}")
@@ -118,7 +87,7 @@ async def get_patient_profile(
             }
         
         # Fetch from Odoo
-        patient = odoo_client.get_patient_by_id(patient_id)
+        patient = odoo_client.get_patient(patient_id)
         
         return {
             "id": str(current_user.id),
@@ -175,10 +144,13 @@ async def get_health_score(
             }
         
         # Get patient's appointments
-        appointments = odoo_client.get_appointments(
-            patient_id=patient_id,
-            limit=10
-        )
+        appointment_ids = odoo_client.search_appointments(patient_id=patient_id)
+        
+        appointments = []
+        for apt_id in appointment_ids[:10]:
+            apt = odoo_client.get_appointment(apt_id)
+            if apt:
+                appointments.append(apt)
         
         # Calculate score based on appointment history
         score = 70  # Base score
@@ -268,10 +240,14 @@ async def get_appointments(
             }
         
         # Fetch appointments from Odoo
-        all_appointments = odoo_client.get_appointments(
-            patient_id=patient_id,
-            limit=limit + offset  # Fetch more to handle filtering
-        )
+        appointment_ids = odoo_client.search_appointments(patient_id=patient_id)
+        
+        # Get full appointment data
+        all_appointments = []
+        for apt_id in appointment_ids[:limit + offset]:
+            apt = odoo_client.get_appointment(apt_id)
+            if apt:
+                all_appointments.append(apt)
         
         # Parse and format appointments
         formatted_appointments = []
@@ -335,19 +311,36 @@ async def get_doctors(
         raise HTTPException(status_code=503, detail="Odoo service unavailable")
     
     try:
-        doctors = odoo_client.get_doctors()
-        
-        formatted_doctors = []
-        for doctor in doctors:
-            formatted_doctors.append({
-                "id": doctor['id'],
-                "name": doctor.get('name', 'Unknown'),
-                "email": doctor.get('work_email'),
-                "phone": doctor.get('work_phone'),
-                "specialization": "General Dentistry",  # Could be from Odoo
-                "available": True,  # Could be calculated from schedule
-                "image_url": None  # Could be from Odoo
-            })
+        # Mock doctors data (RealisticMockOdooClient doesn't have doctors yet)
+        formatted_doctors = [
+            {
+                "id": 1,
+                "name": "Dr. Rachel Cohen",
+                "email": "rachel.cohen@dentaflow.com",
+                "phone": "+972-3-1234567",
+                "specialization": "General Dentistry",
+                "available": True,
+                "image_url": None
+            },
+            {
+                "id": 2,
+                "name": "Dr. David Levi",
+                "email": "david.levi@dentaflow.com",
+                "phone": "+972-3-1234568",
+                "specialization": "Orthodontics",
+                "available": True,
+                "image_url": None
+            },
+            {
+                "id": 3,
+                "name": "Dr. Sarah Mizrahi",
+                "email": "sarah.mizrahi@dentaflow.com",
+                "phone": "+972-3-1234569",
+                "specialization": "Pediatric Dentistry",
+                "available": True,
+                "image_url": None
+            }
+        ]
         
         return {
             "doctors": formatted_doctors,
@@ -359,7 +352,7 @@ async def get_doctors(
         raise HTTPException(status_code=500, detail="Failed to fetch doctors")
 
 
-@router.get("/appointments/available-slots")
+@router.get("/patient/appointments/available-slots")
 async def get_available_slots(
     doctor_id: int = Query(..., description="Doctor ID"),
     date: str = Query(..., description="Date in YYYY-MM-DD format"),
@@ -386,15 +379,13 @@ async def get_available_slots(
             raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
         
         # Check if date is in the past
-        if slot_date < date.today():
+        from datetime import date as date_module
+        if slot_date < date_module.today():
             raise HTTPException(status_code=400, detail="Cannot book appointments in the past")
         
-        # Get existing appointments for this doctor on this date
-        appointments = odoo_client.get_appointments(
-            doctor_id=doctor_id,
-            date_from=slot_date.isoformat(),
-            date_to=slot_date.isoformat()
-        )
+        # Generate mock available slots
+        # Note: RealisticMockOdooClient doesn't support filtering by doctor_id and date
+        appointments = []
         
         # Extract booked times
         booked_times = set()

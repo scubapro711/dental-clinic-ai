@@ -516,16 +516,27 @@ class CognitoClient:
 
 
 # Initialize global Cognito client (configured via environment variables)
-def get_cognito_client() -> CognitoClient:
-    """Get configured Cognito client."""
-    config = CognitoConfig(
-        region=os.getenv('AWS_COGNITO_REGION', 'us-east-1'),
-        user_pool_id=os.getenv('AWS_COGNITO_USER_POOL_ID'),
-        client_id=os.getenv('AWS_COGNITO_CLIENT_ID'),
-        client_secret=os.getenv('AWS_COGNITO_CLIENT_SECRET'),
-        identity_pool_id=os.getenv('AWS_COGNITO_IDENTITY_POOL_ID'),
-        google_client_id=os.getenv('GOOGLE_CLIENT_ID'),
-        google_client_secret=os.getenv('GOOGLE_CLIENT_SECRET')
-    )
+def get_cognito_client() -> Optional[CognitoClient]:
+    """Get configured Cognito client. Returns None if not configured."""
+    user_pool_id = os.getenv('AWS_COGNITO_USER_POOL_ID')
+    client_id = os.getenv('AWS_COGNITO_CLIENT_ID')
     
-    return CognitoClient(config)
+    # If Cognito is not configured, return None
+    if not user_pool_id or not client_id:
+        return None
+    
+    try:
+        config = CognitoConfig(
+            region=os.getenv('AWS_COGNITO_REGION', 'us-east-1'),
+            user_pool_id=user_pool_id,
+            client_id=client_id,
+            client_secret=os.getenv('AWS_COGNITO_CLIENT_SECRET'),
+            identity_pool_id=os.getenv('AWS_COGNITO_IDENTITY_POOL_ID'),
+            google_client_id=os.getenv('GOOGLE_CLIENT_ID'),
+            google_client_secret=os.getenv('GOOGLE_CLIENT_SECRET')
+        )
+        
+        return CognitoClient(config)
+    except Exception as e:
+        logger.error(f"Failed to initialize Cognito client: {e}")
+        return None

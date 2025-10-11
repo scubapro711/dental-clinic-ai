@@ -23,6 +23,7 @@ class UserRole(str, enum.Enum):
     ORG_ADMIN = "org_admin"  # Clinic owner/manager
     ORG_STAFF = "org_staff"  # Clinic staff (dentist, receptionist)
     ORG_VIEWER = "org_viewer"  # Read-only access
+    PATIENT = "patient"  # Patient portal user
 
 
 class User(Base):

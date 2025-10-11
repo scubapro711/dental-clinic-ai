@@ -31,3 +31,15 @@ class TelegramInviteCode(Base):
     def __repr__(self):
         return f"<TelegramInviteCode(code=\"{self.code}\", org_id={self.organization_id})>"
 
+
+
+
+# Enum for Invite Code Status
+from enum import Enum
+
+class InviteCodeStatus(str, Enum):
+    ACTIVE = "active"
+    EXPIRED = "expired"
+    EXHAUSTED = "exhausted"
+    DISABLED = "disabled"
+
