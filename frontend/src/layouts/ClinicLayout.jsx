@@ -1,5 +1,5 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, X } from 'lucide-react';
 
 export default function ClinicLayout() {
@@ -9,6 +9,8 @@ export default function ClinicLayout() {
     const stored = localStorage.getItem('user_profile');
     return stored ? JSON.parse(stored) : null;
   });
+  const mobileMenuRef = useRef(null);
+  const menuButtonRef = useRef(null);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -27,6 +29,51 @@ export default function ClinicLayout() {
     { to: '/clinic/analytics', label: 'Analytics', icon: '📊' },
     { to: '/clinic/settings', label: 'Settings', icon: '⚙️' },
   ];
+
+  // Focus trap for mobile menu
+  useEffect(() => {
+    if (mobileMenuOpen && mobileMenuRef.current) {
+      const menuElement = mobileMenuRef.current;
+      const focusableElements = menuElement.querySelectorAll(
+        'a[href], button:not([disabled])'
+      );
+      const firstElement = focusableElements[0];
+      const lastElement = focusableElements[focusableElements.length - 1];
+
+      const handleTabKey = (e) => {
+        if (e.key === 'Tab') {
+          if (e.shiftKey && document.activeElement === firstElement) {
+            e.preventDefault();
+            lastElement.focus();
+          } else if (!e.shiftKey && document.activeElement === lastElement) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      };
+
+      menuElement.addEventListener('keydown', handleTabKey);
+      firstElement?.focus();
+
+      return () => {
+        menuElement.removeEventListener('keydown', handleTabKey);
+      };
+    }
+  }, [mobileMenuOpen]);
+
+  // Escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        // Restore focus to menu button
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [mobileMenuOpen]);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col" lang="en">
@@ -82,6 +129,7 @@ export default function ClinicLayout() {
 
             {/* Mobile Menu Button */}
             <button
+              ref={menuButtonRef}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2 rounded-md text-white hover:bg-blue-700 transition-colors"
               aria-label="Toggle navigation menu"
@@ -99,7 +147,11 @@ export default function ClinicLayout() {
 
         {/* Mobile Navigation Menu */}
         {mobileMenuOpen && (
-          <div id="mobile-menu" className="md:hidden border-t border-blue-700 bg-blue-700">
+          <div 
+            ref={mobileMenuRef}
+            id="mobile-menu" 
+            className="md:hidden border-t border-blue-700 bg-blue-700"
+          >
             <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
               {navLinks.map((link) => (
                 <Link

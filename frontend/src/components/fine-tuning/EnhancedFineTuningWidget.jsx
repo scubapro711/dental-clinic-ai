@@ -241,8 +241,9 @@ export default function EnhancedFineTuningWidget({ onChatWithAgent }) {
               className="text-xs"
               variant="outline"
               size="sm"
+              aria-label="Export training data as JSON"
             >
-              <Download className="w-3 h-3 mr-1" />
+              <Download className="w-3 h-3 mr-1" aria-hidden="true" />
               Export
             </Button>
             
@@ -252,8 +253,10 @@ export default function EnhancedFineTuningWidget({ onChatWithAgent }) {
               variant="outline"
               size="sm"
               disabled={!canTrain}
+              aria-label={canTrain ? "Start training model" : "Need at least 10 good examples to train"}
+              aria-disabled={!canTrain}
             >
-              <Upload className="w-3 h-3 mr-1" />
+              <Upload className="w-3 h-3 mr-1" aria-hidden="true" />
               Train
             </Button>
           </div>
@@ -390,45 +393,56 @@ function FeedbackFormModal({ onClose, onSubmit }) {
         <CardContent className="p-4 space-y-4">
           {/* Query */}
           <div>
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">
-              User Query *
+            <label htmlFor="feedback-query" className="text-xs font-semibold text-gray-600 mb-1 block">
+              User Query <span className="text-red-600" aria-label="required">*</span>
             </label>
             <Textarea
+              id="feedback-query"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="What did the user ask?"
               className="text-sm"
               rows={2}
+              required
+              aria-required="true"
             />
           </div>
           
           {/* Response */}
           <div>
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">
-              AI Response *
+            <label htmlFor="feedback-response" className="text-xs font-semibold text-gray-600 mb-1 block">
+              AI Response <span className="text-red-600" aria-label="required">*</span>
             </label>
             <Textarea
+              id="feedback-response"
               value={response}
               onChange={(e) => setResponse(e.target.value)}
               placeholder="What did the AI respond?"
               className="text-sm"
               rows={3}
+              required
+              aria-required="true"
             />
           </div>
           
           {/* Rating */}
-          <div>
-            <label className="text-xs font-semibold text-gray-600 mb-2 block">
-              Rating *
-            </label>
-            <div className="flex items-center gap-2">
+          <fieldset>
+            <legend className="text-xs font-semibold text-gray-600 mb-2 block">
+              Rating <span className="text-red-600" aria-label="required">*</span>
+            </legend>
+            <div className="flex items-center gap-2" role="radiogroup" aria-label="Rating from 1 to 5 stars">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
+                  type="button"
+                  role="radio"
+                  aria-checked={star === rating}
+                  aria-label={`${star} star${star > 1 ? 's' : ''}`}
                   onClick={() => setRating(star)}
                   className="transition-transform hover:scale-110"
                 >
                   <Star
+                    aria-hidden="true"
                     className={cn(
                       'w-8 h-8',
                       star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
@@ -436,51 +450,62 @@ function FeedbackFormModal({ onClose, onSubmit }) {
                   />
                 </button>
               ))}
-              <span className="text-sm text-gray-600 ml-2">
+              <span className="text-sm text-gray-600 ml-2" aria-live="polite">
                 {rating > 0 ? `${rating}/5` : 'Select rating'}
               </span>
             </div>
-          </div>
+          </fieldset>
           
           {/* Category */}
-          <div>
-            <label className="text-xs font-semibold text-gray-600 mb-2 block">
+          <fieldset>
+            <legend className="text-xs font-semibold text-gray-600 mb-2 block">
               Category
-            </label>
-            <div className="flex gap-2">
+            </legend>
+            <div className="flex gap-2" role="radiogroup" aria-label="Example category">
               <Button
+                type="button"
+                role="radio"
+                aria-checked={category === 'good'}
                 variant={category === 'good' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setCategory('good')}
                 className="flex-1"
               >
-                <ThumbsUp className="w-4 h-4 mr-2" />
+                <ThumbsUp className="w-4 h-4 mr-2" aria-hidden="true" />
                 Good Example
               </Button>
               <Button
+                type="button"
+                role="radio"
+                aria-checked={category === 'bad'}
                 variant={category === 'bad' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setCategory('bad')}
                 className="flex-1"
               >
-                <ThumbsDown className="w-4 h-4 mr-2" />
+                <ThumbsDown className="w-4 h-4 mr-2" aria-hidden="true" />
                 Bad Example
               </Button>
             </div>
-          </div>
+          </fieldset>
           
           {/* Feedback Notes */}
           <div>
-            <label className="text-xs font-semibold text-gray-600 mb-1 block">
-              Feedback Notes
+            <label htmlFor="feedback-notes" className="text-xs font-semibold text-gray-600 mb-1 block">
+              Feedback Notes (Optional)
             </label>
             <Textarea
+              id="feedback-notes"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Why is this a good/bad example? What could be improved?"
               className="text-sm"
               rows={3}
+              aria-describedby="feedback-notes-desc"
             />
+            <span id="feedback-notes-desc" className="text-xs text-gray-500 mt-1 block">
+              Provide additional context to help improve the AI model
+            </span>
           </div>
           
           {/* Actions */}

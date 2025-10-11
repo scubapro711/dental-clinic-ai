@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 export default function DecisionQueueWidget({ onChatWithAgent }) {
   const [decisions, setDecisions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
     fetchDecisions();
@@ -137,6 +138,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
 
   const handleApprove = async (decision) => {
     try {
+      setStatusMessage('Approving action...');
       const response = await fetch(`/api/v1/agent-actions/${decision.id}/approve`, {
         method: 'POST',
         headers: {
@@ -153,17 +155,21 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       if (response.ok) {
         // Remove from list
         setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        setStatusMessage(`Action approved: ${decision.title}`);
         console.log('Action approved and executed:', decision);
       } else {
+        setStatusMessage('Failed to approve action');
         console.error('Failed to approve action');
       }
     } catch (error) {
+      setStatusMessage('Error approving action');
       console.error('Error approving action:', error);
     }
   };
 
   const handleReject = async (decision) => {
     try {
+      setStatusMessage('Rejecting action...');
       const response = await fetch(`/api/v1/agent-actions/${decision.id}/reject`, {
         method: 'POST',
         headers: {
@@ -179,11 +185,14 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       if (response.ok) {
         // Remove from list
         setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        setStatusMessage(`Action rejected: ${decision.title}`);
         console.log('Action rejected:', decision);
       } else {
+        setStatusMessage('Failed to reject action');
         console.error('Failed to reject action');
       }
     } catch (error) {
+      setStatusMessage('Error rejecting action');
       console.error('Error rejecting action:', error);
     }
   };
@@ -205,6 +214,16 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${decisions.length} פריטים`}
       isLoading={isLoading}
     >
+      {/* ARIA Live Region for status announcements */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {statusMessage}
+      </div>
+      
       <div className="space-y-3">
         {decisions.length === 0 ? (
           <div className="text-center text-sm text-gray-500 py-8">
@@ -258,8 +277,9 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     size="sm"
                     className="flex-1 text-xs h-7 bg-green-600 hover:bg-green-700"
                     onClick={() => handleApprove(decision)}
+                    aria-label={`Approve: ${decision.title}`}
                   >
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" />
                     {decision.action}
                   </Button>
                   <Button
@@ -267,16 +287,18 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     variant="outline"
                     className="text-xs h-7"
                     onClick={() => handleChatAbout(decision)}
+                    aria-label={`Chat about: ${decision.title}`}
                   >
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3 h-3" aria-hidden="true" />
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     className="text-xs h-7 text-red-600 hover:text-red-700"
                     onClick={() => handleReject(decision)}
+                    aria-label={`Reject: ${decision.title}`}
                   >
-                    <XCircle className="w-3 h-3" />
+                    <XCircle className="w-3 h-3" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

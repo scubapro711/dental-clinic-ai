@@ -91,7 +91,7 @@ describe('SimpleMockLogin', () => {
     it('should display correct button text for clinic portal', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      expect(screen.getByRole('button', { name: /Enter Mission Control/ })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Enter Clinic Portal/ })).toBeInTheDocument();
     });
   });
 
@@ -165,7 +165,7 @@ describe('SimpleMockLogin', () => {
     it('should set correct localStorage data for clinic admin', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      const loginButton = screen.getByRole('button', { name: /Enter Mission Control/ });
+      const loginButton = screen.getByRole('button', { name: /Enter Clinic Portal/ });
       fireEvent.click(loginButton);
       
       // Check localStorage immediately (before timeout)
@@ -183,7 +183,7 @@ describe('SimpleMockLogin', () => {
     it('should set mockUser for RBAC utility', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      const loginButton = screen.getByRole('button', { name: /Enter Mission Control/ });
+      const loginButton = screen.getByRole('button', { name: /Enter Clinic Portal/ });
       fireEvent.click(loginButton);
       
       const mockUser = JSON.parse(localStorage.getItem('mockUser'));
@@ -194,7 +194,7 @@ describe('SimpleMockLogin', () => {
     it('should navigate to clinic dashboard after login', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      const loginButton = screen.getByRole('button', { name: /Enter Mission Control/ });
+      const loginButton = screen.getByRole('button', { name: /Enter Clinic Portal/ });
       fireEvent.click(loginButton);
       
       // Fast-forward timer
@@ -206,7 +206,7 @@ describe('SimpleMockLogin', () => {
     it('should show loading state during login', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      const loginButton = screen.getByRole('button', { name: /Enter Mission Control/ });
+      const loginButton = screen.getByRole('button', { name: /Enter Clinic Portal/ });
       fireEvent.click(loginButton);
       
       expect(screen.getByText('Logging in...')).toBeInTheDocument();
@@ -216,7 +216,7 @@ describe('SimpleMockLogin', () => {
     it('should disable button during loading', () => {
       renderWithRouter(<SimpleMockLogin />);
       
-      const loginButton = screen.getByRole('button', { name: /Enter Mission Control/ });
+      const loginButton = screen.getByRole('button', { name: /Enter Clinic Portal/ });
       fireEvent.click(loginButton);
       
       expect(loginButton).toBeDisabled();
