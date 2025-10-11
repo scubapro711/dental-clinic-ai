@@ -468,21 +468,35 @@ export default function AIChat({ user }) {
 
         {/* Input Area */}
         <div className="border-t bg-white p-4">
-          <form onSubmit={sendMessage} className="flex gap-2">
+          <form onSubmit={sendMessage} className="flex gap-2" role="search" aria-label="Chat with AI agents">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
               disabled={isLoading}
               className="flex-1"
+              aria-label="Message input"
+              aria-describedby="chat-help-text"
             />
+            <span id="chat-help-text" className="sr-only">
+              Type your message and press Enter or click Send to chat with AI agents
+            </span>
             {isLoading ? (
-              <Button type="button" onClick={stopGeneration} variant="destructive">
+              <Button 
+                type="button" 
+                onClick={stopGeneration} 
+                variant="destructive"
+                aria-label="Stop generating response"
+              >
                 Stop
               </Button>
             ) : (
-              <Button type="submit" disabled={!input.trim()}>
-                <Send className="w-4 h-4" />
+              <Button 
+                type="submit" 
+                disabled={!input.trim()}
+                aria-label="Send message"
+              >
+                <Send className="w-4 h-4" aria-hidden="true" />
               </Button>
             )}
           </form>

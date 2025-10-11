@@ -108,8 +108,9 @@ export default function AgenticDashboard() {
               size="sm"
               onClick={() => setShowHistorySidebar(true)}
               className="flex items-center gap-2"
+              aria-label="Open conversation history"
             >
-              <History className="w-4 h-4" />
+              <History className="w-4 h-4" aria-hidden="true" />
               <span className="hidden md:inline">היסטוריה</span>
             </Button>
             <Button
@@ -117,16 +118,22 @@ export default function AgenticDashboard() {
               size="sm"
               onClick={() => setShowLeftWidgets(!showLeftWidgets)}
               className="hidden lg:flex"
+              aria-label={showLeftWidgets ? "Hide left widgets panel" : "Show left widgets panel"}
+              aria-expanded={showLeftWidgets}
+              aria-controls="left-widgets-panel"
             >
-              {showLeftWidgets ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+              {showLeftWidgets ? <PanelLeftClose className="w-4 h-4" aria-hidden="true" /> : <PanelLeftOpen className="w-4 h-4" aria-hidden="true" />}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowRightPanels(!showRightPanels)}
               className="hidden lg:flex"
+              aria-label={showRightPanels ? "Hide right panels" : "Show right panels"}
+              aria-expanded={showRightPanels}
+              aria-controls="right-panels"
             >
-              {showRightPanels ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              {showRightPanels ? <PanelLeftOpen className="w-4 h-4" aria-hidden="true" /> : <PanelLeftClose className="w-4 h-4" aria-hidden="true" />}
             </Button>
           </div>
         </div>
@@ -136,7 +143,12 @@ export default function AgenticDashboard() {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Widgets Panel - Hidden on mobile, show on desktop */}
         {showLeftWidgets && (
-          <div className="hidden lg:block w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4">
+          <div 
+            id="left-widgets-panel"
+            className="hidden lg:block w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4"
+            role="complementary"
+            aria-label="Dashboard widgets"
+          >
             {/* Today's Patients - Staff and Admin only */}
             <ProtectedWidget widgetId="todays-patients">
               <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
@@ -167,7 +179,12 @@ export default function AgenticDashboard() {
 
         {/* Right Panels - Hidden on mobile, show on desktop */}
         {showRightPanels && (
-          <div className="hidden lg:block w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto">
+          <div 
+            id="right-panels"
+            className="hidden lg:block w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto"
+            role="complementary"
+            aria-label="Agent activity and transparency panels"
+          >
             <div className="p-4 space-y-4">
               {/* Revenue Widget - Admin only */}
               <ProtectedWidget widgetId="revenue">
