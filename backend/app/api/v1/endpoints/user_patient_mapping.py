@@ -15,11 +15,22 @@ from app.api.dependencies import get_current_user
 from app.core.rbac import require_role, Role
 from app.models.user import User
 from app.crud import user_patient_mapping as mapping_crud
-from app.integrations.odoo_client_v2 import OdooClientV2
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClientV3:
+    """Dependency to get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
 
 
 # Pydantic models
@@ -257,40 +268,34 @@ async def search_patients(
     Returns up to 10 matching patients.
     """
     try:
-        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        odoo = get_odoo_client()
         
-        odoo_client = RealisticMockOdooClient()
+        # Build search domain
+        domain = ['|', '|', 
+                  ('name', 'ilike', query),
+                  ('phone', 'ilike', query),
+                  ('email', 'ilike', query),
+                  ('is_patient', '=', True)]
         
-        # Search by name or phone
-        patient_ids = []
+        # Search patients in Odoo
+        patients = odoo.search_read(
+            'res.partner',
+            domain=domain,
+            fields=['id', 'name', 'phone', 'email', 'birthdate_date'],
+            limit=10,
+            order='name ASC'
+        )
         
-        # Try phone search (remove spaces and dashes)
-        phone_clean = query.replace(' ', '').replace('-', '')
-        if phone_clean.isdigit() or phone_clean.startswith('+'):
-            phone_results = odoo_client.search_patients(phone=query)
-            if phone_results:
-                patient_ids.extend(phone_results)
-        
-        # Try name search
-        name_results = odoo_client.search_patients(name=query)
-        if name_results:
-            patient_ids.extend(name_results)
-        
-        # Remove duplicates
-        patient_ids = list(set(patient_ids))
-        
-        # Get full patient data
+        # Format results
         unique_patients = []
-        for patient_id in patient_ids[:10]:  # Limit to 10
-            patient = odoo_client.get_patient(patient_id)
-            if patient:
-                unique_patients.append({
-                    'id': patient['id'],
-                    'name': patient.get('name', ''),
-                    'phone': patient.get('phone', ''),
-                    'email': patient.get('email', ''),
-                    'birth_date': patient.get('birth_date', '')
-                })
+        for patient in patients:
+            unique_patients.append({
+                'id': patient['id'],
+                'name': patient.get('name', ''),
+                'phone': patient.get('phone', ''),
+                'email': patient.get('email', ''),
+                'birth_date': patient.get('birthdate_date', '')
+            })
         
         return unique_patients
         
@@ -323,13 +328,17 @@ async def create_my_mapping(
     
     try:
         # Verify patient exists in Odoo
-        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        odoo = get_odoo_client()
+        patients = odoo.read(
+            'res.partner',
+            [request.odoo_patient_id],
+            ['name', 'email', 'is_patient']
+        )
         
-        odoo_client = RealisticMockOdooClient()
-        patient = odoo_client.get_patient(request.odoo_patient_id)
-        
-        if not patient:
+        if not patients or not patients[0].get('is_patient'):
             raise HTTPException(status_code=404, detail="Patient not found in Odoo")
+        
+        patient = patients[0]
         
         # Create mapping
         mapping = mapping_crud.create_mapping(
