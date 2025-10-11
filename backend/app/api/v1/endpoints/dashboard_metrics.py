@@ -32,11 +32,22 @@ from app.agents.tools.admin_tools import (
     get_schedule_conflicts_tool,
     get_operational_metrics_tool,
 )
-from app.integrations.mock_odoo_realistic import realistic_mock_odoo
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClientV3:
+    """Dependency to get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
 
 
 # ===== Schemas =====
@@ -84,19 +95,16 @@ class AgentMetrics(BaseModel):
 # ===== Endpoints =====
 
 @router.get("/metrics", response_model=DashboardMetrics)
-async def get_dashboard_metrics():
+async def get_dashboard_metrics(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+):
     """
     Get aggregated dashboard metrics from all agents.
     
     HYBRID APPROACH:
     - Uses tools directly for fast data retrieval
     - No LangGraph for simple data display
-    - Real data from Mock Odoo (1500 patients, 12K appointments)
-    
-    DEMO MODE:
-    - No authentication required
-    - No database required
-    - All data from Mock Odoo
+    - Real data from Odoo (real patients, appointments, invoices)
     
     Returns metrics from:
     - Alex: Conversation statistics
@@ -104,17 +112,16 @@ async def get_dashboard_metrics():
     - Marcus (CFO): Financial statistics
     - System: Overall health metrics
     """
-    logger.info("Getting dashboard metrics (demo mode)")
+    logger.info("Getting dashboard metrics from real Odoo")
     
     # ===== Alex Agent Metrics (Conversations) =====
     
     # Mock conversation data (would come from database in production)
+    # TODO: Implement conversation tracking in database
     active_conversations = 8
     total_conversations_today = 23
     escalations_pending = 2
-    
-    # Average response time (calculated from recent conversations)
-    avg_response_time_seconds = 2.3  # TODO: Calculate from actual data
+    avg_response_time_seconds = 2.3
     
     logger.info(f"Alex metrics: {active_conversations} active, {total_conversations_today} today")
     
@@ -124,30 +131,36 @@ async def get_dashboard_metrics():
     today_str = datetime.utcnow().strftime("%Y-%m-%d")
     
     # Today's appointments from Odoo
-    today_appointments = [
-        a for a in realistic_mock_odoo.appointments
-        if a.get("date") == today_str
-    ]
+    today_appointments = odoo.search_read(
+        'medical.appointment',
+        domain=[
+            ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
+            ('appointment_sdate', '<=', f"{today_str} 23:59:59"),
+        ],
+        fields=['id', 'state', 'appointment_sdate']
+    )
     appointments_today = len(today_appointments)
     
     # Completed appointments
     appointments_completed = len([
         a for a in today_appointments
-        if a.get("status") == "completed"
+        if a.get("state") == "done"
     ])
     
     # Upcoming appointments (next 7 days)
     end_date = (datetime.utcnow() + timedelta(days=7)).strftime("%Y-%m-%d")
-    appointments_upcoming = len([
-        a for a in realistic_mock_odoo.appointments
-        if a.get("status") in ["scheduled", "confirmed"] and
-           today_str <= a.get("date", "") <= end_date
-    ])
+    appointments_upcoming = odoo.search_count(
+        'medical.appointment',
+        domain=[
+            ('state', 'in', ['draft', 'confirmed']),
+            ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
+            ('appointment_sdate', '<=', f"{end_date} 23:59:59"),
+        ]
+    )
     
     # Scheduling conflicts (use tool)
     try:
         conflicts_result = get_schedule_conflicts_tool()
-        # Parse result to count conflicts
         scheduling_conflicts = conflicts_result.count("conflict") if isinstance(conflicts_result, str) else 0
     except Exception as e:
         logger.error(f"Error getting conflicts: {e}")
@@ -157,33 +170,57 @@ async def get_dashboard_metrics():
     
     # ===== Marcus (CFO) Metrics (Financial) =====
     
-    # Revenue today from completed appointments
-    revenue_today = sum([
-        a.get("amount", 0) for a in today_appointments
-        if a.get("status") == "completed"
-    ])
+    # Revenue today from invoices
+    today_invoices = odoo.search_read(
+        'account.move',
+        domain=[
+            ('move_type', '=', 'out_invoice'),
+            ('invoice_date', '=', today_str),
+            ('state', '=', 'posted'),
+        ],
+        fields=['amount_total', 'payment_state']
+    )
+    revenue_today = sum(inv['amount_total'] for inv in today_invoices)
     
     # Revenue this month
     month_start = datetime.utcnow().replace(day=1).strftime("%Y-%m-%d")
-    month_appointments = [
-        a for a in realistic_mock_odoo.appointments
-        if a.get("date", "") >= month_start and a.get("status") == "completed"
-    ]
-    revenue_this_month = sum([a.get("amount", 0) for a in month_appointments])
+    month_invoices = odoo.search_read(
+        'account.move',
+        domain=[
+            ('move_type', '=', 'out_invoice'),
+            ('invoice_date', '>=', month_start),
+            ('state', '=', 'posted'),
+        ],
+        fields=['amount_total']
+    )
+    revenue_this_month = sum(inv['amount_total'] for inv in month_invoices)
     
     # Outstanding payments from Odoo
-    outstanding_invoices = [
-        inv for inv in realistic_mock_odoo.invoices
-        if inv.get("status") == "unpaid"
-    ]
-    outstanding_payments = len(outstanding_invoices)
+    outstanding_payments = odoo.search_count(
+        'account.move',
+        domain=[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ['not_paid', 'partial']),
+        ]
+    )
     
     # Payment success rate
-    total_invoices = len(realistic_mock_odoo.invoices)
-    paid_invoices = len([
-        inv for inv in realistic_mock_odoo.invoices
-        if inv.get("status") == "paid"
-    ])
+    total_invoices = odoo.search_count(
+        'account.move',
+        domain=[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+        ]
+    )
+    paid_invoices = odoo.search_count(
+        'account.move',
+        domain=[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', '=', 'paid'),
+        ]
+    )
     payment_success_rate = (paid_invoices / total_invoices * 100) if total_invoices > 0 else 0.0
     
     logger.info(f"Marcus metrics: ${revenue_today:.2f} today, ${revenue_this_month:.2f} this month")
