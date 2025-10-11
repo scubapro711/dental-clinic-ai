@@ -9,9 +9,20 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.mock_odoo import mock_odoo_client
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
+
+
+def get_odoo_client() -> OdooClientV3:
+    """Get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
 
 
 @tool
@@ -37,11 +48,31 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
         
         end_date = start_date + timedelta(days=days)
         
-        # Get appointments in date range
-        appointments = mock_odoo_client.get_appointments(
-            start_date=start_date.strftime("%Y-%m-%d"),
-            end_date=end_date.strftime("%Y-%m-%d")
+        # Get appointments in date range from Odoo
+        odoo = get_odoo_client()
+        appointments_data = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
+                ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
+                ('state', '!=', 'cancel'),
+            ],
+            fields=['id', 'appointment_sdate', 'doctor_id', 'patient_id'],
+            order='appointment_sdate ASC'
         )
+        
+        # Convert to expected format
+        appointments = []
+        for apt in appointments_data:
+            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            appointments.append({
+                "id": apt['id'],
+                "date": apt_date.strftime("%Y-%m-%d"),
+                "time": apt_date.strftime("%H:%M"),
+                "doctor_id": apt.get('doctor_id', [None])[0] if apt.get('doctor_id') else None,
+                "doctor_name": apt.get('doctor_id', [None, 'Unknown'])[1] if apt.get('doctor_id') else 'Unknown',
+                "patient_name": apt.get('patient_id', [None, 'Unknown'])[1] if apt.get('patient_id') else 'Unknown',
+            })
         
         # Find conflicts
         conflicts = []
@@ -113,11 +144,27 @@ def get_available_slots_tool(date: str, doctor_id: Optional[int] = None, duratio
     try:
         logger.info(f"Getting available slots for {date}")
         
-        # Get appointments for the date
-        appointments = mock_odoo_client.get_appointments(
-            start_date=date,
-            end_date=date
+        # Get appointments for the date from Odoo
+        odoo = get_odoo_client()
+        appointments_data = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', f"{date} 00:00:00"),
+                ('appointment_sdate', '<=', f"{date} 23:59:59"),
+                ('state', '!=', 'cancel'),
+            ],
+            fields=['appointment_sdate'],
+            order='appointment_sdate ASC'
         )
+        
+        # Convert to expected format
+        appointments = []
+        for apt in appointments_data:
+            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            appointments.append({
+                "date": apt_date.strftime("%Y-%m-%d"),
+                "time": apt_date.strftime("%H:%M"),
+            })
         
         # Clinic hours: 8:00 - 18:00
         clinic_start = datetime.strptime("08:00", "%H:%M")
@@ -319,11 +366,26 @@ def optimize_schedule_tool(date: str, optimization_goal: str = "minimize_gaps") 
     try:
         logger.info(f"Optimizing schedule for {date}")
         
-        # Get appointments
-        appointments = mock_odoo_client.get_appointments(
-            start_date=date,
-            end_date=date
+        # Get appointments from Odoo
+        odoo = get_odoo_client()
+        appointments_data = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', f"{date} 00:00:00"),
+                ('appointment_sdate', '<=', f"{date} 23:59:59"),
+                ('state', '!=', 'cancel'),
+            ],
+            fields=['appointment_sdate'],
+            order='appointment_sdate ASC'
         )
+        
+        # Convert to expected format
+        appointments = []
+        for apt in appointments_data:
+            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            appointments.append({
+                "date": apt_date.strftime("%Y-%m-%d"),
+            })
         
         # Analyze schedule
         total_appointments = len([a for a in appointments if a["date"] == date])
@@ -392,20 +454,26 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
     try:
         logger.info(f"Getting operational metrics for {date_range} days")
         
-        # Get appointments
+        # Get appointments from Odoo
         end_date = datetime.now()
         start_date = end_date - timedelta(days=date_range)
         
-        appointments = mock_odoo_client.get_appointments(
-            start_date=start_date.strftime("%Y-%m-%d"),
-            end_date=end_date.strftime("%Y-%m-%d")
+        odoo = get_odoo_client()
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
+                ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
+            ],
+            fields=['id', 'state'],
+            order='appointment_sdate ASC'
         )
         
         # Calculate metrics
         total_appointments = len(appointments)
-        completed = len([a for a in appointments if a.get("status") == "completed"])
-        cancelled = len([a for a in appointments if a.get("status") == "cancelled"])
-        no_shows = len([a for a in appointments if a.get("status") == "no_show"])
+        completed = len([a for a in appointments if a.get("state") == "done"])
+        cancelled = len([a for a in appointments if a.get("state") == "cancel"])
+        no_shows = 0  # Odoo doesn't have no_show state by default
         
         result = {
             "date_range": {
