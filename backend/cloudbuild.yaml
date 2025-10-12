@@ -1,0 +1,26 @@
+steps:
+  # Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'gcr.io/dentaflow-production/dentaflow-backend:latest',
+      '-t', 'gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA',
+      '.'
+    ]
+
+  # Push the image to GCR
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/dentaflow-production/dentaflow-backend:latest']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA']
+
+images:
+  - 'gcr.io/dentaflow-production/dentaflow-backend:latest'
+  - 'gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA'
+
+options:
+  machineType: 'N1_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '1200s'
