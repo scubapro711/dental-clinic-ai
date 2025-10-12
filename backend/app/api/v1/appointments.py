@@ -39,7 +39,7 @@ async def get_todays_appointments(
         
         # Search for today's appointments using V3 API
         appointments = odoo_client.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', start_datetime.strftime('%Y-%m-%d %H:%M:%S')),
                 ('appointment_sdate', '<=', end_datetime.strftime('%Y-%m-%d %H:%M:%S'))
@@ -115,7 +115,7 @@ async def get_appointment(
     try:
         # Use V3 search_read for single appointment
         appointments = odoo_client.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('id', '=', appointment_id)],
             fields=[
                 'id',

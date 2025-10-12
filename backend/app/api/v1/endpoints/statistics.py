@@ -42,11 +42,11 @@ async def get_overview_statistics(
         total_patients = odoo.search_count('res.partner', [('is_patient', '=', True)])
         
         # Get total appointments
-        total_appointments = odoo.search_count('medical.appointment', [])
+        total_appointments = odoo.search_count('patient.appointment', [])
         
         # Get completed appointments
         completed_appointments = odoo.search_count(
-            'medical.appointment',
+            'patient.appointment',
             [('state', '=', 'done')]
         )
         
@@ -137,7 +137,7 @@ async def get_patient_statistics(
         
         # Get patients with recent appointments
         recent_appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', f"{ninety_days_ago} 00:00:00"),
                 ('state', '=', 'done')
@@ -192,7 +192,7 @@ async def get_appointment_statistics(
     try:
         # Get all appointments
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[],
             fields=['id', 'state', 'appointment_sdate']
         )
@@ -207,7 +207,7 @@ async def get_appointment_statistics(
         today = datetime.now().strftime("%Y-%m-%d")
         seven_days = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
         upcoming = odoo.search_count(
-            'medical.appointment',
+            'patient.appointment',
             [
                 ('state', 'in', ['draft', 'confirmed']),
                 ('appointment_sdate', '>=', f"{today} 00:00:00"),
@@ -318,7 +318,7 @@ async def get_top_patients(
         for patient in patients[:limit]:
             # Get appointment count
             appt_count = odoo.search_count(
-                'medical.appointment',
+                'patient.appointment',
                 [('patient_id', '=', patient['id']), ('state', '=', 'done')]
             )
             

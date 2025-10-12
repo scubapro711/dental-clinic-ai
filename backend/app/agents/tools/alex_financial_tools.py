@@ -131,7 +131,7 @@ def process_payment_tool(
         odoo = OdooClientV3()
         
         # Validate patient
-        patient = odoo.read('medical.patient', patient_id, ['name', 'partner_id'])
+        patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
         if not patient:
             return {
                 'success': False,
@@ -399,7 +399,7 @@ def create_payment_plan_tool(
         odoo = OdooClientV3()
         
         # Validate patient
-        patient = odoo.read('medical.patient', patient_id, ['name', 'partner_id'])
+        patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
         if not patient:
             return {
                 'success': False,
@@ -463,7 +463,7 @@ def create_payment_plan_tool(
             'state': 'active',
         }
         
-        plan_id = odoo.create('medical.payment.plan', plan_data)
+        plan_id = odoo.create('patient.appointment.plan', plan_data)
         
         if not plan_id:
             return {
@@ -480,7 +480,7 @@ def create_payment_plan_tool(
                 'amount': payment['amount'],
                 'state': 'pending',
             }
-            odoo.create('medical.payment.plan.line', payment_record)
+            odoo.create('patient.appointment.plan.line', payment_record)
         
         return {
             'success': True,
@@ -556,7 +556,7 @@ def check_insurance_coverage_tool(
         odoo = OdooClientV3()
         
         # Get patient insurance info
-        patient = odoo.read('medical.patient', patient_id, [
+        patient = odoo.read('patient.patient', patient_id, [
             'name', 'insurance_company', 'insurance_number'
         ])
         

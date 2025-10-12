@@ -41,7 +41,7 @@ async def get_active_conversations(
     try:
         # Get recent scheduled or confirmed appointments
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('state', 'in', ['draft', 'confirmed'])],
             fields=['id', 'patient_id', 'appointment_sdate', 'state'],
             limit=10,
@@ -143,7 +143,7 @@ async def get_patients(
         for patient in patients:
             # Get patient's last appointment
             last_appt = odoo.search_read(
-                'medical.appointment',
+                'patient.appointment',
                 domain=[('patient_id', '=', patient['id']), ('state', '=', 'done')],
                 fields=['appointment_sdate'],
                 limit=1,
@@ -152,7 +152,7 @@ async def get_patients(
             
             # Get appointment count
             total_visits = odoo.search_count(
-                'medical.appointment',
+                'patient.appointment',
                 [('patient_id', '=', patient['id']), ('state', '=', 'done')]
             )
             
@@ -220,7 +220,7 @@ async def get_patient_details(
         
         # Get patient appointments
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
             fields=['id', 'appointment_sdate', 'appointment_edate', 'state', 'doctor_id'],
             order='appointment_sdate DESC'
@@ -236,7 +236,7 @@ async def get_patient_details(
         
         # Get treatment records (from appointments)
         treatments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('patient_id', '=', patient_id), ('state', '=', 'done')],
             fields=['id', 'appointment_sdate', 'doctor_id', 'comments'],
             order='appointment_sdate DESC'
@@ -299,7 +299,7 @@ async def get_appointments(
         
         # Get appointments
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=domain,
             fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
             limit=limit,
@@ -352,7 +352,7 @@ async def get_today_appointments(
         today = datetime.now().strftime("%Y-%m-%d")
         
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', f"{today} 00:00:00"),
                 ('appointment_sdate', '<=', f"{today} 23:59:59"),
@@ -415,7 +415,7 @@ async def get_upcoming_appointments(
         end_str = end_date.strftime("%Y-%m-%d")
         
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('state', 'in', ['draft', 'confirmed']),
                 ('appointment_sdate', '>=', f"{today_str} 00:00:00"),

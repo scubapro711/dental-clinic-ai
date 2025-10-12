@@ -198,7 +198,7 @@ class OdooClientV2:
         This is a convenience method that combines search and read operations.
         
         Args:
-            model: Odoo model name (e.g., 'res.partner', 'medical.appointment')
+            model: Odoo model name (e.g., 'res.partner', 'patient.appointment')
             domain: Search domain (list of tuples)
             fields: List of field names to read
             offset: Number of records to skip
@@ -412,14 +412,14 @@ class OdooClientV2:
     
     def get_required_appointment_fields(self) -> List[str]:
         """
-        Get required fields for medical.appointment model.
+        Get required fields for patient.appointment model.
         
         Returns:
             List of required field names
         """
         try:
             fields_info = self._execute(
-                'medical.appointment',
+                'patient.appointment',
                 'fields_get',
                 [],
                 {'attributes': ['required', 'string']}
@@ -546,7 +546,7 @@ class OdooClientV2:
         
         try:
             appointment_id = self._execute(
-                'medical.appointment',
+                'patient.appointment',
                 'create',
                 [appointment_data]
             )
@@ -590,7 +590,7 @@ class OdooClientV2:
         try:
             # Get existing appointments
             existing_appointments = self._execute(
-                'medical.appointment',
+                'patient.appointment',
                 'search_read',
                 [[
                     ('doctor_id', '=', doctor_id),
@@ -781,7 +781,7 @@ class OdooClientV2:
             
             # Search for appointment IDs
             appointment_ids = self._execute(
-                'medical.appointment',
+                'patient.appointment',
                 'search',
                 [domain],
                 {'limit': limit, 'order': 'appointment_sdate desc'}
@@ -792,7 +792,7 @@ class OdooClientV2:
             
             # Get full appointment records
             appointments = self._execute(
-                'medical.appointment',
+                'patient.appointment',
                 'read',
                 [appointment_ids],
                 {'fields': [

@@ -56,7 +56,7 @@ async def get_revenue_metrics(
             odoo_client.db,
             odoo_client.uid,
             odoo_client.password,
-            'medical.appointment',
+            'patient.appointment',
             'search_count',
             [[
                 ('appointment_sdate', '>=', first_day_this_month.strftime('%Y-%m-%d')),
@@ -68,7 +68,7 @@ async def get_revenue_metrics(
             odoo_client.db,
             odoo_client.uid,
             odoo_client.password,
-            'medical.appointment',
+            'patient.appointment',
             'search_count',
             [[
                 ('appointment_sdate', '>=', first_day_last_month.strftime('%Y-%m-%d')),
@@ -149,7 +149,7 @@ async def get_dashboard_metrics(
             odoo_client.db,
             odoo_client.uid,
             odoo_client.password,
-            'medical.appointment',
+            'patient.appointment',
             'search_count',
             [[
                 ('appointment_sdate', '>=', today.strftime('%Y-%m-%d')),
@@ -162,7 +162,7 @@ async def get_dashboard_metrics(
             odoo_client.db,
             odoo_client.uid,
             odoo_client.password,
-            'medical.appointment',
+            'patient.appointment',
             'search_count',
             [[
                 ('appointment_sdate', '>=', yesterday.strftime('%Y-%m-%d')),

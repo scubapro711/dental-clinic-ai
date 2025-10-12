@@ -235,7 +235,7 @@ def cancel_appointment_v2(appointment_id: int, reason: Optional[str] = None) -> 
     try:
         # Get appointment details first
         appointment = odoo_client_v2._execute(
-            'medical.appointment',
+            'patient.appointment',
             'read',
             [[appointment_id]],
             {'fields': ['patient_id', 'appointment_sdate']}
@@ -248,7 +248,7 @@ def cancel_appointment_v2(appointment_id: int, reason: Optional[str] = None) -> 
         
         # Cancel appointment
         success = odoo_client_v2._execute(
-            'medical.appointment',
+            'patient.appointment',
             'write',
             [[appointment_id], {'state': 'cancel'}]
         )
@@ -292,7 +292,7 @@ def get_patient_appointments_v2(patient_id: int, include_past: bool = False) -> 
         
         # Search appointments
         appointments = odoo_client_v2._execute(
-            'medical.appointment',
+            'patient.appointment',
             'search_read',
             [domain],
             {

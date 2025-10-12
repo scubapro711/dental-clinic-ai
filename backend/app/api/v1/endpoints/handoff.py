@@ -139,7 +139,7 @@ async def get_pending_handoffs(
     try:
         # Get appointments from Odoo
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[],
             fields=['id', 'patient_id', 'appointment_sdate', 'state'],
             limit=100,
@@ -226,7 +226,7 @@ async def get_alex_activity(
     try:
         # Get recent appointments from Odoo
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[],
             fields=['id', 'patient_id', 'appointment_sdate'],
             limit=20,
@@ -310,7 +310,7 @@ async def get_alex_performance(
     """Get Alex's performance metrics"""
     try:
         # Get appointment statistics from Odoo
-        total_appointments = odoo.search_count('medical.appointment', [])
+        total_appointments = odoo.search_count('patient.appointment', [])
         
         # Calculate Alex performance
         total_conversations = 150

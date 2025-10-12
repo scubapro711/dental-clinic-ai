@@ -342,7 +342,7 @@ def analyze_profitability_tool(days: int = 30) -> Dict[str, Any]:
         
         # Get appointments
         period_appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
                 ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),

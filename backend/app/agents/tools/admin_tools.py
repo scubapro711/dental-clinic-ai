@@ -51,7 +51,7 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
         # Get appointments in date range from Odoo
         odoo = get_odoo_client()
         appointments_data = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
                 ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
@@ -147,7 +147,7 @@ def get_available_slots_tool(date: str, doctor_id: Optional[int] = None, duratio
         # Get appointments for the date from Odoo
         odoo = get_odoo_client()
         appointments_data = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', f"{date} 00:00:00"),
                 ('appointment_sdate', '<=', f"{date} 23:59:59"),
@@ -369,7 +369,7 @@ def optimize_schedule_tool(date: str, optimization_goal: str = "minimize_gaps") 
         # Get appointments from Odoo
         odoo = get_odoo_client()
         appointments_data = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', f"{date} 00:00:00"),
                 ('appointment_sdate', '<=', f"{date} 23:59:59"),
@@ -460,7 +460,7 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
         
         odoo = get_odoo_client()
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
                 ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),

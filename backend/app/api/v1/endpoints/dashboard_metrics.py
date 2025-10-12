@@ -132,7 +132,7 @@ async def get_dashboard_metrics(
     
     # Today's appointments from Odoo
     today_appointments = odoo.search_read(
-        'medical.appointment',
+        'patient.appointment',
         domain=[
             ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
             ('appointment_sdate', '<=', f"{today_str} 23:59:59"),
@@ -150,7 +150,7 @@ async def get_dashboard_metrics(
     # Upcoming appointments (next 7 days)
     end_date = (datetime.utcnow() + timedelta(days=7)).strftime("%Y-%m-%d")
     appointments_upcoming = odoo.search_count(
-        'medical.appointment',
+        'patient.appointment',
         domain=[
             ('state', 'in', ['draft', 'confirmed']),
             ('appointment_sdate', '>=', f"{today_str} 00:00:00"),

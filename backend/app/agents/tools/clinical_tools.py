@@ -448,7 +448,7 @@ def add_patient_allergy(
     
     Args:
         patient_id: Patient ID
-        disease_id: Disease/allergen ID from medical.disease
+        disease_id: Disease/allergen ID from patient.patient
         severity: Severity level
         notes: Additional notes about the allergy
     
@@ -497,7 +497,7 @@ def add_patient_condition(
     
     Args:
         patient_id: Patient ID
-        disease_id: Disease ID from medical.disease
+        disease_id: Disease ID from patient.patient
         notes: Additional notes about the condition
     
     Returns:

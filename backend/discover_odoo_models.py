@@ -87,10 +87,10 @@ def main():
     # Models to discover
     models_to_discover = [
         # Clinical Models
-        'medical.patient',
-        'medical.patient.disease',
-        'medical.patient.medication',
-        'medical.appointment',
+        'patient.patient',
+        'patient.patient.disease',
+        'patient.patient.medication',
+        'patient.appointment',
         
         # Dental-specific Models
         'dental.treatment.plan',

@@ -240,7 +240,7 @@ def send_sms_tool(
         odoo = OdooClientV3()
         
         # Get patient phone number
-        patient = odoo.read('medical.patient', patient_id, ['name', 'partner_id'])
+        patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
         if not patient:
             return {
                 'success': False,
@@ -346,7 +346,7 @@ def send_sms_tool(
                 'external_id': twilio_message.sid,
                 'sent_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
-            odoo.create('medical.patient.communication', log_data)
+            odoo.create('patient.patient.communication', log_data)
             
             return {
                 'success': True,
@@ -436,7 +436,7 @@ def send_email_tool(
         odoo = OdooClientV3()
         
         # Get patient email
-        patient = odoo.read('medical.patient', patient_id, ['name', 'partner_id'])
+        patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
         if not patient:
             return {
                 'success': False,
@@ -554,7 +554,7 @@ def send_email_tool(
                 'external_id': response.headers.get('X-Message-Id'),
                 'sent_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
-            odoo.create('medical.patient.communication', log_data)
+            odoo.create('patient.patient.communication', log_data)
             
             return {
                 'success': True,
@@ -685,7 +685,7 @@ def send_telegram_message_tool(
             message_id = result['result']['message_id']
             
             # Log to Odoo
-            patient = odoo.read('medical.patient', patient_id, ['name'])
+            patient = odoo.read('patient.patient', patient_id, ['name'])
             log_data = {
                 'patient_id': patient_id,
                 'message_type': 'telegram',
@@ -695,7 +695,7 @@ def send_telegram_message_tool(
                 'external_id': str(message_id),
                 'sent_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
-            odoo.create('medical.patient.communication', log_data)
+            odoo.create('patient.patient.communication', log_data)
             
             return {
                 'success': True,

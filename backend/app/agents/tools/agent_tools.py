@@ -137,7 +137,7 @@ def get_available_slots_tool(days_ahead: int = 7) -> str:
         
         # Get all appointments in the date range
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('appointment_sdate', '>=', date_from.strftime("%Y-%m-%d %H:%M:%S")),
                 ('appointment_sdate', '<=', date_to.strftime("%Y-%m-%d %H:%M:%S")),
@@ -223,7 +223,7 @@ def create_appointment_tool(
             return "Invalid date format. Please use YYYY-MM-DD HH:MM format."
         
         # Create appointment
-        appointment_id = odoo.create('medical.appointment', {
+        appointment_id = odoo.create('patient.appointment', {
             'patient_id': patient_id,
             'appointment_sdate': appt_datetime.strftime("%Y-%m-%d %H:%M:%S"),
             'appointment_edate': (appt_datetime + timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M:%S"),

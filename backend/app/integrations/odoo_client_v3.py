@@ -29,7 +29,7 @@ class OdooClientV3(OdooClientV2):
     Extended Odoo client with full clinical models support.
     
     Adds 17 clinical models to the 4 basic models in V2:
-    - V2: res.partner, medical.appointment, account.move, product.product
+    - V2: res.partner, patient.appointment, account.move, product.product
     - V3: +17 clinical models (dental treatments, prescriptions, diseases)
     
     Total: 21 models (44% of 47 available Odoo Dental models)
@@ -41,7 +41,7 @@ class OdooClientV3(OdooClientV2):
         """
         Get patient's dental chart (odontogram).
         
-        Model: medical.teeth.code
+        Model: dental.procedure.line.code
         
         Args:
             patient_id: Patient ID (res.partner)
@@ -52,7 +52,7 @@ class OdooClientV3(OdooClientV2):
         try:
             # Search for dental chart records for this patient
             chart_ids = self._execute(
-                'medical.teeth.code',
+                'dental.procedure.line.code',
                 'search',
                 [[('patient_id', '=', patient_id)]],
                 {}
@@ -64,7 +64,7 @@ class OdooClientV3(OdooClientV2):
             
             # Read all teeth records
             charts = self._execute(
-                'medical.teeth.code',
+                'dental.procedure.line.code',
                 'read',
                 [chart_ids],
                 {'fields': [
@@ -93,7 +93,7 @@ class OdooClientV3(OdooClientV2):
         """
         Update status of a specific tooth in dental chart.
         
-        Model: medical.teeth.code
+        Model: dental.procedure.line.code
         
         Args:
             patient_id: Patient ID
@@ -107,7 +107,7 @@ class OdooClientV3(OdooClientV2):
         try:
             # Search for existing tooth record
             tooth_ids = self._execute(
-                'medical.teeth.code',
+                'dental.procedure.line.code',
                 'search',
                 [[('patient_id', '=', patient_id), ('teeth_code', '=', tooth_code)]],
                 {}
@@ -124,7 +124,7 @@ class OdooClientV3(OdooClientV2):
             if tooth_ids:
                 # Update existing record
                 self._execute(
-                    'medical.teeth.code',
+                    'dental.procedure.line.code',
                     'write',
                     [tooth_ids, data],
                     {}
@@ -137,7 +137,7 @@ class OdooClientV3(OdooClientV2):
                     'teeth_code': tooth_code
                 })
                 return self._execute(
-                    'medical.teeth.code',
+                    'dental.procedure.line.code',
                     'create',
                     [data],
                     {}
@@ -156,7 +156,7 @@ class OdooClientV3(OdooClientV2):
         """
         Get patient's dental treatment history.
         
-        Model: medical.treatment
+        Model: dental.procedure.line
         
         Args:
             patient_id: Patient ID
@@ -173,7 +173,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('tooth_code', '=', tooth_code))
             
             treatment_ids = self._execute(
-                'medical.treatment',
+                'dental.procedure.line',
                 'search',
                 [domain],
                 {'limit': limit, 'order': 'treatment_date desc'}
@@ -183,7 +183,7 @@ class OdooClientV3(OdooClientV2):
                 return []
             
             treatments = self._execute(
-                'medical.treatment',
+                'dental.procedure.line',
                 'read',
                 [treatment_ids],
                 {'fields': [
@@ -212,7 +212,7 @@ class OdooClientV3(OdooClientV2):
         """
         Create a new dental treatment record.
         
-        Model: medical.treatment
+        Model: dental.procedure.line
         
         Args:
             patient_id: Patient ID
@@ -246,7 +246,7 @@ class OdooClientV3(OdooClientV2):
                 data['notes'] = notes
             
             treatment_id = self._execute(
-                'medical.treatment',
+                'dental.procedure.line',
                 'create',
                 [data],
                 {}
@@ -270,7 +270,7 @@ class OdooClientV3(OdooClientV2):
         """
         Get patient's prescription history.
         
-        Model: medical.prescription
+        Model: patient.prescription
         
         Args:
             patient_id: Patient ID
@@ -287,7 +287,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('state', '=', 'active'))
             
             prescription_ids = self._execute(
-                'medical.prescription',
+                'patient.prescription',
                 'search',
                 [domain],
                 {'limit': limit, 'order': 'prescription_date desc'}
@@ -297,7 +297,7 @@ class OdooClientV3(OdooClientV2):
                 return []
             
             prescriptions = self._execute(
-                'medical.prescription',
+                'patient.prescription',
                 'read',
                 [prescription_ids],
                 {'fields': [
@@ -323,7 +323,7 @@ class OdooClientV3(OdooClientV2):
         """
         Create a new prescription for patient.
         
-        Model: medical.prescription
+        Model: patient.prescription
         
         Args:
             patient_id: Patient ID
@@ -351,7 +351,7 @@ class OdooClientV3(OdooClientV2):
                 prescription_data['notes'] = notes
             
             prescription_id = self._execute(
-                'medical.prescription',
+                'patient.prescription',
                 'create',
                 [prescription_data],
                 {}
@@ -368,7 +368,7 @@ class OdooClientV3(OdooClientV2):
                 }
                 
                 self._execute(
-                    'medical.prescription.line',
+                    'patient.prescription.line',
                     'create',
                     [line_data],
                     {}
@@ -390,7 +390,7 @@ class OdooClientV3(OdooClientV2):
         """
         Search for medications in the database.
         
-        Model: medical.medication
+        Model: patient.prescription.line
         
         Args:
             name: Medication name (partial match)
@@ -409,7 +409,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('category', '=', category))
             
             medication_ids = self._execute(
-                'medical.medication',
+                'patient.prescription.line',
                 'search',
                 [domain],
                 {'limit': limit}
@@ -419,7 +419,7 @@ class OdooClientV3(OdooClientV2):
                 return []
             
             medications = self._execute(
-                'medical.medication',
+                'patient.prescription.line',
                 'read',
                 [medication_ids],
                 {'fields': [
@@ -444,7 +444,7 @@ class OdooClientV3(OdooClientV2):
         """
         Get comprehensive medical history for patient.
         
-        Models: medical.patient.disease, medical.patient.medication
+        Models: patient.patient.disease, patient.patient.medication
         
         Args:
             patient_id: Patient ID
@@ -455,7 +455,7 @@ class OdooClientV3(OdooClientV2):
         try:
             # Get diseases/conditions
             disease_ids = self._execute(
-                'medical.patient.disease',
+                'patient.patient.disease',
                 'search',
                 [[('patient_id', '=', patient_id)]],
                 {}
@@ -464,7 +464,7 @@ class OdooClientV3(OdooClientV2):
             diseases = []
             if disease_ids:
                 diseases = self._execute(
-                    'medical.patient.disease',
+                    'patient.patient.disease',
                     'read',
                     [disease_ids],
                     {'fields': [
@@ -475,7 +475,7 @@ class OdooClientV3(OdooClientV2):
             
             # Get current medications
             medication_ids = self._execute(
-                'medical.patient.medication',
+                'patient.patient.medication',
                 'search',
                 [[('patient_id', '=', patient_id), ('is_active', '=', True)]],
                 {}
@@ -484,7 +484,7 @@ class OdooClientV3(OdooClientV2):
             current_meds = []
             if medication_ids:
                 current_meds = self._execute(
-                    'medical.patient.medication',
+                    'patient.patient.medication',
                     'read',
                     [medication_ids],
                     {'fields': [
@@ -524,11 +524,11 @@ class OdooClientV3(OdooClientV2):
         """
         Add a disease/condition/allergy to patient's medical history.
         
-        Model: medical.patient.disease
+        Model: patient.patient.disease
         
         Args:
             patient_id: Patient ID
-            disease_id: Disease ID from medical.disease
+            disease_id: Disease ID from patient.patient
             is_allergy: Whether this is an allergy
             severity: Severity level ('mild', 'moderate', 'severe')
             notes: Additional notes
@@ -551,7 +551,7 @@ class OdooClientV3(OdooClientV2):
                 data['notes'] = notes
             
             record_id = self._execute(
-                'medical.patient.disease',
+                'patient.patient.disease',
                 'create',
                 [data],
                 {}
@@ -573,7 +573,7 @@ class OdooClientV3(OdooClientV2):
         """
         Search for diseases in the database.
         
-        Model: medical.disease
+        Model: patient.patient
         
         Args:
             name: Disease name (partial match)
@@ -592,7 +592,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('category', '=', category))
             
             disease_ids = self._execute(
-                'medical.disease',
+                'patient.patient',
                 'search',
                 [domain],
                 {'limit': limit}
@@ -602,7 +602,7 @@ class OdooClientV3(OdooClientV2):
                 return []
             
             diseases = self._execute(
-                'medical.disease',
+                'patient.patient',
                 'read',
                 [disease_ids],
                 {'fields': [
@@ -627,7 +627,7 @@ class OdooClientV3(OdooClientV2):
         """
         Get treatment plans for patient.
         
-        Model: medical.treatment.plan
+        Model: dental.procedure.line.plan
         
         Args:
             patient_id: Patient ID
@@ -643,7 +643,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('state', 'in', ['draft', 'confirmed', 'in_progress']))
             
             plan_ids = self._execute(
-                'medical.treatment.plan',
+                'dental.procedure.line.plan',
                 'search',
                 [domain],
                 {'order': 'create_date desc'}
@@ -653,7 +653,7 @@ class OdooClientV3(OdooClientV2):
                 return []
             
             plans = self._execute(
-                'medical.treatment.plan',
+                'dental.procedure.line.plan',
                 'read',
                 [plan_ids],
                 {'fields': [
@@ -681,7 +681,7 @@ class OdooClientV3(OdooClientV2):
         """
         Create a new treatment plan for patient.
         
-        Model: medical.treatment.plan
+        Model: dental.procedure.line.plan
         
         Args:
             patient_id: Patient ID
@@ -709,7 +709,7 @@ class OdooClientV3(OdooClientV2):
                 data['notes'] = notes
             
             plan_id = self._execute(
-                'medical.treatment.plan',
+                'dental.procedure.line.plan',
                 'create',
                 [data],
                 {}
@@ -728,7 +728,7 @@ class OdooClientV3(OdooClientV2):
                     }
                     
                     self._execute(
-                        'medical.treatment.plan.line',
+                        'dental.procedure.line.plan.line',
                         'create',
                         [line_data],
                         {}
@@ -1517,7 +1517,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('specialization', 'ilike', specialization))
             
             physicians = self.search_read(
-                'medical.physician',
+                'clinic.doctor',
                 domain,
                 ['name', 'code', 'specialization', 'phone', 'email', 'active']
             )
@@ -1693,7 +1693,7 @@ class OdooClientV3(OdooClientV2):
         try:
             # Get appointments assigned to this employee
             appointments = self.search_read(
-                'medical.appointment',
+                'patient.appointment',
                 [('doctor_id', '=', employee_id), ('appointment_date', '>=', date_from), ('appointment_date', '<=', date_to)],
                 ['appointment_date', 'duration', 'state']
             )
@@ -1786,7 +1786,7 @@ class OdooClientV3(OdooClientV2):
                 domain.append(('state', '=', 'available'))
             
             rooms = self.search_read(
-                'medical.hospital.operating.room',
+                'clinic.doctor.operating.room',
                 domain,
                 ['name', 'code', 'state', 'building_id', 'extra_info']
             )
@@ -1810,7 +1810,7 @@ class OdooClientV3(OdooClientV2):
         """
         try:
             appointments = self.search_read(
-                'medical.appointment',
+                'patient.appointment',
                 [('room_id', '=', room_id), ('appointment_date', '=', date)],
                 ['patient_id', 'doctor_id', 'appointment_date', 'duration', 'state']
             )

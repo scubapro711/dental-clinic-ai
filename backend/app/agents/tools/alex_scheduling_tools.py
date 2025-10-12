@@ -74,7 +74,7 @@ def bulk_reschedule_appointments_tool(
         odoo = OdooClientV3()
         
         # Validate doctor
-        doctor = odoo.read('medical.physician', doctor_id, ['name'])
+        doctor = odoo.read('clinic.doctor', doctor_id, ['name'])
         if not doctor:
             return {
                 'success': False,
@@ -98,7 +98,7 @@ def bulk_reschedule_appointments_tool(
             }
         
         # Find all appointments for doctor on original date
-        appointments = odoo.search_read('medical.appointment', [
+        appointments = odoo.search_read('patient.appointment', [
             ('doctor', '=', doctor_id),
             ('appointment_date', '>=', f'{original_date} 00:00:00'),
             ('appointment_date', '<=', f'{original_date} 23:59:59'),
@@ -145,7 +145,7 @@ def bulk_reschedule_appointments_tool(
             new_datetime = f"{new_date} {new_slot}"
             
             # Update appointment
-            update_result = odoo.write('medical.appointment', appointment['id'], {
+            update_result = odoo.write('patient.appointment', appointment['id'], {
                 'appointment_date': new_datetime,
                 'reschedule_reason': reason or 'Bulk reschedule',
                 'reschedule_count': (appointment.get('reschedule_count', 0) or 0) + 1,
@@ -223,7 +223,7 @@ def _get_available_slots_for_date(
     slot_duration = 30  # minutes
     
     # Get existing appointments
-    existing = odoo.search_read('medical.appointment', [
+    existing = odoo.search_read('patient.appointment', [
         ('doctor', '=', doctor_id),
         ('appointment_date', '>=', f'{date} 00:00:00'),
         ('appointment_date', '<=', f'{date} 23:59:59'),
@@ -265,7 +265,7 @@ def _send_reschedule_notification(
     """Send rescheduling notification to patient."""
     
     # Get patient contact info
-    patient = odoo.read('medical.patient', patient_id, ['name', 'email', 'phone'])
+    patient = odoo.read('patient.patient', patient_id, ['name', 'email', 'phone'])
     
     if not patient:
         logger.warning(f"Patient {patient_id} not found for notification")
@@ -396,7 +396,7 @@ def _add_to_waitlist(
         }
     
     # Validate patient
-    patient = odoo.read('medical.patient', patient_id, ['name'])
+    patient = odoo.read('patient.patient', patient_id, ['name'])
     if not patient:
         return {
             'success': False,
@@ -404,7 +404,7 @@ def _add_to_waitlist(
         }
     
     # Check if already on waitlist
-    existing = odoo.search_read('medical.waitlist', [
+    existing = odoo.search_read('patient.appointment', [
         ('patient_id', '=', patient_id),
         ('state', '=', 'active'),
     ], ['id'])
@@ -427,7 +427,7 @@ def _add_to_waitlist(
         'state': 'active',
     }
     
-    waitlist_id = odoo.create('medical.waitlist', waitlist_data)
+    waitlist_id = odoo.create('patient.appointment', waitlist_data)
     
     if not waitlist_id:
         return {
@@ -461,7 +461,7 @@ def _remove_from_waitlist(
         }
     
     # Find active waitlist entry
-    waitlist = odoo.search_read('medical.waitlist', [
+    waitlist = odoo.search_read('patient.appointment', [
         ('patient_id', '=', patient_id),
         ('state', '=', 'active'),
     ], ['id', 'patient_id'])
@@ -473,12 +473,12 @@ def _remove_from_waitlist(
         }
     
     # Mark as inactive
-    odoo.write('medical.waitlist', waitlist[0]['id'], {
+    odoo.write('patient.appointment', waitlist[0]['id'], {
         'state': 'inactive',
         'removed_date': datetime.now().strftime('%Y-%m-%d'),
     })
     
-    patient = odoo.read('medical.patient', patient_id, ['name'])
+    patient = odoo.read('patient.patient', patient_id, ['name'])
     
     return {
         'success': True,
@@ -506,7 +506,7 @@ def _notify_next_in_waitlist(
         domain.append(('treatment_type', '=', treatment_type))
     
     # Get waitlist sorted by priority
-    waitlist = odoo.search_read('medical.waitlist', domain, [
+    waitlist = odoo.search_read('patient.appointment', domain, [
         'patient_id', 'priority', 'preferred_date', 'treatment_type'
     ], order='priority desc, added_date asc', limit=3)
     
@@ -521,7 +521,7 @@ def _notify_next_in_waitlist(
     notified = []
     for entry in waitlist:
         patient_id = entry['patient_id'][0] if isinstance(entry['patient_id'], list) else entry['patient_id']
-        patient = odoo.read('medical.patient', patient_id, ['name', 'phone', 'email'])
+        patient = odoo.read('patient.patient', patient_id, ['name', 'phone', 'email'])
         
         if patient:
             # Send notification (mock)
@@ -565,7 +565,7 @@ def _get_waitlist(
         domain.append(('treatment_type', '=', treatment_type))
     
     # Get waitlist
-    waitlist = odoo.search_read('medical.waitlist', domain, [
+    waitlist = odoo.search_read('patient.appointment', domain, [
         'patient_id', 'doctor_id', 'priority', 'preferred_date', 
         'treatment_type', 'added_date'
     ], order='priority desc, added_date asc')
@@ -582,7 +582,7 @@ def _get_waitlist(
     formatted_list = []
     for i, entry in enumerate(waitlist, 1):
         patient_id = entry['patient_id'][0] if isinstance(entry['patient_id'], list) else entry['patient_id']
-        patient = odoo.read('medical.patient', patient_id, ['name'])
+        patient = odoo.read('patient.patient', patient_id, ['name'])
         
         formatted_list.append({
             'position': i,
@@ -616,7 +616,7 @@ def _calculate_waitlist_priority(
         priority += 3
     
     # Check patient history (loyalty)
-    appointments = odoo.search_read('medical.appointment', [
+    appointments = odoo.search_read('patient.appointment', [
         ('patient', '=', patient_id),
         ('state', '=', 'done'),
     ], ['id'])

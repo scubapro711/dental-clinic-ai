@@ -155,7 +155,7 @@ async def get_health_score(
         
         # Get patient's appointments
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
             fields=['id', 'appointment_sdate', 'state'],
             limit=50,
@@ -250,7 +250,7 @@ async def get_appointments(
         
         # Fetch appointments from Odoo
         all_appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
             fields=['id', 'appointment_sdate', 'appointment_edate', 'doctor_id', 'state', 'comments'],
             order='appointment_sdate DESC'
@@ -410,7 +410,7 @@ async def get_available_slots(
         
         # Get existing appointments for this doctor on this date
         appointments = odoo.search_read(
-            'medical.appointment',
+            'patient.appointment',
             domain=[
                 ('doctor_id', '=', doctor_id),
                 ('appointment_sdate', '>=', f"{date} 00:00:00"),

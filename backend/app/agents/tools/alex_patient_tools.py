@@ -61,7 +61,7 @@ def create_patient_tool(
     Register a new patient in the system.
     
     This tool creates both a partner record (res.partner) and a medical patient
-    record (medical.patient) in Odoo. It handles GDPR/HIPAA compliance by
+    record (patient.patient) in Odoo. It handles GDPR/HIPAA compliance by
     marking sensitive data appropriately.
     
     Args:
@@ -113,7 +113,7 @@ def create_patient_tool(
                 'suggestion': 'Please check Odoo connection and try again'
             }
         
-        # Step 2: Create medical patient (medical.patient)
+        # Step 2: Create medical patient (patient.patient)
         patient_data = {
             'partner_id': partner_id,
             'name': f"{first_name} {last_name}",
@@ -128,7 +128,7 @@ def create_patient_tool(
         # Remove None values
         patient_data = {k: v for k, v in patient_data.items() if v is not None}
         
-        patient_id = odoo.create('medical.patient', patient_data)
+        patient_id = odoo.create('patient.patient', patient_data)
         
         if not patient_id:
             # Rollback: delete partner if patient creation failed
@@ -147,7 +147,7 @@ def create_patient_tool(
                 'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                 'user_id': odoo.uid,  # Current user
             }
-            odoo.create('medical.patient.note', note_data)
+            odoo.create('patient.patient.note', note_data)
         
         # Step 4: Return success with next steps
         return {
@@ -242,7 +242,7 @@ def update_patient_info_tool(
         odoo = OdooClientV3()
         
         # Get patient record to find partner_id
-        patient = odoo.read('medical.patient', patient_id, ['partner_id', 'name'])
+        patient = odoo.read('patient.patient', patient_id, ['partner_id', 'name'])
         
         if not patient:
             return {
@@ -299,7 +299,7 @@ def update_patient_info_tool(
             updated_fields.append('מספר פוליסה')
         
         if patient_updates:
-            success = odoo.update('medical.patient', patient_id, patient_updates)
+            success = odoo.update('patient.patient', patient_id, patient_updates)
             if not success:
                 return {
                     'success': False,
@@ -366,7 +366,7 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
         odoo = OdooClientV3()
         
         # Get patient and partner data
-        patient = odoo.read('medical.patient', patient_id, [
+        patient = odoo.read('patient.patient', patient_id, [
             'name', 'partner_id', 'dob', 'gender', 'emergency_contact',
             'emergency_phone', 'insurance_company', 'insurance_number'
         ])
@@ -384,24 +384,24 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
         ])
         
         # Get medical history
-        allergies = odoo.search_read('medical.patient.allergy', [
+        allergies = odoo.search_read('patient.patient.allergy', [
             ('patient_id', '=', patient_id)
         ], ['allergen', 'severity', 'notes'])
         
-        medications = odoo.search_read('medical.patient.medication', [
+        medications = odoo.search_read('patient.patient.medication', [
             ('patient_id', '=', patient_id),
             ('active', '=', True)
         ], ['medication_id', 'dosage', 'frequency', 'start_date'])
         
         # Get appointments
         today = datetime.now().strftime('%Y-%m-%d')
-        upcoming_appointments = odoo.search_read('medical.appointment', [
+        upcoming_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
             ('appointment_date', '>=', today),
             ('state', 'in', ['draft', 'confirmed'])
         ], ['appointment_date', 'doctor_id', 'treatment_id', 'state'], limit=5)
         
-        past_appointments = odoo.search_read('medical.appointment', [
+        past_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
             ('appointment_date', '<', today),
             ('state', '=', 'done')
@@ -416,7 +416,7 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
         outstanding_balance = sum(inv['residual'] for inv in invoices if inv['state'] == 'open')
         
         # Get recent notes
-        notes = odoo.search_read('medical.patient.note', [
+        notes = odoo.search_read('patient.patient.note', [
             ('patient_id', '=', patient_id)
         ], ['note', 'date', 'user_id'], limit=5, order='date desc')
         
@@ -594,7 +594,7 @@ def add_patient_note_tool(
         odoo = OdooClientV3()
         
         # Get patient name
-        patient = odoo.read('medical.patient', patient_id, ['name'])
+        patient = odoo.read('patient.patient', patient_id, ['name'])
         
         if not patient:
             return {
@@ -610,7 +610,7 @@ def add_patient_note_tool(
             'user_id': odoo.uid,
         }
         
-        note_id = odoo.create('medical.patient.note', note_data)
+        note_id = odoo.create('patient.patient.note', note_data)
         
         if not note_id:
             return {

@@ -2,7 +2,7 @@
 Odoo XML-RPC Client for dental clinic ERP integration.
 
 This client provides methods to interact with Odoo Dental module (Pragtech Dental Management).
-Compatible with Odoo 19.0 and the medical.appointment model.
+Compatible with Odoo 19.0 and the patient.appointment model.
 """
 
 import xmlrpc.client
@@ -59,7 +59,7 @@ class OdooClient:
         Execute a method on an Odoo model.
         
         Args:
-            model: Odoo model name (e.g., 'res.partner', 'medical.appointment')
+            model: Odoo model name (e.g., 'res.partner', 'patient.appointment')
             method: Method to execute (e.g., 'search', 'read', 'create', 'write')
             args: List of positional arguments for the method
             kwargs: Dictionary of keyword arguments for the method
@@ -200,7 +200,7 @@ class OdooClient:
         return result
     
     # ============================================================================
-    # APPOINTMENT MANAGEMENT (medical.appointment)
+    # APPOINTMENT MANAGEMENT (patient.appointment)
     # ============================================================================
     
     def search_appointments(
@@ -239,7 +239,7 @@ class OdooClient:
         if state:
             domain.append(('state', '=', state))
         
-        return self._execute('medical.appointment', 'search', [domain], {'limit': limit})
+        return self._execute('patient.appointment', 'search', [domain], {'limit': limit})
     
     def get_appointment(self, appointment_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -252,7 +252,7 @@ class OdooClient:
             Appointment data dictionary or None
         """
         results = self._execute(
-            'medical.appointment', 'read',
+            'patient.appointment', 'read',
             [[appointment_id]],
             {'fields': [
                 'id', 'name', 'patient_id', 'doctor_id', 
@@ -308,7 +308,7 @@ class OdooClient:
         # Add any additional fields
         appointment_data.update(kwargs)
         
-        appointment_id = self._execute('medical.appointment', 'create', [appointment_data])
+        appointment_id = self._execute('patient.appointment', 'create', [appointment_data])
         logger.info(f"Created appointment {appointment_id} for patient {patient_id}")
         return appointment_id
     
@@ -323,7 +323,7 @@ class OdooClient:
         Returns:
             True if successful
         """
-        result = self._execute('medical.appointment', 'write', [[appointment_id], kwargs])
+        result = self._execute('patient.appointment', 'write', [[appointment_id], kwargs])
         if result:
             logger.info(f"Updated appointment {appointment_id}")
         return result
@@ -427,7 +427,7 @@ class OdooClient:
         booked_times = []
         if existing:
             appointments = self._execute(
-                'medical.appointment', 'read',
+                'patient.appointment', 'read',
                 [existing],
                 {'fields': ['appointment_sdate', 'appointment_edate']}
             )
