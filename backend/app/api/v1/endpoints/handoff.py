@@ -141,9 +141,9 @@ async def get_pending_handoffs(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[],
-            fields=['id', 'patient_id', 'appointment_sdate', 'state'],
+            fields=['id', 'patient_id', 'start', 'state'],
             limit=100,
-            order='appointment_sdate DESC'
+            order='start DESC'
         )
         
         # Format appointments for handoff generation
@@ -156,8 +156,8 @@ async def get_pending_handoffs(
                 'id': apt['id'],
                 'patient_name': patient['name'],
                 'patient_phone': patient.get('phone'),
-                'date': str(apt['appointment_sdate'])[:10] if apt.get('appointment_sdate') else None,
-                'time': str(apt['appointment_sdate'])[11:16] if apt.get('appointment_sdate') else None,
+                'date': str(apt['start'])[:10] if apt.get('start') else None,
+                'time': str(apt['start'])[11:16] if apt.get('start') else None,
                 'treatment': 'General Checkup',  # TODO: Add treatment type
                 'state': apt['state'],
             })
@@ -228,7 +228,7 @@ async def get_alex_activity(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[],
-            fields=['id', 'patient_id', 'appointment_sdate'],
+            fields=['id', 'patient_id', 'start'],
             limit=20,
             order='create_date DESC'
         )
@@ -242,8 +242,8 @@ async def get_alex_activity(
             formatted_appointments.append({
                 'id': apt['id'],
                 'patient_name': patient['name'],
-                'date': str(apt['appointment_sdate'])[:10] if apt.get('appointment_sdate') else 'today',
-                'time': str(apt['appointment_sdate'])[11:16] if apt.get('appointment_sdate') else 'TBD',
+                'date': str(apt['start'])[:10] if apt.get('start') else 'today',
+                'time': str(apt['start'])[11:16] if apt.get('start') else 'TBD',
                 'treatment': 'appointment',  # TODO: Add treatment type
             })
         

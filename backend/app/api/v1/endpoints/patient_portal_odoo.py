@@ -157,9 +157,9 @@ async def get_health_score(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
-            fields=['id', 'appointment_sdate', 'state'],
+            fields=['id', 'start', 'state'],
             limit=50,
-            order='appointment_sdate DESC'
+            order='start DESC'
         )
         
         # Calculate score based on appointment history
@@ -171,8 +171,8 @@ async def get_health_score(
         six_months_ago = datetime.now() - timedelta(days=180)
         recent_appointments = [
             apt for apt in appointments 
-            if apt.get('appointment_sdate') and 
-            datetime.fromisoformat(str(apt['appointment_sdate'])) > six_months_ago
+            if apt.get('start') and 
+            datetime.fromisoformat(str(apt['start'])) > six_months_ago
         ]
         
         if len(recent_appointments) > 0:
@@ -193,8 +193,8 @@ async def get_health_score(
         # Check upcoming appointments
         upcoming_appointments = [
             apt for apt in appointments 
-            if apt.get('appointment_sdate') and 
-            datetime.fromisoformat(str(apt['appointment_sdate'])) > datetime.now()
+            if apt.get('start') and 
+            datetime.fromisoformat(str(apt['start'])) > datetime.now()
         ]
         
         if len(upcoming_appointments) > 0:
@@ -252,8 +252,8 @@ async def get_appointments(
         all_appointments = odoo.search_read(
             'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
-            fields=['id', 'appointment_sdate', 'appointment_edate', 'doctor_id', 'state', 'comments'],
-            order='appointment_sdate DESC'
+            fields=['id', 'start', 'stop', 'doctor_id', 'state', 'comments'],
+            order='start DESC'
         )
         
         # Parse and format appointments
@@ -261,7 +261,7 @@ async def get_appointments(
         now = datetime.now()
         
         for apt in all_appointments:
-            apt_date_str = apt.get('appointment_sdate')
+            apt_date_str = apt.get('start')
             if not apt_date_str:
                 continue
             
@@ -287,7 +287,7 @@ async def get_appointments(
                 "doctor": apt.get('doctor_id', [None, 'Unknown'])[1] if apt.get('doctor_id') else 'Unknown',
                 "doctor_id": apt.get('doctor_id', [None])[0] if apt.get('doctor_id') else None,
                 "type": "General Checkup",  # TODO: Add appointment type field
-                "duration": "30 min",  # TODO: Calculate from appointment_edate
+                "duration": "30 min",  # TODO: Calculate from stop
                 "status": apt_status,
                 "notes": apt.get('comments') or "",
                 "location": "Main Clinic"  # TODO: Add location field
@@ -413,17 +413,17 @@ async def get_available_slots(
             'patient.appointment',
             domain=[
                 ('doctor_id', '=', doctor_id),
-                ('appointment_sdate', '>=', f"{date} 00:00:00"),
-                ('appointment_sdate', '<=', f"{date} 23:59:59"),
+                ('start', '>=', f"{date} 00:00:00"),
+                ('start', '<=', f"{date} 23:59:59"),
                 ('state', '!=', 'cancel'),
             ],
-            fields=['appointment_sdate']
+            fields=['start']
         )
         
         # Extract booked times
         booked_times = set()
         for apt in appointments:
-            apt_date_str = apt.get('appointment_sdate')
+            apt_date_str = apt.get('start')
             if apt_date_str:
                 try:
                     apt_time = datetime.fromisoformat(str(apt_date_str)).time()

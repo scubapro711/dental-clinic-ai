@@ -238,7 +238,7 @@ def cancel_appointment_v2(appointment_id: int, reason: Optional[str] = None) -> 
             'patient.appointment',
             'read',
             [[appointment_id]],
-            {'fields': ['patient_id', 'appointment_sdate']}
+            {'fields': ['patient_id', 'start']}
         )
         
         if not appointment:
@@ -255,7 +255,7 @@ def cancel_appointment_v2(appointment_id: int, reason: Optional[str] = None) -> 
         
         if success:
             patient_name = apt['patient_id'][1] if isinstance(apt['patient_id'], list) else "לא ידוע"
-            date_str = apt['appointment_sdate']
+            date_str = apt['start']
             
             return (
                 f"✅ התור בוטל בהצלחה!\n\n"
@@ -288,7 +288,7 @@ def get_patient_appointments_v2(patient_id: int, include_past: bool = False) -> 
         domain = [('patient_id', '=', patient_id)]
         
         if not include_past:
-            domain.append(('appointment_sdate', '>=', datetime.now().strftime('%Y-%m-%d')))
+            domain.append(('start', '>=', datetime.now().strftime('%Y-%m-%d')))
         
         # Search appointments
         appointments = odoo_client_v2._execute(
@@ -296,8 +296,8 @@ def get_patient_appointments_v2(patient_id: int, include_past: bool = False) -> 
             'search_read',
             [domain],
             {
-                'fields': ['id', 'appointment_sdate', 'doctor_id', 'state'],
-                'order': 'appointment_sdate asc'
+                'fields': ['id', 'start', 'doctor_id', 'state'],
+                'order': 'start asc'
             }
         )
         
@@ -308,7 +308,7 @@ def get_patient_appointments_v2(patient_id: int, include_past: bool = False) -> 
         result = f"נמצאו {len(appointments)} תורים:\n\n"
         
         for apt in appointments:
-            apt_date = datetime.strptime(apt['appointment_sdate'], '%Y-%m-%d %H:%M:%S')
+            apt_date = datetime.strptime(apt['start'], '%Y-%m-%d %H:%M:%S')
             date_str = apt_date.strftime('%d/%m/%Y')
             time_str = apt_date.strftime('%H:%M')
             doctor_name = apt['doctor_id'][1] if isinstance(apt['doctor_id'], list) else "לא ידוע"

@@ -233,9 +233,9 @@ class OdooClient:
         if doctor_id:
             domain.append(('doctor_id', '=', doctor_id))
         if date_from:
-            domain.append(('appointment_sdate', '>=', date_from.strftime('%Y-%m-%d %H:%M:%S')))
+            domain.append(('start', '>=', date_from.strftime('%Y-%m-%d %H:%M:%S')))
         if date_to:
-            domain.append(('appointment_sdate', '<=', date_to.strftime('%Y-%m-%d %H:%M:%S')))
+            domain.append(('start', '<=', date_to.strftime('%Y-%m-%d %H:%M:%S')))
         if state:
             domain.append(('state', '=', state))
         
@@ -256,7 +256,7 @@ class OdooClient:
             [[appointment_id]],
             {'fields': [
                 'id', 'name', 'patient_id', 'doctor_id', 
-                'appointment_sdate', 'appointment_edate',
+                'start', 'stop',
                 'state', 'patient_state', 'urgency',
                 'operations_ids', 'inv_id', 'invoice_done'
             ]}
@@ -299,8 +299,8 @@ class OdooClient:
         appointment_data = {
             'patient_id': patient_id,
             'doctor_id': doctor_id,
-            'appointment_sdate': appointment_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'appointment_edate': end_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'start': appointment_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'stop': end_date.strftime('%Y-%m-%d %H:%M:%S'),
             'patient_state': valid_patient_state,
             'urgency': urgency,
         }
@@ -429,11 +429,11 @@ class OdooClient:
             appointments = self._execute(
                 'patient.appointment', 'read',
                 [existing],
-                {'fields': ['appointment_sdate', 'appointment_edate']}
+                {'fields': ['start', 'stop']}
             )
             for apt in appointments:
-                if apt.get('appointment_sdate'):
-                    booked_times.append(datetime.strptime(apt['appointment_sdate'], '%Y-%m-%d %H:%M:%S'))
+                if apt.get('start'):
+                    booked_times.append(datetime.strptime(apt['start'], '%Y-%m-%d %H:%M:%S'))
         
         # Generate available slots (9 AM to 5 PM, excluding booked times)
         from datetime import timedelta

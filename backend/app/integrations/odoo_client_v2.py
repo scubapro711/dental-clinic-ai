@@ -437,7 +437,7 @@ class OdooClientV2:
         except Exception as e:
             logger.error(f"Failed to get required fields: {e}")
             # Return known required fields as fallback
-            return ['patient_id', 'doctor_id', 'appointment_sdate']
+            return ['patient_id', 'doctor_id', 'start']
     
     def validate_appointment_data(
         self,
@@ -526,8 +526,8 @@ class OdooClientV2:
             # Required fields
             'patient_id': patient_id,
             'doctor_id': doctor_id,
-            'appointment_sdate': appointment_date.strftime('%Y-%m-%d %H:%M:%S'),
-            'appointment_edate': end_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'start': appointment_date.strftime('%Y-%m-%d %H:%M:%S'),
+            'stop': end_date.strftime('%Y-%m-%d %H:%M:%S'),
             
             # State fields
             'patient_state': patient_state if patient_state in ['withapt', 'walkin'] else 'withapt',
@@ -594,18 +594,18 @@ class OdooClientV2:
                 'search_read',
                 [[
                     ('doctor_id', '=', doctor_id),
-                    ('appointment_sdate', '>=', date_from.strftime('%Y-%m-%d %H:%M:%S')),
-                    ('appointment_sdate', '<=', date_to.strftime('%Y-%m-%d %H:%M:%S')),
+                    ('start', '>=', date_from.strftime('%Y-%m-%d %H:%M:%S')),
+                    ('start', '<=', date_to.strftime('%Y-%m-%d %H:%M:%S')),
                     ('state', 'not in', ['cancel'])
                 ]],
-                {'fields': ['appointment_sdate', 'appointment_edate']}
+                {'fields': ['start', 'stop']}
             )
             
             # Convert to datetime objects
             busy_slots = []
             for apt in existing_appointments:
-                start = datetime.strptime(apt['appointment_sdate'], '%Y-%m-%d %H:%M:%S')
-                end = datetime.strptime(apt['appointment_edate'], '%Y-%m-%d %H:%M:%S')
+                start = datetime.strptime(apt['start'], '%Y-%m-%d %H:%M:%S')
+                end = datetime.strptime(apt['stop'], '%Y-%m-%d %H:%M:%S')
                 busy_slots.append((start, end))
             
             # Generate all possible slots
@@ -775,16 +775,16 @@ class OdooClientV2:
             if doctor_id:
                 domain.append(('doctor_id', '=', doctor_id))
             if date_from:
-                domain.append(('appointment_sdate', '>=', date_from))
+                domain.append(('start', '>=', date_from))
             if date_to:
-                domain.append(('appointment_sdate', '<=', date_to))
+                domain.append(('start', '<=', date_to))
             
             # Search for appointment IDs
             appointment_ids = self._execute(
                 'patient.appointment',
                 'search',
                 [domain],
-                {'limit': limit, 'order': 'appointment_sdate desc'}
+                {'limit': limit, 'order': 'start desc'}
             )
             
             if not appointment_ids:
@@ -797,7 +797,7 @@ class OdooClientV2:
                 [appointment_ids],
                 {'fields': [
                     'id', 'patient_id', 'doctor_id',
-                    'appointment_sdate', 'appointment_edate',
+                    'start', 'stop',
                     'appointment_type', 'state', 'notes'
                 ]}
             )

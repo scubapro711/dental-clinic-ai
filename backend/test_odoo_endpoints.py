@@ -79,7 +79,7 @@ async def test_odoo_endpoints():
             )
             print(f"Found {len(appointments)} appointments:")
             for apt in appointments[:3]:  # Show first 3
-                date = apt.get('appointment_sdate', 'N/A')
+                date = apt.get('start', 'N/A')
                 doctor = apt.get('doctor_id', [None, 'Unknown'])[1] if apt.get('doctor_id') else 'Unknown'
                 print(f"  - {date} with {doctor}")
         except Exception as e:
@@ -111,7 +111,7 @@ async def test_odoo_endpoints():
             # Generate available slots (simplified)
             booked_times = set()
             for apt in appointments:
-                apt_date_str = apt.get('appointment_sdate')
+                apt_date_str = apt.get('start')
                 if apt_date_str:
                     from datetime import datetime
                     try:

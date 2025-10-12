@@ -43,9 +43,9 @@ async def get_active_conversations(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[('state', 'in', ['draft', 'confirmed'])],
-            fields=['id', 'patient_id', 'appointment_sdate', 'state'],
+            fields=['id', 'patient_id', 'start', 'state'],
             limit=10,
-            order='appointment_sdate DESC'
+            order='start DESC'
         )
         
         conversations = []
@@ -70,7 +70,7 @@ async def get_active_conversations(
             priority = "urgent" if i == 0 else random.choice(priorities)
             
             # Calculate time ago
-            appt_date = datetime.fromisoformat(str(appt['appointment_sdate']))
+            appt_date = datetime.fromisoformat(str(appt['start']))
             time_diff = datetime.now() - appt_date
             time_ago = f"{abs(int(time_diff.total_seconds() / 60))} minutes ago"
             
@@ -84,7 +84,7 @@ async def get_active_conversations(
                 "time_ago": time_ago,
                 "unread_count": random.randint(0, 3),
                 "status": "active",
-                "created_at": str(appt['appointment_sdate']),
+                "created_at": str(appt['start']),
             })
         
         # Sort by priority (urgent first)
@@ -145,9 +145,9 @@ async def get_patients(
             last_appt = odoo.search_read(
                 'patient.appointment',
                 domain=[('patient_id', '=', patient['id']), ('state', '=', 'done')],
-                fields=['appointment_sdate'],
+                fields=['start'],
                 limit=1,
-                order='appointment_sdate DESC'
+                order='start DESC'
             )
             
             # Get appointment count
@@ -176,7 +176,7 @@ async def get_patients(
                 "email": patient.get("email"),
                 "date_of_birth": patient.get("birthdate_date"),
                 "registration_date": patient.get("create_date"),
-                "last_visit": last_appt[0]['appointment_sdate'] if last_appt else None,
+                "last_visit": last_appt[0]['start'] if last_appt else None,
                 "total_visits": total_visits,
                 "outstanding_balance": outstanding_balance,
                 "insurance_provider": None,  # TODO: Add insurance field
@@ -222,8 +222,8 @@ async def get_patient_details(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[('patient_id', '=', patient_id)],
-            fields=['id', 'appointment_sdate', 'appointment_edate', 'state', 'doctor_id'],
-            order='appointment_sdate DESC'
+            fields=['id', 'start', 'stop', 'state', 'doctor_id'],
+            order='start DESC'
         )
         
         # Get patient invoices
@@ -238,8 +238,8 @@ async def get_patient_details(
         treatments = odoo.search_read(
             'patient.appointment',
             domain=[('patient_id', '=', patient_id), ('state', '=', 'done')],
-            fields=['id', 'appointment_sdate', 'doctor_id', 'comments'],
-            order='appointment_sdate DESC'
+            fields=['id', 'start', 'doctor_id', 'comments'],
+            order='start DESC'
         )
         
         # Calculate totals
@@ -289,10 +289,10 @@ async def get_appointments(
         domain = []
         
         if start_date:
-            domain.append(('appointment_sdate', '>=', f"{start_date} 00:00:00"))
+            domain.append(('start', '>=', f"{start_date} 00:00:00"))
         
         if end_date:
-            domain.append(('appointment_sdate', '<=', f"{end_date} 23:59:59"))
+            domain.append(('start', '<=', f"{end_date} 23:59:59"))
         
         if status:
             domain.append(('state', '=', status))
@@ -301,9 +301,9 @@ async def get_appointments(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=domain,
-            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
             limit=limit,
-            order='appointment_sdate DESC'
+            order='start DESC'
         )
         
         # Enrich with patient data
@@ -313,7 +313,7 @@ async def get_appointments(
             patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
             
             # Extract date and time
-            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            appt_datetime = datetime.fromisoformat(str(appt['start']))
             
             result_appointments.append({
                 "id": appt['id'],
@@ -324,8 +324,8 @@ async def get_appointments(
                 "date": appt_datetime.strftime('%Y-%m-%d'),
                 "time": appt_datetime.strftime('%H:%M'),
                 "status": appt['state'],
-                "start_datetime": str(appt['appointment_sdate']),
-                "end_datetime": str(appt['appointment_edate']),
+                "start_datetime": str(appt['start']),
+                "end_datetime": str(appt['stop']),
             })
         
         return {
@@ -354,11 +354,11 @@ async def get_today_appointments(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', f"{today} 00:00:00"),
-                ('appointment_sdate', '<=', f"{today} 23:59:59"),
+                ('start', '>=', f"{today} 00:00:00"),
+                ('start', '<=', f"{today} 23:59:59"),
             ],
-            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
-            order='appointment_sdate ASC'
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
+            order='start ASC'
         )
         
         # Enrich with patient data
@@ -367,7 +367,7 @@ async def get_today_appointments(
             patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
             patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
             
-            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            appt_datetime = datetime.fromisoformat(str(appt['start']))
             
             result_appointments.append({
                 "id": appt['id'],
@@ -378,8 +378,8 @@ async def get_today_appointments(
                 "date": today,
                 "time": appt_datetime.strftime('%H:%M'),
                 "status": appt['state'],
-                "start_datetime": str(appt['appointment_sdate']),
-                "end_datetime": str(appt['appointment_edate']),
+                "start_datetime": str(appt['start']),
+                "end_datetime": str(appt['stop']),
             })
         
         return {
@@ -418,11 +418,11 @@ async def get_upcoming_appointments(
             'patient.appointment',
             domain=[
                 ('state', 'in', ['draft', 'confirmed']),
-                ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
-                ('appointment_sdate', '<=', f"{end_str} 23:59:59"),
+                ('start', '>=', f"{today_str} 00:00:00"),
+                ('start', '<=', f"{end_str} 23:59:59"),
             ],
-            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
-            order='appointment_sdate ASC'
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
+            order='start ASC'
         )
         
         # Enrich with patient data
@@ -431,7 +431,7 @@ async def get_upcoming_appointments(
             patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
             patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
             
-            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            appt_datetime = datetime.fromisoformat(str(appt['start']))
             
             result_appointments.append({
                 "id": appt['id'],
@@ -442,8 +442,8 @@ async def get_upcoming_appointments(
                 "date": appt_datetime.strftime('%Y-%m-%d'),
                 "time": appt_datetime.strftime('%H:%M'),
                 "status": appt['state'],
-                "start_datetime": str(appt['appointment_sdate']),
-                "end_datetime": str(appt['appointment_edate']),
+                "start_datetime": str(appt['start']),
+                "end_datetime": str(appt['stop']),
             })
         
         return {

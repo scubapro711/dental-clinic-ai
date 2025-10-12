@@ -53,18 +53,18 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
-                ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
+                ('start', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
+                ('start', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
                 ('state', '!=', 'cancel'),
             ],
-            fields=['id', 'appointment_sdate', 'doctor_id', 'patient_id'],
-            order='appointment_sdate ASC'
+            fields=['id', 'start', 'doctor_id', 'patient_id'],
+            order='start ASC'
         )
         
         # Convert to expected format
         appointments = []
         for apt in appointments_data:
-            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            apt_date = datetime.strptime(str(apt['start']), "%Y-%m-%d %H:%M:%S")
             appointments.append({
                 "id": apt['id'],
                 "date": apt_date.strftime("%Y-%m-%d"),
@@ -149,18 +149,18 @@ def get_available_slots_tool(date: str, doctor_id: Optional[int] = None, duratio
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', f"{date} 00:00:00"),
-                ('appointment_sdate', '<=', f"{date} 23:59:59"),
+                ('start', '>=', f"{date} 00:00:00"),
+                ('start', '<=', f"{date} 23:59:59"),
                 ('state', '!=', 'cancel'),
             ],
-            fields=['appointment_sdate'],
-            order='appointment_sdate ASC'
+            fields=['start'],
+            order='start ASC'
         )
         
         # Convert to expected format
         appointments = []
         for apt in appointments_data:
-            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            apt_date = datetime.strptime(str(apt['start']), "%Y-%m-%d %H:%M:%S")
             appointments.append({
                 "date": apt_date.strftime("%Y-%m-%d"),
                 "time": apt_date.strftime("%H:%M"),
@@ -371,18 +371,18 @@ def optimize_schedule_tool(date: str, optimization_goal: str = "minimize_gaps") 
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', f"{date} 00:00:00"),
-                ('appointment_sdate', '<=', f"{date} 23:59:59"),
+                ('start', '>=', f"{date} 00:00:00"),
+                ('start', '<=', f"{date} 23:59:59"),
                 ('state', '!=', 'cancel'),
             ],
-            fields=['appointment_sdate'],
-            order='appointment_sdate ASC'
+            fields=['start'],
+            order='start ASC'
         )
         
         # Convert to expected format
         appointments = []
         for apt in appointments_data:
-            apt_date = datetime.strptime(str(apt['appointment_sdate']), "%Y-%m-%d %H:%M:%S")
+            apt_date = datetime.strptime(str(apt['start']), "%Y-%m-%d %H:%M:%S")
             appointments.append({
                 "date": apt_date.strftime("%Y-%m-%d"),
             })
@@ -462,11 +462,11 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
-                ('appointment_sdate', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
+                ('start', '>=', start_date.strftime("%Y-%m-%d 00:00:00")),
+                ('start', '<=', end_date.strftime("%Y-%m-%d 23:59:59")),
             ],
             fields=['id', 'state'],
-            order='appointment_sdate ASC'
+            order='start ASC'
         )
         
         # Calculate metrics

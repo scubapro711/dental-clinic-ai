@@ -385,9 +385,9 @@ def sanitize_appointment_data(data: Dict[str, Any]) -> Dict[str, Any]:
     
     if 'appointment_date' in data:
         if isinstance(data['appointment_date'], str):
-            sanitized['appointment_sdate'] = data['appointment_date']
+            sanitized['start'] = data['appointment_date']
         elif isinstance(data['appointment_date'], datetime):
-            sanitized['appointment_sdate'] = data['appointment_date'].isoformat()
+            sanitized['start'] = data['appointment_date'].isoformat()
     
     # Optional fields
     if 'appointment_type' in data and data['appointment_type']:

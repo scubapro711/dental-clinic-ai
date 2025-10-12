@@ -134,10 +134,10 @@ async def get_dashboard_metrics(
     today_appointments = odoo.search_read(
         'patient.appointment',
         domain=[
-            ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
-            ('appointment_sdate', '<=', f"{today_str} 23:59:59"),
+            ('start', '>=', f"{today_str} 00:00:00"),
+            ('start', '<=', f"{today_str} 23:59:59"),
         ],
-        fields=['id', 'state', 'appointment_sdate']
+        fields=['id', 'state', 'start']
     )
     appointments_today = len(today_appointments)
     
@@ -153,8 +153,8 @@ async def get_dashboard_metrics(
         'patient.appointment',
         domain=[
             ('state', 'in', ['draft', 'confirmed']),
-            ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
-            ('appointment_sdate', '<=', f"{end_date} 23:59:59"),
+            ('start', '>=', f"{today_str} 00:00:00"),
+            ('start', '<=', f"{end_date} 23:59:59"),
         ]
     )
     

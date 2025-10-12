@@ -59,8 +59,8 @@ async def get_revenue_metrics(
             'patient.appointment',
             'search_count',
             [[
-                ('appointment_sdate', '>=', first_day_this_month.strftime('%Y-%m-%d')),
-                ('appointment_sdate', '<=', today.strftime('%Y-%m-%d'))
+                ('start', '>=', first_day_this_month.strftime('%Y-%m-%d')),
+                ('start', '<=', today.strftime('%Y-%m-%d'))
             ]]
         )
         
@@ -71,8 +71,8 @@ async def get_revenue_metrics(
             'patient.appointment',
             'search_count',
             [[
-                ('appointment_sdate', '>=', first_day_last_month.strftime('%Y-%m-%d')),
-                ('appointment_sdate', '<=', last_day_last_month.strftime('%Y-%m-%d'))
+                ('start', '>=', first_day_last_month.strftime('%Y-%m-%d')),
+                ('start', '<=', last_day_last_month.strftime('%Y-%m-%d'))
             ]]
         )
         
@@ -152,8 +152,8 @@ async def get_dashboard_metrics(
             'patient.appointment',
             'search_count',
             [[
-                ('appointment_sdate', '>=', today.strftime('%Y-%m-%d')),
-                ('appointment_sdate', '<=', today.strftime('%Y-%m-%d 23:59:59'))
+                ('start', '>=', today.strftime('%Y-%m-%d')),
+                ('start', '<=', today.strftime('%Y-%m-%d 23:59:59'))
             ]]
         )
         
@@ -165,8 +165,8 @@ async def get_dashboard_metrics(
             'patient.appointment',
             'search_count',
             [[
-                ('appointment_sdate', '>=', yesterday.strftime('%Y-%m-%d')),
-                ('appointment_sdate', '<=', yesterday.strftime('%Y-%m-%d 23:59:59'))
+                ('start', '>=', yesterday.strftime('%Y-%m-%d')),
+                ('start', '<=', yesterday.strftime('%Y-%m-%d 23:59:59'))
             ]]
         )
         

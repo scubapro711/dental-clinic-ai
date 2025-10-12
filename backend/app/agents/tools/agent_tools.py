@@ -139,18 +139,18 @@ def get_available_slots_tool(days_ahead: int = 7) -> str:
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', date_from.strftime("%Y-%m-%d %H:%M:%S")),
-                ('appointment_sdate', '<=', date_to.strftime("%Y-%m-%d %H:%M:%S")),
+                ('start', '>=', date_from.strftime("%Y-%m-%d %H:%M:%S")),
+                ('start', '<=', date_to.strftime("%Y-%m-%d %H:%M:%S")),
                 ('state', '!=', 'cancel'),
             ],
-            fields=['appointment_sdate']
+            fields=['start']
         )
         
         # Extract booked times
         booked_times = set()
         for apt in appointments:
-            if apt.get('appointment_sdate'):
-                booked_times.add(str(apt['appointment_sdate']))
+            if apt.get('start'):
+                booked_times.add(str(apt['start']))
         
         # Generate available slots (9 AM to 5 PM, 30-minute intervals)
         available_slots = []
@@ -225,8 +225,8 @@ def create_appointment_tool(
         # Create appointment
         appointment_id = odoo.create('patient.appointment', {
             'patient_id': patient_id,
-            'appointment_sdate': appt_datetime.strftime("%Y-%m-%d %H:%M:%S"),
-            'appointment_edate': (appt_datetime + timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M:%S"),
+            'start': appt_datetime.strftime("%Y-%m-%d %H:%M:%S"),
+            'stop': (appt_datetime + timedelta(minutes=30)).strftime("%Y-%m-%d %H:%M:%S"),
             'state': 'draft',
             'comments': notes or '',
         })

@@ -139,7 +139,7 @@ async def get_patient_statistics(
         recent_appointments = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('appointment_sdate', '>=', f"{ninety_days_ago} 00:00:00"),
+                ('start', '>=', f"{ninety_days_ago} 00:00:00"),
                 ('state', '=', 'done')
             ],
             fields=['patient_id']
@@ -194,7 +194,7 @@ async def get_appointment_statistics(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[],
-            fields=['id', 'state', 'appointment_sdate']
+            fields=['id', 'state', 'start']
         )
         
         # Status distribution
@@ -210,8 +210,8 @@ async def get_appointment_statistics(
             'patient.appointment',
             [
                 ('state', 'in', ['draft', 'confirmed']),
-                ('appointment_sdate', '>=', f"{today} 00:00:00"),
-                ('appointment_sdate', '<=', f"{seven_days} 23:59:59")
+                ('start', '>=', f"{today} 00:00:00"),
+                ('start', '<=', f"{seven_days} 23:59:59")
             ]
         )
         
