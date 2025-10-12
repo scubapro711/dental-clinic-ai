@@ -24,12 +24,13 @@ COPY . .
 RUN useradd -m -u 1000 dentalai && chown -R dentalai:dentalai /app
 USER dentalai
 
-# Expose port
-EXPOSE 8000
+# Expose port (Cloud Run uses PORT env var, defaults to 8080)
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
+    CMD curl -f http://localhost:${PORT:-8080}/health || exit 1
 
-# Run application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run application (use PORT env var from Cloud Run)
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}
+
