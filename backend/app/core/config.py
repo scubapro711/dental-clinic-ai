@@ -6,7 +6,7 @@ or AWS Secrets Manager (in production).
 """
 
 from typing import List, Literal
-from pydantic import Field, RedisDsn
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -46,8 +46,8 @@ class Settings(BaseSettings):
         default="postgresql://dentaflow:dentaflow123@localhost:5432/dentaflow_checkpoints"
     )
 
-    # Redis
-    REDIS_URL: RedisDsn = Field(...)
+    # Redis (optional - falls back to in-memory cache)
+    REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
     # Odoo
     ODOO_URL: str = Field(...)
