@@ -83,6 +83,7 @@ class AuditLog(Base):
         Index('ix_audit_logs_user_timestamp', 'user_id', 'timestamp'),
         Index('ix_audit_logs_resource', 'resource_type', 'resource_id'),
         Index('ix_audit_logs_org_timestamp', 'organization_id', 'timestamp'),
+        {'extend_existing': True}  # Allow table redefinition
     )
     
     def __repr__(self):
