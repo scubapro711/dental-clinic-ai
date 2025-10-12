@@ -2,14 +2,19 @@ import React, { useState, useRef } from 'react';
 import AIChat from '../components/AIChat';
 import AgentActivityPanel from '../components/transparency/AgentActivityPanel';
 import FullTransparencyPanel from '../components/transparency/FullTransparencyPanel';
+import EnhancedTransparencyPanel from '../components/transparency/EnhancedTransparencyPanel';
 import TodaysPatientsWidget from '../components/widgets/TodaysPatientsWidget';
 import RevenueWidget from '../components/widgets/RevenueWidget';
 import DecisionQueueWidget from '../components/widgets/DecisionQueueWidget';
 import FineTuningWidget from '../components/widgets/FineTuningWidget';
+import EnhancedFineTuningWidget from '../components/fine-tuning/EnhancedFineTuningWidget';
 import ConversationHistorySidebar from '../components/ConversationHistorySidebar';
+import ProtectedWidget from '../components/rbac/ProtectedWidget';
 import useAgentActivity from '../hooks/useAgentActivity';
 import { Button } from '@/components/ui/button';
-import { PanelLeftClose, PanelLeftOpen, Sparkles, History } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, Sparkles, History, Shield } from 'lucide-react';
+import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
+import { getUserInfo, formatRoleName, getRoleBadgeColor } from '../utils/rbac';
 
 /**
  * Agentic Dashboard - Main Page
@@ -78,35 +83,57 @@ export default function AgenticDashboard() {
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                DentalAI Mission Control
+              <h1 className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                DentalAI<span className="hidden sm:inline"> Mission Control</span>
               </h1>
-              <p className="text-xs text-gray-500">מערכת ניהול אגנטית חכמה</p>
+              <p className="text-xs text-gray-500 hidden md:block">מערכת ניהול אגנטית חכמה</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* User Role Badge */}
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
+              <Shield className="w-4 h-4 text-gray-600" />
+              <div className="text-xs">
+                <div className="font-semibold text-gray-700">
+                  {getUserInfo().email}
+                </div>
+                <div className={`text-xs px-2 py-0.5 rounded ${getRoleBadgeColor(getUserInfo().role)} text-white inline-block`}>
+                  {formatRoleName(getUserInfo().role)}
+                </div>
+              </div>
+            </div>
+            
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowHistorySidebar(true)}
               className="flex items-center gap-2"
+              aria-label="Open conversation history"
             >
-              <History className="w-4 h-4" />
+              <History className="w-4 h-4" aria-hidden="true" />
               <span className="hidden md:inline">היסטוריה</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowLeftWidgets(!showLeftWidgets)}
+              className="hidden lg:flex"
+              aria-label={showLeftWidgets ? "Hide left widgets panel" : "Show left widgets panel"}
+              aria-expanded={showLeftWidgets}
+              aria-controls="left-widgets-panel"
             >
-              {showLeftWidgets ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
+              {showLeftWidgets ? <PanelLeftClose className="w-4 h-4" aria-hidden="true" /> : <PanelLeftOpen className="w-4 h-4" aria-hidden="true" />}
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setShowRightPanels(!showRightPanels)}
+              className="hidden lg:flex"
+              aria-label={showRightPanels ? "Hide right panels" : "Show right panels"}
+              aria-expanded={showRightPanels}
+              aria-controls="right-panels"
             >
-              {showRightPanels ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              {showRightPanels ? <PanelLeftOpen className="w-4 h-4" aria-hidden="true" /> : <PanelLeftClose className="w-4 h-4" aria-hidden="true" />}
             </Button>
           </div>
         </div>
@@ -114,12 +141,28 @@ export default function AgenticDashboard() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Widgets Panel */}
+        {/* Left Widgets Panel - Hidden on mobile, show on desktop */}
         {showLeftWidgets && (
-          <div className="w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4">
-            <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
-            <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
-            <FineTuningWidget onChatWithAgent={handleChatWithAgent} />
+          <div 
+            id="left-widgets-panel"
+            className="hidden lg:block w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4"
+            role="complementary"
+            aria-label="Dashboard widgets"
+          >
+            {/* Today's Patients - Staff and Admin only */}
+            <ProtectedWidget widgetId="todays-patients">
+              <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
+            </ProtectedWidget>
+            
+            {/* Decision Queue - Admin only for interaction */}
+            <ProtectedWidget widgetId="decision-queue">
+              <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
+            </ProtectedWidget>
+            
+            {/* Enhanced Fine-Tuning - Admin only */}
+            <ProtectedWidget widgetId="fine-tuning">
+              <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
+            </ProtectedWidget>
           </div>
         )}
 
@@ -134,23 +177,39 @@ export default function AgenticDashboard() {
           />
         </div>
 
-        {/* Right Panels */}
+        {/* Right Panels - Hidden on mobile, show on desktop */}
         {showRightPanels && (
-          <div className="w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto">
+          <div 
+            id="right-panels"
+            className="hidden lg:block w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto"
+            role="complementary"
+            aria-label="Agent activity and transparency panels"
+          >
             <div className="p-4 space-y-4">
-              {/* Revenue Widget */}
-              <RevenueWidget onChatWithAgent={handleChatWithAgent} />
+              {/* Revenue Widget - Admin only */}
+              <ProtectedWidget widgetId="revenue">
+                <RevenueWidget onChatWithAgent={handleChatWithAgent} />
+              </ProtectedWidget>
               
-              {/* Agent Activity Panel */}
-              <AgentActivityPanel
-                activeAgent={activeAgent}
-                currentTask={currentTask}
-                toolsInUse={toolsInUse}
-                summary={summary}
-              />
+              {/* Agent Activity Panel - Staff and Admin */}
+              <ProtectedWidget widgetId="agent-activity">
+                <AgentActivityPanel
+                  activeAgent={activeAgent}
+                  currentTask={currentTask}
+                  toolsInUse={toolsInUse}
+                  summary={summary}
+                />
+              </ProtectedWidget>
               
-              {/* Full Transparency Panel */}
-              <FullTransparencyPanel reasoningSteps={reasoningSteps} />
+              {/* Enhanced Transparency Panel - Staff and Admin */}
+              <ProtectedWidget widgetId="transparency-panel">
+                <EnhancedTransparencyPanel 
+                  reasoningSteps={reasoningSteps}
+                  isActive={!!activeAgent}
+                  onClear={clearActivity}
+                  onExport={exportReasoningLog}
+                />
+              </ProtectedWidget>
             </div>
           </div>
         )}

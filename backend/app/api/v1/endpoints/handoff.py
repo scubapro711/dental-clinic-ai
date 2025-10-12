@@ -2,12 +2,25 @@
 Human Handoff API Endpoints
 Handles items that require human decision/intervention
 """
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
 import random
 
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
+
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClientV3:
+    """Dependency to get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
 
 # Mock data for human handoff items
 def generate_handoff_items(odoo_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -119,25 +132,39 @@ def generate_handoff_items(odoo_data: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 @router.get("/pending")
-async def get_pending_handoffs():
+async def get_pending_handoffs(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+):
     """Get items requiring human decision"""
     try:
-        # Import Mock Odoo client
-        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        # Get appointments from Odoo
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[],
+            fields=['id', 'patient_id', 'appointment_sdate', 'state'],
+            limit=100,
+            order='appointment_sdate DESC'
+        )
         
-        odoo = RealisticMockOdooClient()
-        
-        # Get appointments using search_appointments
-        appointment_ids = odoo.search_appointments()
-        appointments = []
-        for apt_id in appointment_ids[:100]:  # Limit to 100
-            apt = odoo.get_appointment(apt_id)
-            if apt:
-                appointments.append(apt)
+        # Format appointments for handoff generation
+        formatted_appointments = []
+        for apt in appointments:
+            patient_id = apt['patient_id'][0] if isinstance(apt['patient_id'], list) else apt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
+            
+            formatted_appointments.append({
+                'id': apt['id'],
+                'patient_name': patient['name'],
+                'patient_phone': patient.get('phone'),
+                'date': str(apt['appointment_sdate'])[:10] if apt.get('appointment_sdate') else None,
+                'time': str(apt['appointment_sdate'])[11:16] if apt.get('appointment_sdate') else None,
+                'treatment': 'General Checkup',  # TODO: Add treatment type
+                'state': apt['state'],
+            })
         
         # Get Odoo data
         odoo_data = {
-            'appointments': appointments
+            'appointments': formatted_appointments
         }
         
         # Generate handoff items
@@ -192,27 +219,39 @@ async def get_resolved_handoffs():
 
 
 @router.get("/alex/activity")
-async def get_alex_activity():
+async def get_alex_activity(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+):
     """Get Alex's recent activity"""
     try:
-        # Import Mock Odoo client
-        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        # Get recent appointments from Odoo
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[],
+            fields=['id', 'patient_id', 'appointment_sdate'],
+            limit=20,
+            order='create_date DESC'
+        )
         
-        odoo = RealisticMockOdooClient()
-        
-        # Get some real data using search_appointments
-        appointment_ids = odoo.search_appointments()
-        appointments = []
-        for apt_id in appointment_ids[:20]:  # Limit to 20
-            apt = odoo.get_appointment(apt_id)
-            if apt:
-                appointments.append(apt)
+        # Format appointments
+        formatted_appointments = []
+        for apt in appointments:
+            patient_id = apt['patient_id'][0] if isinstance(apt['patient_id'], list) else apt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name'])[0]
+            
+            formatted_appointments.append({
+                'id': apt['id'],
+                'patient_name': patient['name'],
+                'date': str(apt['appointment_sdate'])[:10] if apt.get('appointment_sdate') else 'today',
+                'time': str(apt['appointment_sdate'])[11:16] if apt.get('appointment_sdate') else 'TBD',
+                'treatment': 'appointment',  # TODO: Add treatment type
+            })
         
         # Generate activity log
         activities = []
         
         # Scheduled appointments
-        for i, apt in enumerate(appointments[:3]):
+        for i, apt in enumerate(formatted_appointments[:3]):
             activities.append({
                 "id": f"activity_{len(activities)+1}",
                 "type": "appointment_scheduled",
@@ -265,16 +304,13 @@ async def get_alex_activity():
 
 
 @router.get("/alex/performance")
-async def get_alex_performance():
+async def get_alex_performance(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+):
     """Get Alex's performance metrics"""
     try:
-        # Import Mock Odoo client
-        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
-        
-        odoo = RealisticMockOdooClient()
-        
-        # Get statistics
-        stats = odoo.get_statistics()
+        # Get appointment statistics from Odoo
+        total_appointments = odoo.search_count('medical.appointment', [])
         
         # Calculate Alex performance
         total_conversations = 150

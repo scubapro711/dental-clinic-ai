@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Send, Loader2, Sparkles, User, Bot, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import FeedbackButtons from './FeedbackButtons';
+import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
 
 /**
  * Professional AI Chat Component with Vercel AI SDK + LangGraph Integration
@@ -30,6 +31,9 @@ export default function AIChat({ user }) {
   const [isThinking, setIsThinking] = useState(false);
   const messagesEndRef = useRef(null);
   const abortControllerRef = useRef(null);
+  
+  // ARIA live announcements for screen readers
+  const { message: ariaMessage, politeness, announcePolite, announceAssertive } = useAriaLive();
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -166,6 +170,9 @@ export default function AIChat({ user }) {
     setInput('');
     setIsLoading(true);
     setError(null);
+    
+    // Announce to screen readers
+    announcePolite('Sending message to AI agent');
 
     // Create abort controller for this request
     abortControllerRef.current = new AbortController();
@@ -197,10 +204,14 @@ export default function AIChat({ user }) {
       if (error.name !== 'AbortError') {
         console.error('Error sending message:', error);
         setError('Failed to send message. Please try again.');
+        announceAssertive('Error: Failed to send message. Please try again.');
       }
     } finally {
       setIsLoading(false);
       setCurrentAgent(null);
+      if (!error) {
+        announcePolite('Response received from AI agent');
+      }
     }
   };
 
@@ -227,13 +238,15 @@ export default function AIChat({ user }) {
 
   // Agent badge component
   const AgentBadge = ({ agent }) => {
+    // 4 Agents from agent_graph_v4.py
     const agentConfig = {
-      alex: { label: 'Alex', color: 'bg-blue-500' },
-      cfo: { label: 'CFO', color: 'bg-green-500' },
-      admin: { label: 'Admin', color: 'bg-purple-500' },
+      alex: { label: 'Alex 🤖', color: 'bg-blue-500', description: 'Reception & Patient Relations' },
+      sarah: { label: 'שרה 👩‍⚕️', color: 'bg-green-500', description: 'Clinical Assistant' },
+      marcus: { label: 'Marcus 💰', color: 'bg-yellow-500', description: 'CFO - Financial Analysis' },
+      sophia: { label: 'Sophia 📊', color: 'bg-purple-500', description: 'Practice Administrator' },
     };
 
-    const config = agentConfig[agent] || { label: agent, color: 'bg-gray-500' };
+    const config = agentConfig[agent] || { label: agent, color: 'bg-gray-500', description: 'AI Agent' };
 
     return (
       <Badge className={cn('text-xs', config.color)}>
@@ -468,26 +481,43 @@ export default function AIChat({ user }) {
 
         {/* Input Area */}
         <div className="border-t bg-white p-4">
-          <form onSubmit={sendMessage} className="flex gap-2">
+          <form onSubmit={sendMessage} className="flex gap-2" role="search" aria-label="Chat with AI agents">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message..."
               disabled={isLoading}
               className="flex-1"
+              aria-label="Message input"
+              aria-describedby="chat-help-text"
             />
+            <span id="chat-help-text" className="sr-only">
+              Type your message and press Enter or click Send to chat with AI agents
+            </span>
             {isLoading ? (
-              <Button type="button" onClick={stopGeneration} variant="destructive">
+              <Button 
+                type="button" 
+                onClick={stopGeneration} 
+                variant="destructive"
+                aria-label="Stop generating response"
+              >
                 Stop
               </Button>
             ) : (
-              <Button type="submit" disabled={!input.trim()}>
-                <Send className="w-4 h-4" />
+              <Button 
+                type="submit" 
+                disabled={!input.trim()}
+                aria-label="Send message"
+              >
+                <Send className="w-4 h-4" aria-hidden="true" />
               </Button>
             )}
           </form>
         </div>
       </CardContent>
+      
+      {/* ARIA Live Region for screen reader announcements */}
+      <AriaLiveRegion message={ariaMessage} politeness={politeness} />
     </Card>
   );
 }

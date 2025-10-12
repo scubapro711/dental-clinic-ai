@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, String, Text
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -71,7 +71,14 @@ class Organization(Base):
     deleted_at = Column(DateTime, nullable=True)
 
     # Relationships
-    users = relationship("User", back_populates="organization")
+    users = relationship("User", back_populates="organization")  # Legacy
+    memberships = relationship("OrganizationMembership", back_populates="organization", cascade="all, delete-orphan")
+    settings = relationship("ClinicSettings", back_populates="organization", uselist=False, cascade="all, delete-orphan")
+    treatment_prices = relationship("TreatmentPrice", back_populates="organization", cascade="all, delete-orphan")
+    baa_signatures = relationship("BAASignature", back_populates="organization", cascade="all, delete-orphan")
+    proactive_suggestions = relationship("ProactiveSuggestion", back_populates="organization", cascade="all, delete-orphan")
+    xrays = relationship("XRay", back_populates="organization", cascade="all, delete-orphan")
+    treatment_categories = relationship("TreatmentCategory", back_populates="organization", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Organization {self.name}>"

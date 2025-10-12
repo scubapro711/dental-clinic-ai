@@ -1,0 +1,15 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+#
+# Types: feat, fix, docs, style, refactor, test, chore
+# Scope: auth, api, ui, agents, docs, etc.
+# Subject: Imperative mood, lowercase, no period
+#
+# Example:
+# feat(auth): add email verification
+# fix(api): fix patient creation bug
+# docs(phase3): add Phase 3 master plan
+# chore(deps): update dependencies

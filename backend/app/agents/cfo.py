@@ -21,14 +21,9 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 
 from app.agents.graph_state import AgentState
-from app.agents.tools.cfo_tools import (
-    get_revenue_overview_tool,
-    get_payment_status_tool,
-    get_top_treatments_tool,
-    get_outstanding_invoices_tool,
-    analyze_profitability_tool,
-    get_financial_trends_tool,
-)
+from app.agents.tools.marcus_financial_tools import marcus_financial_tools
+from app.agents.tools.tax_tools import tax_tools
+from app.agents.tools.accountant_referral import accountant_referral_tools
 
 
 logger = logging.getLogger(__name__)
@@ -46,7 +41,91 @@ class CFOAgent:
     - Monitor treatment profitability
     """
     
-    SYSTEM_PROMPT = """You are Marcus, the CFO Agent for a dental clinic.
+    SYSTEM_PROMPT = """You are Marcus, the CFO Agent for a dental clinic in Israel.
+
+**Tax Knowledge:**
+You have comprehensive knowledge of Israeli tax laws for 2025:
+- Income tax brackets (10%-50% for individuals, 23% for companies)
+- VAT (17%) - most dental treatments are EXEMPT
+- Recognized expenses for dental clinics
+- Tax optimization strategies
+- Reporting deadlines and requirements
+
+**Key Tax Facts:**
+- Most dental treatments: VAT EXEMPT
+- Aesthetic treatments (whitening, veneers): 17% VAT
+- Product sales: 17% VAT
+- Income tax: progressive rates 10%-50%
+- Corporate tax: flat 23%
+- Advance tax payments: 6 times/year
+- Annual report deadline: May 31
+
+**When discussing finances:**
+1. Always consider tax implications
+2. Mention VAT status when relevant
+3. Suggest tax-efficient strategies
+4. Remind about reporting deadlines
+5. Calculate net income (after tax)
+
+**⚠️ CRITICAL - Professional Boundaries:**
+
+You are a financial ADVISOR, NOT a replacement for a certified accountant (רו"ח).
+
+**Always remind users:**
+- "זהו ייעוץ כללי בלבד"
+- "להחלטות מיסויות ספציפיות, יש להתייעץ עם רו"ח מוסמך"
+- "אני ממליץ לקבוע פגישה עם רו"ח לפני החלטות משמעותיות"
+
+**When to REQUIRE accountant consultation:**
+1. **Tax planning decisions** - "זה דורש התייעצות עם רו"ח"
+2. **Entity structure changes** (עוסק → חברה) - "חובה להתייעץ עם רו"ח"
+3. **Complex tax situations** - "מצב מורכב - פנה לרו"ח"
+4. **Audit or investigation** - "דחוף! התייעץ עם רו"ח מיד"
+5. **Large transactions** (>₪100,000) - "מומלץ בחום להתייעץ עם רו"ח"
+6. **Legal compliance questions** - "שאלה משפטית - פנה לרו"ח או עו"ד"
+
+**Your value:**
+- Provide quick insights and calculations
+- Identify trends and opportunities
+- Flag issues that need professional attention
+- Prepare data for accountant meetings
+
+**Proactive Suggestions Framework:**
+
+When you identify actions that require professional consultation:
+1. **Surface it as a suggestion** in your response
+2. **Mark complexity level:**
+   - 🟢 Low: You can guide the doctor
+   - 🟡 Medium: Recommend accountant consultation
+   - 🔴 High: REQUIRE accountant before action
+3. **Let the doctor decide** - present options clearly
+4. **Learn from feedback** - system will fine-tune based on doctor's choices
+
+**Example format:**
+```
+💡 **Suggested Actions:**
+
+1. [Action Name] 🟢
+   - Description
+   - I can help you with this
+   
+2. [Action Name] 🟡  
+   - Description
+   - Recommended: Consult with רו"ח first
+   - I can prepare the data for the meeting
+   
+3. [Action Name] 🔴
+   - Description  
+   - REQUIRED: Must consult רו"ח
+   - This involves legal/tax compliance
+```
+
+**Your value in this model:**
+- Identify opportunities and issues proactively
+- Prepare data and analysis for accountant meetings
+- Execute simple tasks autonomously
+- Flag complex tasks for professional review
+- Learn from doctor's decisions over time
 
 Your role:
 - Provide financial analysis and insights
@@ -161,19 +240,43 @@ Revenue up 25% this quarter! Great job!
     def __init__(self):
         """Initialize CFO Agent."""
         self.llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.3,  # Slightly creative for recommendations
         )
         
-        # Bind tools to LLM
-        self.llm_with_tools = self.llm.bind_tools([
-            get_revenue_overview_tool,
-            get_payment_status_tool,
-            get_top_treatments_tool,
-            get_outstanding_invoices_tool,
-            analyze_profitability_tool,
-            get_financial_trends_tool,
-        ])
+        # Import RAG tool for financial knowledge
+        from app.agents.tools.rag_tools import search_financial_knowledge_tool
+        
+        # Bind tools to LLM (financial + tax + referral + RAG)
+        from app.agents.tools.marcus_financial_tools import (
+            create_invoice_tool,
+            send_invoice_tool,
+            record_payment_tool,
+            void_invoice_tool,
+            create_expense_tool,
+            get_budget_tool,
+            create_budget_tool,
+            submit_insurance_claim_tool,
+            get_insurance_claims_tool,
+            export_to_accounting_tool,
+            generate_tax_report_tool,
+        )
+
+        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + [
+            search_financial_knowledge_tool,
+            create_invoice_tool,
+            send_invoice_tool,
+            record_payment_tool,
+            void_invoice_tool,
+            create_expense_tool,
+            get_budget_tool,
+            create_budget_tool,
+            submit_insurance_claim_tool,
+            get_insurance_claims_tool,
+            export_to_accounting_tool,
+            generate_tax_report_tool,
+        ]
+        self.llm_with_tools = self.llm.bind_tools(all_tools)
         
         logger.info("CFO Agent initialized")
     
@@ -215,6 +318,10 @@ Revenue up 25% this quarter! Great job!
             if response.tool_calls:
                 logger.info(f"CFO calling {len(response.tool_calls)} tool(s)")
                 
+                # Create tool map (financial + tax + referral)
+                all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools
+                tool_map = {tool.name: tool for tool in all_tools}
+                
                 # Execute tools
                 tool_results = {}
                 for tool_call in response.tool_calls:
@@ -224,18 +331,9 @@ Revenue up 25% this quarter! Great job!
                     logger.info(f"CFO executing tool: {tool_name}")
                     
                     # Execute the tool
-                    if tool_name == "get_revenue_overview_tool":
-                        result = get_revenue_overview_tool.invoke(tool_args)
-                    elif tool_name == "get_payment_status_tool":
-                        result = get_payment_status_tool.invoke(tool_args)
-                    elif tool_name == "get_top_treatments_tool":
-                        result = get_top_treatments_tool.invoke(tool_args)
-                    elif tool_name == "get_outstanding_invoices_tool":
-                        result = get_outstanding_invoices_tool.invoke(tool_args)
-                    elif tool_name == "analyze_profitability_tool":
-                        result = analyze_profitability_tool.invoke(tool_args)
-                    elif tool_name == "get_financial_trends_tool":
-                        result = get_financial_trends_tool.invoke(tool_args)
+                    tool = tool_map.get(tool_name)
+                    if tool:
+                        result = tool.invoke(tool_args)
                     else:
                         result = f"Unknown tool: {tool_name}"
                     

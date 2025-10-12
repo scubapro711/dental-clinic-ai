@@ -15,7 +15,7 @@ Key Features:
 import logging
 import json
 from typing import AsyncGenerator, Dict, Any, List
-from fastapi import APIRouter, HTTPException, Depends as FastAPIDepends
+from fastapi import APIRouter, HTTPException, Depends as FastAPIDepends, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -23,6 +23,7 @@ from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from app.agents.agent_graph_v3 import agent_graph_v3
 from app.api.dependencies import get_current_user as get_user_obj
 from app.agents.utils.guardrails import validate_input
+from app.middleware.rate_limiter import limiter, get_rate_limit
 
 logger = logging.getLogger(__name__)
 
@@ -30,10 +31,21 @@ router = APIRouter()
 
 
 async def get_current_user(user_obj = FastAPIDepends(get_user_obj)) -> Dict[str, Any]:
-    """Convert user object to dict for compatibility."""
+    """
+    Convert user object to dict for compatibility.
+    
+    Raises:
+        HTTPException: If user has no organization_id
+    """
+    if not user_obj.organization_id:
+        raise HTTPException(
+            status_code=403,
+            detail="User not associated with any organization. Please contact support."
+        )
+    
     return {
         "user_id": str(user_obj.id),
-        "organization_id": str(user_obj.organization_id) if user_obj.organization_id else "demo_org",
+        "organization_id": str(user_obj.organization_id),
         "email": user_obj.email,
         "role": user_obj.role.value if hasattr(user_obj.role, 'value') else str(user_obj.role),
     }
@@ -155,10 +167,15 @@ async def stream_agent_response(
         # The graph.astream() method yields state updates as they happen
         logger.info(f"Starting stream for conversation {conversation_id}")
         
-        # Determine user role (for now, default to "patient" for testing RBAC)
-        # In production, this should come from JWT token or user database
-        user_role = "owner"  # TODO: Get from authentication
-        user_permissions = []  # TODO: Get from RBAC system
+        # SECURITY: Get user role from authentication
+        # For now, default to "owner" for testing, but this MUST be replaced
+        # with actual JWT token parsing in production
+        user_role = "owner"  # FIXME: Get from JWT token - current_user["role"]
+        user_permissions = []  # FIXME: Get from RBAC system based on role
+        
+        # TODO: Implement proper authentication
+        # user_role = current_user.get("role", "patient")
+        # user_permissions = get_user_permissions(user_id, user_role)
         
         # Stream the graph execution
         initial_state = {
@@ -324,8 +341,84 @@ async def stream_agent_response(
         yield f"data: {error_chunk.model_dump_json()}\n\n"
 
 
-@router.post("/chat", response_model=None)
-async def chat(request: ChatRequest):
+@router.post(
+    "/chat",
+    response_model=None,
+    tags=["AI Chat"],
+    summary="Chat with AI agents",
+    description="""
+    Send messages to the multi-agent AI system and receive intelligent responses.
+    
+    **Features:**
+    - Multi-agent routing (Alex, Marcus, Sarah, Sophia)
+    - Streaming responses via Server-Sent Events (SSE)
+    - Conversation memory and context
+    - Tool execution support
+    - Suggested actions generation
+    
+    **Authentication:** Requires valid JWT token in Authorization header
+    
+    **Example Request:**
+    ```json
+    {
+      "messages": [
+        {"role": "user", "content": "Show me today's appointments"}
+      ],
+      "conversation_id": "conv_abc123",
+      "stream": true
+    }
+    ```
+    
+    **Example Streaming Response:**
+    ```
+    data: {"type":"text","content":"I found 3 appointments for today...","metadata":{"agent":"alex"}}
+    
+    data: {"type":"suggested_actions","metadata":{"suggested_actions":[{"label":"View Details","action":"view_appointment"}]}}
+    
+    data: {"type":"done","content":"","metadata":{}}
+    ```
+    """,
+    responses={
+        200: {
+            "description": "Successful response",
+            "content": {
+                "text/event-stream": {
+                    "example": 'data: {"type":"text","content":"Hello! How can I help?"}\n\n'
+                }
+            }
+        },
+        401: {
+            "description": "Unauthorized - Invalid or missing JWT token",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Not authenticated"}
+                }
+            }
+        },
+        403: {
+            "description": "Forbidden - User not associated with organization",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "User not associated with any organization"}
+                }
+            }
+        },
+        500: {
+            "description": "Internal server error",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Error processing chat request"}
+                }
+            }
+        }
+    }
+)
+@limiter.limit(get_rate_limit("ai_chat"))
+async def chat(
+    http_request: FastAPIRequest,
+    request: ChatRequest,
+    current_user: Dict[str, Any] = FastAPIDepends(get_current_user)
+):
     """
     Chat endpoint compatible with Vercel AI SDK.
     
@@ -334,16 +427,20 @@ async def chat(request: ChatRequest):
     
     Args:
         request: Chat request with messages and options
-        current_user: Current authenticated user
+        current_user: Current authenticated user from JWT token
         
     Returns:
         StreamingResponse for streaming mode, ChatResponse for non-streaming
     """
     try:
-        # Extract user info (use demo user for now)
-        # TODO: Get from JWT token in production
-        user_id = "demo_user"
-        organization_id = "demo_org"
+        # Extract user info from authenticated user
+        user_id = current_user["user_id"]
+        organization_id = current_user["organization_id"]
+        
+        logger.info(
+            f"Chat request from authenticated user {user_id} "
+            f"(role: {current_user['role']}) in org {organization_id}"
+        )
         
         # Generate conversation ID if not provided
         conversation_id = request.conversation_id

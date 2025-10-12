@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, String, Text, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -83,6 +83,9 @@ class Conversation(Base):
 
     # Soft delete
     deleted_at = Column(DateTime, nullable=True)
+
+    # Relationships
+    messages = relationship("Message", back_populates="conversation", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Conversation {self.id} - {self.primary_agent}>"

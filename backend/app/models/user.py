@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, String
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -23,6 +23,7 @@ class UserRole(str, enum.Enum):
     ORG_ADMIN = "org_admin"  # Clinic owner/manager
     ORG_STAFF = "org_staff"  # Clinic staff (dentist, receptionist)
     ORG_VIEWER = "org_viewer"  # Read-only access
+    PATIENT = "patient"  # Patient portal user
 
 
 class User(Base):
@@ -42,15 +43,27 @@ class User(Base):
     # Profile
     full_name = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=True)
+    phone_verified = Column(Boolean, default=False, nullable=False)
+    google_id = Column(String(255), nullable=True, unique=True, index=True)
+    picture_url = Column(String(500), nullable=True)
 
     # Authorization
     role = Column(Enum(UserRole), nullable=False, default=UserRole.ORG_STAFF)
 
-    # Multi-tenancy
+    # Multi-tenancy (legacy - will be deprecated)
     organization_id = Column(
         UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=True
     )
     organization = relationship("Organization", back_populates="users")
+    
+    # New multi-tenancy via memberships
+    memberships = relationship("OrganizationMembership", back_populates="user", cascade="all, delete-orphan")
+    
+    # Email verification
+    verification_tokens = relationship("EmailVerificationToken", back_populates="user", cascade="all, delete-orphan")
+    
+    # SMS verification
+    sms_verification_codes = relationship("SMSVerificationCode", back_populates="user", cascade="all, delete-orphan")
 
     # MFA (optional)
     mfa_enabled = Column(Boolean, default=False, nullable=False)

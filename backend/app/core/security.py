@@ -13,12 +13,12 @@ from passlib.context import CryptContext
 from app.core.config import settings
 
 # Password hashing context
-# Use bcrypt with truncate_error=False to handle long passwords
+# Use bcrypt with specific backend to avoid wrap bug detection issues
 pwd_context = CryptContext(
     schemes=["bcrypt"],
     deprecated="auto",
     bcrypt__default_rounds=12,
-    bcrypt__truncate_error=False,
+    bcrypt__ident="2b",  # Use 2b identifier to avoid wrap bug detection
 )
 
 
@@ -33,7 +33,14 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     Returns:
         True if password matches, False otherwise
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    # Import bcrypt directly to avoid passlib issues
+    import bcrypt
+    
+    # Truncate password to 72 bytes for bcrypt compatibility
+    password_bytes = plain_password.encode('utf-8')[:72]
+    hashed_bytes = hashed_password.encode('utf-8')
+    
+    return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
 def get_password_hash(password: str) -> str:
@@ -49,9 +56,17 @@ def get_password_hash(password: str) -> str:
     Note:
         Bcrypt has a 72-byte limit. Passwords are truncated if longer.
     """
+    # Import bcrypt directly to avoid passlib wrap bug detection issues
+    import bcrypt
+    
     # Truncate password to 72 bytes for bcrypt compatibility
     password_bytes = password.encode('utf-8')[:72]
-    return pwd_context.hash(password_bytes.decode('utf-8'))
+    
+    # Generate salt and hash
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    
+    return hashed.decode('utf-8')
 
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:

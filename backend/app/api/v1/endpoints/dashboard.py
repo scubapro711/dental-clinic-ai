@@ -5,20 +5,33 @@ Provides data for dashboard widgets including conversations, patients, and appoi
 """
 
 import logging
-from typing import Dict, Any, List
-from fastapi import APIRouter, HTTPException, Query
+from typing import Dict, Any, List, Optional
+from fastapi import APIRouter, HTTPException, Query, Depends
 from datetime import datetime, timedelta
 import random
 
-from app.integrations.mock_odoo_realistic import realistic_mock_odoo
+from app.integrations.odoo_client_v3 import OdooClientV3
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
+def get_odoo_client() -> OdooClientV3:
+    """Dependency to get Odoo client instance."""
+    return OdooClientV3(
+        url=settings.ODOO_URL,
+        db=settings.ODOO_DB,
+        username=settings.ODOO_USERNAME,
+        password=settings.ODOO_PASSWORD,
+    )
+
+
 @router.get("/conversations/active")
-async def get_active_conversations() -> List[Dict[str, Any]]:
+async def get_active_conversations(
+    odoo: OdooClientV3 = Depends(get_odoo_client)
+) -> List[Dict[str, Any]]:
     """
     Get active conversations for the dashboard.
     
@@ -26,14 +39,14 @@ async def get_active_conversations() -> List[Dict[str, Any]]:
         List of active conversations
     """
     try:
-        # Generate mock conversations based on recent appointments
-        appointments = realistic_mock_odoo.appointments
-        
-        # Get recent scheduled or in-progress appointments
-        recent_appointments = [
-            a for a in appointments
-            if a["status"] in ["scheduled", "confirmed"]
-        ][:10]
+        # Get recent scheduled or confirmed appointments
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[('state', 'in', ['draft', 'confirmed'])],
+            fields=['id', 'patient_id', 'appointment_sdate', 'state'],
+            limit=10,
+            order='appointment_sdate DESC'
+        )
         
         conversations = []
         channels = ["WhatsApp", "Telegram", "Phone"]
@@ -49,24 +62,29 @@ async def get_active_conversations() -> List[Dict[str, Any]]:
             "אני רוצה לבטל את התור",
         ]
         
-        for i, appt in enumerate(recent_appointments):
-            patient = realistic_mock_odoo.get_patient(appt["patient_id"])
-            if not patient:
-                continue
-                
+        for i, appt in enumerate(appointments):
+            # Get patient details
+            patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
+            
             priority = "urgent" if i == 0 else random.choice(priorities)
+            
+            # Calculate time ago
+            appt_date = datetime.fromisoformat(str(appt['appointment_sdate']))
+            time_diff = datetime.now() - appt_date
+            time_ago = f"{abs(int(time_diff.total_seconds() / 60))} minutes ago"
             
             conversations.append({
                 "id": f"conv_{appt['id']}",
-                "patient_id": patient["id"],
-                "patient_name": patient["name"],
+                "patient_id": patient_id,
+                "patient_name": patient['name'],
                 "channel": random.choice(channels),
                 "priority": priority,
                 "last_message": random.choice(messages),
-                "time_ago": f"{random.randint(1, 60)} minutes ago",
+                "time_ago": time_ago,
                 "unread_count": random.randint(0, 3),
                 "status": "active",
-                "created_at": appt["date"],
+                "created_at": str(appt['appointment_sdate']),
             })
         
         # Sort by priority (urgent first)
@@ -84,6 +102,7 @@ async def get_patients(
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     search: str = Query(None),
+    odoo: OdooClientV3 = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get patients list with pagination and search.
@@ -92,42 +111,76 @@ async def get_patients(
         limit: Number of patients to return
         offset: Number of patients to skip
         search: Search term for patient name or phone
+        odoo: Odoo client instance
         
     Returns:
         Dictionary with patients list and total count
     """
     try:
-        patients = realistic_mock_odoo.patients
+        # Build search domain
+        domain = [('is_patient', '=', True)]
         
-        # Apply search filter
         if search:
-            search_lower = search.lower()
-            patients = [
-                p for p in patients
-                if search_lower in p["name"].lower() or
-                   search_lower in p.get("phone", "")
-            ]
+            domain.append('|')
+            domain.append(('name', 'ilike', search))
+            domain.append(('phone', 'ilike', search))
         
-        total = len(patients)
+        # Get total count
+        total = odoo.search_count('res.partner', domain)
         
-        # Apply pagination
-        patients_page = patients[offset:offset + limit]
+        # Get patients with pagination
+        patients = odoo.search_read(
+            'res.partner',
+            domain=domain,
+            fields=['id', 'name', 'phone', 'email', 'birthdate_date', 'create_date'],
+            limit=limit,
+            offset=offset,
+            order='create_date DESC'
+        )
         
         # Format response
         result_patients = []
-        for patient in patients_page:
+        for patient in patients:
+            # Get patient's last appointment
+            last_appt = odoo.search_read(
+                'medical.appointment',
+                domain=[('patient_id', '=', patient['id']), ('state', '=', 'done')],
+                fields=['appointment_sdate'],
+                limit=1,
+                order='appointment_sdate DESC'
+            )
+            
+            # Get appointment count
+            total_visits = odoo.search_count(
+                'medical.appointment',
+                [('patient_id', '=', patient['id']), ('state', '=', 'done')]
+            )
+            
+            # Get outstanding balance from invoices
+            invoices = odoo.search_read(
+                'account.move',
+                domain=[
+                    ('partner_id', '=', patient['id']),
+                    ('move_type', '=', 'out_invoice'),
+                    ('state', '=', 'posted'),
+                    ('payment_state', 'in', ['not_paid', 'partial'])
+                ],
+                fields=['amount_residual']
+            )
+            outstanding_balance = sum(inv['amount_residual'] for inv in invoices)
+            
             result_patients.append({
                 "id": patient["id"],
                 "name": patient["name"],
                 "phone": patient.get("phone"),
                 "email": patient.get("email"),
-                "date_of_birth": patient.get("date_of_birth"),
-                "registration_date": patient.get("registration_date"),
-                "last_visit": patient.get("last_visit"),
-                "total_visits": patient.get("total_visits", 0),
-                "outstanding_balance": patient.get("outstanding_balance", 0),
-                "insurance_provider": patient.get("insurance_provider"),
-                "active": patient.get("last_visit") is not None,
+                "date_of_birth": patient.get("birthdate_date"),
+                "registration_date": patient.get("create_date"),
+                "last_visit": last_appt[0]['appointment_sdate'] if last_appt else None,
+                "total_visits": total_visits,
+                "outstanding_balance": outstanding_balance,
+                "insurance_provider": None,  # TODO: Add insurance field
+                "active": len(last_appt) > 0,
             })
         
         return {
@@ -143,38 +196,55 @@ async def get_patients(
 
 
 @router.get("/patients/{patient_id}")
-async def get_patient_details(patient_id: int) -> Dict[str, Any]:
+async def get_patient_details(
+    patient_id: int,
+    odoo: OdooClientV3 = Depends(get_odoo_client),
+) -> Dict[str, Any]:
     """
     Get detailed information about a specific patient.
     
     Args:
         patient_id: Patient ID
+        odoo: Odoo client instance
         
     Returns:
         Patient details with appointments and treatment history
     """
     try:
-        patient = realistic_mock_odoo.get_patient(patient_id)
-        if not patient:
+        # Get patient
+        patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email', 'birthdate_date'])
+        if not patients:
             raise HTTPException(status_code=404, detail="Patient not found")
         
+        patient = patients[0]
+        
         # Get patient appointments
-        appointments = [
-            a for a in realistic_mock_odoo.appointments
-            if a["patient_id"] == patient_id
-        ]
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[('patient_id', '=', patient_id)],
+            fields=['id', 'appointment_sdate', 'appointment_edate', 'state', 'doctor_id'],
+            order='appointment_sdate DESC'
+        )
         
         # Get patient invoices
-        invoices = [
-            i for i in realistic_mock_odoo.invoices
-            if i["patient_id"] == patient_id
-        ]
+        invoices = odoo.search_read(
+            'account.move',
+            domain=[('partner_id', '=', patient_id), ('move_type', '=', 'out_invoice')],
+            fields=['id', 'name', 'invoice_date', 'amount_total', 'amount_residual', 'state', 'payment_state'],
+            order='invoice_date DESC'
+        )
         
-        # Get treatment records
-        treatments = [
-            t for t in realistic_mock_odoo.treatment_records
-            if t["patient_id"] == patient_id
-        ]
+        # Get treatment records (from appointments)
+        treatments = odoo.search_read(
+            'medical.appointment',
+            domain=[('patient_id', '=', patient_id), ('state', '=', 'done')],
+            fields=['id', 'appointment_sdate', 'doctor_id', 'comments'],
+            order='appointment_sdate DESC'
+        )
+        
+        # Calculate totals
+        total_revenue = sum(inv['amount_total'] for inv in invoices if inv['state'] == 'posted')
+        outstanding_balance = sum(inv['amount_residual'] for inv in invoices if inv['state'] == 'posted')
         
         return {
             "patient": patient,
@@ -182,8 +252,8 @@ async def get_patient_details(patient_id: int) -> Dict[str, Any]:
             "invoices": invoices,
             "treatments": treatments,
             "total_appointments": len(appointments),
-            "total_revenue": sum(i["total_amount"] for i in invoices),
-            "outstanding_balance": sum(i["outstanding_amount"] for i in invoices),
+            "total_revenue": total_revenue,
+            "outstanding_balance": outstanding_balance,
         }
     
     except HTTPException:
@@ -199,6 +269,7 @@ async def get_appointments(
     end_date: str = Query(None),
     status: str = Query(None),
     limit: int = Query(100, ge=1, le=1000),
+    odoo: OdooClientV3 = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get appointments with optional filters.
@@ -208,37 +279,53 @@ async def get_appointments(
         end_date: Filter appointments until this date (YYYY-MM-DD)
         status: Filter by appointment status
         limit: Maximum number of appointments to return
+        odoo: Odoo client instance
         
     Returns:
         Dictionary with appointments list
     """
     try:
-        appointments = realistic_mock_odoo.appointments
+        # Build domain
+        domain = []
         
-        # Apply filters
         if start_date:
-            appointments = [a for a in appointments if a["date"] >= start_date]
+            domain.append(('appointment_sdate', '>=', f"{start_date} 00:00:00"))
         
         if end_date:
-            appointments = [a for a in appointments if a["date"] <= end_date]
+            domain.append(('appointment_sdate', '<=', f"{end_date} 23:59:59"))
         
         if status:
-            appointments = [a for a in appointments if a["status"] == status]
+            domain.append(('state', '=', status))
         
-        # Sort by date
-        appointments = sorted(appointments, key=lambda x: x["date"], reverse=True)
-        
-        # Limit results
-        appointments = appointments[:limit]
+        # Get appointments
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=domain,
+            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
+            limit=limit,
+            order='appointment_sdate DESC'
+        )
         
         # Enrich with patient data
         result_appointments = []
         for appt in appointments:
-            patient = realistic_mock_odoo.get_patient(appt["patient_id"])
+            patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
+            
+            # Extract date and time
+            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            
             result_appointments.append({
-                **appt,
-                "patient_name": patient["name"] if patient else "Unknown",
-                "patient_phone": patient.get("phone") if patient else None,
+                "id": appt['id'],
+                "patient_id": patient_id,
+                "patient_name": patient['name'],
+                "patient_phone": patient.get('phone'),
+                "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
+                "date": appt_datetime.strftime('%Y-%m-%d'),
+                "time": appt_datetime.strftime('%H:%M'),
+                "status": appt['state'],
+                "start_datetime": str(appt['appointment_sdate']),
+                "end_datetime": str(appt['appointment_edate']),
             })
         
         return {
@@ -252,7 +339,9 @@ async def get_appointments(
 
 
 @router.get("/appointments/today")
-async def get_today_appointments() -> Dict[str, Any]:
+async def get_today_appointments(
+    odoo: OdooClientV3 = Depends(get_odoo_client),
+) -> Dict[str, Any]:
     """
     Get today's appointments.
     
@@ -262,22 +351,35 @@ async def get_today_appointments() -> Dict[str, Any]:
     try:
         today = datetime.now().strftime("%Y-%m-%d")
         
-        appointments = [
-            a for a in realistic_mock_odoo.appointments
-            if a["date"] == today
-        ]
-        
-        # Sort by time
-        appointments = sorted(appointments, key=lambda x: x.get("time", "00:00"))
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('appointment_sdate', '>=', f"{today} 00:00:00"),
+                ('appointment_sdate', '<=', f"{today} 23:59:59"),
+            ],
+            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
+            order='appointment_sdate ASC'
+        )
         
         # Enrich with patient data
         result_appointments = []
         for appt in appointments:
-            patient = realistic_mock_odoo.get_patient(appt["patient_id"])
+            patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
+            
+            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            
             result_appointments.append({
-                **appt,
-                "patient_name": patient["name"] if patient else "Unknown",
-                "patient_phone": patient.get("phone") if patient else None,
+                "id": appt['id'],
+                "patient_id": patient_id,
+                "patient_name": patient['name'],
+                "patient_phone": patient.get('phone'),
+                "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
+                "date": today,
+                "time": appt_datetime.strftime('%H:%M'),
+                "status": appt['state'],
+                "start_datetime": str(appt['appointment_sdate']),
+                "end_datetime": str(appt['appointment_edate']),
             })
         
         return {
@@ -292,43 +394,61 @@ async def get_today_appointments() -> Dict[str, Any]:
 
 
 @router.get("/appointments/upcoming")
-async def get_upcoming_appointments(days: int = Query(7, ge=1, le=30)) -> Dict[str, Any]:
+async def get_upcoming_appointments(
+    days: int = Query(7, ge=1, le=30),
+    odoo: OdooClientV3 = Depends(get_odoo_client),
+) -> Dict[str, Any]:
     """
     Get upcoming appointments for the next N days.
     
     Args:
         days: Number of days to look ahead
+        odoo: Odoo client instance
         
     Returns:
         Dictionary with upcoming appointments
     """
     try:
         today = datetime.now()
-        end_date = (today + timedelta(days=days)).strftime("%Y-%m-%d")
+        end_date = (today + timedelta(days=days))
         today_str = today.strftime("%Y-%m-%d")
+        end_str = end_date.strftime("%Y-%m-%d")
         
-        appointments = [
-            a for a in realistic_mock_odoo.appointments
-            if a["status"] in ["scheduled", "confirmed"] and
-               today_str <= a["date"] <= end_date
-        ]
-        
-        # Sort by date and time
-        appointments = sorted(appointments, key=lambda x: (x["date"], x.get("time", "00:00")))
+        appointments = odoo.search_read(
+            'medical.appointment',
+            domain=[
+                ('state', 'in', ['draft', 'confirmed']),
+                ('appointment_sdate', '>=', f"{today_str} 00:00:00"),
+                ('appointment_sdate', '<=', f"{end_str} 23:59:59"),
+            ],
+            fields=['id', 'patient_id', 'doctor_id', 'appointment_sdate', 'appointment_edate', 'state'],
+            order='appointment_sdate ASC'
+        )
         
         # Enrich with patient data
         result_appointments = []
         for appt in appointments:
-            patient = realistic_mock_odoo.get_patient(appt["patient_id"])
+            patient_id = appt['patient_id'][0] if isinstance(appt['patient_id'], list) else appt['patient_id']
+            patient = odoo.read('res.partner', [patient_id], ['name', 'phone'])[0]
+            
+            appt_datetime = datetime.fromisoformat(str(appt['appointment_sdate']))
+            
             result_appointments.append({
-                **appt,
-                "patient_name": patient["name"] if patient else "Unknown",
-                "patient_phone": patient.get("phone") if patient else None,
+                "id": appt['id'],
+                "patient_id": patient_id,
+                "patient_name": patient['name'],
+                "patient_phone": patient.get('phone'),
+                "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
+                "date": appt_datetime.strftime('%Y-%m-%d'),
+                "time": appt_datetime.strftime('%H:%M'),
+                "status": appt['state'],
+                "start_datetime": str(appt['appointment_sdate']),
+                "end_datetime": str(appt['appointment_edate']),
             })
         
         return {
             "start_date": today_str,
-            "end_date": end_date,
+            "end_date": end_str,
             "appointments": result_appointments,
             "total": len(result_appointments),
         }
@@ -378,10 +498,7 @@ async def reschedule_appointment(
     - Notify patient
     """
     try:
-        from app.agents.agent_graph_v3 import AgentGraphV3
-        
-        # Initialize LangGraph
-        graph = AgentGraphV3()
+        from app.agents.agent_graph_v4 import agent_graph
         
         # Create message for Sophia
         message = f"""
@@ -396,20 +513,19 @@ async def reschedule_appointment(
         """
         
         # Process through LangGraph (will route to Sophia)
-        result = graph.process_message(
-            message=message,
-            user_id="system",
-            organization_id="default",
-            conversation_id=f"reschedule_{appointment_id}"
-        )
+        result = agent_graph.invoke({
+            "messages": [{"role": "user", "content": message}],
+            "user_id": "system",
+            "organization_id": "default",
+        })
         
         # Check if successful
-        success = "successfully" in result.get("response", "").lower() or \
-                  "rescheduled" in result.get("response", "").lower()
+        last_message = result["messages"][-1]["content"] if result.get("messages") else ""
+        success = "successfully" in last_message.lower() or "rescheduled" in last_message.lower()
         
         return AppointmentActionResponse(
             success=success,
-            message=result.get("response", "Appointment rescheduled"),
+            message=last_message,
             appointment_id=appointment_id
         )
         
@@ -440,10 +556,7 @@ async def cancel_appointment(
     - Free up the time slot
     """
     try:
-        from app.agents.agent_graph_v3 import AgentGraphV3
-        
-        # Initialize LangGraph
-        graph = AgentGraphV3()
+        from app.agents.agent_graph_v4 import agent_graph
         
         # Create message for Sophia
         message = f"""
@@ -458,21 +571,19 @@ async def cancel_appointment(
         """
         
         # Process through LangGraph (will route to Sophia)
-        result = graph.process_message(
-            message=message,
-            user_id="system",
-            organization_id="default",
-            conversation_id=f"cancel_{appointment_id}"
-        )
+        result = agent_graph.invoke({
+            "messages": [{"role": "user", "content": message}],
+            "user_id": "system",
+            "organization_id": "default",
+        })
         
         # Check if successful
-        success = "successfully" in result.get("response", "").lower() or \
-                  "cancelled" in result.get("response", "").lower() or \
-                  "canceled" in result.get("response", "").lower()
+        last_message = result["messages"][-1]["content"] if result.get("messages") else ""
+        success = any(word in last_message.lower() for word in ["successfully", "cancelled", "canceled"])
         
         return AppointmentActionResponse(
             success=success,
-            message=result.get("response", "Appointment cancelled"),
+            message=last_message,
             appointment_id=appointment_id
         )
         
@@ -485,14 +596,17 @@ async def cancel_appointment(
         )
 
 
-
 @router.get("/revenue")
-async def get_revenue_overview(days: int = Query(30, description="Number of days to analyze")) -> Dict[str, Any]:
+async def get_revenue_overview(
+    days: int = Query(30, description="Number of days to analyze"),
+    odoo: OdooClientV3 = Depends(get_odoo_client),
+) -> Dict[str, Any]:
     """
     Get revenue overview for dashboard widget.
     
     Args:
         days: Number of days to analyze (default: 30)
+        odoo: Odoo client instance
         
     Returns:
         Revenue summary with trends and insights
@@ -502,29 +616,41 @@ async def get_revenue_overview(days: int = Query(30, description="Number of days
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days)
         
-        # Get invoices
-        all_invoices = realistic_mock_odoo.get_invoices()
-        
-        # Filter by date range
-        period_invoices = [
-            inv for inv in all_invoices
-            if start_date <= datetime.fromisoformat(inv["issue_date"]) <= end_date
-        ]
+        # Get invoices for current period
+        period_invoices = odoo.search_read(
+            'account.move',
+            domain=[
+                ('move_type', '=', 'out_invoice'),
+                ('invoice_date', '>=', start_date.strftime('%Y-%m-%d')),
+                ('invoice_date', '<=', end_date.strftime('%Y-%m-%d')),
+            ],
+            fields=['amount_total', 'amount_residual', 'state', 'payment_state', 'invoice_date']
+        )
         
         # Calculate metrics
-        total_revenue = sum(inv["total_amount"] for inv in period_invoices)
-        paid_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] == "paid")
-        pending_revenue = sum(inv["total_amount"] for inv in period_invoices if inv["status"] in ["draft", "unpaid"])
+        total_revenue = sum(inv['amount_total'] for inv in period_invoices if inv['state'] == 'posted')
+        paid_revenue = sum(
+            inv['amount_total'] - inv['amount_residual']
+            for inv in period_invoices
+            if inv['state'] == 'posted'
+        )
+        pending_revenue = sum(inv['amount_residual'] for inv in period_invoices if inv['state'] == 'posted')
         
         # Previous period for comparison
         prev_start = start_date - timedelta(days=days)
         prev_end = start_date
         
-        prev_invoices = [
-            inv for inv in all_invoices
-            if prev_start <= datetime.fromisoformat(inv["issue_date"]) < prev_end
-        ]
-        prev_revenue = sum(inv["total_amount"] for inv in prev_invoices)
+        prev_invoices = odoo.search_read(
+            'account.move',
+            domain=[
+                ('move_type', '=', 'out_invoice'),
+                ('invoice_date', '>=', prev_start.strftime('%Y-%m-%d')),
+                ('invoice_date', '<', prev_end.strftime('%Y-%m-%d')),
+                ('state', '=', 'posted'),
+            ],
+            fields=['amount_total']
+        )
+        prev_revenue = sum(inv['amount_total'] for inv in prev_invoices)
         
         # Calculate growth
         growth = 0.0
@@ -551,3 +677,4 @@ async def get_revenue_overview(days: int = Query(30, description="Number of days
     except Exception as e:
         logger.error(f"Error getting revenue overview: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+

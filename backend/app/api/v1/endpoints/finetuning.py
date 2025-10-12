@@ -22,7 +22,53 @@ class CreateJobRequest(BaseModel):
     hyperparameters: Optional[Dict[str, Any]] = None
 
 
-@router.post("/create")
+@router.post(
+    "/create",
+    tags=["Fine-Tuning"],
+    summary="Create fine-tuning job",
+    description="""
+    Create a new OpenAI fine-tuning job for an AI agent.
+    
+    **Requirements:**
+    - At least 10 high-quality training examples (score >= min_score)
+    - Valid agent name (alex, marcus, sarah, sophia)
+    - Sufficient OpenAI credits
+    
+    **Authentication:** Requires valid JWT token with admin/owner role
+    
+    **Example Request:**
+    ```json
+    {
+      "agent_name": "alex",
+      "min_score": 4,
+      "model": "gpt-4o-mini-2024-07-18",
+      "hyperparameters": {
+        "n_epochs": 3
+      }
+    }
+    ```
+    
+    **Example Response:**
+    ```json
+    {
+      "success": true,
+      "job": {
+        "id": "ftjob-abc123",
+        "status": "validating_files",
+        "model": "gpt-4o-mini-2024-07-18",
+        "created_at": 1234567890
+      }
+    }
+    ```
+    """,
+    responses={
+        200: {"description": "Fine-tuning job created successfully"},
+        400: {"description": "Bad request - insufficient training data or invalid parameters"},
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden - requires admin/owner role"},
+        500: {"description": "Internal server error"}
+    }
+)
 async def create_finetuning_job(request: CreateJobRequest):
     """
     Create a new fine-tuning job.
@@ -99,7 +145,46 @@ async def cancel_job(job_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/readiness")
+@router.get(
+    "/readiness",
+    tags=["Fine-Tuning"],
+    summary="Check training readiness",
+    description="""
+    Check if there's enough training data to start fine-tuning.
+    
+    Returns statistics about available training examples and readiness status.
+    
+    **Authentication:** Requires valid JWT token
+    
+    **Example Response:**
+    ```json
+    {
+      "success": true,
+      "readiness": {
+        "alex": {
+          "ready": true,
+          "total_examples": 45,
+          "good_examples": 38,
+          "bad_examples": 7,
+          "min_required": 10
+        },
+        "marcus": {
+          "ready": false,
+          "total_examples": 8,
+          "good_examples": 6,
+          "bad_examples": 2,
+          "min_required": 10
+        }
+      }
+    }
+    ```
+    """,
+    responses={
+        200: {"description": "Training readiness information"},
+        401: {"description": "Unauthorized"},
+        500: {"description": "Internal server error"}
+    }
+)
 async def check_training_readiness(agent_name: Optional[str] = None):
     """
     Check if there's enough data to start training.

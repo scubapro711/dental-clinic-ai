@@ -14,6 +14,7 @@ class UserRegister(BaseModel):
     password: str = Field(..., min_length=8, max_length=100)
     full_name: str = Field(..., min_length=1, max_length=255)
     phone: Optional[str] = Field(None, max_length=20)
+    invitation_token: Optional[str] = Field(None, max_length=100, description="Invitation token if joining via team invitation")
 
 
 class UserLogin(BaseModel):

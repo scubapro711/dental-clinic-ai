@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 export default function DecisionQueueWidget({ onChatWithAgent }) {
   const [decisions, setDecisions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [statusMessage, setStatusMessage] = useState('');
 
   useEffect(() => {
     fetchDecisions();
@@ -22,12 +23,32 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const fetchDecisions = async () => {
     setIsLoading(true);
     try {
-      // TODO: Replace with real API call
-      // const response = await fetch('http://localhost:8000/api/v1/decisions/queue');
-      // const data = await response.json();
+      // Fetch real agent actions from Backend
+      const response = await fetch('/api/v1/agent-actions/queue?status=pending', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        }
+      });
       
-      // Mock data for now
-      const mockData = [
+      if (response.ok) {
+        const data = await response.json();
+        setDecisions(data);
+      } else {
+        // Fallback to mock data
+        console.warn('Agent actions API failed, using mock data');
+        useMockData();
+      }
+    } catch (error) {
+      console.error('Error fetching decisions:', error);
+      useMockData();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const useMockData = () => {
+    const mockData = [
         {
           id: 1,
           priority: 'high',
@@ -66,16 +87,11 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
         }
       ];
       
-      // Sort by priority
-      const priorityOrder = { high: 0, medium: 1, low: 2 };
-      mockData.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-      
-      setDecisions(mockData);
-    } catch (error) {
-      console.error('Error fetching decisions:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Sort by priority
+    const priorityOrder = { high: 0, medium: 1, low: 2 };
+    mockData.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+    
+    setDecisions(mockData);
   };
 
   const getPriorityConfig = (priority) => {
@@ -120,14 +136,65 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
     return `לפני ${Math.floor(seconds / 86400)} ימים`;
   };
 
-  const handleApprove = (decision) => {
-    console.log('Approved:', decision);
-    // TODO: Implement approval logic
+  const handleApprove = async (decision) => {
+    try {
+      setStatusMessage('Approving action...');
+      const response = await fetch(`/api/v1/agent-actions/${decision.id}/approve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        },
+        body: JSON.stringify({
+          execute: true,
+          reason: 'Approved by user'
+        })
+      });
+      
+      if (response.ok) {
+        // Remove from list
+        setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        setStatusMessage(`Action approved: ${decision.title}`);
+        console.log('Action approved and executed:', decision);
+      } else {
+        setStatusMessage('Failed to approve action');
+        console.error('Failed to approve action');
+      }
+    } catch (error) {
+      setStatusMessage('Error approving action');
+      console.error('Error approving action:', error);
+    }
   };
 
-  const handleReject = (decision) => {
-    console.log('Rejected:', decision);
-    // TODO: Implement rejection logic
+  const handleReject = async (decision) => {
+    try {
+      setStatusMessage('Rejecting action...');
+      const response = await fetch(`/api/v1/agent-actions/${decision.id}/reject`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        },
+        body: JSON.stringify({
+          reason: 'Rejected by user'
+        })
+      });
+      
+      if (response.ok) {
+        // Remove from list
+        setDecisions(prev => prev.filter(d => d.id !== decision.id));
+        setStatusMessage(`Action rejected: ${decision.title}`);
+        console.log('Action rejected:', decision);
+      } else {
+        setStatusMessage('Failed to reject action');
+        console.error('Failed to reject action');
+      }
+    } catch (error) {
+      setStatusMessage('Error rejecting action');
+      console.error('Error rejecting action:', error);
+    }
   };
 
   const handleChatAbout = (decision) => {
@@ -147,6 +214,16 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${decisions.length} פריטים`}
       isLoading={isLoading}
     >
+      {/* ARIA Live Region for status announcements */}
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true" 
+        className="sr-only"
+      >
+        {statusMessage}
+      </div>
+      
       <div className="space-y-3">
         {decisions.length === 0 ? (
           <div className="text-center text-sm text-gray-500 py-8">
@@ -200,8 +277,9 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     size="sm"
                     className="flex-1 text-xs h-7 bg-green-600 hover:bg-green-700"
                     onClick={() => handleApprove(decision)}
+                    aria-label={`Approve: ${decision.title}`}
                   >
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
+                    <CheckCircle2 className="w-3 h-3 mr-1" aria-hidden="true" />
                     {decision.action}
                   </Button>
                   <Button
@@ -209,16 +287,18 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     variant="outline"
                     className="text-xs h-7"
                     onClick={() => handleChatAbout(decision)}
+                    aria-label={`Chat about: ${decision.title}`}
                   >
-                    <ChevronRight className="w-3 h-3" />
+                    <ChevronRight className="w-3 h-3" aria-hidden="true" />
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     className="text-xs h-7 text-red-600 hover:text-red-700"
                     onClick={() => handleReject(decision)}
+                    aria-label={`Reject: ${decision.title}`}
                   >
-                    <XCircle className="w-3 h-3" />
+                    <XCircle className="w-3 h-3" aria-hidden="true" />
                   </Button>
                 </div>
               </div>

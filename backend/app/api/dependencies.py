@@ -64,7 +64,7 @@ async def get_current_active_user(
     return current_user
 
 
-async def require_role(required_role: UserRole):
+def require_role(required_role: UserRole):
     """
     Dependency factory for role-based access control.
     

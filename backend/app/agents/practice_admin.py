@@ -38,15 +38,16 @@ class PracticeAdminAgent:
     def __init__(self):
         """Initialize Practice Admin Agent."""
         self.llm = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-5-mini"),
+            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.3,  # Lower temperature for consistent operations decisions
         )
         
-        self.system_prompt = """You are Sophia, the Practice Administrator Agent for a dental clinic.
+        self.system_prompt = """You are Sophia, the Operations Manager Agent for a dental clinic.
 
-Your role is to manage clinic operations, scheduling, and workflow optimization.
+Your role is to manage clinic operations, scheduling, workflow optimization, and inventory/supply management.
 
 **Core Responsibilities:**
+
 1. **Appointment Management**
    - Schedule new appointments
    - Handle rescheduling requests
@@ -70,14 +71,82 @@ Your role is to manage clinic operations, scheduling, and workflow optimization.
    - Coordinate breaks and shifts
    - Handle emergency coverage
 
-**Available Tools:**
+5. **Inventory & Supply Management**
+   - Monitor stock levels
+   - Track low stock alerts
+   - Manage expiring products
+   - Create purchase orders
+   - Track inventory valuation
+   - Suggest reorder quantities
+   - Generate inventory reports
+
+6. **Staff & HR Management**
+   - Manage staff list and information
+   - Track doctor availability
+   - Create staff schedules
+   - Monitor attendance
+   - Handle time-off requests
+   - Analyze staff workload
+   - Track performance metrics
+   - Balance workload distribution
+
+7. **Compliance & Facilities Management** ⭐ NEW
+   - Track treatment rooms and schedules
+   - Manage equipment inventory
+   - Handle maintenance requests
+   - Monitor compliance deadlines
+   - Create safety checklists
+   - Track regulatory requirements
+   - Generate compliance reports
+   - Optimize room utilization
+
+**Available Tools (38 total):**
+
+**Scheduling Tools (8):**
 - get_schedule_conflicts: Find scheduling conflicts
 - get_available_slots: Find available appointment slots
 - reschedule_appointment: Reschedule an appointment
+- cancel_appointment: Cancel an appointment
 - get_staff_schedule: View staff availability
 - get_room_availability: Check room availability
 - optimize_schedule: Optimize daily schedule
 - get_operational_metrics: View operations KPIs
+
+**Inventory Tools (10):**
+- check_inventory_levels: Check current stock levels
+- get_low_stock_alerts: Get low stock alerts
+- track_expiring_products: Track products expiring soon
+- create_purchase_order: Create purchase order for supplies
+- get_purchase_orders: View recent purchase orders
+- get_inventory_valuation: Get total inventory value
+- get_stock_movements: Track stock in/out movements
+- suggest_reorder_quantities: AI-powered reorder suggestions
+- get_storage_locations: View storage locations
+- generate_inventory_report: Generate comprehensive reports
+
+**Staff Management Tools (10):**
+- get_staff_list: View all clinic staff
+- get_doctor_availability: Check doctor availability
+- create_staff_schedule: Create schedule slots
+- get_staff_attendance: Track attendance records
+- get_time_off_requests: View time-off requests
+- approve_time_off: Approve time-off requests
+- get_staff_workload: Analyze staff workload
+- get_staff_performance: Track performance metrics
+- balance_staff_workload: Suggest workload balancing
+- generate_staff_report: Generate HR reports
+
+**Compliance & Facilities Tools (10):** ⭐ NEW
+- get_rooms_list: View all treatment rooms
+- get_room_schedule: Check room schedule
+- get_equipment_list: View clinic equipment
+- create_maintenance_request: Request equipment maintenance
+- get_maintenance_requests: View maintenance requests
+- get_compliance_reminders: Check compliance deadlines
+- create_safety_checklist: Create safety checklists
+- check_equipment_maintenance: Check maintenance schedule
+- generate_compliance_report: Generate compliance reports
+- optimize_room_utilization: Optimize room usage
 
 **Communication Style:**
 - Professional and efficient
@@ -210,7 +279,7 @@ Respond in Hebrew or English based on the user's language."""
             # Get conversation history
             messages = state["messages"]
             
-            # Import tools
+            # Import scheduling tools
             from app.agents.tools.admin_tools import (
                 get_schedule_conflicts_tool,
                 get_available_slots_tool,
@@ -222,8 +291,62 @@ Respond in Hebrew or English based on the user's language."""
                 get_operational_metrics_tool,
             )
             
-            # Bind tools to LLM
+            # Import inventory tools
+            from app.agents.tools.sophia_inventory_tools import (
+                check_inventory_levels_tool,
+                get_low_stock_alerts_tool,
+                track_expiring_products_tool,
+                create_purchase_order_tool,
+                get_purchase_orders_tool,
+                get_inventory_valuation_tool,
+                get_stock_movements_tool,
+                suggest_reorder_quantities_tool,
+                get_storage_locations_tool,
+                generate_inventory_report_tool,
+            )
+            
+            # Import staff management tools
+            from app.agents.tools.sophia_staff_tools import (
+                get_staff_list_tool,
+                get_doctor_availability_tool,
+                create_staff_schedule_tool,
+                get_staff_attendance_tool,
+                get_time_off_requests_tool,
+                approve_time_off_tool,
+                get_staff_workload_tool,
+                get_staff_performance_tool,
+                balance_staff_workload_tool,
+                generate_staff_report_tool,
+                send_staff_notification_tool,
+                track_staff_certifications_tool,
+                create_staff_training_tool,
+            )
+            from app.agents.tools.sophia_inventory_tools import (
+                get_patient_satisfaction_tool,
+                get_no_show_rate_tool,
+            )
+
+            
+            # Import compliance & facilities tools
+            from app.agents.tools.sophia_compliance_tools import (
+                get_rooms_list_tool,
+                get_room_schedule_tool,
+                get_equipment_list_tool,
+                create_maintenance_request_tool,
+                get_maintenance_requests_tool,
+                get_compliance_reminders_tool,
+                create_safety_checklist_tool,
+                check_equipment_maintenance_tool,
+                generate_compliance_report_tool,
+                optimize_room_utilization_tool,
+            )
+            
+            # Import RAG tool for operational knowledge
+            from app.agents.tools.rag_tools import search_operational_knowledge_tool
+            
+            # Bind all tools to LLM (39 tools total: 38 + RAG)
             llm_with_tools = self.llm.bind_tools([
+                # Scheduling tools (8)
                 get_schedule_conflicts_tool,
                 get_available_slots_tool,
                 reschedule_appointment_tool,
@@ -232,6 +355,46 @@ Respond in Hebrew or English based on the user's language."""
                 get_room_availability_tool,
                 optimize_schedule_tool,
                 get_operational_metrics_tool,
+                # Inventory tools (12)
+                check_inventory_levels_tool,
+                get_low_stock_alerts_tool,
+                track_expiring_products_tool,
+                create_purchase_order_tool,
+                get_purchase_orders_tool,
+                get_inventory_valuation_tool,
+                get_stock_movements_tool,
+                suggest_reorder_quantities_tool,
+                get_storage_locations_tool,
+                generate_inventory_report_tool,
+                get_patient_satisfaction_tool,
+                get_no_show_rate_tool,
+                # Staff management tools (13)
+                get_staff_list_tool,
+                get_doctor_availability_tool,
+                create_staff_schedule_tool,
+                get_staff_attendance_tool,
+                get_time_off_requests_tool,
+                approve_time_off_tool,
+                get_staff_workload_tool,
+                get_staff_performance_tool,
+                balance_staff_workload_tool,
+                generate_staff_report_tool,
+                send_staff_notification_tool,
+                track_staff_certifications_tool,
+                create_staff_training_tool,
+                # Compliance & facilities tools (10)
+                get_rooms_list_tool,
+                get_room_schedule_tool,
+                get_equipment_list_tool,
+                create_maintenance_request_tool,
+                get_maintenance_requests_tool,
+                get_compliance_reminders_tool,
+                create_safety_checklist_tool,
+                check_equipment_maintenance_tool,
+                generate_compliance_report_tool,
+                optimize_room_utilization_tool,
+                # RAG tool (1)
+                search_operational_knowledge_tool,  # Safety protocols, compliance
             ])
             
             # Prepare messages for LLM
@@ -278,6 +441,8 @@ Respond in Hebrew or English based on the user's language."""
                     tool_results[tool_name] = result
                 
                 # Store tool results in state
+                if "tool_results" not in state:
+                    state["tool_results"] = {}
                 state["tool_results"].update(tool_results)
                 
                 # Generate final response with tool results

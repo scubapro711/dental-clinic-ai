@@ -1,5 +1,5 @@
 // API Configuration
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://8000-inz49vfnpwjnjv1qy37ft-3b63ca47.manusvm.computer';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8002';
 
 export const API_ENDPOINTS = {
   auth: {

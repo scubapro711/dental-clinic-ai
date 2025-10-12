@@ -4,9 +4,12 @@ For תיקון 13 (Amendment 13) compliance
 """
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from enum import Enum
+from uuid import uuid4
+from app.core.database import Base
 
 
 class ConsentType(str, Enum):
@@ -40,7 +43,8 @@ class PatientConsent(Base):
     __tablename__ = "patient_consents"
     
     id = Column(Integer, primary_key=True)
-    patient_id = Column(Integer, ForeignKey("medical_patient.id"), nullable=False)
+    # Odoo patient ID (no FK - Odoo is external system)
+    patient_id = Column(Integer, nullable=False, index=True)
     
     # Consent details
     consent_type = Column(String(50), nullable=False)  # ConsentType enum
@@ -61,9 +65,6 @@ class PatientConsent(Base):
     
     # Notes
     notes = Column(Text)
-    
-    # Relationships
-    patient = relationship("Patient", back_populates="consents")
     
     def __repr__(self):
         return f"<PatientConsent {self.patient_id} - {self.consent_type}: {self.status}>"
@@ -134,7 +135,8 @@ class DataSubjectRequest(Base):
     __tablename__ = "data_subject_requests"
     
     id = Column(Integer, primary_key=True)
-    patient_id = Column(Integer, ForeignKey("medical_patient.id"), nullable=False)
+    # Odoo patient ID (no FK - Odoo is external system)
+    patient_id = Column(Integer, nullable=False, index=True)
     
     # Request details
     request_type = Column(String(50), nullable=False)  # DataSubjectRequestType enum
@@ -149,7 +151,7 @@ class DataSubjectRequest(Base):
     due_date = Column(DateTime)  # Must respond within 30 days (תיקון 13)
     
     # Processing
-    assigned_to = Column(Integer, ForeignKey("users.id"))  # DPO or admin
+    assigned_to = Column(UUID(as_uuid=True), ForeignKey("users.id"))  # DPO or admin
     response = Column(Text)  # Response to patient
     
     # Metadata
@@ -159,8 +161,10 @@ class DataSubjectRequest(Base):
     # Files (for data export)
     export_file_path = Column(String(500))  # Path to exported data file
     
-    # Relationships
-    patient = relationship("Patient", back_populates="dsr_requests")
+    # Notes
+    notes = Column(Text)
+    
+    # Relationship to assigned user
     assigned_user = relationship("User")
     
     def __repr__(self):
@@ -201,7 +205,8 @@ class PrivacyPolicyAcceptance(Base):
     __tablename__ = "privacy_policy_acceptances"
     
     id = Column(Integer, primary_key=True)
-    patient_id = Column(Integer, ForeignKey("medical_patient.id"), nullable=False)
+    # Odoo patient ID (no FK - Odoo is external system)
+    patient_id = Column(Integer, nullable=False, index=True)
     
     # Policy details
     policy_version = Column(String(20), nullable=False)
@@ -211,9 +216,6 @@ class PrivacyPolicyAcceptance(Base):
     accepted_at = Column(DateTime, default=datetime.utcnow)
     ip_address = Column(String(45))
     user_agent = Column(String(500))
-    
-    # Relationships
-    patient = relationship("Patient", back_populates="privacy_acceptances")
     
     def __repr__(self):
         return f"<PrivacyAcceptance {self.patient_id} - v{self.policy_version}>"

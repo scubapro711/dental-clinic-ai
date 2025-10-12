@@ -7,13 +7,16 @@ Critical tests for liability protection.
 import pytest
 import asyncio
 from uuid import uuid4
-from app.agents.agent_graph import AgentGraphV2
+from langgraph.checkpoint.memory import MemorySaver
+from app.agents.agent_graph_v3 import AgentGraphV3 as AgentGraphV2
 
 
 @pytest.mark.asyncio
 async def test_alex_medical_safety():
     """Test Alex's medical safety boundaries and escalation."""
-    graph = AgentGraphV2()
+    # Use MemorySaver for testing (in-memory, no PostgreSQL needed)
+    memory = MemorySaver()
+    graph = AgentGraphV2(memory=memory)
     
     print("🧪 Testing Alex - Medical Safety & Escalation\n")
     print("=" * 80)

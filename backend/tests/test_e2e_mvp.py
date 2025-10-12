@@ -8,7 +8,7 @@ import pytest
 import asyncio
 from uuid import uuid4
 
-from app.agents.agent_graph import AgentGraphV2
+from app.agents.agent_graph_v3 import AgentGraphV3 as AgentGraphV2
 
 
 class TestMVPIntegration:
@@ -39,7 +39,7 @@ class TestMVPIntegration:
     async def test_scenario_2_medical_question(self):
         """
         Scenario 2: User asks medical question
-        Expected: Dana routes to Michal
+        Expected: Alex handles it (reception) or Sarah (clinical)
         """
         graph = AgentGraphV2()
         
@@ -51,7 +51,7 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["michal", "dana"]
+        assert response["agent"] in ["alex", "sarah"]  # Updated agent names
         print(f"\n✅ Scenario 2: Medical Question")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -60,7 +60,7 @@ class TestMVPIntegration:
     async def test_scenario_3_billing_inquiry(self):
         """
         Scenario 3: User asks about billing
-        Expected: Dana routes to Yosef
+        Expected: Alex (reception) or Marcus (CFO)
         """
         graph = AgentGraphV2()
         
@@ -72,7 +72,7 @@ class TestMVPIntegration:
         )
         
         assert response["response"]
-        assert response["agent"] in ["yosef", "dana"]
+        assert response["agent"] in ["alex", "marcus"]  # Updated agent names
         print(f"\n✅ Scenario 3: Billing Inquiry")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -94,7 +94,7 @@ class TestMVPIntegration:
         
         assert response["response"]
         # Any agent can handle appointment inquiries
-        assert response["agent"] in ["sarah", "dana", "michal"]
+        assert response["agent"] in ["alex", "sarah", "sophia"]  # Updated agent names
         print(f"\n✅ Scenario 4: Appointment Booking")
         print(f"   Agent: {response['agent']}")
         print(f"   Response: {response['response'][:150]}...")
@@ -170,12 +170,12 @@ class TestMVPIntegration:
         assert response1["response"]
         
         # Turn 2: Follow-up question
+        # LangGraph automatically maintains context via thread_id (conv_id)
         response2 = await graph.process_message(
             user_id=user_id,
             organization_id=org_id,
             conversation_id=conv_id,
             message="How much does it cost?",
-            message_history=response1["state"]["messages"],
         )
         
         assert response2["response"]
@@ -185,42 +185,9 @@ class TestMVPIntegration:
         print(f"   Turn 2 Agent: {response2['agent']}")
         print(f"   Turn 2: {response2['response'][:100]}...")
     
-    @pytest.mark.asyncio
-    async def test_scenario_8_causal_memory(self):
-        """
-        Scenario 8: Causal memory retrieves similar interactions
-        Expected: Similar past interactions are used for context
-        """
-        graph = AgentGraphV2()
-        
-        user_id = str(uuid4())
-        org_id = str(uuid4())
-        
-        # First interaction
-        response1 = await graph.process_message(
-            user_id=user_id,
-            organization_id=org_id,
-            conversation_id=str(uuid4()),
-            message="I have tooth pain",
-        )
-        
-        await asyncio.sleep(1)  # Wait for Neo4j to process
-        
-        # Similar interaction
-        response2 = await graph.process_message(
-            user_id=user_id,
-            organization_id=org_id,
-            conversation_id=str(uuid4()),
-            message="My tooth hurts",
-        )
-        
-        assert response1["response"]
-        assert response2["response"]
-        
-        print(f"\n✅ Scenario 8: Causal Memory")
-        print(f"   First interaction agent: {response1['agent']}")
-        print(f"   Second interaction agent: {response2['agent']}")
-        print(f"   Similar interactions found: {response2.get('similar_interactions', 0)}")
+    # Removed: test_scenario_8_causal_memory
+    # Neo4j causal memory has been removed from the project
+    # We use LangChain PostgresSaver for conversation memory instead
 
 
 if __name__ == "__main__":

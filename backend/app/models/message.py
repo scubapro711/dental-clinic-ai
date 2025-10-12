@@ -9,7 +9,7 @@ from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Column, DateTime, Enum, ForeignKey, String, Text, JSON, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import enum
 
@@ -55,6 +55,9 @@ class Message(Base):
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+
+    # Relationships
+    conversation = relationship("Conversation", back_populates="messages")
 
     def __repr__(self) -> str:
         return f"<Message {self.id} - {self.role}>"
