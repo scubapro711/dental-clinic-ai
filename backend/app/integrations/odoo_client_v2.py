@@ -183,6 +183,85 @@ class OdooClientV2:
             logger.error(f"Unexpected error on {model}.{method}: {e}")
             raise
     
+    def search_read(
+        self,
+        model: str,
+        domain: List = None,
+        fields: List[str] = None,
+        offset: int = 0,
+        limit: int = None,
+        order: str = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Search and read records in one call (Odoo's search_read method).
+        
+        This is a convenience method that combines search and read operations.
+        
+        Args:
+            model: Odoo model name (e.g., 'res.partner', 'medical.appointment')
+            domain: Search domain (list of tuples)
+            fields: List of field names to read
+            offset: Number of records to skip
+            limit: Maximum number of records to return
+            order: Sort order (e.g., 'name ASC', 'create_date DESC')
+        
+        Returns:
+            List of dictionaries with record data
+        
+        Example:
+            >>> client.search_read(
+            ...     'res.partner',
+            ...     domain=[('customer_rank', '>', 0)],
+            ...     fields=['id', 'name', 'email'],
+            ...     limit=10
+            ... )
+        """
+        if domain is None:
+            domain = []
+        
+        kwargs = {}
+        if fields:
+            kwargs['fields'] = fields
+        if offset:
+            kwargs['offset'] = offset
+        if limit:
+            kwargs['limit'] = limit
+        if order:
+            kwargs['order'] = order
+        
+        try:
+            return self._execute(model, 'search_read', [domain], kwargs)
+        except Exception as e:
+            logger.error(f"Failed to search_read {model}: {e}")
+            raise
+    
+    def read(
+        self,
+        model: str,
+        ids: List[int],
+        fields: List[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Read records by IDs.
+        
+        Args:
+            model: Odoo model name
+            ids: List of record IDs
+            fields: List of field names to read
+        
+        Returns:
+            List of dictionaries with record data
+        """
+        kwargs = {}
+        if fields:
+            kwargs['fields'] = fields
+        
+        try:
+            return self._execute(model, 'read', [ids], kwargs)
+        except Exception as e:
+            logger.error(f"Failed to read {model} records: {e}")
+            raise
+    
     # ========== PATIENT MANAGEMENT ==========
     
     def search_patients(
