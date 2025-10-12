@@ -199,7 +199,7 @@ async def sync_mapping(
     Fetches latest data from Odoo and updates the mapping.
     """
     try:
-        odoo_client = OdooClientV2()
+        odoo_client = OdooClientV3()
         
         # Get current mapping
         mapping = mapping_crud.get_mapping_by_user_id(db, current_user.id)

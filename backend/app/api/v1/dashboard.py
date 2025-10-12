@@ -11,7 +11,7 @@ import logging
 from decimal import Decimal
 
 from app.core.database import get_db
-from app.integrations.odoo_client_v2 import OdooClientV2
+from app.integrations.odoo_client_v3 import OdooClientV3
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Initialize Odoo client
-odoo_client = OdooClientV2()
+odoo_client = OdooClientV3()
 
 
 @router.get("/revenue")
