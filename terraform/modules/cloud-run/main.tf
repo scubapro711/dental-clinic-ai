@@ -21,7 +21,7 @@ resource "google_cloud_run_v2_service" "main" {
 
       env {
         name = "DATABASE_URL"
-        value_from {
+        value_source {
           secret_key_ref {
             secret  = var.db_password_secret
             version = "latest"

@@ -8,12 +8,17 @@ resource "google_sql_database_instance" "main" {
   name             = "dentaflow-db-instance"
   database_version = "POSTGRES_15"
   region           = var.region
+  deletion_protection = true
+
+  # Wait for VPC peering to be ready
+  depends_on = [var.vpc_peering_connection]
 
   settings {
     tier = "db-g1-small"
+    disk_type = "PD_SSD"
     ip_configuration {
       ipv4_enabled = true
-      private_network = google_compute_network.main.id
+      private_network = var.network_id
     }
   }
 }
@@ -34,7 +39,7 @@ resource "google_secret_manager_secret" "db_password" {
   secret_id = "db-password"
 
   replication {
-    automatic = true
+    auto {}
   }
 }
 

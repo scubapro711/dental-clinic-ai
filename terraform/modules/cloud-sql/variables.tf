@@ -14,3 +14,13 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "network_id" {
+  description = "The ID of the VPC network for private IP"
+  type        = string
+}
+
+variable "vpc_peering_connection" {
+  description = "The VPC peering connection to depend on"
+  type        = string
+}
+

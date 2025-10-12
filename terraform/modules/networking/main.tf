@@ -30,3 +30,20 @@ resource "google_compute_firewall" "allow_ssh" {
   source_ranges = ["0.0.0.0/0"]
 }
 
+# Reserve IP range for Google services (Cloud SQL)
+resource "google_compute_global_address" "private_ip_address" {
+  project       = var.project_id
+  name          = "google-managed-services-dentaflow-vpc"
+  purpose       = "VPC_PEERING"
+  address_type  = "INTERNAL"
+  prefix_length = 16
+  network       = google_compute_network.main.id
+}
+
+# Create private connection for Google services
+resource "google_service_networking_connection" "private_vpc_connection" {
+  network                 = google_compute_network.main.id
+  service                 = "servicenetworking.googleapis.com"
+  reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+}
+

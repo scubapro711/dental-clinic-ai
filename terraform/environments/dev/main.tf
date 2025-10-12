@@ -24,9 +24,11 @@ module "networking" {
 module "cloud_sql" {
   source = "../../modules/cloud-sql"
 
-  project_id = var.gcp_project_id
-  region     = var.gcp_region
+  project_id  = var.gcp_project_id
+  region      = var.gcp_region
   db_password = var.db_password
+  network_id  = module.networking.network_id
+  vpc_peering_connection = module.networking.vpc_peering_connection
 }
 
 module "cloud_run" {

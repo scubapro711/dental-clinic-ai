@@ -322,3 +322,4 @@ alembic/versions/*.pyc
 *-extended.json
 docs/INTEGRATION_CREDENTIALS.md
 .secrets/
+gcp-credentials.json
