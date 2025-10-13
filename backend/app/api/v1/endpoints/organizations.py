@@ -99,10 +99,9 @@ def create_default_clinic_settings(db: Session, organization_id: str) -> ClinicS
         saturday_open=None,
         saturday_close=None,
         # Appointment settings
-        default_appointment_duration_minutes=30,
-        buffer_time_minutes=10,
-        max_advance_booking_days=90,
-        min_advance_booking_hours=2,
+        default_appointment_duration=30,
+        buffer_between_appointments=10,
+        advance_booking_days=90,
         cancellation_notice_hours=24,
         # Localization
         timezone="Asia/Jerusalem",
