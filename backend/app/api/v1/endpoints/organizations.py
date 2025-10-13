@@ -103,8 +103,20 @@ def create_default_clinic_settings(db: Session, organization_id: str) -> ClinicS
         buffer_between_appointments=10,
         advance_booking_days=90,
         cancellation_notice_hours=24,
+        allow_online_booking=True,
+        require_deposit=False,
+        # Communication settings
+        sms_enabled=True,
+        email_enabled=True,
+        whatsapp_enabled=False,
+        telegram_enabled=False,
+        reminder_hours_before=24,
+        send_followup_after_hours=48,
+        send_recall_after_months=6,
         # Billing
-        currency="ILS"
+        currency="ILS",
+        payment_methods=["cash", "credit_card", "bank_transfer", "bit"],
+        invoice_starting_number=1000
     )
     db.add(settings)
     return settings
@@ -113,14 +125,14 @@ def create_default_clinic_settings(db: Session, organization_id: str) -> ClinicS
 def create_default_treatment_prices(db: Session, organization_id: str):
     """Create default treatment prices for new organization."""
     default_treatments = [
-        {"name": "בדיקה כללית", "code": "EXAM_001", "price": 150.0, "duration": 30},
-        {"name": "ניקוי אבנית", "code": "CLEAN_001", "price": 300.0, "duration": 45},
-        {"name": "סתימה לבנה", "code": "FILL_001", "price": 500.0, "duration": 60},
-        {"name": "עקירת שן", "code": "EXTRACT_001", "price": 400.0, "duration": 45},
-        {"name": "טיפול שורש", "code": "ROOT_001", "price": 1500.0, "duration": 90},
-        {"name": "כתר", "code": "CROWN_001", "price": 2500.0, "duration": 120},
-        {"name": "הלבנה", "code": "WHITEN_001", "price": 1200.0, "duration": 60},
-        {"name": "צילום פנורמי", "code": "XRAY_001", "price": 200.0, "duration": 15},
+        {"name": "בדיקה כללית", "code": "EXAM_001", "price": 150.0, "duration": 30, "category": "preventive"},
+        {"name": "ניקוי אבנית", "code": "CLEAN_001", "price": 300.0, "duration": 45, "category": "preventive"},
+        {"name": "סתימה לבנה", "code": "FILL_001", "price": 500.0, "duration": 60, "category": "restorative"},
+        {"name": "עקירת שן", "code": "EXTRACT_001", "price": 400.0, "duration": 45, "category": "surgical"},
+        {"name": "טיפול שורש", "code": "ROOT_001", "price": 1500.0, "duration": 90, "category": "endodontic"},
+        {"name": "כתר", "code": "CROWN_001", "price": 2500.0, "duration": 120, "category": "restorative"},
+        {"name": "הלבנה", "code": "WHITEN_001", "price": 1200.0, "duration": 60, "category": "cosmetic"},
+        {"name": "צילום פנורמי", "code": "XRAY_001", "price": 200.0, "duration": 15, "category": "diagnostic"},
     ]
     
     from decimal import Decimal
@@ -130,9 +142,12 @@ def create_default_treatment_prices(db: Session, organization_id: str):
             treatment_code=treatment["code"],
             treatment_name_hebrew=treatment["name"],
             treatment_name_english="",  # Can be added later
+            category=treatment["category"],  # Required field
             base_price=Decimal(str(treatment["price"])),
             currency="ILS",
             duration_minutes=treatment["duration"],
+            requires_specialist=False,  # Required field
+            requires_approval=False,  # Required field
             is_active=True,
             is_visible_online=True
         )
@@ -205,6 +220,8 @@ async def register_organization(
             phone=request.owner_phone,
             is_active=True,
             is_verified=False,  # Will be verified via email
+            phone_verified=False,  # Required field
+            mfa_enabled=False,  # Required field
             created_at=datetime.utcnow()
         )
         db.add(owner)
