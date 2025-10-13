@@ -123,15 +123,18 @@ def create_default_treatment_prices(db: Session, organization_id: str):
         {"name": "צילום פנורמי", "code": "XRAY_001", "price": 200.0, "duration": 15},
     ]
     
+    from decimal import Decimal
     for treatment in default_treatments:
         price = TreatmentPrice(
             organization_id=organization_id,
-            treatment_name=treatment["name"],
             treatment_code=treatment["code"],
-            price=treatment["price"],
+            treatment_name_hebrew=treatment["name"],
+            treatment_name_english="",  # Can be added later
+            base_price=Decimal(str(treatment["price"])),
             currency="ILS",
             duration_minutes=treatment["duration"],
-            is_active=True
+            is_active=True,
+            is_visible_online=True
         )
         db.add(price)
 
