@@ -102,6 +102,17 @@ async def register(request: Request, user_data: UserRegister, db: Session = Depe
             user_email=user.email,
             user_name=user.full_name,
             user_phone=user.phone,
+            date_of_birth=user_data.date_of_birth,
+            gender=user_data.gender,
+            blood_type=user_data.blood_type,
+            street=user_data.street,
+            city=user_data.city,
+            zip_code=user_data.zip_code,
+            country=user_data.country,
+            has_allergies=user_data.has_allergies,
+            allergy_notes=user_data.allergy_notes,
+            has_medications=user_data.has_medications,
+            medication_notes=user_data.medication_notes,
         )
         
         # Update user's membership with Odoo partner ID

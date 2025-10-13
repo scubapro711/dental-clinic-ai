@@ -18,20 +18,6 @@ from app.agents.error_handler import (
     rate_limiter,
     RateLimitError,
 )
-# Mock tools - TEMPORARY until Odoo appointment/billing is fixed
-from app.agents.tools.agent_tools import (
-    get_available_slots_tool,  # TODO: Replace with Odoo when appointment creation works
-    create_appointment_tool,   # TODO: Replace with Odoo when appointment creation works
-    get_patient_invoices_tool, # TODO: Replace with Odoo billing integration
-    get_invoice_details_tool,  # TODO: Replace with Odoo billing integration
-)
-
-# Production Odoo tools with RBAC support
-from app.agents.tools.odoo_tools_v3 import (
-    get_my_appointments,
-    book_appointment,
-    get_available_appointment_slots,
-)
 
 # RAG tool for general knowledge
 from app.agents.tools.rag_tools import search_general_knowledge_tool
@@ -59,6 +45,12 @@ from app.agents.tools.alex_financial_tools import (
 )
 
 # Scheduling tools (Phase 5.5 Week 1 Day 7)
+from app.agents.tools.alex_appointment_tools import (
+    create_appointment_tool,
+    update_appointment_tool,
+    cancel_appointment_tool,
+    search_appointments_tool,
+)
 from app.agents.tools.alex_scheduling_tools import (
     bulk_reschedule_appointments_tool,
     manage_waitlist_tool,
@@ -486,15 +478,15 @@ makes sure patients get the right help at the right time! 😊
             process_payment_tool,
             create_payment_plan_tool,
             check_insurance_coverage_tool,
-            # Advanced Scheduling (Phase 5.5 Week 1 Day 7)
+               # Scheduling (Phase 5.5 Week 1 Day 7)
             bulk_reschedule_appointments_tool,
             manage_waitlist_tool,
-            # Appointments (existing)
-            get_available_slots_tool,
             create_appointment_tool,
-            get_my_appointments,
-            book_appointment,
-            get_available_appointment_slots,
+            update_appointment_tool,
+            cancel_appointment_tool,
+            search_appointments_tool,_tool,
+
+
             # Billing
             get_patient_invoices_tool,
             get_invoice_details_tool,

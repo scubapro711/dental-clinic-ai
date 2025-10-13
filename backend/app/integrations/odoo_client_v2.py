@@ -262,6 +262,116 @@ class OdooClientV2:
             logger.error(f"Failed to read {model} records: {e}")
             raise
     
+    def create(
+        self,
+        model: str,
+        values: Dict[str, Any]
+    ) -> int:
+        """
+        Create a new record.
+        
+        Args:
+            model: Odoo model name
+            values: Dictionary of field values
+        
+        Returns:
+            ID of the created record
+        
+        Raises:
+            OdooValidationError: If required fields are missing
+            OdooConstraintError: If constraints are violated
+        """
+        try:
+            record_id = self._execute(model, 'create', [values], {})
+            logger.info(f"Created {model} record with ID {record_id}")
+            return record_id
+        except Exception as e:
+            logger.error(f"Failed to create {model} record: {e}")
+            raise
+    
+    def update(
+        self,
+        model: str,
+        record_ids: List[int],
+        values: Dict[str, Any]
+    ) -> bool:
+        """
+        Update existing records.
+        
+        Args:
+            model: Odoo model name
+            record_ids: List of record IDs to update
+            values: Dictionary of field values to update
+        
+        Returns:
+            True if successful
+        
+        Raises:
+            OdooValidationError: If validation fails
+            OdooConstraintError: If constraints are violated
+        """
+        try:
+            result = self._execute(model, 'write', [record_ids, values], {})
+            logger.info(f"Updated {len(record_ids)} {model} records")
+            return result
+        except Exception as e:
+            logger.error(f"Failed to update {model} records: {e}")
+            raise
+    
+    def delete(
+        self,
+        model: str,
+        record_ids: List[int]
+    ) -> bool:
+        """
+        Delete records.
+        
+        Args:
+            model: Odoo model name
+            record_ids: List of record IDs to delete
+        
+        Returns:
+            True if successful
+        """
+        try:
+            result = self._execute(model, 'unlink', [record_ids], {})
+            logger.info(f"Deleted {len(record_ids)} {model} records")
+            return result
+        except Exception as e:
+            logger.error(f"Failed to delete {model} records: {e}")
+            raise
+    
+    def execute(
+        self,
+        model: str,
+        method: str,
+        record_ids: List[int],
+        kwargs: Dict[str, Any] = None
+    ) -> Any:
+        """
+        Execute a method on records.
+        
+        This is a wrapper around _execute that provides a cleaner interface
+        for calling custom methods on Odoo records.
+        
+        Args:
+            model: Odoo model name
+            method: Method name to execute
+            record_ids: List of record IDs
+            kwargs: Keyword arguments for the method
+        
+        Returns:
+            Result from the method execution
+        """
+        if kwargs is None:
+            kwargs = {}
+        
+        try:
+            return self._execute(model, method, [record_ids], kwargs)
+        except Exception as e:
+            logger.error(f"Failed to execute {model}.{method}: {e}")
+            raise
+    
     # ========== PATIENT MANAGEMENT ==========
     
     def search_patients(

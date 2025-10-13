@@ -97,7 +97,6 @@ def create_patient_tool(
             'street': address,
             'city': city,
             'zip': zip_code,
-            'is_patient': True,
             'company_id': clinic_id,
         }
         
@@ -277,7 +276,15 @@ def update_patient_info_tool(
         odoo = OdooClientV3()
         
         # Get patient record
-        patient = odoo.read('patient.patient', patient_id, ['patient_name', 'contact_number'])
+        patient_records = odoo.read('patient.patient', [patient_id], ['patient_name', 'contact_number'])
+        
+        if not patient_records:
+            return {
+                'success': False,
+                'error': f'מטופל עם ID {patient_id} לא נמצא'
+            }
+        
+        patient = patient_records[0]
         
         if not patient:
             return {
@@ -314,7 +321,7 @@ def update_patient_info_tool(
             updated_fields.append('מקצוע')
         
         if patient_updates:
-            success = odoo.update('patient.patient', patient_id, patient_updates)
+            success = odoo.update('patient.patient', [patient_id], patient_updates)
             if not success:
                 return {
                     'success': False,
@@ -348,7 +355,7 @@ def update_patient_info_tool(
                     updated_fields.append('עיר')
                 
                 if partner_updates:
-                    odoo.update('res.partner', partner_id, partner_updates)
+                    odoo.update('res.partner', [partner_id], partner_updates)
                     # Don't fail if partner update fails
         
         if not updated_fields:
@@ -388,11 +395,11 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
     This tool consolidates multiple queries into one, following Anthropic's
     best practice of "consolidate tools". It retrieves:
     - Patient demographics
-    - Medical history
-    - Upcoming appointments
-    - Past appointments
-    - Outstanding invoices
-    - Recent notes
+    - Medical questions (qstn_1, qstn_2)
+    - Prescriptions (medications)
+    - Dental procedures history
+    - Upcoming and past appointments
+    - Recent notes (via mail.message)
     
     Args:
         patient_id: Patient ID to retrieve context for
@@ -400,163 +407,165 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
     Returns:
         Dictionary with comprehensive patient information including:
         - demographics: Basic patient info
-        - medical_history: Allergies, conditions, medications
+        - medical_info: Medical questions and prescriptions
+        - procedures: Dental procedures history
         - appointments: Upcoming and past appointments
-        - financial: Outstanding balance, recent invoices
         - notes: Recent notes and communications
         - summary: High-level patient snapshot
     """
     try:
         odoo = OdooClientV3()
         
-        # Get patient and partner data
-        patient = odoo.read('patient.patient', patient_id, [
-            'name', 'partner_id', 'dob', 'gender', 'emergency_contact',
-            'emergency_phone', 'insurance_company', 'insurance_number'
+        # Get patient data
+        patient_records = odoo.read('patient.patient', [patient_id], [
+            'patient_name', 'patient_serial', 'contact_number', 'date_of_birth',
+            'gender', 'blood_type', 'marital_status', 'occupation', 'age',
+            'qstn_1', 'qstn_2'
         ])
         
-        if not patient:
+        if not patient_records:
             return {
                 'success': False,
                 'error': f'מטופל עם ID {patient_id} לא נמצא'
             }
         
-        partner_id = patient['partner_id'][0] if isinstance(patient['partner_id'], list) else patient['partner_id']
+        patient = patient_records[0]  # Extract first record from list
         
-        partner = odoo.read('res.partner', partner_id, [
-            'phone', 'email', 'street', 'city', 'zip'
-        ])
+        # Try to find related res.partner by phone (for email/address)
+        partner = None
+        if patient.get('contact_number'):
+            partners = odoo.search_read('res.partner', [
+                ('phone', '=', patient['contact_number'])
+            ], ['email', 'street', 'city'], limit=1)
+            if partners:
+                partner = partners[0]
         
-        # Get medical history
-        allergies = odoo.search_read('patient.patient.allergy', [
+        # Get prescriptions (medications)
+        prescriptions = odoo.search_read('patient.prescription', [
             ('patient_id', '=', patient_id)
-        ], ['allergen', 'severity', 'notes'])
+        ], ['prescription_date', 'notes'], limit=10, order='prescription_date desc')
         
-        medications = odoo.search_read('patient.patient.medication', [
-            ('patient_id', '=', patient_id),
-            ('active', '=', True)
-        ], ['medication_id', 'dosage', 'frequency', 'start_date'])
+        # Get prescription lines (actual medications)
+        prescription_lines = []
+        for prescription in prescriptions:
+            lines = odoo.search_read('patient.prescription.line', [
+                ('prescription_id', '=', prescription['id'])
+            ], ['medicine_name', 'dosage', 'frequency', 'duration'])
+            prescription_lines.extend(lines)
+        
+        # Get dental procedures history
+        procedures = odoo.search_read('dental.procedure.line', [
+            ('patient_id', '=', patient_id)
+        ], ['appointment_id', 'service_item_id', 'tooth_no', 'cost'], limit=20, order='create_date desc')
         
         # Get appointments
-        today = datetime.now().strftime('%Y-%m-%d')
+        today = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         upcoming_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
-            ('appointment_date', '>=', today),
-            ('state', 'in', ['draft', 'confirmed'])
-        ], ['appointment_date', 'doctor_id', 'treatment_id', 'state'], limit=5)
+            ('start', '>=', today)
+        ], ['start', 'stop', 'doctor_id', 'name', 'appointment_status'], limit=5, order='start asc')
         
         past_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
-            ('appointment_date', '<', today),
-            ('state', '=', 'done')
-        ], ['appointment_date', 'doctor_id', 'treatment_id'], limit=10, order='appointment_date desc')
+            ('start', '<', today)
+        ], ['start', 'stop', 'doctor_id', 'name'], limit=10, order='start desc')
         
-        # Get financial info
-        invoices = odoo.search_read('account.invoice', [
-            ('partner_id', '=', partner_id),
-            ('state', 'in', ['open', 'paid'])
-        ], ['number', 'date_invoice', 'amount_total', 'residual', 'state'], limit=10, order='date_invoice desc')
-        
-        outstanding_balance = sum(inv['residual'] for inv in invoices if inv['state'] == 'open')
-        
-        # Get recent notes
-        notes = odoo.search_read('patient.patient.note', [
-            ('patient_id', '=', patient_id)
-        ], ['note', 'date', 'user_id'], limit=5, order='date desc')
+        # Get recent notes (via mail.message)
+        notes = odoo.search_read('mail.message', [
+            ('model', '=', 'patient.patient'),
+            ('res_id', '=', patient_id),
+            ('message_type', '=', 'comment')
+        ], ['body', 'date', 'author_id'], limit=10, order='date desc')
         
         # Compile comprehensive context
         return {
             'success': True,
             'patient_id': patient_id,
             'demographics': {
-                'name': patient['name'],
-                'date_of_birth': patient.get('dob'),
+                'serial': patient.get('patient_serial'),
+                'name': patient.get('patient_name'),
+                'date_of_birth': patient.get('date_of_birth'),
+                'age': patient.get('age', 'לא ידוע'),
                 'gender': patient.get('gender'),
-                'phone': partner.get('phone'),
-                'email': partner.get('email'),
+                'blood_type': patient.get('blood_type'),
+                'marital_status': patient.get('marital_status'),
+                'occupation': patient.get('occupation'),
+                'phone': patient.get('contact_number'),
+                'email': partner.get('email') if partner else None,
                 'address': {
-                    'street': partner.get('street'),
-                    'city': partner.get('city'),
-                    'zip': partner.get('zip')
-                },
-                'emergency_contact': {
-                    'name': patient.get('emergency_contact'),
-                    'phone': patient.get('emergency_phone')
-                },
-                'insurance': {
-                    'provider': patient.get('insurance_company'),
-                    'number': patient.get('insurance_number')
+                    'street': partner.get('street') if partner else None,
+                    'city': partner.get('city') if partner else None
                 }
             },
-            'medical_history': {
-                'allergies': [
+            'medical_info': {
+                'medical_questions': {
+                    'question_1': patient.get('qstn_1'),
+                    'question_2': patient.get('qstn_2')
+                },
+                'prescriptions': [
                     {
-                        'allergen': a['allergen'],
-                        'severity': a.get('severity', 'unknown'),
-                        'notes': a.get('notes')
+                        'date': p.get('prescription_date'),
+                        'notes': p.get('notes')
                     }
-                    for a in allergies
+                    for p in prescriptions
                 ],
-                'current_medications': [
+                'medications': [
                     {
-                        'medication': m['medication_id'][1] if isinstance(m['medication_id'], list) else m['medication_id'],
+                        'medicine': m.get('medicine_name'),
                         'dosage': m.get('dosage'),
                         'frequency': m.get('frequency'),
-                        'since': m.get('start_date')
+                        'duration': m.get('duration')
                     }
-                    for m in medications
+                    for m in prescription_lines
                 ]
             },
+            'procedures': [
+                {
+                    'appointment_id': p.get('appointment_id'),
+                    'service': p['service_item_id'][1] if isinstance(p.get('service_item_id'), list) else p.get('service_item_id'),
+                    'tooth': p.get('tooth_no'),
+                    'cost': p.get('cost')
+                }
+                for p in procedures
+            ],
             'appointments': {
                 'upcoming': [
                     {
-                        'date': a['appointment_date'],
-                        'doctor': a['doctor_id'][1] if isinstance(a['doctor_id'], list) else a['doctor_id'],
-                        'treatment': a['treatment_id'][1] if isinstance(a['treatment_id'], list) else a['treatment_id'],
-                        'status': a['state']
+                        'start': a.get('start'),
+                        'stop': a.get('stop'),
+                        'doctor': a['doctor_id'][1] if isinstance(a.get('doctor_id'), list) else a.get('doctor_id'),
+                        'subject': a.get('name'),
+                        'status': a.get('appointment_status')
                     }
                     for a in upcoming_appointments
                 ],
                 'past': [
                     {
-                        'date': a['appointment_date'],
-                        'doctor': a['doctor_id'][1] if isinstance(a['doctor_id'], list) else a['doctor_id'],
-                        'treatment': a['treatment_id'][1] if isinstance(a['treatment_id'], list) else a['treatment_id']
+                        'start': a.get('start'),
+                        'stop': a.get('stop'),
+                        'doctor': a['doctor_id'][1] if isinstance(a.get('doctor_id'), list) else a.get('doctor_id'),
+                        'subject': a.get('name')
                     }
                     for a in past_appointments
                 ]
             },
-            'financial': {
-                'outstanding_balance': outstanding_balance,
-                'currency': 'ILS',
-                'recent_invoices': [
-                    {
-                        'number': inv['number'],
-                        'date': inv['date_invoice'],
-                        'total': inv['amount_total'],
-                        'remaining': inv['residual'],
-                        'status': 'ממתין לתשלום' if inv['state'] == 'open' else 'שולם'
-                    }
-                    for inv in invoices
-                ]
-            },
             'notes': [
                 {
-                    'date': n['date'],
-                    'note': n['note'],
-                    'by': n['user_id'][1] if isinstance(n['user_id'], list) else n['user_id']
+                    'date': n.get('date'),
+                    'note': n.get('body', '').replace('<p>', '').replace('</p>', '').strip(),
+                    'by': n['author_id'][1] if isinstance(n.get('author_id'), list) else n.get('author_id')
                 }
                 for n in notes
             ],
             'summary': {
-                'name': patient['name'],
-                'age': _calculate_age(patient.get('dob')) if patient.get('dob') else 'לא ידוע',
-                'allergies_count': len(allergies),
-                'medications_count': len(medications),
+                'name': patient.get('patient_name'),
+                'serial': patient.get('patient_serial'),
+                'age': patient.get('age', 'לא ידוע'),
+                'prescriptions_count': len(prescriptions),
+                'procedures_count': len(procedures),
                 'upcoming_appointments_count': len(upcoming_appointments),
-                'outstanding_balance': outstanding_balance,
-                'last_visit': past_appointments[0]['appointment_date'] if past_appointments else 'אין רישום',
-                'risk_flags': _identify_risk_flags(allergies, outstanding_balance, upcoming_appointments)
+                'last_visit': past_appointments[0].get('start') if past_appointments else 'אין רישום',
+                'risk_flags': _identify_risk_flags(prescription_lines, upcoming_appointments)
             }
         }
         
@@ -580,17 +589,12 @@ def _calculate_age(dob_str: str) -> int:
         return 0
 
 
-def _identify_risk_flags(allergies, outstanding_balance, upcoming_appointments) -> list:
+def _identify_risk_flags(medications, upcoming_appointments) -> list:
     """Identify risk flags for patient summary."""
     flags = []
     
-    if allergies:
-        severe_allergies = [a for a in allergies if a.get('severity') == 'severe']
-        if severe_allergies:
-            flags.append('⚠️ אלרגיות חמורות')
-    
-    if outstanding_balance > 1000:
-        flags.append('💰 יתרת חוב גבוהה')
+    if len(medications) > 5:
+        flags.append('💊 מספר רב של תרופות')
     
     if not upcoming_appointments:
         flags.append('📅 אין תורים קרובים')
@@ -623,6 +627,8 @@ def add_patient_note_tool(
     - Complaints or special requests
     - General observations
     
+    Uses mail.message system (message_post) to add notes to patient records.
+    
     Args:
         patient_id: Patient ID
         note: Note content
@@ -630,7 +636,7 @@ def add_patient_note_tool(
     
     Returns:
         Dictionary with:
-        - note_id: Created note ID
+        - message_id: Created message ID
         - confirmation: Success message
         - timestamp: When the note was created
     """
@@ -638,40 +644,59 @@ def add_patient_note_tool(
         odoo = OdooClientV3()
         
         # Get patient name
-        patient = odoo.read('patient.patient', patient_id, ['name'])
+        patient_records = odoo.read('patient.patient', [patient_id], ['patient_name'])
         
-        if not patient:
+        if not patient_records:
             return {
                 'success': False,
                 'error': f'מטופל עם ID {patient_id} לא נמצא'
             }
         
-        # Create note
-        note_data = {
-            'patient_id': patient_id,
-            'note': f"[{note_type.upper()}] {note}",
-            'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'user_id': odoo.uid,
-        }
+        patient = patient_records[0]
+        patient_name = patient.get('patient_name', 'Unknown')
         
-        note_id = odoo.create('patient.patient.note', note_data)
+        # Create note using mail.message system
+        # Format note with type indicator
+        note_emoji = {
+            'allergy': '⚠️',
+            'preference': '⭐',
+            'complaint': '📢',
+            'general': '📝'
+        }.get(note_type.lower(), '📝')
         
-        if not note_id:
+        formatted_note = f"<p><strong>{note_emoji} {note_type.upper()}</strong></p><p>{note}</p>"
+        
+        try:
+            # Use message_post to add note
+            message_id = odoo.execute(
+                'patient.patient',
+                'message_post',
+                [patient_id],
+                {
+                    'body': formatted_note,
+                    'message_type': 'comment',
+                    'subtype_xmlid': 'mail.mt_note',
+                }
+            )
+            
+            return {
+                'success': True,
+                'message_id': message_id,
+                'patient_name': patient_name,
+                'note_type': note_type,
+                'confirmation': f"✅ הערה נוספה למטופל {patient_name}",
+                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                'note_preview': note[:50] + '...' if len(note) > 50 else note
+            }
+            
+        except Exception as msg_error:
+            # If message_post fails, return error with details
             return {
                 'success': False,
-                'error': 'Failed to create note',
-                'suggestion': 'Please check Odoo connection and try again'
+                'error': f'Failed to create note via message_post: {str(msg_error)}',
+                'suggestion': 'The mail.message system may not be available. Consider storing notes in a custom field or external database.',
+                'technical_details': str(msg_error)
             }
-        
-        return {
-            'success': True,
-            'note_id': note_id,
-            'patient_name': patient['name'],
-            'note_type': note_type,
-            'confirmation': f"✅ הערה נוספה למטופל {patient['name']}",
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'note_preview': note[:50] + '...' if len(note) > 50 else note
-        }
         
     except Exception as e:
         return {

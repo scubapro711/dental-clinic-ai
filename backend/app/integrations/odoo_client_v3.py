@@ -2111,8 +2111,156 @@ class OdooClientV3(OdooClientV2):
             logger.error(f"Failed to get equipment list: {e}")
             return []
 
+    # ============================================================================
+    # APPOINTMENT MANAGEMENT
+    # ============================================================================
+
+    def create_appointment(
+        self,
+        patient_id: int,
+        doctor_id: Optional[int] = None,
+        start_time: str = None,
+        duration_minutes: int = 30,
+        subject: Optional[str] = None,
+        notes: Optional[str] = None,
+    ) -> int:
+        """Creates a new appointment.
+
+        Args:
+            patient_id: The patient's ID.
+            doctor_id: The doctor's ID (optional).
+            start_time: The start time of the appointment in 'YYYY-MM-DD HH:MM:SS' format.
+            duration_minutes: The duration of the appointment in minutes.
+            subject: The subject or title of the appointment.
+            notes: Additional notes for the appointment.
+
+        Returns:
+            The ID of the newly created appointment.
+        """
+        start_dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+        stop_dt = start_dt + timedelta(minutes=duration_minutes)
+
+        appointment_data = {
+            'patient_id': patient_id,
+            'start': start_dt.strftime('%Y-%m-%d %H:%M:%S'),
+            'stop': stop_dt.strftime('%Y-%m-%d %H:%M:%S'),
+            'duration': duration_minutes / 60.0,
+            'name': subject or 'New Appointment',
+            'chief_complaints': notes or '',
+            'appointment_status': 'draft',
+        }
+        
+        # Only add doctor_id if provided
+        if doctor_id:
+            appointment_data['doctor_id'] = doctor_id
+            
+        return self.create('patient.appointment', appointment_data)
+
+    def update_appointment(
+        self,
+        appointment_id: int,
+        start_time: Optional[str] = None,
+        duration_minutes: Optional[int] = None,
+        doctor_id: Optional[int] = None,
+        subject: Optional[str] = None,
+        notes: Optional[str] = None,
+        status: Optional[str] = None,
+    ) -> bool:
+        """Updates an existing appointment.
+
+        Args:
+            appointment_id: The ID of the appointment to update.
+            start_time: The new start time in 'YYYY-MM-DD HH:MM:SS' format.
+            duration_minutes: The new duration in minutes.
+            doctor_id: The new doctor's ID.
+            subject: The new subject or title.
+            notes: New additional notes.
+            status: The new status of the appointment (e.g., 'confirmed', 'done', 'cancel').
+
+        Returns:
+            True if the update was successful, False otherwise.
+        """
+        vals = {}
+        if start_time:
+            start_dt = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            vals['start'] = start_dt.strftime('%Y-%m-%d %H:%M:%S')
+            if duration_minutes:
+                stop_dt = start_dt + timedelta(minutes=duration_minutes)
+                vals['stop'] = stop_dt.strftime('%Y-%m-%d %H:%M:%S')
+                vals['duration'] = duration_minutes / 60.0
+        if doctor_id:
+            vals['doctor_id'] = doctor_id
+        if subject:
+            vals['name'] = subject
+        if notes:
+            vals['chief_complaints'] = notes
+        if status:
+            vals['appointment_status'] = status
+
+        if not vals:
+            return True # Nothing to update
+
+        return self.update('patient.appointment', [appointment_id], vals)
+
+    def cancel_appointment(self, appointment_id: int, reason: str = 'Cancelled by user') -> bool:
+        """Cancels an appointment.
+
+        Args:
+            appointment_id: The ID of the appointment to cancel.
+            reason: The reason for cancellation.
+
+        Returns:
+            True if the cancellation was successful, False otherwise.
+        """
+        # Try common status values for cancelled appointments
+        # Common values: 'cancelled', 'canceled', 'cancel', 'cancelled_appointment'
+        return self.update_appointment(appointment_id, status='cancelled_appointment')
+
+    def search_appointments(
+        self,
+        patient_id: Optional[int] = None,
+        doctor_id: Optional[int] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 100,
+    ) -> List[Dict[str, Any]]:
+        """Searches for appointments with various filters.
+
+        Args:
+            patient_id: Filter by patient ID.
+            doctor_id: Filter by doctor ID.
+            start_date: The start of the date range to search ('YYYY-MM-DD').
+            end_date: The end of the date range to search ('YYYY-MM-DD').
+            status: Filter by appointment status.
+            limit: The maximum number of appointments to return.
+
+        Returns:
+            A list of appointment dictionaries.
+        """
+        domain = []
+        if patient_id:
+            domain.append(('patient_id', '=', patient_id))
+        if doctor_id:
+            domain.append(('doctor_id', '=', doctor_id))
+        if start_date:
+            domain.append(('start', '>=', f'{start_date} 00:00:00'))
+        if end_date:
+            domain.append(('start', '<=', f'{end_date} 23:59:59'))
+        if status:
+            domain.append(('appointment_status', '=', status))
+
+        return self.search_read(
+            'patient.appointment',
+            domain,
+            fields=['id', 'name', 'start', 'stop', 'duration', 'doctor_id', 'patient_id', 'appointment_status', 'chief_complaints'],
+            limit=limit,
+            order='start asc'
+        )
+
 
 
 
 # Global instance
 odoo_client_v3 = OdooClientV3()
+

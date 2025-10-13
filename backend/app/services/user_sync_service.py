@@ -115,13 +115,45 @@ class UserSyncService:
             
         return membership.odoo_partner_id
     
-    def sync_user_to_odoo(self, user_id: UUID, organization_id: UUID) -> int:
+    def sync_user_to_odoo(
+        self, 
+        user_id: UUID, 
+        organization_id: UUID,
+        user_email: str = None,
+        user_name: str = None,
+        user_phone: str = None,
+        date_of_birth: str = None,
+        gender: str = None,
+        blood_type: str = None,
+        street: str = None,
+        city: str = None,
+        zip_code: str = None,
+        country: str = None,
+        has_allergies: bool = None,
+        allergy_notes: str = None,
+        has_medications: bool = None,
+        medication_notes: str = None,
+    ) -> int:
         """
         Sync existing user to Odoo (create patient if doesn't exist).
         
         Args:
             user_id: User UUID
             organization_id: Organization UUID
+            user_email: User email (optional, will fetch from DB if not provided)
+            user_name: User full name (optional, will fetch from DB if not provided)
+            user_phone: User phone (optional, will fetch from DB if not provided)
+            date_of_birth: Date of birth in YYYY-MM-DD format
+            gender: Gender (male/female/other)
+            blood_type: Blood type
+            street: Street address
+            city: City
+            zip_code: Postal code
+            country: Country
+            has_allergies: Whether patient has allergies
+            allergy_notes: Allergy notes
+            has_medications: Whether patient is taking medications
+            medication_notes: Medication notes
             
         Returns:
             Odoo partner ID
@@ -130,6 +162,11 @@ class UserSyncService:
         user = self.db.query(User).filter(User.id == user_id).first()
         if not user:
             raise ValueError(f"User {user_id} not found")
+        
+        # Use provided values or fall back to user data
+        email = user_email or user.email
+        name = user_name or user.full_name
+        phone = user_phone or user.phone
         
         # Get membership
         membership = self.db.query(OrganizationMembership).filter(
@@ -146,18 +183,36 @@ class UserSyncService:
             return membership.odoo_partner_id
         
         # Check if patient exists in Odoo by email
-        existing_patient_ids = self.odoo.search_patients(email=user.email)
+        existing_patient_ids = self.odoo.search_patients(email=email)
         if existing_patient_ids:
             odoo_partner_id = existing_patient_ids[0]
-            logger.info(f"Found existing Odoo patient {odoo_partner_id} for {user.email}")
+            logger.info(f"Found existing Odoo patient {odoo_partner_id} for {email}")
         else:
-            # Create Odoo patient
-            odoo_partner_id = self.odoo.create_patient(
-                name=user.full_name,
-                email=user.email,
-                phone=user.phone
+            # Parse name into first and last name
+            name_parts = name.split(' ', 1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
+            
+            # Create Odoo patient with all available fields
+            from app.agents.tools.alex_patient_tools import create_patient_tool
+            
+            result = create_patient_tool(
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone,
+                clinic_id=int(organization_id) if organization_id else 1,
+                email=email,
+                date_of_birth=date_of_birth,
+                gender=gender,
+                blood_type=blood_type,
+                address=street,
+                city=city,
+                zip_code=zip_code,
+                notes=f"Allergies: {allergy_notes}" if has_allergies and allergy_notes else None,
             )
-            logger.info(f"Created new Odoo patient {odoo_partner_id} for {user.email}")
+            
+            odoo_partner_id = result.get('partner_id')
+            logger.info(f"Created new Odoo patient {odoo_partner_id} for {email}")
         
         # Update membership
         membership.odoo_partner_id = odoo_partner_id
