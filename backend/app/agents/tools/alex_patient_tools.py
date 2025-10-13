@@ -48,21 +48,19 @@ def create_patient_tool(
     email: Optional[str] = None,
     date_of_birth: Optional[str] = None,
     gender: Optional[str] = None,
+    blood_type: Optional[str] = None,
+    marital_status: Optional[str] = None,
+    occupation: Optional[str] = None,
     address: Optional[str] = None,
     city: Optional[str] = None,
     zip_code: Optional[str] = None,
-    emergency_contact_name: Optional[str] = None,
-    emergency_contact_phone: Optional[str] = None,
-    insurance_provider: Optional[str] = None,
-    insurance_number: Optional[str] = None,
     notes: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Register a new patient in the system.
     
     This tool creates both a partner record (res.partner) and a medical patient
-    record (patient.patient) in Odoo. It handles GDPR/HIPAA compliance by
-    marking sensitive data appropriately.
+    record (patient.patient) in Odoo using the correct field names.
     
     Args:
         first_name: Patient's first name
@@ -72,13 +70,12 @@ def create_patient_tool(
         email: Patient's email address (optional)
         date_of_birth: Date of birth in YYYY-MM-DD format (optional)
         gender: Gender (male/female/other) (optional)
+        blood_type: Blood type (a+, a-, b+, b-, o+, o-, ab+, ab-) (optional)
+        marital_status: Marital status (single, married, divorced, widowed) (optional)
+        occupation: Patient's occupation (optional)
         address: Full address (optional)
         city: City (optional)
         zip_code: Postal code (optional)
-        emergency_contact_name: Emergency contact name (optional)
-        emergency_contact_phone: Emergency contact phone (optional)
-        insurance_provider: Insurance company name (optional)
-        insurance_number: Insurance policy number (optional)
         notes: Initial notes about the patient (optional)
     
     Returns:
@@ -104,6 +101,9 @@ def create_patient_tool(
             'company_id': clinic_id,
         }
         
+        # Remove None values
+        partner_data = {k: v for k, v in partner_data.items() if v is not None}
+        
         partner_id = odoo.create('res.partner', partner_data)
         
         if not partner_id:
@@ -113,16 +113,39 @@ def create_patient_tool(
                 'suggestion': 'Please check Odoo connection and try again'
             }
         
-        # Step 2: Create medical patient (patient.patient)
+        # Step 2: Generate patient serial number
+        # Get the highest existing serial number
+        existing_patients = odoo.search_read(
+            'patient.patient',
+            domain=[],
+            fields=['patient_serial'],
+            order='patient_serial desc',
+            limit=1
+        )
+        
+        if existing_patients and existing_patients[0].get('patient_serial'):
+            last_serial = existing_patients[0]['patient_serial']
+            # Extract number from PAT000001 format
+            try:
+                last_num = int(last_serial.replace('PAT', ''))
+                new_num = last_num + 1
+            except:
+                new_num = 1
+        else:
+            new_num = 1
+        
+        patient_serial = f"PAT{new_num:06d}"
+        
+        # Step 3: Create medical patient (patient.patient)
         patient_data = {
-            'partner_id': partner_id,
-            'name': f"{first_name} {last_name}",
-            'dob': date_of_birth,
+            'patient_serial': patient_serial,  # REQUIRED!
+            'patient_name': f"{first_name} {last_name}",
+            'contact_number': phone,
+            'date_of_birth': date_of_birth,
             'gender': gender,
-            'emergency_contact': emergency_contact_name,
-            'emergency_phone': emergency_contact_phone,
-            'insurance_company': insurance_provider,
-            'insurance_number': insurance_number,
+            'blood_type': blood_type,
+            'marital_status': marital_status,
+            'occupation': occupation,
         }
         
         # Remove None values
@@ -139,25 +162,33 @@ def create_patient_tool(
                 'suggestion': 'Please check patient data and try again'
             }
         
-        # Step 3: Add initial note if provided
+        # Step 4: Link partner to patient via message (for tracking)
         if notes:
-            note_data = {
-                'patient_id': patient_id,
-                'note': notes,
-                'date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'user_id': odoo.uid,  # Current user
-            }
-            odoo.create('patient.patient.note', note_data)
+            try:
+                odoo.execute(
+                    'patient.patient',
+                    'message_post',
+                    [patient_id],
+                    {
+                        'body': f"<p><strong>Initial Notes:</strong></p><p>{notes}</p>",
+                        'message_type': 'comment',
+                        'subtype_xmlid': 'mail.mt_note',
+                    }
+                )
+            except Exception as e:
+                # Don't fail if note creation fails
+                pass
         
-        # Step 4: Return success with next steps
+        # Step 5: Return success with next steps
         return {
             'success': True,
             'patient_id': patient_id,
             'partner_id': partner_id,
+            'patient_serial': patient_serial,
             'full_name': f"{first_name} {last_name}",
             'phone': phone,
             'email': email or 'לא סופק',
-            'confirmation': f"✅ המטופל {first_name} {last_name} נרשם בהצלחה!",
+            'confirmation': f"✅ המטופל {first_name} {last_name} נרשם בהצלחה! מספר מטופל: {patient_serial}",
             'next_steps': [
                 "📅 תזמן תור ראשון",
                 "📋 אסוף היסטוריה רפואית",
@@ -166,10 +197,13 @@ def create_patient_tool(
             ],
             'patient_summary': {
                 'id': patient_id,
+                'serial': patient_serial,
                 'name': f"{first_name} {last_name}",
                 'phone': phone,
                 'email': email,
-                'insurance': insurance_provider or 'לא סופק',
+                'date_of_birth': date_of_birth,
+                'gender': gender,
+                'blood_type': blood_type,
                 'registered_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             }
         }
