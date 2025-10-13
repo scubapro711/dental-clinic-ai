@@ -204,7 +204,7 @@ async def register_organization(
             id=uuid4(),
             user_id=owner.id,
             organization_id=organization.id,
-            role="owner",
+            organization_role="owner",
             is_active=True,
             joined_at=datetime.utcnow()
         )
