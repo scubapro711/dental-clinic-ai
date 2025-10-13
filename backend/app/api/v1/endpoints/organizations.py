@@ -103,9 +103,7 @@ def create_default_clinic_settings(db: Session, organization_id: str) -> ClinicS
         buffer_between_appointments=10,
         advance_booking_days=90,
         cancellation_notice_hours=24,
-        # Localization
-        timezone="Asia/Jerusalem",
-        language="he",
+        # Billing
         currency="ILS"
     )
     db.add(settings)
