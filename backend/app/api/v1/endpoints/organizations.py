@@ -79,21 +79,32 @@ def generate_slug(name: str) -> str:
 
 def create_default_clinic_settings(db: Session, organization_id: str) -> ClinicSettings:
     """Create default clinic settings for new organization."""
+    from datetime import time
     settings = ClinicSettings(
         organization_id=organization_id,
-        business_hours={
-            "sunday": {"open": "09:00", "close": "17:00", "is_open": True},
-            "monday": {"open": "09:00", "close": "17:00", "is_open": True},
-            "tuesday": {"open": "09:00", "close": "17:00", "is_open": True},
-            "wednesday": {"open": "09:00", "close": "17:00", "is_open": True},
-            "thursday": {"open": "09:00", "close": "17:00", "is_open": True},
-            "friday": {"open": "09:00", "close": "14:00", "is_open": True},
-            "saturday": {"open": "09:00", "close": "13:00", "is_open": False}
-        },
-        appointment_duration_minutes=30,
+        # Israeli work week hours
+        sunday_open=time(9, 0),
+        sunday_close=time(17, 0),
+        monday_open=time(9, 0),
+        monday_close=time(17, 0),
+        tuesday_open=time(9, 0),
+        tuesday_close=time(17, 0),
+        wednesday_open=time(9, 0),
+        wednesday_close=time(17, 0),
+        thursday_open=time(9, 0),
+        thursday_close=time(17, 0),
+        friday_open=time(9, 0),
+        friday_close=time(14, 0),
+        # Saturday closed (Shabbat)
+        saturday_open=None,
+        saturday_close=None,
+        # Appointment settings
+        default_appointment_duration_minutes=30,
         buffer_time_minutes=10,
         max_advance_booking_days=90,
+        min_advance_booking_hours=2,
         cancellation_notice_hours=24,
+        # Localization
         timezone="Asia/Jerusalem",
         language="he",
         currency="ILS"
