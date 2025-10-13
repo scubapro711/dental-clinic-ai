@@ -484,12 +484,8 @@ makes sure patients get the right help at the right time! 😊
             create_appointment_tool,
             update_appointment_tool,
             cancel_appointment_tool,
-            search_appointments_tool,_tool,
+            search_appointments_tool,
 
-
-            # Billing
-            get_patient_invoices_tool,
-            get_invoice_details_tool,
             # Knowledge
             search_general_knowledge_tool,
         ]

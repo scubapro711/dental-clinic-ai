@@ -193,6 +193,16 @@ class UserSyncService:
             first_name = name_parts[0]
             last_name = name_parts[1] if len(name_parts) > 1 else ''
             
+            # Get organization slug for patient_serial prefix
+            from app.models.organization import Organization
+            org = self.db.query(Organization).filter(Organization.id == organization_id).first()
+            org_slug = org.slug if org else "default"
+            
+            # Generate unique patient serial with organization prefix
+            # Format: {org_slug}-{timestamp}
+            import time
+            patient_serial = f"{org_slug}-{int(time.time() * 1000) % 1000000}"
+            
             # Create Odoo patient with all available fields
             from app.agents.tools.alex_patient_tools import create_patient_tool
             
@@ -200,7 +210,6 @@ class UserSyncService:
                 first_name=first_name,
                 last_name=last_name,
                 phone=phone,
-                clinic_id=int(organization_id) if organization_id else 1,
                 email=email,
                 date_of_birth=date_of_birth,
                 gender=gender,
@@ -209,6 +218,7 @@ class UserSyncService:
                 city=city,
                 zip_code=zip_code,
                 notes=f"Allergies: {allergy_notes}" if has_allergies and allergy_notes else None,
+                patient_serial=patient_serial,
             )
             
             odoo_partner_id = result.get('partner_id')

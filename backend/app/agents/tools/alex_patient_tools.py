@@ -44,7 +44,7 @@ def create_patient_tool(
     first_name: str,
     last_name: str,
     phone: str,
-    clinic_id: int,
+    clinic_id: int = 1,
     email: Optional[str] = None,
     date_of_birth: Optional[str] = None,
     gender: Optional[str] = None,
@@ -55,6 +55,7 @@ def create_patient_tool(
     city: Optional[str] = None,
     zip_code: Optional[str] = None,
     notes: Optional[str] = None,
+    patient_serial: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Register a new patient in the system.
@@ -113,27 +114,28 @@ def create_patient_tool(
             }
         
         # Step 2: Generate patient serial number
-        # Get the highest existing serial number
-        existing_patients = odoo.search_read(
-            'patient.patient',
-            domain=[],
-            fields=['patient_serial'],
-            order='patient_serial desc',
-            limit=1
-        )
-        
-        if existing_patients and existing_patients[0].get('patient_serial'):
-            last_serial = existing_patients[0]['patient_serial']
-            # Extract number from PAT000001 format
-            try:
-                last_num = int(last_serial.replace('PAT', ''))
-                new_num = last_num + 1
-            except:
+        if not patient_serial:
+            # Get the highest existing serial number
+            existing_patients = odoo.search_read(
+                'patient.patient',
+                domain=[],
+                fields=['patient_serial'],
+                order='patient_serial desc',
+                limit=1
+            )
+            
+            if existing_patients and existing_patients[0].get('patient_serial'):
+                last_serial = existing_patients[0]['patient_serial']
+                # Extract number from PAT000001 format
+                try:
+                    last_num = int(last_serial.replace('PAT', ''))
+                    new_num = last_num + 1
+                except:
+                    new_num = 1
+            else:
                 new_num = 1
-        else:
-            new_num = 1
-        
-        patient_serial = f"PAT{new_num:06d}"
+            
+            patient_serial = f"PAT{new_num:06d}"
         
         # Step 3: Create medical patient (patient.patient)
         patient_data = {
