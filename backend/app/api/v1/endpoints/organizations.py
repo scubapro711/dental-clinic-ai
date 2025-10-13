@@ -213,9 +213,9 @@ async def register_organization(
         
         # 6. Sync user with Odoo (create patient record)
         user_sync_service = UserSyncService(db)
-        odoo_partner_id = await user_sync_service.sync_user_to_odoo(
-            user_id=str(owner.id),
-            organization_id=str(organization.id)
+        odoo_partner_id = user_sync_service.sync_user_to_odoo(
+            user_id=owner.id,
+            organization_id=organization.id
         )
         
         # Update membership with odoo_partner_id
