@@ -184,7 +184,8 @@ async def register_organization(
         db.flush()  # Get organization.id
         
         # 4. Create owner user
-        hashed_password = AuthService.hash_password(request.owner_password)
+        from app.core.security import get_password_hash
+        hashed_password = get_password_hash(request.owner_password)
         owner = User(
             id=uuid4(),
             email=request.owner_email,
