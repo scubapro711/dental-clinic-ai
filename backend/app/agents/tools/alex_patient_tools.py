@@ -239,31 +239,32 @@ def update_patient_info_tool(
     patient_id: int,
     phone: Optional[str] = None,
     email: Optional[str] = None,
+    date_of_birth: Optional[str] = None,
+    gender: Optional[str] = None,
+    blood_type: Optional[str] = None,
+    marital_status: Optional[str] = None,
+    occupation: Optional[str] = None,
     address: Optional[str] = None,
     city: Optional[str] = None,
-    zip_code: Optional[str] = None,
-    emergency_contact_name: Optional[str] = None,
-    emergency_contact_phone: Optional[str] = None,
-    insurance_provider: Optional[str] = None,
-    insurance_number: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Update patient information.
     
-    This tool updates both the partner record and medical patient record.
+    This tool updates the patient.patient record with correct field names.
+    It also attempts to update the related res.partner record (found by phone).
     Only provided fields will be updated; others remain unchanged.
     
     Args:
         patient_id: Patient ID to update
         phone: New phone number (optional)
         email: New email address (optional)
+        date_of_birth: New date of birth YYYY-MM-DD (optional)
+        gender: New gender (male/female/other) (optional)
+        blood_type: New blood type (a+, a-, b+, b-, o+, o-, ab+, ab-) (optional)
+        marital_status: New marital status (single, married, divorced, widowed) (optional)
+        occupation: New occupation (optional)
         address: New address (optional)
         city: New city (optional)
-        zip_code: New postal code (optional)
-        emergency_contact_name: New emergency contact name (optional)
-        emergency_contact_phone: New emergency contact phone (optional)
-        insurance_provider: New insurance company (optional)
-        insurance_number: New insurance policy number (optional)
     
     Returns:
         Dictionary with:
@@ -275,8 +276,8 @@ def update_patient_info_tool(
     try:
         odoo = OdooClientV3()
         
-        # Get patient record to find partner_id
-        patient = odoo.read('patient.patient', patient_id, ['partner_id', 'name'])
+        # Get patient record
+        patient = odoo.read('patient.patient', patient_id, ['patient_name', 'contact_number'])
         
         if not patient:
             return {
@@ -285,61 +286,70 @@ def update_patient_info_tool(
                 'suggestion': 'אנא בדוק את מספר המטופל ונסה שוב'
             }
         
-        partner_id = patient['partner_id'][0] if isinstance(patient['partner_id'], list) else patient['partner_id']
-        patient_name = patient['name']
+        patient_name = patient.get('patient_name', 'Unknown')
+        old_phone = patient.get('contact_number')
         
         updated_fields = []
         
-        # Update partner fields (res.partner)
-        partner_updates = {}
-        if phone:
-            partner_updates['phone'] = phone
-            updated_fields.append('טלפון')
-        if email:
-            partner_updates['email'] = email
-            updated_fields.append('אימייל')
-        if address:
-            partner_updates['street'] = address
-            updated_fields.append('כתובת')
-        if city:
-            partner_updates['city'] = city
-            updated_fields.append('עיר')
-        if zip_code:
-            partner_updates['zip'] = zip_code
-            updated_fields.append('מיקוד')
-        
-        if partner_updates:
-            success = odoo.update('res.partner', partner_id, partner_updates)
-            if not success:
-                return {
-                    'success': False,
-                    'error': 'Failed to update partner information',
-                    'suggestion': 'Please check Odoo connection and try again'
-                }
-        
-        # Update medical patient fields
+        # Update patient.patient fields
         patient_updates = {}
-        if emergency_contact_name:
-            patient_updates['emergency_contact'] = emergency_contact_name
-            updated_fields.append('איש קשר לחירום')
-        if emergency_contact_phone:
-            patient_updates['emergency_phone'] = emergency_contact_phone
-            updated_fields.append('טלפון חירום')
-        if insurance_provider:
-            patient_updates['insurance_company'] = insurance_provider
-            updated_fields.append('חברת ביטוח')
-        if insurance_number:
-            patient_updates['insurance_number'] = insurance_number
-            updated_fields.append('מספר פוליסה')
+        
+        if phone:
+            patient_updates['contact_number'] = phone
+            updated_fields.append('טלפון')
+        if date_of_birth:
+            patient_updates['date_of_birth'] = date_of_birth
+            updated_fields.append('תאריך לידה')
+        if gender:
+            patient_updates['gender'] = gender
+            updated_fields.append('מגדר')
+        if blood_type:
+            patient_updates['blood_type'] = blood_type
+            updated_fields.append('סוג דם')
+        if marital_status:
+            patient_updates['marital_status'] = marital_status
+            updated_fields.append('מצב משפחתי')
+        if occupation:
+            patient_updates['occupation'] = occupation
+            updated_fields.append('מקצוע')
         
         if patient_updates:
             success = odoo.update('patient.patient', patient_id, patient_updates)
             if not success:
                 return {
                     'success': False,
-                    'error': 'Failed to update medical patient information',
+                    'error': 'Failed to update patient information',
                     'suggestion': 'Please check patient data and try again'
                 }
+        
+        # Try to update related res.partner (if exists)
+        # Find partner by old phone number
+        if old_phone and (phone or email or address or city):
+            partners = odoo.search_read(
+                'res.partner',
+                domain=[('phone', '=', old_phone)],
+                fields=['id'],
+                limit=1
+            )
+            
+            if partners:
+                partner_id = partners[0]['id']
+                partner_updates = {}
+                
+                if phone:
+                    partner_updates['phone'] = phone
+                if email:
+                    partner_updates['email'] = email
+                if address:
+                    partner_updates['street'] = address
+                    updated_fields.append('כתובת')
+                if city:
+                    partner_updates['city'] = city
+                    updated_fields.append('עיר')
+                
+                if partner_updates:
+                    odoo.update('res.partner', partner_id, partner_updates)
+                    # Don't fail if partner update fails
         
         if not updated_fields:
             return {
