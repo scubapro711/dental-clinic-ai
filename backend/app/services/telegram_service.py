@@ -46,20 +46,20 @@ class TelegramService:
         """
         # Try to find existing user
         user = self.db.query(TelegramUser).filter(
-            TelegramUser.telegram_id == telegram_id
+            TelegramUser.telegram_user_id == telegram_id
         ).first()
         
         if user:
             # Update user info if changed
             updated = False
-            if username and user.username != username:
-                user.username = username
+            if username and user.telegram_username != username:
+                user.telegram_username = username
                 updated = True
-            if first_name and user.first_name != first_name:
-                user.first_name = first_name
+            if first_name and user.telegram_first_name != first_name:
+                user.telegram_first_name = first_name
                 updated = True
-            if last_name and user.last_name != last_name:
-                user.last_name = last_name
+            if last_name and user.telegram_last_name != last_name:
+                user.telegram_last_name = last_name
                 updated = True
             
             if updated:
@@ -71,11 +71,11 @@ class TelegramService:
         
         # Create new user
         user = TelegramUser(
-            telegram_id=telegram_id,
-            username=username,
-            first_name=first_name,
-            last_name=last_name,
-            status=TelegramUserStatus.NEW,
+            telegram_user_id=telegram_id,
+            telegram_username=username,
+            telegram_first_name=first_name,
+            telegram_last_name=last_name,
+            organization_id="00000000-0000-0000-0000-000000000000",  # Default org
         )
         self.db.add(user)
         self.db.commit()
@@ -127,7 +127,7 @@ class TelegramService:
             self.db.refresh(telegram_user)
             
             logger.info(
-                f"Linked Telegram user {telegram_user.telegram_id} "
+                f"Linked Telegram user {telegram_user.telegram_user_id} "
                 f"to patient {patient['id']} in org {organization_id}"
             )
             return True
@@ -181,7 +181,7 @@ class TelegramService:
             
             logger.info(
                 f"Created patient {patient_id} and linked to "
-                f"Telegram user {telegram_user.telegram_id}"
+                f"Telegram user {telegram_user.telegram_user_id}"
             )
             return True
             
@@ -247,7 +247,7 @@ class TelegramService:
         self.db.refresh(telegram_user)
         
         logger.info(
-            f"Telegram user {telegram_user.telegram_id} used invite code "
+            f"Telegram user {telegram_user.telegram_user_id} used invite code "
             f"{code} for org {invite.organization_id}"
         )
         return invite
@@ -292,7 +292,7 @@ class TelegramService:
         
         logger.info(
             f"Created new conversation for Telegram user "
-            f"{telegram_user.telegram_id} in chat {chat_id}"
+            f"{telegram_user.telegram_user_id} in chat {chat_id}"
         )
         return conversation
     
