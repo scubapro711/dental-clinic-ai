@@ -116,7 +116,7 @@ class TelegramService:
             patient = patients[0]
             
             # Update Telegram user
-            telegram_user.odoo_patient_id = patient['id']
+            telegram_user.patient_id = patient['id']
             telegram_user.organization_id = organization_id
             telegram_user.phone = patient_phone
             telegram_user.status = TelegramUserStatus.LINKED
@@ -169,7 +169,7 @@ class TelegramService:
                 return False
             
             # Update Telegram user
-            telegram_user.odoo_patient_id = patient_id
+            telegram_user.patient_id = patient_id
             telegram_user.organization_id = organization_id
             telegram_user.phone = patient_data['phone']
             telegram_user.status = TelegramUserStatus.LINKED
@@ -309,7 +309,7 @@ class TelegramService:
         return {
             "status": telegram_user.status.value,
             "has_organization": telegram_user.organization_id is not None,
-            "has_patient_link": telegram_user.odoo_patient_id is not None,
+            "has_patient_link": telegram_user.patient_id is not None,
             "is_complete": telegram_user.status == TelegramUserStatus.LINKED,
             "next_step": self._get_next_onboarding_step(telegram_user),
         }
@@ -330,7 +330,7 @@ class TelegramService:
         if not telegram_user.organization_id:
             return "need_invite_code"
         
-        if not telegram_user.odoo_patient_id:
+        if not telegram_user.patient_id:
             return "need_patient_link"
         
         return "unknown"
