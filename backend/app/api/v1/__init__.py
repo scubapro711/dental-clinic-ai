@@ -32,6 +32,7 @@ from app.api.v1.endpoints import (
     financial,
     dashboard,
     dashboard_metrics,
+    migrate,
 )
 from app.api.v1 import appointments
 
@@ -90,5 +91,8 @@ from app.api.v1.endpoints import patient_portal_odoo, user_patient_mapping
 api_router.include_router(patient_portal_odoo.router, tags=["patient-portal-odoo"])
 api_router.include_router(user_patient_mapping.router, tags=["user-patient-mapping"])
 api_router.include_router(invoices.router, tags=["invoices"])
+
+# Temporary migration endpoint
+api_router.include_router(migrate.router, prefix="/migrate", tags=["migration"])
 
 __all__ = ["api_router"]

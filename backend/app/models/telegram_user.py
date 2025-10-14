@@ -20,10 +20,17 @@ class TelegramUser(Base):
     telegram_first_name = Column(String(255), nullable=True)
     telegram_last_name = Column(String(255), nullable=True)
 
+    # Contact info
+    phone = Column(String(20), nullable=True)
+
     # Link to our system
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     patient_id = Column(BigInteger, nullable=True, index=True) # Odoo Patient ID
     organization_id = Column(UUID(as_uuid=True), ForeignKey("organizations.id"), nullable=False)
+    
+    # Onboarding status
+    status = Column(String(50), default='NEW')
+    linked_at = Column(DateTime(timezone=True), nullable=True)
 
     # Status
     is_active = Column(Boolean, default=True)
@@ -50,6 +57,8 @@ class TelegramUser(Base):
 from enum import Enum
 
 class TelegramUserStatus(str, Enum):
+    NEW = "NEW"
+    LINKED = "LINKED"
     PENDING = "pending"
     ACTIVE = "active"
     BLOCKED = "blocked"

@@ -118,6 +118,9 @@ class TelegramService:
             # Update Telegram user
             telegram_user.patient_id = patient['id']
             telegram_user.organization_id = organization_id
+            telegram_user.phone = patient_phone
+            telegram_user.status = TelegramUserStatus.LINKED
+            telegram_user.linked_at = datetime.utcnow()
             telegram_user.updated_at = datetime.utcnow()
             
             self.db.commit()
@@ -168,6 +171,9 @@ class TelegramService:
             # Update Telegram user
             telegram_user.patient_id = patient_id
             telegram_user.organization_id = organization_id
+            telegram_user.phone = patient_data['phone']
+            telegram_user.status = TelegramUserStatus.LINKED
+            telegram_user.linked_at = datetime.utcnow()
             telegram_user.updated_at = datetime.utcnow()
             
             self.db.commit()
@@ -301,9 +307,10 @@ class TelegramService:
             Dictionary with onboarding status
         """
         return {
+            "status": telegram_user.status,
             "has_organization": telegram_user.organization_id is not None,
             "has_patient_link": telegram_user.patient_id is not None,
-            "is_complete": telegram_user.patient_id is not None,
+            "is_complete": telegram_user.status == TelegramUserStatus.LINKED,
             "next_step": self._get_next_onboarding_step(telegram_user),
         }
     
@@ -317,7 +324,7 @@ class TelegramService:
         Returns:
             Next step description
         """
-        if telegram_user.patient_id is not None:
+        if telegram_user.status == TelegramUserStatus.LINKED:
             return "complete"
         
         if not telegram_user.organization_id:
