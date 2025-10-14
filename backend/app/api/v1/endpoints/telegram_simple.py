@@ -52,14 +52,17 @@ async def telegram_webhook(request: Request):
     Routes all messages to Alex (AgentGraphV4).
     """
     try:
+        logger.info("=== WEBHOOK CALLED ===")
         # Parse webhook payload
         data = await request.json()
         logger.info(f"Received Telegram update: {data.get('update_id')}")
+        logger.info(f"Full data: {data}")
         
         # Extract message
         message = data.get("message")
+        logger.info(f"Message extracted: {message is not None}")
         if not message:
-            logger.warning("No message in update")
+            logger.warning("No message in update - RETURNING EARLY")
             return {"ok": True}
         
         # Extract user and chat info
@@ -74,7 +77,7 @@ async def telegram_webhook(request: Request):
         chat_id = chat.get("id")
         
         if not telegram_user_id or not text:
-            logger.warning("Missing user_id or text")
+            logger.warning(f"Missing user_id or text - user_id={telegram_user_id}, text={text} - RETURNING EARLY")
             return {"ok": True}
         
         # Get or create Telegram user in database
