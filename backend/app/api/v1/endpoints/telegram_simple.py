@@ -91,8 +91,9 @@ async def telegram_webhook(request: Request):
                 telegram_user = TelegramUser(
                     telegram_user_id=telegram_user_id,
                     telegram_username=telegram_username,
-                    first_name=first_name,
-                    last_name=last_name
+                    telegram_first_name=first_name,
+                    telegram_last_name=last_name,
+                    organization_id="00000000-0000-0000-0000-000000000000"  # Default org for now
                 )
                 db.add(telegram_user)
                 db.commit()
