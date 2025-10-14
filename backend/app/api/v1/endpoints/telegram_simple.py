@@ -125,11 +125,15 @@ User Message: {text}"""
             logger.info(f"Routing message to Alex for user {telegram_user_id}")
             
             # Get response from Alex
-            response = await agent_graph.process_message(
+            result = agent_graph.invoke(
                 message=enhanced_message,
                 thread_id=thread_id,
-                context=user_context
+                organization_id=user_context.get('organization_id'),
+                user_role='patient'
             )
+            
+            # Extract response text
+            response = result.get('output', 'מצטער, לא הצלחתי לעבד את הבקשה')
             
             # ✅ CRITICAL: Filter SYSTEM CONTEXT from response
             cleaned_response = _filter_system_context(response)
