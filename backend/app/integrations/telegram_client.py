@@ -61,6 +61,28 @@ class TelegramClient:
             result = response.json()
             logger.info(f"Message sent to chat {chat_id}")
             return result
+        except httpx.HTTPStatusError as e:
+            # If Markdown parsing fails, try without parse_mode
+            if e.response.status_code == 400 and parse_mode:
+                logger.warning(f"Markdown parsing failed for chat {chat_id}, retrying without parse_mode")
+                payload_no_parse = {
+                    "chat_id": chat_id,
+                    "text": text,
+                }
+                if reply_markup:
+                    payload_no_parse["reply_markup"] = reply_markup
+                try:
+                    response = await self.client.post(url, json=payload_no_parse)
+                    response.raise_for_status()
+                    result = response.json()
+                    logger.info(f"Message sent to chat {chat_id} (without parse_mode)")
+                    return result
+                except httpx.HTTPError as e2:
+                    logger.error(f"Failed to send message to chat {chat_id} even without parse_mode: {e2}")
+                    raise
+            else:
+                logger.error(f"Failed to send message to chat {chat_id}: {e}")
+                raise
         except httpx.HTTPError as e:
             logger.error(f"Failed to send message to chat {chat_id}: {e}")
             raise
