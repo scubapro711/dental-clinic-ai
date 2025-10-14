@@ -38,6 +38,35 @@ from app.core.memory import get_memory_saver
 logger = logging.getLogger(__name__)
 
 
+def _limit_conversation_history(messages: List[BaseMessage], max_messages: int = 15) -> List[BaseMessage]:
+    """
+    Limit conversation history to prevent token overflow.
+    
+    This is CRITICAL to prevent 429 errors from OpenAI!
+    Keep only the last N messages to stay under token limits.
+    
+    Args:
+        messages: List of messages
+        max_messages: Maximum number of messages to keep (default: 15)
+        
+    Returns:
+        Limited list of messages
+    """
+    if len(messages) <= max_messages:
+        return messages
+    
+    # Keep system messages if they exist
+    system_messages = [m for m in messages if isinstance(m, SystemMessage)]
+    other_messages = [m for m in messages if not isinstance(m, SystemMessage)]
+    
+    # Keep only last N messages
+    limited_messages = other_messages[-max_messages:]
+    
+    logger.info(f"Limited conversation history from {len(messages)} to {len(system_messages) + len(limited_messages)} messages")
+    
+    return system_messages + limited_messages
+
+
 def remove_handoff_messages(messages: List[BaseMessage]) -> List[BaseMessage]:
     """
     Remove supervisor's routing logic from sub-agent context.
@@ -303,8 +332,11 @@ If the request is complete or unclear, respond with: end
         """
         logger.info("Alex handling request...")
         
+        # Limit conversation history to prevent token overflow
+        limited_messages = _limit_conversation_history(state["messages"], max_messages=15)
+        
         # Clean messages for Alex (remove supervisor routing)
-        clean_messages = remove_handoff_messages(state["messages"])
+        clean_messages = remove_handoff_messages(limited_messages)
         
         # Prepare state for Alex
         alex_state = {
