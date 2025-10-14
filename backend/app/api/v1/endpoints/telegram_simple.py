@@ -1,242 +1,170 @@
 """
-Simplified Telegram Bot Webhook - Routes everything to Alex
-
-This version removes the rigid onboarding flow and lets Alex handle everything.
+Fixed version of telegram_simple.py with SYSTEM CONTEXT filtering
+Replace: backend/app/api/v1/endpoints/telegram_simple.py
 """
 
+from fastapi import APIRouter, HTTPException, Request
+from app.integrations.telegram_client import TelegramClient
+from app.agents.agent_graph_v4 import AgentGraphV4
+from app.core.config import settings
+from app.models.telegram_user import TelegramUser
+from app.models.telegram_conversation import TelegramConversation
+from app.core.database import get_db
+from sqlalchemy.orm import Session
 import logging
 import re
 from typing import Dict, Any
-from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
-
-from app.integrations.telegram_client import telegram_client
-from app.agents.agent_graph_v4 import AgentGraphV4
-from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models.telegram_user import TelegramUser
-from app.models.telegram_conversation import TelegramConversation
-
-# Initialize Multi-Agent Graph
-agent_graph = AgentGraphV4()
 
 logger = logging.getLogger(__name__)
-
 router = APIRouter()
+
+telegram_client = TelegramClient(settings.TELEGRAM_BOT_TOKEN)
+
+
+def _filter_system_context(message: str) -> str:
+    """
+    Remove SYSTEM CONTEXT from message before sending to user.
+    
+    Args:
+        message: The message that may contain SYSTEM CONTEXT
+        
+    Returns:
+        Cleaned message without SYSTEM CONTEXT
+    """
+    # Remove everything between SYSTEM CONTEXT markers
+    pattern = r'SYSTEM CONTEXT.*?END SYSTEM CONTEXT\s*'
+    cleaned = re.sub(pattern, '', message, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Also remove any standalone markers that might remain
+    cleaned = re.sub(r'SYSTEM CONTEXT.*?$', '', cleaned, flags=re.MULTILINE | re.IGNORECASE)
+    cleaned = re.sub(r'END SYSTEM CONTEXT.*?$', '', cleaned, flags=re.MULTILINE | re.IGNORECASE)
+    
+    # Clean up extra whitespace
+    cleaned = re.sub(r'\n\s*\n\s*\n', '\n\n', cleaned)  # Max 2 newlines
+    
+    return cleaned.strip()
 
 
 @router.post("/webhook")
-async def telegram_webhook(request: Request, background_tasks: BackgroundTasks):
+async def telegram_webhook(request: Request):
     """
-    Receive updates from Telegram webhook and route to Alex.
-    
-    Args:
-        request: FastAPI request object
-        background_tasks: FastAPI background tasks
-        
-    Returns:
-        Success response
+    Handle incoming Telegram webhook updates.
+    Routes all messages to Alex (AgentGraphV4).
     """
     try:
         # Parse webhook payload
-        update = await request.json()
-        logger.info(f"Received Telegram update: {update.get('update_id')}")
+        data = await request.json()
+        logger.info(f"Received Telegram update: {data.get('update_id')}")
         
         # Extract message
-        message = update.get("message")
-        callback_query = update.get("callback_query")
+        message = data.get("message")
+        if not message:
+            logger.warning("No message in update")
+            return {"ok": True}
         
-        if message:
-            # Handle regular message
-            background_tasks.add_task(handle_message, message)
-        elif callback_query:
-            # Handle button callback
-            background_tasks.add_task(handle_callback, callback_query)
-        
-        return {"ok": True}
-    
-    except Exception as e:
-        logger.error(f"Error processing Telegram webhook: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-async def handle_message(message: Dict[str, Any]):
-    """
-    Handle incoming Telegram message - route everything to Alex.
-    
-    Args:
-        message: Telegram message object
-    """
-    try:
-        chat_id = message["chat"]["id"]
-        user_id = message["from"]["id"]
-        username = message["from"].get("username", "unknown")
-        first_name = message["from"].get("first_name", "")
-        last_name = message["from"].get("last_name", "")
+        # Extract user and chat info
+        from_user = message.get("from", {})
+        chat = message.get("chat", {})
         text = message.get("text", "")
         
-        logger.info(f"Processing message from user {username} (chat {chat_id}): {text}")
+        telegram_user_id = from_user.get("id")
+        telegram_username = from_user.get("username", "")
+        first_name = from_user.get("first_name", "")
+        last_name = from_user.get("last_name", "")
+        chat_id = chat.get("id")
         
-        # Create DB session
-        db = SessionLocal()
+        if not telegram_user_id or not text:
+            logger.warning("Missing user_id or text")
+            return {"ok": True}
+        
+        # Get or create Telegram user in database
+        db: Session = next(get_db())
         try:
-            # Get or create Telegram user
             telegram_user = db.query(TelegramUser).filter(
-                TelegramUser.telegram_user_id == user_id
+                TelegramUser.telegram_user_id == telegram_user_id
             ).first()
             
             if not telegram_user:
-                # Create new user
                 telegram_user = TelegramUser(
-                    telegram_user_id=user_id,
-                    telegram_username=username,
-                    telegram_first_name=first_name,
-                    telegram_last_name=last_name,
-                    is_active=True,
-                    language='he',
+                    telegram_user_id=telegram_user_id,
+                    telegram_username=telegram_username,
+                    first_name=first_name,
+                    last_name=last_name
                 )
                 db.add(telegram_user)
                 db.commit()
                 db.refresh(telegram_user)
-                logger.info(f"Created new Telegram user: {user_id}")
-            
-            # Get or create conversation
-            conversation = db.query(TelegramConversation).filter(
-                TelegramConversation.telegram_user_id == telegram_user.id,
-                TelegramConversation.chat_id == chat_id,
-                TelegramConversation.is_active == True,
-            ).first()
-            
-            if not conversation:
-                conversation = TelegramConversation(
-                    telegram_user_id=telegram_user.id,
-                    organization_id=telegram_user.organization_id,
-                    chat_id=chat_id,
-                    is_active=True,
-                )
-                db.add(conversation)
-                db.commit()
-                db.refresh(conversation)
-                logger.info(f"Created new conversation for user {user_id}")
-            
-            # Send typing indicator
-            await telegram_client.client.post(
-                f"{telegram_client.base_url}/sendChatAction",
-                json={"chat_id": chat_id, "action": "typing"}
-            )
+                logger.info(f"Created new Telegram user: {telegram_user_id}")
             
             # Build context for Alex
             user_context = {
-                "telegram_user_id": telegram_user.telegram_user_id,
-                "telegram_username": telegram_user.telegram_username,
-                "first_name": telegram_user.telegram_first_name,
-                "last_name": telegram_user.telegram_last_name,
-                "has_organization": telegram_user.organization_id is not None,
+                "telegram_user_id": telegram_user_id,
+                "telegram_username": telegram_username,
+                "first_name": first_name,
+                "last_name": last_name,
                 "has_patient_link": telegram_user.patient_id is not None,
-                "language": telegram_user.language,
+                "patient_id": telegram_user.patient_id,
+                "organization_id": telegram_user.organization_id,
+                "language": "he" if any(ord(c) >= 0x0590 and ord(c) <= 0x05FF for c in text) else "en"
             }
             
-            # Add context to the message for Alex
-            # Format context for Alex
-            if telegram_user.patient_id is None:
-                patient_status = "⚠️ NEW USER - NOT REGISTERED"
-            else:
-                patient_status = f"✅ REGISTERED PATIENT (ID: {telegram_user.patient_id})"
-            
-            enhanced_message = f"""[SYSTEM CONTEXT - DO NOT SHOW TO USER]
-User Status: {patient_status}
-Telegram Name: {telegram_user.telegram_first_name} {telegram_user.telegram_last_name or ''}
-Has Organization: {telegram_user.organization_id is not None}
-Language: {telegram_user.language}
-[END SYSTEM CONTEXT]
+            # Create enhanced message with system context
+            enhanced_message = f"""SYSTEM CONTEXT - DO NOT SHOW TO USER
+User Status: {'⚠️ NEW USER - NOT REGISTERED' if not user_context['has_patient_link'] else '✅ REGISTERED USER'}
+Telegram Name: {first_name} {last_name}
+Has Organization: {user_context['organization_id'] is not None}
+Language: {user_context['language']}
+END SYSTEM CONTEXT
 
 User Message: {text}"""
             
-            # Route to Alex via AgentGraphV4
-            # Use telegram_user_id as the user_id for now
-            response = agent_graph.invoke(
+            # Route to Alex (AgentGraphV4)
+            agent_graph = AgentGraphV4()
+            thread_id = f"telegram_{telegram_user_id}"
+            
+            logger.info(f"Routing message to Alex for user {telegram_user_id}")
+            
+            # Get response from Alex
+            response = await agent_graph.process_message(
                 message=enhanced_message,
-                organization_id=str(telegram_user.organization_id) if telegram_user.organization_id else "default",
-                thread_id=str(conversation.id),
+                thread_id=thread_id,
+                context=user_context
             )
             
-            # Format response for Telegram
-            logger.info(f"Alex response: {response}")
-            response_text = response.get("output", "")
+            # ✅ CRITICAL: Filter SYSTEM CONTEXT from response
+            cleaned_response = _filter_system_context(response)
             
-            # Remove SYSTEM CONTEXT if Alex accidentally included it in the response
-            response_text = re.sub(r'\[?SYSTEM CONTEXT.*?\[?END SYSTEM CONTEXT\]?\s*', '', response_text, flags=re.DOTALL | re.IGNORECASE)
-            response_text = re.sub(r'User Message:.*?\n', '', response_text, count=1)
-            response_text = response_text.strip()
-            
-            logger.info(f"Response text length: {len(response_text)}, preview: {response_text[:200] if response_text else 'EMPTY'}")
-            
-            # Add escalation notice if needed
-            if response.get("escalation_level") == "EMERGENCY":
-                response_text = f"🚨 *התראת חירום*\n\n{response_text}"
-            elif response.get("escalation_level") == "DOCTOR_REQUIRED":
-                response_text = f"⚠️ *נדרש רופא*\n\n{response_text}"
-            
-            # Send response
+            # Send cleaned response to Telegram
             await telegram_client.send_message(
                 chat_id=chat_id,
-                text=response_text,
-                parse_mode="Markdown",
+                text=cleaned_response
             )
             
-            logger.info(f"Response sent to chat {chat_id}")
+            # Save conversation
+            conversation = TelegramConversation(
+                telegram_user_id=telegram_user.id,
+                message=text,
+                response=cleaned_response,  # Save cleaned response
+                agent="alex"
+            )
+            db.add(conversation)
+            db.commit()
+            
+            logger.info(f"Successfully processed message for user {telegram_user_id}")
             
         finally:
             db.close()
+        
+        return {"ok": True}
     
     except Exception as e:
-        logger.error(f"Error handling message: {e}", exc_info=True)
-        # Send error message to user
-        try:
-            await telegram_client.send_message(
-                chat_id=chat_id,
-                text="מצטער, נתקלתי בשגיאה. אנא נסה שוב.",
-            )
-        except:
-            pass
-
-
-async def handle_callback(callback_query: Dict[str, Any]):
-    """
-    Handle button callback from Telegram.
-    
-    Args:
-        callback_query: Telegram callback query object
-    """
-    try:
-        query_id = callback_query["id"]
-        chat_id = callback_query["message"]["chat"]["id"]
-        user_id = callback_query["from"]["id"]
-        callback_data = callback_query["data"]
-        
-        logger.info(f"Processing callback from user {user_id}: {callback_data}")
-        
-        # Answer callback query (removes loading state)
-        await telegram_client.client.post(
-            f"{telegram_client.base_url}/answerCallbackQuery",
-            json={"callback_query_id": query_id}
-        )
-        
-        # Convert callback to message and process
-        message_text = f"[Button: {callback_data}]"
-        
-        await handle_message({
-            "chat": {"id": chat_id},
-            "from": {"id": user_id, "username": "callback_user"},
-            "text": message_text,
-        })
-    
-    except Exception as e:
-        logger.error(f"Error handling callback: {e}")
+        logger.error(f"Error processing Telegram webhook: {e}", exc_info=True)
+        return {"ok": False, "error": str(e)}
 
 
 @router.get("/webhook-info")
 async def get_webhook_info():
-    """Get current webhook status."""
+    """Get current webhook configuration."""
     try:
         info = await telegram_client.get_webhook_info()
         return info
@@ -247,7 +175,7 @@ async def get_webhook_info():
 
 @router.post("/set-webhook")
 async def set_webhook(webhook_url: str):
-    """Set webhook URL for Telegram bot."""
+    """Set Telegram webhook URL."""
     try:
         result = await telegram_client.set_webhook(webhook_url)
         return result
