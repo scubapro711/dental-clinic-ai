@@ -45,6 +45,11 @@ class TelegramClient:
         Returns:
             Response from Telegram API
         """
+        logger.info(f"[TELEGRAM] Attempting to send message to chat {chat_id}")
+        logger.info(f"[TELEGRAM] Message length: {len(text)} chars")
+        logger.info(f"[TELEGRAM] Parse mode: {parse_mode}")
+        logger.info(f"[TELEGRAM] Message preview: {text[:200]}...")
+        
         url = f"{self.base_url}/sendMessage"
         payload = {
             "chat_id": chat_id,
@@ -57,14 +62,16 @@ class TelegramClient:
         
         try:
             response = await self.client.post(url, json=payload)
+            logger.info(f"[TELEGRAM] Response status: {response.status_code}")
             response.raise_for_status()
             result = response.json()
-            logger.info(f"Message sent to chat {chat_id}")
+            logger.info(f"[TELEGRAM] Message sent successfully to chat {chat_id}")
             return result
         except httpx.HTTPStatusError as e:
+            logger.error(f"[TELEGRAM] HTTPStatusError: {e.response.status_code} - {e.response.text}")
             # If Markdown parsing fails, try without parse_mode
             if e.response.status_code == 400 and parse_mode:
-                logger.warning(f"Markdown parsing failed for chat {chat_id}, retrying without parse_mode")
+                logger.warning(f"[TELEGRAM] Markdown parsing failed for chat {chat_id}, retrying without parse_mode")
                 payload_no_parse = {
                     "chat_id": chat_id,
                     "text": text,
@@ -75,16 +82,16 @@ class TelegramClient:
                     response = await self.client.post(url, json=payload_no_parse)
                     response.raise_for_status()
                     result = response.json()
-                    logger.info(f"Message sent to chat {chat_id} (without parse_mode)")
+                    logger.info(f"[TELEGRAM] Message sent to chat {chat_id} (without parse_mode)")
                     return result
                 except httpx.HTTPError as e2:
-                    logger.error(f"Failed to send message to chat {chat_id} even without parse_mode: {e2}")
+                    logger.error(f"[TELEGRAM] Failed even without parse_mode: {e2}")
                     raise
             else:
-                logger.error(f"Failed to send message to chat {chat_id}: {e}")
+                logger.error(f"[TELEGRAM] Failed to send message: {e}")
                 raise
         except httpx.HTTPError as e:
-            logger.error(f"Failed to send message to chat {chat_id}: {e}")
+            logger.error(f"[TELEGRAM] HTTPError: {e}")
             raise
     
     async def send_photo(

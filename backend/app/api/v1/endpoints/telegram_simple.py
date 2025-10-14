@@ -125,27 +125,43 @@ User Message: {text}"""
             agent_graph = AgentGraphV4()
             thread_id = f"telegram_{telegram_user_id}"
             
-            logger.info(f"Routing message to Alex for user {telegram_user_id}")
+            logger.info(f"[WEBHOOK] Routing message to Alex for user {telegram_user_id}")
+            logger.info(f"[WEBHOOK] Thread ID: {thread_id}")
             
             # Get response from Alex
-            result = agent_graph.invoke(
-                message=enhanced_message,
-                thread_id=thread_id,
-                organization_id=user_context.get('organization_id'),
-                user_role='patient'
-            )
+            try:
+                result = agent_graph.invoke(
+                    message=enhanced_message,
+                    thread_id=thread_id,
+                    organization_id=user_context.get('organization_id'),
+                    user_role='patient'
+                )
+                logger.info(f"[WEBHOOK] Alex response received: {type(result)}")
+            except Exception as e:
+                logger.error(f"[WEBHOOK] Error invoking Alex: {e}", exc_info=True)
+                raise
             
             # Extract response text
             response = result.get('output', 'מצטער, לא הצלחתי לעבד את הבקשה')
+            logger.info(f"[WEBHOOK] Response length: {len(response)} chars")
+            logger.info(f"[WEBHOOK] Response preview: {response[:200]}...")
             
             # ✅ CRITICAL: Filter SYSTEM CONTEXT from response
             cleaned_response = _filter_system_context(response)
+            logger.info(f"[WEBHOOK] Cleaned response length: {len(cleaned_response)} chars")
+            logger.info(f"[WEBHOOK] Cleaned response preview: {cleaned_response[:200]}...")
             
             # Send cleaned response to Telegram
-            await telegram_client.send_message(
-                chat_id=chat_id,
-                text=cleaned_response
-            )
+            logger.info(f"[WEBHOOK] Sending message to Telegram chat {chat_id}")
+            try:
+                await telegram_client.send_message(
+                    chat_id=chat_id,
+                    text=cleaned_response
+                )
+                logger.info(f"[WEBHOOK] Message sent successfully")
+            except Exception as e:
+                logger.error(f"[WEBHOOK] Error sending message to Telegram: {e}", exc_info=True)
+                raise
             
             # Save conversation
             conversation = TelegramConversation(
