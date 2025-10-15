@@ -8,7 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.logging_config import logger
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
