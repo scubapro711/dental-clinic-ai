@@ -24,6 +24,7 @@ export default function ClinicLayout() {
   const navLinks = [
     { to: '/clinic/dashboard', label: 'Dashboard', icon: '🎯' },
     { to: '/clinic/patients', label: 'Patients', icon: '👥' },
+    { to: '/clinic/communications', label: 'Communications', icon: '📱' },
     { to: '/clinic/appointments', label: 'Appointments', icon: '📅' },
     { to: '/clinic/agents', label: 'AI Agents', icon: '🤖' },
     { to: '/clinic/analytics', label: 'Analytics', icon: '📊' },

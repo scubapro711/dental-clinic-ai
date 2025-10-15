@@ -23,6 +23,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 // Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
 import PatientsManagement from './pages/clinic/PatientsManagement'
+import CommunicationsHub from './pages/clinic/CommunicationsHub'
 
 // Shared
 import ChatPage from './pages/ChatPage'
@@ -105,6 +106,7 @@ function App() {
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
           <Route path="dashboard" element={<AgenticDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
+          <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />
           <Route path="analytics" element={<ComingSoon title="Analytics" />} />
