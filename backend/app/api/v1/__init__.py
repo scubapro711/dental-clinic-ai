@@ -33,6 +33,7 @@ from app.api.v1.endpoints import (
     dashboard,
     dashboard_metrics,
     migrate,
+    verify_schema,
 )
 from app.api.v1 import appointments
 
@@ -94,5 +95,6 @@ api_router.include_router(invoices.router, tags=["invoices"])
 
 # Temporary migration endpoint
 api_router.include_router(migrate.router, prefix="/migrate", tags=["migration"])
+api_router.include_router(verify_schema.router, prefix="/verify", tags=["verification"])
 
 __all__ = ["api_router"]
