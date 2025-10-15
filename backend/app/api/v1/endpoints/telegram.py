@@ -167,7 +167,7 @@ async def handle_message(message: Dict[str, Any]):
                     elif action == "link_patient":
                         patient_id = onboarding.data.get("patient_id")
                         if patient_id:
-                            telegram_user.odoo_patient_id = patient_id
+                            telegram_user.patient_id = patient_id
                             telegram_user.status = "linked"
                             db.commit()
                     
@@ -205,7 +205,7 @@ async def handle_message(message: Dict[str, Any]):
             # Normal conversation flow (user is linked)
             
             # Check if user is linked to a patient
-            if not telegram_user.odoo_patient_id:
+            if not telegram_user.patient_id:
                 await telegram_client.send_message(
                     chat_id=chat_id,
                     text=(
@@ -229,7 +229,7 @@ async def handle_message(message: Dict[str, Any]):
             
             # Route to Alex agent via AgentGraphV4
             response = await agent_graph.process_message(
-                user_id=str(telegram_user.odoo_patient_id),
+                user_id=str(telegram_user.patient_id),
                 organization_id=telegram_user.organization_id,
                 conversation_id=str(conversation.id),
                 message=text,
