@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from uuid import uuid4
 import re
+import logging
 
 from app.core.database import get_db
 from app.models.organization import Organization, SubscriptionTier
@@ -26,6 +27,7 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 
 router = APIRouter(prefix="/organizations", tags=["Organizations"])
+logger = logging.getLogger(__name__)
 
 
 # ========== Schemas ==========
@@ -240,14 +242,22 @@ async def register_organization(
         db.flush()
         
         # 6. Sync user with Odoo (create patient record)
-        user_sync_service = UserSyncService(db)
-        odoo_partner_id = user_sync_service.sync_user_to_odoo(
-            user_id=owner.id,
-            organization_id=organization.id
-        )
-        
-        # Update membership with odoo_partner_id
-        membership.odoo_partner_id = odoo_partner_id
+        # Make this optional to prevent registration timeouts
+        odoo_partner_id = None
+        try:
+            user_sync_service = UserSyncService(db)
+            odoo_partner_id = user_sync_service.sync_user_to_odoo(
+                user_id=owner.id,
+                organization_id=organization.id
+            )
+            # Update membership with odoo_partner_id
+            membership.odoo_partner_id = odoo_partner_id
+            logger.info(f"Successfully synced user {owner.id} to Odoo partner {odoo_partner_id}")
+        except Exception as odoo_error:
+            # Log the error but don't fail registration
+            logger.warning(f"Failed to sync user {owner.id} to Odoo: {str(odoo_error)}")
+            logger.warning("User can be synced to Odoo later via background job")
+            # Continue with registration even if Odoo sync fails
         
         # 7. Create default clinic settings
         create_default_clinic_settings(db, str(organization.id))
@@ -262,15 +272,17 @@ async def register_organization(
         db.refresh(membership)
         
         # 10. Generate access token
-        access_token = AuthService.create_access_token(
-            data={
-                "sub": str(owner.id),
-                "email": owner.email,
-                "role": "owner",
-                "organization_id": str(organization.id),
-                "odoo_partner_id": odoo_partner_id
-            }
-        )
+        token_data = {
+            "sub": str(owner.id),
+            "email": owner.email,
+            "role": "owner",
+            "organization_id": str(organization.id)
+        }
+        # Only include odoo_partner_id if sync was successful
+        if odoo_partner_id:
+            token_data["odoo_partner_id"] = odoo_partner_id
+        
+        access_token = AuthService.create_access_token(data=token_data)
         
         # 11. TODO: Send verification email (will be implemented in Email Verification component)
         

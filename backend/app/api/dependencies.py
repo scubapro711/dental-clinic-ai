@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.user import User, UserRole
+from app.models.organization_membership import OrganizationMembership
 from app.services.auth_service import AuthService
 
 # HTTP Bearer token security
@@ -101,3 +102,30 @@ async def get_current_organization_id(
 ) -> Optional[str]:
     """Get current user's organization ID."""
     return str(current_user.organization_id) if current_user.organization_id else None
+
+
+async def get_current_membership(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> OrganizationMembership:
+    """
+    Get current user's active organization membership.
+    
+    This is the primary way to get organization context for authenticated requests.
+    Returns the user's first active membership.
+    
+    Raises:
+        HTTPException: If user has no active organization membership
+    """
+    membership = db.query(OrganizationMembership).filter(
+        OrganizationMembership.user_id == current_user.id,
+        OrganizationMembership.is_active == True
+    ).first()
+    
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any organization. Please contact support."
+        )
+    
+    return membership

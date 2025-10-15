@@ -12,6 +12,8 @@ import random
 
 from app.integrations.odoo_client_v3 import OdooClientV3
 from app.core.config import settings
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 
 logger = logging.getLogger(__name__)
 
@@ -20,20 +22,18 @@ router = APIRouter()
 
 def get_odoo_client() -> OdooClientV3:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3(
-        url=settings.ODOO_URL,
-        db=settings.ODOO_DB,
-        username=settings.ODOO_USERNAME,
-        password=settings.ODOO_PASSWORD,
-    )
+    return OdooClientV3()
 
 
 @router.get("/conversations/active")
 async def get_active_conversations(
+    membership: OrganizationMembership = Depends(get_current_membership),
     odoo: OdooClientV3 = Depends(get_odoo_client)
 ) -> List[Dict[str, Any]]:
     """
     Get active conversations for the dashboard.
+    
+    Requires authentication and active organization membership.
     
     Returns:
         List of active conversations
@@ -99,6 +99,7 @@ async def get_active_conversations(
 
 @router.get("/patients")
 async def get_patients(
+    membership: OrganizationMembership = Depends(get_current_membership),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     search: str = Query(None),
@@ -107,7 +108,10 @@ async def get_patients(
     """
     Get patients list with pagination and search.
     
+    Requires authentication and active organization membership.
+    
     Args:
+        membership: Current user's organization membership
         limit: Number of patients to return
         offset: Number of patients to skip
         search: Search term for patient name or phone
@@ -198,18 +202,22 @@ async def get_patients(
 @router.get("/patients/{patient_id}")
 async def get_patient_details(
     patient_id: int,
+    membership: OrganizationMembership = Depends(get_current_membership),
     odoo: OdooClientV3 = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get detailed information about a specific patient.
     
+    Requires authentication and active organization membership.
+    
     Args:
         patient_id: Patient ID
+        membership: Current user's organization membership
         odoo: Odoo client instance
         
     Returns:
         Patient details with appointments and treatment history
-    """
+    "
     try:
         # Get patient
         patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email', 'birthdate_date'])
@@ -265,6 +273,7 @@ async def get_patient_details(
 
 @router.get("/appointments")
 async def get_appointments(
+    membership: OrganizationMembership = Depends(get_current_membership),
     start_date: str = Query(None),
     end_date: str = Query(None),
     status: str = Query(None),
@@ -274,7 +283,10 @@ async def get_appointments(
     """
     Get appointments with optional filters.
     
+    Requires authentication and active organization membership.
+    
     Args:
+        membership: Current user's organization membership
         start_date: Filter appointments from this date (YYYY-MM-DD)
         end_date: Filter appointments until this date (YYYY-MM-DD)
         status: Filter by appointment status
