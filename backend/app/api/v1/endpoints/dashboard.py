@@ -217,7 +217,7 @@ async def get_patient_details(
         
     Returns:
         Patient details with appointments and treatment history
-    "
+    """
     try:
         # Get patient
         patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email', 'birthdate_date'])
