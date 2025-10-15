@@ -107,7 +107,8 @@ limiter = Limiter(
     default_limits=["100/minute"],  # Global default
     storage_uri="memory://",  # Can be changed to redis://localhost:6379
     strategy="fixed-window",  # Can be "moving-window" for more accurate limiting
-    headers_enabled=True,  # Include rate limit headers in response
+    headers_enabled=False,  # Disabled to prevent errors with HTTPException responses
+    swallow_errors=True,  # Continue even if rate limiting fails
 )
 
 
