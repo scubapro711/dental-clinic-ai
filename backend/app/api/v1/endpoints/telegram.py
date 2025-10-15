@@ -11,6 +11,7 @@ from uuid import uuid4
 
 from app.integrations.telegram_client import telegram_client
 from app.agents.agent_graph_v4 import AgentGraphV4
+from app.agents.telegram_onboarding import TelegramOnboarding
 from app.core.config import settings
 from sqlalchemy.orm import Session
 from app.core.database import get_db
@@ -206,12 +207,19 @@ async def handle_message(message: Dict[str, Any]):
             
             # Check if user is linked to a patient
             if not telegram_user.patient_id:
+                # Automatically start onboarding for unlinked users
+                onboarding = TelegramOnboarding()
+                response = onboarding.process_message("/start", {"telegram_user": telegram_user})
+                
+                # Store onboarding state in conversation store
+                conversation_store[chat_id] = {
+                    "onboarding": onboarding,
+                    "telegram_user_id": telegram_user.id,
+                }
+                
                 await telegram_client.send_message(
                     chat_id=chat_id,
-                    text=(
-                        "נראה שעוד לא סיימנו את ההרשמה שלך 🤔\n\n"
-                        "שלח /start כדי להתחיל מחדש"
-                    ),
+                    text=response["response"],
                 )
                 return
             
