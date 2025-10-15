@@ -10,6 +10,7 @@ Fixes:
 """
 
 import xmlrpc.client
+import socket
 from typing import List, Dict, Any, Optional, Tuple
 from datetime import datetime, date, timedelta
 import logging
@@ -86,8 +87,11 @@ class OdooClientV2:
         self._init_connection()
     
     def _init_connection(self):
-        """Initialize XML-RPC connection."""
+        """Initialize XML-RPC connection with timeout."""
         try:
+            # Set socket timeout to 10 seconds to prevent hanging
+            socket.setdefaulttimeout(10.0)
+            
             self.common = xmlrpc.client.ServerProxy(
                 f"{self.url}/xmlrpc/2/common",
                 allow_none=True
@@ -96,7 +100,10 @@ class OdooClientV2:
                 f"{self.url}/xmlrpc/2/object",
                 allow_none=True
             )
-            logger.info(f"Odoo connection initialized: {self.url}")
+            logger.info(f"Odoo connection initialized: {self.url} (timeout: 10s)")
+        except socket.timeout:
+            logger.error(f"Odoo connection timeout after 10s: {self.url}")
+            raise OdooConnectionError(f"Connection timeout: Odoo not responding at {self.url}")
         except Exception as e:
             logger.error(f"Failed to initialize Odoo connection: {e}")
             raise OdooConnectionError(f"Cannot connect to Odoo: {e}")
