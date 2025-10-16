@@ -13,6 +13,7 @@ export default function RegisterPage({ onRegister }) {
     password: '',
     full_name: '',
   })
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -27,6 +28,13 @@ export default function RegisterPage({ onRegister }) {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // Validate legal agreement
+    if (!agreedToTerms) {
+      setError('You must agree to the Terms of Service and Privacy Policy')
+      setLoading(false)
+      return
+    }
 
     try {
       const response = await fetch('http://localhost:8000/api/v1/auth/register', {
@@ -126,6 +134,28 @@ export default function RegisterPage({ onRegister }) {
                 required
                 disabled={loading}
               />
+            </div>
+
+            {/* Legal Agreement Checkbox */}
+            <div className="flex items-start space-x-2 pt-4 border-t">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                disabled={loading}
+              />
+              <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                I agree to the{' '}
+                <Link to="/legal/terms" target="_blank" className="text-blue-600 hover:underline font-medium">
+                  Terms of Service
+                </Link>
+                {' '}and{' '}
+                <Link to="/legal/privacy" target="_blank" className="text-blue-600 hover:underline font-medium">
+                  Privacy Policy
+                </Link>
+              </label>
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
