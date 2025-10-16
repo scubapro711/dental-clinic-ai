@@ -40,6 +40,12 @@ import {
 // Shared
 import ChatPage from './pages/ChatPage'
 
+// Legal Pages
+import LegalDocument from './pages/legal/LegalDocument'
+
+// Onboarding
+import ClinicOnboarding from './pages/onboarding/ClinicOnboarding'
+
 // 404 Page
 function NotFoundPage() {
   return (
@@ -87,6 +93,10 @@ function App() {
         {/* Onboarding Routes (Public/Protected) */}
         <Route path="/onboarding" element={<ClinicOnboardingWizard />} />
         <Route path="/onboarding/dashboard" element={<OnboardingDashboard />} />
+        <Route path="/onboarding/flow" element={<ClinicOnboarding />} />
+        
+        {/* Legal Pages (Public) */}
+        <Route path="/legal/:documentId" element={<LegalDocument />} />
         
         {/* Pricing Page (Public) */}
         <Route path="/pricing" element={<PricingPage />} />
