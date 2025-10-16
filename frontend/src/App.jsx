@@ -28,6 +28,15 @@ import CommunicationsHub from './pages/clinic/CommunicationsHub'
 // Billing Components
 import { PricingPage, SubscriptionManagement, BillingDashboard } from './components/billing'
 
+// Super Admin Pages
+import {
+  SuperAdminDashboard,
+  OrganizationsPage,
+  RevenueDashboard,
+  UsageDashboard,
+  CostDashboard,
+} from './pages/super-admin'
+
 // Shared
 import ChatPage from './pages/ChatPage'
 
@@ -120,25 +129,28 @@ function App() {
           <Route path="settings" element={<ComingSoon title="Settings" />} />
         </Route>
         
-        {/* Admin Portal Routes (SUPER_ADMIN) */}
+        {/* Super Admin Portal Routes (SUPER_ADMIN) */}
         <Route
-          path="/admin/*"
+          path="/super-admin/*"
           element={
             <ProtectedRoute allowedRoles={['super_admin']}>
               <Routes>
-                <Route path="dashboard" element={<ComingSoon title="Admin Dashboard" />} />
-                <Route path="organizations" element={<ComingSoon title="Organizations" />} />
-                <Route path="users" element={<ComingSoon title="Users" />} />
-                <Route path="billing" element={<BillingDashboard />} />
-                <Route path="billing/subscription/:id" element={<ComingSoon title="Subscription Details" />} />
+                <Route path="dashboard" element={<SuperAdminDashboard />} />
+                <Route path="organizations" element={<OrganizationsPage />} />
+                <Route path="organizations/:id" element={<ComingSoon title="Organization Details" />} />
+                <Route path="revenue" element={<RevenueDashboard />} />
+                <Route path="usage" element={<UsageDashboard />} />
+                <Route path="costs" element={<CostDashboard />} />
+                <Route path="analytics" element={<ComingSoon title="Analytics & Insights" />} />
                 <Route path="settings" element={<ComingSoon title="Settings" />} />
-                <Route path="monitoring" element={<ComingSoon title="Monitoring" />} />
-                <Route path="agents" element={<ComingSoon title="Agents" />} />
-                <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/super-admin/dashboard" replace />} />
               </Routes>
             </ProtectedRoute>
           }
         />
+        
+        {/* Legacy Admin Routes - Redirect to Super Admin */}
+        <Route path="/admin/*" element={<Navigate to="/super-admin/dashboard" replace />} />
         
         {/* Legacy Routes (Redirect to new structure) */}
         <Route path="/dashboard" element={<Navigate to="/patient/dashboard" replace />} />
