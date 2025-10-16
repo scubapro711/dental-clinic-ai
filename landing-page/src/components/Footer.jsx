@@ -47,11 +47,13 @@ export default function Footer() {
     {
       title: 'משפטי',
       links: [
-        { label: 'תנאי שימוש', href: '/terms' },
-        { label: 'מדיניות פרטיות', href: '/privacy' },
-        { label: 'הסכם BAA', href: '/baa' },
-        { label: 'ציות HIPAA', href: '/hipaa-compliance' },
-        { label: 'אבטחת מידע', href: '/security' }
+        { label: 'תנאי שימוש', href: '/legal/terms' },
+        { label: 'מדיניות פרטיות', href: '/legal/privacy' },
+        { label: 'מדיניות עוגיות', href: '/legal/cookies' },
+        { label: 'הודעת HIPAA', href: '/legal/hipaa' },
+        { label: 'מדיניות שימוש', href: '/legal/aup' },
+        { label: 'הסכם DPA', href: '/legal/dpa' },
+        { label: 'הסכם SLA', href: '/legal/sla' }
       ]
     }
   ];

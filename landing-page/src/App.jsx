@@ -7,6 +7,7 @@ import PricingSection from './components/PricingSection';
 import InteractiveDemo from './components/InteractiveDemo';
 import FAQSection from './components/FAQSection';
 import Footer from './components/Footer';
+import CookieConsent from './components/CookieConsent';
 
 /**
  * DentaFlow Landing Page
@@ -47,6 +48,9 @@ function App() {
 
       {/* Footer */}
       <Footer />
+
+      {/* Cookie Consent Banner */}
+      <CookieConsent />
     </div>
   );
 }
