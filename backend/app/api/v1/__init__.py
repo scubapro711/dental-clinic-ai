@@ -38,6 +38,8 @@ from app.api.v1.endpoints import (
     admin_plans,
     admin_billing,
     webhooks,
+    legal,
+    demo,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -111,6 +113,12 @@ api_router.include_router(super_admin_analytics.router, prefix="/super-admin/ana
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])
+
+# Legal Documents
+api_router.include_router(legal.router, tags=["legal"])
+
+# Interactive Demo
+api_router.include_router(demo.router, prefix="/demo", tags=["demo"])
 # Patient Portal with Odoo Integration
 from app.api.v1.endpoints import patient_portal_odoo, user_patient_mapping
 api_router.include_router(patient_portal_odoo.router, tags=["patient-portal-odoo"])

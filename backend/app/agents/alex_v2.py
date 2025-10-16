@@ -64,6 +64,19 @@ from app.agents.tools.alex_scheduling_tools import (
     manage_waitlist_tool,
 )
 
+# Demo mode support
+from app.agents.alex_demo_prompt import ALEX_DEMO_SYSTEM_PROMPT
+from app.agents.tools.rag_tools import search_demo_knowledge_tool
+from app.agents.tools.demo_tools import (
+    get_demo_patient_tool,
+    get_demo_appointments_tool,
+    get_demo_available_slots_tool,
+    get_demo_invoices_tool,
+    get_demo_financial_summary_tool,
+    get_demo_clinic_info_tool,
+    book_demo_appointment_tool,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -469,10 +482,44 @@ makes sure patients get the right help at the right time! 😊
 ═══════════════════════════════════════════════════════════════════
 """
 
-    def __init__(self):
-        """Initialize Alex agent."""
-        # Define all available tools
-        self.tools = [
+    def __init__(self, demo_mode: bool = False):
+        """
+        Initialize Alex agent.
+        
+        Args:
+            demo_mode: If True, Alex operates in Interactive Demo mode for potential customers
+        """
+        self.demo_mode = demo_mode
+        
+        # Select system prompt based on mode
+        if demo_mode:
+            self.system_prompt = ALEX_DEMO_SYSTEM_PROMPT
+            logger.info("Alex initialized in DEMO MODE")
+        else:
+            self.system_prompt = self.SYSTEM_PROMPT
+            logger.info("Alex initialized in PRODUCTION MODE")
+        
+        # Define tools based on mode
+        if demo_mode:
+            # Demo mode tools - use demo data
+            self.tools = [
+                # Demo knowledge for product questions
+                search_demo_knowledge_tool,
+                # Demo patient management
+                get_demo_patient_tool,
+                # Demo appointments
+                get_demo_appointments_tool,
+                get_demo_available_slots_tool,
+                book_demo_appointment_tool,
+                # Demo billing
+                get_demo_invoices_tool,
+                get_demo_financial_summary_tool,
+                # Demo clinic info
+                get_demo_clinic_info_tool,
+            ]
+        else:
+            # Production mode tools - use real Odoo data
+            self.tools = [
             # Patient management (Phase 5.5 Week 1 Day 1-2)
             create_patient_tool,
             update_patient_info_tool,

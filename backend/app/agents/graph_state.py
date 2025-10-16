@@ -52,3 +52,7 @@ class AgentState(TypedDict):
     
     # Escalation level for medical safety
     escalation_level: Optional[str]
+    
+    # Demo mode flag (for Interactive Demo)
+    demo_mode: bool
+    demo_session_id: Optional[str]

@@ -12,6 +12,25 @@ from app.services.knowledge_base import knowledge_base
 
 logger = logging.getLogger(__name__)
 
+# Demo knowledge - loaded from JSON file
+import json
+import os
+
+# Load demo knowledge on module import
+DEMO_KNOWLEDGE = []
+try:
+    demo_knowledge_path = os.path.join(
+        os.path.dirname(__file__), 
+        "..", "..", "knowledge", "demo_knowledge.json"
+    )
+    if os.path.exists(demo_knowledge_path):
+        with open(demo_knowledge_path, 'r', encoding='utf-8') as f:
+            demo_data = json.load(f)
+            DEMO_KNOWLEDGE = demo_data.get('documents', [])
+        logger.info(f"Loaded {len(DEMO_KNOWLEDGE)} demo knowledge documents")
+except Exception as e:
+    logger.warning(f"Could not load demo knowledge: {e}")
+
 
 @tool
 def search_clinical_knowledge_tool(query: str, top_results: int = 3) -> str:
@@ -224,4 +243,87 @@ def search_general_knowledge_tool(query: str, top_results: int = 3) -> str:
     except Exception as e:
         logger.error(f"Error searching general knowledge: {e}")
         return f"Error accessing general knowledge: {str(e)}"
+
+
+@tool
+def search_demo_knowledge_tool(query: str, top_results: int = 3) -> str:
+    """
+    Search demo/product knowledge base for DentaFlow features and capabilities.
+    
+    Use this ONLY in DEMO MODE when users ask about:
+    - DentaFlow features and capabilities
+    - Pricing and plans
+    - Implementation process
+    - AI agents (Alex, Sarah, Marcus, Sophia)
+    - Integrations (Odoo, WhatsApp, Telegram)
+    - Security and compliance
+    - Free trial and pilot program
+    
+    Args:
+        query: What the user is asking about (e.g., "pricing", "how does it work")
+        top_results: Number of results to return (default: 3)
+        
+    Returns:
+        JSON string with product information
+    """
+    try:
+        logger.info(f"Searching demo knowledge: {query}")
+        
+        if not DEMO_KNOWLEDGE:
+            return "Demo knowledge base not loaded. Please contact support."
+        
+        # Simple keyword matching (in production, use vector similarity)
+        query_lower = query.lower()
+        scored_docs = []
+        
+        for doc in DEMO_KNOWLEDGE:
+            score = 0
+            
+            # Check title match
+            if any(word in doc['title'].lower() for word in query_lower.split()):
+                score += 3
+            
+            # Check keywords match
+            for keyword in doc.get('keywords', []):
+                if keyword.lower() in query_lower:
+                    score += 2
+            
+            # Check content match
+            if any(word in doc['content'].lower() for word in query_lower.split()):
+                score += 1
+            
+            if score > 0:
+                scored_docs.append((score, doc))
+        
+        # Sort by score and take top results
+        scored_docs.sort(reverse=True, key=lambda x: x[0])
+        top_docs = scored_docs[:top_results]
+        
+        if not top_docs:
+            return json.dumps({
+                'query': query,
+                'results_found': 0,
+                'message': 'No specific information found. Would you like to schedule a demo with our team?'
+            }, ensure_ascii=False, indent=2)
+        
+        # Format results
+        formatted = {
+            'query': query,
+            'results_found': len(top_docs),
+            'knowledge': []
+        }
+        
+        for score, doc in top_docs:
+            formatted['knowledge'].append({
+                'relevance_score': f"{score}/10",
+                'title': doc['title'],
+                'content': doc['content'],
+                'category': doc['category'],
+            })
+        
+        return json.dumps(formatted, ensure_ascii=False, indent=2)
+        
+    except Exception as e:
+        logger.error(f"Error searching demo knowledge: {e}")
+        return f"Error accessing demo knowledge: {str(e)}"
 

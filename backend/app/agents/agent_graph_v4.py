@@ -124,18 +124,23 @@ class AgentGraphV4:
     and forwards their responses directly without paraphrasing.
     """
     
-    def __init__(self, memory=None):
+    def __init__(self, memory=None, demo_mode: bool = False):
         """
         Initialize agent graph with supervisor and 4 agents.
         
         Args:
             memory: Optional memory checkpointer (for testing). Defaults to PostgresSaver.
+            demo_mode: If True, agents operate in Interactive Demo mode
         """
-        # Initialize agents
-        self.alex = AlexAgent()
-        self.sarah = sarah_agent  # Clinical assistant
-        self.marcus = CFOAgent()
-        self.sophia = PracticeAdminAgent()
+        self.demo_mode = demo_mode
+        
+        # Initialize agents with demo_mode
+        self.alex = AlexAgent(demo_mode=demo_mode)
+        self.sarah = sarah_agent  # Clinical assistant (no demo mode yet)
+        self.marcus = CFOAgent()  # CFO (no demo mode yet)
+        self.sophia = PracticeAdminAgent()  # Admin (no demo mode yet)
+        
+        logger.info(f"Agent graph initialized in {'DEMO' if demo_mode else 'PRODUCTION'} mode")
         
         # Initialize supervisor LLM
         self.supervisor_llm = ChatOpenAI(

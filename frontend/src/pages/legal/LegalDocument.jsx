@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FileText, ArrowRight, Download, Print } from 'lucide-react';
+import { FileText, ArrowRight, Download, Print, AlertCircle } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 /**
  * LegalDocument Component
  * 
  * Displays legal documents in a professional, readable format
  * Supports all 7 legal documents with proper formatting
+ * Loads real markdown content from backend
  */
 export default function LegalDocument() {
   const { documentId } = useParams();
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const documents = {
     terms: {
@@ -61,11 +64,48 @@ export default function LegalDocument() {
   const currentDoc = documents[documentId];
 
   useEffect(() => {
-    // In production, fetch from backend API
-    // For now, we'll use placeholder content
-    setLoading(false);
-    setContent(`# ${currentDoc?.titleEn || 'Legal Document'}\n\nDocument content will be loaded here...`);
-  }, [documentId]);
+    const loadDocument = async () => {
+      if (!currentDoc) {
+        setError('Document not found');
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Fetch document from backend API
+        const response = await fetch(`/api/v1/legal/${documentId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Failed to load document: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setContent(data.content || '');
+      } catch (err) {
+        console.error('Error loading document:', err);
+        setError(err.message);
+        
+        // Fallback: Try to load from public folder
+        try {
+          const publicResponse = await fetch(`/legal/${currentDoc.file}`);
+          if (publicResponse.ok) {
+            const text = await publicResponse.text();
+            setContent(text);
+            setError(null);
+          }
+        } catch (fallbackErr) {
+          console.error('Fallback load failed:', fallbackErr);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDocument();
+  }, [documentId, currentDoc]);
 
   const handlePrint = () => {
     window.print();
@@ -87,7 +127,8 @@ export default function LegalDocument() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">מסמך לא נמצא</h1>
-          <Link to="/" className="text-blue-600 hover:text-blue-700">
+          <p className="text-gray-600 mb-6">המסמך המבוקש אינו קיים במערכת</p>
+          <Link to="/" className="text-blue-600 hover:text-blue-700 underline">
             חזרה לדף הבית
           </Link>
         </div>
@@ -115,13 +156,15 @@ export default function LegalDocument() {
               <button
                 onClick={handlePrint}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                disabled={loading}
               >
                 <Print className="h-5 w-5" />
                 <span className="hidden sm:inline">הדפס</span>
               </button>
               <button
                 onClick={handleDownload}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || !content}
               >
                 <Download className="h-5 w-5" />
                 <span className="hidden sm:inline">הורד</span>
@@ -154,20 +197,34 @@ export default function LegalDocument() {
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <p className="ml-4 text-gray-600">טוען מסמך...</p>
             </div>
-          ) : (
-            <div className="prose prose-lg max-w-none" dir="rtl">
-              {/* In production, render markdown content here */}
-              <div className="space-y-6">
-                <div className="bg-blue-50 border-r-4 border-blue-600 p-6 rounded">
-                  <p className="text-sm text-blue-900">
-                    <strong>הערה:</strong> זהו מסמך משפטי מחייב. אנא קרא בעיון לפני השימוש בשירות.
-                    במקרה של שאלות, צור קשר עם: <a href="mailto:legal@dentaflow.ai" className="underline">legal@dentaflow.ai</a>
+          ) : error && !content ? (
+            <div className="bg-red-50 border-r-4 border-red-600 p-6 rounded">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-6 w-6 text-red-600 flex-shrink-0 mt-1" />
+                <div>
+                  <p className="font-bold text-red-900 mb-2">שגיאה בטעינת המסמך</p>
+                  <p className="text-sm text-red-800">{error}</p>
+                  <p className="text-sm text-red-700 mt-2">
+                    אנא נסה שוב מאוחר יותר או צור קשר עם התמיכה.
                   </p>
                 </div>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {/* Notice Banner */}
+              <div className="bg-blue-50 border-r-4 border-blue-600 p-6 rounded" dir="rtl">
+                <p className="text-sm text-blue-900">
+                  <strong>הערה:</strong> זהו מסמך משפטי מחייב. אנא קרא בעיון לפני השימוש בשירות.
+                  במקרה של שאלות, צור קשר עם: <a href="mailto:legal@dentaflow.ai" className="underline hover:text-blue-700">legal@dentaflow.ai</a>
+                </p>
+              </div>
 
-                {/* Placeholder content - in production, render actual markdown */}
-                <div dangerouslySetInnerHTML={{ __html: `<pre>${content}</pre>` }} />
+              {/* Markdown Content */}
+              <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-strong:text-gray-900 prose-ul:list-disc prose-ol:list-decimal">
+                <ReactMarkdown>{content}</ReactMarkdown>
               </div>
             </div>
           )}

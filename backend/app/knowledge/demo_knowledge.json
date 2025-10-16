@@ -1,0 +1,91 @@
+{
+  "domain": "demo",
+  "description": "DentaFlow product knowledge for Interactive Demo mode",
+  "documents": [
+    {
+      "id": "demo_001",
+      "title": "What is DentaFlow?",
+      "category": "product_overview",
+      "content": "DentaFlow is an AI-powered dental clinic management system with 4 specialized AI agents that work 24/7. Unlike chatbots, DentaFlow is a multi-agent system where each AI has specific expertise: Alex (Reception), Sarah (Clinical), Marcus (Finance), and Sophia (Operations). It integrates with Odoo ERP for real-time clinic data and supports multi-channel communication (Web, SMS, Email, WhatsApp, Telegram).",
+      "keywords": ["dentaflow", "what is", "overview", "ai agents", "multi-agent"]
+    },
+    {
+      "id": "demo_002",
+      "title": "Why DentaFlow is NOT a Chatbot",
+      "category": "differentiators",
+      "content": "DentaFlow is NOT a chatbot. Here's why: 1) Multi-Agent System - 4 specialized AIs vs. one generic bot. 2) Context-Aware - Connected to Odoo ERP with real patient data, not scripted responses. 3) Adaptive Learning - Improves from each interaction, doesn't repeat same answers. 4) Natural Conversation - No scripts, understands context and nuance. 5) Action-Oriented - Actually schedules appointments, processes payments, updates records - not just answers questions.",
+      "keywords": ["not a chatbot", "vs chatbot", "difference", "multi-agent", "context"]
+    },
+    {
+      "id": "demo_003",
+      "title": "The 4 AI Agents",
+      "category": "features",
+      "content": "DentaFlow has 4 specialized AI agents: 1) Alex - Reception & Patient Relations: Schedules appointments, answers questions, handles billing inquiries, sends reminders. 2) Sarah - Clinical Assistant: Manages treatment records, dental charts, prescriptions, medical history. 3) Marcus - CFO: Financial analysis, revenue tracking, payment status, profitability insights. 4) Sophia - Admin: Operations management, scheduling optimization, staff coordination, efficiency analysis.",
+      "keywords": ["alex", "sarah", "marcus", "sophia", "agents", "4 agents"]
+    },
+    {
+      "id": "demo_004",
+      "title": "Multi-Channel Communication",
+      "category": "features",
+      "content": "DentaFlow supports multi-channel communication: Currently Available: Web Chat (instant), SMS (fast delivery), Email (detailed info). Coming Q1 2026: WhatsApp Business API, Telegram Bot. Benefits: 3x higher response rates, patients choose their preferred channel, lower cost than phone calls, automated reminders across all channels.",
+      "keywords": ["communication", "channels", "sms", "email", "whatsapp", "telegram", "multi-channel"]
+    },
+    {
+      "id": "demo_005",
+      "title": "Odoo ERP Integration",
+      "category": "integrations",
+      "content": "DentaFlow integrates seamlessly with Odoo ERP: Real-time patient data sync, appointment calendar integration, billing and invoicing connection, treatment records access, inventory management link. Setup takes about 1 hour with our team's help. All patient information stays in Odoo - DentaFlow just reads and updates it in real-time.",
+      "keywords": ["odoo", "erp", "integration", "sync", "real-time"]
+    },
+    {
+      "id": "demo_006",
+      "title": "Pricing Plans",
+      "category": "pricing",
+      "content": "DentaFlow Pricing: Starter Plan: ₪799/month - Up to 500 patients, 2 AI agents (Alex + Sarah), Web Chat + SMS. Professional Plan: ₪1,299/month - Up to 2,000 patients, 4 AI agents (all), All channels (Web, SMS, Email, WhatsApp, Telegram), Priority support. Enterprise Plan: Custom pricing - Unlimited patients, Custom AI agents, White-label option, Dedicated success manager. Pilot Program (Limited to 10 clinics): 6 months FREE + 20% off forever!",
+      "keywords": ["pricing", "cost", "plans", "how much", "price", "pilot"]
+    },
+    {
+      "id": "demo_007",
+      "title": "Implementation Process",
+      "category": "onboarding",
+      "content": "Getting started with DentaFlow: Week 1: Odoo integration setup (1 hour), Import existing patient data, Configure AI agents. Week 2: Team training (2 hours), Test with sample patients, Customize responses. Week 3: Soft launch with select patients, Monitor and adjust, Full rollout. Average time to full deployment: 2-3 weeks. Our team handles 90% of the setup!",
+      "keywords": ["implementation", "setup", "onboarding", "getting started", "how long"]
+    },
+    {
+      "id": "demo_008",
+      "title": "Time Savings & ROI",
+      "category": "benefits",
+      "content": "DentaFlow saves clinics 10+ hours per week: Automated appointment scheduling (3 hours/week), Automated patient reminders (2 hours/week), Automated billing inquiries (2 hours/week), Automated follow-ups (1 hour/week), Reduced no-shows with smart reminders (2 hours/week). ROI: Average clinic saves ₪8,000/month in staff time. Break-even in first month. Typical payback: 3-4 weeks.",
+      "keywords": ["roi", "savings", "time", "hours", "benefit", "value"]
+    },
+    {
+      "id": "demo_009",
+      "title": "Security & Compliance",
+      "category": "compliance",
+      "content": "DentaFlow is fully compliant: HIPAA Compliant - All patient data encrypted, GDPR Compliant - EU data protection standards, Israeli Privacy Law - Local regulations met, SOC 2 Type II - Security audited. Data Storage: Patient data stays in your Odoo instance, AI conversations encrypted in transit and at rest, No data shared with third parties, Regular security audits.",
+      "keywords": ["security", "hipaa", "gdpr", "compliance", "privacy", "data protection"]
+    },
+    {
+      "id": "demo_010",
+      "title": "Free Trial & Pilot Program",
+      "category": "trial",
+      "content": "Try DentaFlow risk-free: Free Trial (30 days): No credit card required, Full feature access, Setup your own clinic, Cancel anytime. Pilot Program (10 clinics only): 6 months completely FREE, 20% discount for life after pilot, White-glove onboarding, Direct access to product team, Influence product roadmap. Requirements: 2-5 dentists, Weekly feedback sessions, Willing to be a case study (optional).",
+      "keywords": ["trial", "free", "pilot", "demo", "test", "try"]
+    },
+    {
+      "id": "demo_011",
+      "title": "Customer Support",
+      "category": "support",
+      "content": "DentaFlow provides comprehensive support: Starter Plan: Email support (24-hour response), Knowledge base access, Community forum. Professional Plan: Priority email support (4-hour response), Phone support (business hours), Monthly check-ins. Enterprise Plan: Dedicated success manager, 24/7 phone support, Custom SLAs, On-site training available. All plans include: Setup assistance, Training materials, Regular product updates.",
+      "keywords": ["support", "help", "customer service", "assistance"]
+    },
+    {
+      "id": "demo_012",
+      "title": "Languages Supported",
+      "category": "features",
+      "content": "DentaFlow is multilingual: Fully supported: Hebrew (עברית), English, Arabic (العربية). AI agents seamlessly switch between languages based on patient preference. All interfaces available in Hebrew and English. Coming soon: Russian, French, Spanish.",
+      "keywords": ["language", "hebrew", "english", "arabic", "multilingual"]
+    }
+  ]
+}
+
