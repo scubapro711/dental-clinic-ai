@@ -1,0 +1,358 @@
+# Google Cloud Monitoring Configuration for DentaFlow SaaS
+# This file defines monitoring dashboards, alerts, and uptime checks
+
+---
+# Uptime Checks
+uptime_checks:
+  - name: "dentaflow-api-health"
+    display_name: "DentaFlow API Health Check"
+    monitored_resource:
+      type: "uptime_url"
+      labels:
+        project_id: "dentaflow-saas"
+        host: "api.dentaflow.ai"
+    http_check:
+      path: "/health"
+      port: 443
+      use_ssl: true
+      validate_ssl: true
+    period: "60s"
+    timeout: "10s"
+    
+  - name: "dentaflow-frontend-health"
+    display_name: "DentaFlow Frontend Health Check"
+    monitored_resource:
+      type: "uptime_url"
+      labels:
+        project_id: "dentaflow-saas"
+        host: "dentaflow.ai"
+    http_check:
+      path: "/"
+      port: 443
+      use_ssl: true
+      validate_ssl: true
+    period: "60s"
+    timeout: "10s"
+
+---
+# Alert Policies
+alert_policies:
+  # High Error Rate
+  - display_name: "High API Error Rate"
+    documentation:
+      content: "API error rate has exceeded 5% over the last 5 minutes. Investigate immediately."
+      mime_type: "text/markdown"
+    conditions:
+      - display_name: "Error rate > 5%"
+        condition_threshold:
+          filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_count" AND metric.label.response_code_class="5xx"'
+          aggregations:
+            - alignment_period: "300s"
+              per_series_aligner: "ALIGN_RATE"
+          comparison: "COMPARISON_GT"
+          threshold_value: 0.05
+          duration: "300s"
+    notification_channels:
+      - "email-alerts"
+      - "slack-alerts"
+    alert_strategy:
+      auto_close: "1800s"
+      
+  # High Response Time
+  - display_name: "High API Response Time"
+    documentation:
+      content: "API response time has exceeded 2 seconds (p95) over the last 5 minutes."
+    conditions:
+      - display_name: "Response time > 2s (p95)"
+        condition_threshold:
+          filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_latencies"'
+          aggregations:
+            - alignment_period: "300s"
+              per_series_aligner: "ALIGN_DELTA"
+              cross_series_reducer: "REDUCE_PERCENTILE_95"
+          comparison: "COMPARISON_GT"
+          threshold_value: 2000  # milliseconds
+          duration: "300s"
+    notification_channels:
+      - "email-alerts"
+      
+  # Database Connection Pool Exhaustion
+  - display_name: "Database Connection Pool Near Limit"
+    documentation:
+      content: "Database connection pool is >80% utilized. May need to scale."
+    conditions:
+      - display_name: "Connection pool > 80%"
+        condition_threshold:
+          filter: 'resource.type="cloudsql_database" AND metric.type="cloudsql.googleapis.com/database/postgresql/num_backends"'
+          aggregations:
+            - alignment_period: "60s"
+              per_series_aligner: "ALIGN_MEAN"
+          comparison: "COMPARISON_GT"
+          threshold_value: 80
+          duration: "300s"
+    notification_channels:
+      - "email-alerts"
+      
+  # High Memory Usage
+  - display_name: "High Memory Usage"
+    documentation:
+      content: "Cloud Run instance memory usage has exceeded 80% for 5 minutes."
+    conditions:
+      - display_name: "Memory > 80%"
+        condition_threshold:
+          filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/container/memory/utilizations"'
+          aggregations:
+            - alignment_period: "60s"
+              per_series_aligner: "ALIGN_MEAN"
+          comparison: "COMPARISON_GT"
+          threshold_value: 0.8
+          duration: "300s"
+    notification_channels:
+      - "email-alerts"
+      
+  # Uptime Check Failure
+  - display_name: "API Health Check Failed"
+    documentation:
+      content: "API health check has failed. Service may be down."
+    conditions:
+      - display_name: "Health check failed"
+        condition_threshold:
+          filter: 'metric.type="monitoring.googleapis.com/uptime_check/check_passed" AND resource.type="uptime_url"'
+          aggregations:
+            - alignment_period: "60s"
+              per_series_aligner: "ALIGN_FRACTION_TRUE"
+          comparison: "COMPARISON_LT"
+          threshold_value: 0.9
+          duration: "300s"
+    notification_channels:
+      - "email-alerts"
+      - "slack-alerts"
+      - "pagerduty"
+      
+  # High Cost Alert
+  - display_name: "Daily Cost Exceeds Budget"
+    documentation:
+      content: "Daily GCP costs have exceeded the budget threshold."
+    conditions:
+      - display_name: "Cost > $100/day"
+        condition_threshold:
+          filter: 'metric.type="billing.googleapis.com/cost"'
+          aggregations:
+            - alignment_period: "86400s"  # 1 day
+              per_series_aligner: "ALIGN_SUM"
+          comparison: "COMPARISON_GT"
+          threshold_value: 100
+          duration: "0s"
+    notification_channels:
+      - "email-alerts"
+      
+  # Failed Login Attempts
+  - display_name: "High Failed Login Rate"
+    documentation:
+      content: "More than 10 failed login attempts from the same IP in 10 minutes. Possible brute force attack."
+    conditions:
+      - display_name: "Failed logins > 10"
+        condition_threshold:
+          filter: 'resource.type="cloud_run_revision" AND metric.type="logging.googleapis.com/user/failed_login_attempts"'
+          aggregations:
+            - alignment_period: "600s"
+              per_series_aligner: "ALIGN_SUM"
+          comparison: "COMPARISON_GT"
+          threshold_value: 10
+          duration: "0s"
+    notification_channels:
+      - "email-alerts"
+      - "slack-alerts"
+      
+  # Database Storage Near Limit
+  - display_name: "Database Storage >80%"
+    documentation:
+      content: "Cloud SQL database storage is >80% full. Consider increasing storage."
+    conditions:
+      - display_name: "Storage > 80%"
+        condition_threshold:
+          filter: 'resource.type="cloudsql_database" AND metric.type="cloudsql.googleapis.com/database/disk/utilization"'
+          aggregations:
+            - alignment_period: "300s"
+              per_series_aligner: "ALIGN_MEAN"
+          comparison: "COMPARISON_GT"
+          threshold_value: 0.8
+          duration: "600s"
+    notification_channels:
+      - "email-alerts"
+
+---
+# Notification Channels
+notification_channels:
+  - type: "email"
+    display_name: "email-alerts"
+    labels:
+      email_address: "alerts@dentaflow.ai"
+      
+  - type: "slack"
+    display_name: "slack-alerts"
+    labels:
+      channel_name: "#dentaflow-alerts"
+      url: "${SLACK_WEBHOOK_URL}"
+      
+  - type: "pagerduty"
+    display_name: "pagerduty"
+    labels:
+      service_key: "${PAGERDUTY_SERVICE_KEY}"
+
+---
+# Custom Dashboards
+dashboards:
+  - display_name: "DentaFlow Production Overview"
+    grid_layout:
+      widgets:
+        # API Request Rate
+        - title: "API Request Rate"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_count"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_RATE"
+            chart_options:
+              mode: "COLOR"
+              
+        # API Error Rate
+        - title: "API Error Rate"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_count" AND metric.label.response_code_class="5xx"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_RATE"
+            chart_options:
+              mode: "COLOR"
+              
+        # API Response Time (p50, p95, p99)
+        - title: "API Response Time"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_latencies"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_DELTA"
+                      cross_series_reducer: "REDUCE_PERCENTILE_50"
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_latencies"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_DELTA"
+                      cross_series_reducer: "REDUCE_PERCENTILE_95"
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/request_latencies"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_DELTA"
+                      cross_series_reducer: "REDUCE_PERCENTILE_99"
+            chart_options:
+              mode: "COLOR"
+              
+        # Database Connections
+        - title: "Database Connections"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloudsql_database" AND metric.type="cloudsql.googleapis.com/database/postgresql/num_backends"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_MEAN"
+            chart_options:
+              mode: "COLOR"
+              
+        # Memory Usage
+        - title: "Memory Usage"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/container/memory/utilizations"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_MEAN"
+            chart_options:
+              mode: "COLOR"
+              
+        # CPU Usage
+        - title: "CPU Usage"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/container/cpu/utilizations"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_MEAN"
+            chart_options:
+              mode: "COLOR"
+              
+        # Active Instances
+        - title: "Active Instances"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloud_run_revision" AND metric.type="run.googleapis.com/container/instance_count"'
+                    aggregation:
+                      alignment_period: "60s"
+                      per_series_aligner: "ALIGN_MEAN"
+            chart_options:
+              mode: "COLOR"
+              
+        # Database Storage
+        - title: "Database Storage Usage"
+          xy_chart:
+            data_sets:
+              - time_series_query:
+                  time_series_filter:
+                    filter: 'resource.type="cloudsql_database" AND metric.type="cloudsql.googleapis.com/database/disk/bytes_used"'
+                    aggregation:
+                      alignment_period: "300s"
+                      per_series_aligner: "ALIGN_MEAN"
+            chart_options:
+              mode: "COLOR"
+
+---
+# Log-Based Metrics
+log_metrics:
+  - name: "failed_login_attempts"
+    description: "Count of failed login attempts"
+    filter: 'resource.type="cloud_run_revision" AND jsonPayload.event="login_failed"'
+    metric_descriptor:
+      metric_kind: "DELTA"
+      value_type: "INT64"
+      
+  - name: "api_errors"
+    description: "Count of API errors (500 responses)"
+    filter: 'resource.type="cloud_run_revision" AND httpRequest.status>=500'
+    metric_descriptor:
+      metric_kind: "DELTA"
+      value_type: "INT64"
+      
+  - name: "slow_queries"
+    description: "Count of slow database queries (>1s)"
+    filter: 'resource.type="cloud_run_revision" AND jsonPayload.query_time>1000'
+    metric_descriptor:
+      metric_kind: "DELTA"
+      value_type: "INT64"
+      
+  - name: "security_events"
+    description: "Count of security-related events"
+    filter: 'resource.type="cloud_run_revision" AND (jsonPayload.event="unauthorized_access" OR jsonPayload.event="suspicious_activity")'
+    metric_descriptor:
+      metric_kind: "DELTA"
+      value_type: "INT64"
+

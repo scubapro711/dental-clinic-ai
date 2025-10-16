@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.services.stripe_service import StripeService
+from app.services.alert_service import get_alert_service
 from app.models.subscription import Subscription, SubscriptionStatus
 from datetime import datetime, timedelta
 
@@ -123,6 +124,15 @@ async def handle_subscription_deleted(data: Dict[str, Any], db: Session):
         subscription.canceled_at = datetime.utcnow()
         db.commit()
         logger.info(f"Marked subscription {subscription.id} as canceled")
+        
+        # Send alert to admins
+        if subscription.organization:
+            alert_service = get_alert_service()
+            alert_service.alert_subscription_canceled(
+                organization_name=subscription.organization.name,
+                plan_tier=subscription.plan_tier.value,
+                mrr_impact=float(subscription.plan_price or 0)
+            )
 
 
 async def handle_trial_will_end(data: Dict[str, Any], db: Session):
@@ -143,12 +153,15 @@ async def handle_trial_will_end(data: Dict[str, Any], db: Session):
     ).first()
     
     if subscription and subscription.organization:
-        # TODO: Send reminder email
-        # email_service.send_trial_ending_reminder(
-        #     to=subscription.organization.email,
-        #     trial_end_date=datetime.fromtimestamp(trial_end)
-        # )
-        logger.info(f"Should send trial ending reminder to {subscription.organization.name}")
+        logger.info(f"Trial ending for {subscription.organization.name}")
+        
+        # Send alert to admins
+        days_remaining = (subscription.trial_end - datetime.utcnow()).days if subscription.trial_end else 7
+        alert_service = get_alert_service()
+        alert_service.alert_trial_ending(
+            organization_name=subscription.organization.name,
+            days_remaining=days_remaining
+        )
 
 
 async def handle_payment_succeeded(data: Dict[str, Any], db: Session):
@@ -182,12 +195,16 @@ async def handle_payment_failed(data: Dict[str, Any], db: Session):
             # Mark as past_due
             subscription.status = SubscriptionStatus.PAST_DUE
             db.commit()
-            
-            # TODO: Send payment failed email
-            # email_service.send_payment_failed_notification(
-            #     to=subscription.organization.email
-            # )
             logger.warning(f"Marked subscription {subscription.id} as past_due")
+            
+            # Send alert to admins
+            if subscription.organization:
+                alert_service = get_alert_service()
+                alert_service.alert_payment_failed(
+                    organization_name=subscription.organization.name,
+                    amount=float(subscription.plan_price or 0),
+                    error_message="Payment failed - subscription marked as past_due"
+                )
 
 
 async def handle_payment_intent_succeeded(data: Dict[str, Any], db: Session):

@@ -42,6 +42,9 @@ from app.api.v1.endpoints import (
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
 from app.api.v1.endpoints.super_admin import revenue as super_admin_revenue
+from app.api.v1.endpoints.super_admin import costs as super_admin_costs
+from app.api.v1.endpoints.super_admin import exports as super_admin_exports
+from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
 from app.api.v1 import appointments
 
 # Create main API router
@@ -102,6 +105,9 @@ api_router.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"]
 api_router.include_router(super_admin_organizations.router, prefix="/super-admin", tags=["super-admin"])
 api_router.include_router(super_admin_usage.router, prefix="/super-admin", tags=["super-admin"])
 api_router.include_router(super_admin_revenue.router, prefix="/super-admin", tags=["super-admin"])
+api_router.include_router(super_admin_costs.router, prefix="/super-admin/costs", tags=["super-admin"])
+api_router.include_router(super_admin_exports.router, prefix="/super-admin/export", tags=["super-admin"])
+api_router.include_router(super_admin_analytics.router, prefix="/super-admin/analytics", tags=["super-admin"])
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])
