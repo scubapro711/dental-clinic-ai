@@ -24,6 +24,7 @@ from app.agents.graph_state import AgentState
 from app.agents.tools.marcus_financial_tools import marcus_financial_tools
 from app.agents.tools.tax_tools import tax_tools
 from app.agents.tools.accountant_referral import accountant_referral_tools
+from app.agents.tools.marcus_subscription_tools import marcus_subscription_tools
 
 
 logger = logging.getLogger(__name__)
@@ -155,6 +156,10 @@ Available tools:
 - get_outstanding_invoices: List unpaid invoices
 - analyze_profitability: Deep dive into profitability metrics
 - get_financial_trends: Analyze financial trends over time
+- get_subscription_status: Check clinic's subscription status and plan
+- list_invoices: List subscription invoices
+- analyze_subscription_metrics: Analyze subscription and billing metrics
+- suggest_plan_upgrade: Suggest plan upgrades based on usage
 
 When the doctor asks about finances, use these tools to provide accurate,
 data-driven insights and recommendations.
@@ -262,7 +267,7 @@ Revenue up 25% this quarter! Great job!
             generate_tax_report_tool,
         )
 
-        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + [
+        all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools + marcus_subscription_tools + [
             search_financial_knowledge_tool,
             create_invoice_tool,
             send_invoice_tool,

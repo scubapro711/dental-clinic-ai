@@ -25,6 +25,9 @@ import AgenticDashboard from './pages/AgenticDashboard'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
 
+// Billing Components
+import { PricingPage, SubscriptionManagement, BillingDashboard } from './components/billing'
+
 // Shared
 import ChatPage from './pages/ChatPage'
 
@@ -76,6 +79,9 @@ function App() {
         <Route path="/onboarding" element={<ClinicOnboardingWizard />} />
         <Route path="/onboarding/dashboard" element={<OnboardingDashboard />} />
         
+        {/* Pricing Page (Public) */}
+        <Route path="/pricing" element={<PricingPage />} />
+        
         {/* Patient Portal Routes (ORG_VIEWER) */}
         <Route
           path="/patient"
@@ -110,6 +116,7 @@ function App() {
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />
           <Route path="analytics" element={<ComingSoon title="Analytics" />} />
+          <Route path="subscription" element={<SubscriptionManagement />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
         </Route>
         
@@ -122,6 +129,8 @@ function App() {
                 <Route path="dashboard" element={<ComingSoon title="Admin Dashboard" />} />
                 <Route path="organizations" element={<ComingSoon title="Organizations" />} />
                 <Route path="users" element={<ComingSoon title="Users" />} />
+                <Route path="billing" element={<BillingDashboard />} />
+                <Route path="billing/subscription/:id" element={<ComingSoon title="Subscription Details" />} />
                 <Route path="settings" element={<ComingSoon title="Settings" />} />
                 <Route path="monitoring" element={<ComingSoon title="Monitoring" />} />
                 <Route path="agents" element={<ComingSoon title="Agents" />} />

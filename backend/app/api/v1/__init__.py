@@ -34,6 +34,10 @@ from app.api.v1.endpoints import (
     dashboard_metrics,
     migrate,
     verify_schema,
+    subscriptions,
+    admin_plans,
+    admin_billing,
+    webhooks,
 )
 from app.api.v1 import appointments
 
@@ -84,6 +88,12 @@ api_router.include_router(statistics.router, prefix="/statistics", tags=["statis
 
 # Financial
 api_router.include_router(financial.router, tags=["financial"])
+
+# Subscriptions & Billing
+api_router.include_router(subscriptions.router, tags=["subscriptions"])
+api_router.include_router(admin_plans.router, tags=["super-admin"])
+api_router.include_router(admin_billing.router, tags=["super-admin"])
+api_router.include_router(webhooks.router, prefix="/webhooks", tags=["webhooks"])
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])

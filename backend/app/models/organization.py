@@ -73,6 +73,7 @@ class Organization(Base):
     # Relationships
     users = relationship("User", back_populates="organization")  # Legacy
     memberships = relationship("OrganizationMembership", back_populates="organization", cascade="all, delete-orphan")
+    subscription = relationship("Subscription", back_populates="organization", uselist=False, cascade="all, delete-orphan")
     settings = relationship("ClinicSettings", back_populates="organization", uselist=False, cascade="all, delete-orphan")
     treatment_prices = relationship("TreatmentPrice", back_populates="organization", cascade="all, delete-orphan")
     baa_signatures = relationship("BAASignature", back_populates="organization", cascade="all, delete-orphan")

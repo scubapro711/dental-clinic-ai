@@ -9,6 +9,12 @@ from app.models.user import User, UserRole
 from app.models.organization import Organization, SubscriptionTier
 from app.models.organization_membership import OrganizationMembership
 
+# Billing and subscriptions
+from app.models.subscription import Subscription, SubscriptionStatus, PlanTier
+from app.models.payment import Payment, PaymentStatus
+from app.models.invoice import Invoice, InvoiceStatus
+from app.models.plan_configuration import PlanConfiguration
+
 # Settings and configuration
 from app.models.clinic_settings import ClinicSettings
 from app.models.treatment_price import TreatmentPrice
@@ -53,6 +59,15 @@ __all__ = [
     "Organization",
     "SubscriptionTier",
     "OrganizationMembership",
+    # Billing
+    "Subscription",
+    "SubscriptionStatus",
+    "PlanTier",
+    "Payment",
+    "PaymentStatus",
+    "Invoice",
+    "InvoiceStatus",
+    "PlanConfiguration",
     # Settings
     "ClinicSettings",
     "TreatmentPrice",
