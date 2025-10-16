@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import './App.css';
 import HeroSection from './components/HeroSection';
 import CompetitiveAdvantages from './components/CompetitiveAdvantages';
@@ -8,6 +10,8 @@ import InteractiveDemo from './components/InteractiveDemo';
 import FAQSection from './components/FAQSection';
 import Footer from './components/Footer';
 import CookieConsent from './components/CookieConsent';
+import SEO from './components/SEO';
+import GoogleAnalytics, { initGoogleAnalytics } from './components/GoogleAnalytics';
 
 /**
  * DentaFlow Landing Page
@@ -21,37 +25,57 @@ import CookieConsent from './components/CookieConsent';
  * 6. Interactive Demo - Try Alex AI live
  * 7. FAQ - Common questions
  * 8. Footer - Company info and links
+ * 
+ * SEO & Analytics:
+ * - Comprehensive meta tags (Open Graph, Twitter Cards)
+ * - Google Analytics tracking
+ * - Structured data (JSON-LD)
+ * - Sitemap & robots.txt
  */
 function App() {
+  // Initialize Google Analytics on mount
+  useEffect(() => {
+    const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
+    initGoogleAnalytics(GA_ID);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <HeroSection />
+    <HelmetProvider>
+      <div className="min-h-screen bg-white">
+        {/* SEO Meta Tags */}
+        <SEO />
 
-      {/* Competitive Advantages */}
-      <CompetitiveAdvantages />
+        {/* Google Analytics */}
+        <GoogleAnalytics />
 
-      {/* AI Team Section */}
-      <AITeamSection />
+        {/* Hero Section */}
+        <HeroSection />
 
-      {/* HIPAA Compliance */}
-      <HIPAASection />
+        {/* Competitive Advantages */}
+        <CompetitiveAdvantages />
 
-      {/* Pricing */}
-      <PricingSection />
+        {/* AI Team Section */}
+        <AITeamSection />
 
-      {/* Interactive Demo */}
-      <InteractiveDemo />
+        {/* HIPAA Compliance */}
+        <HIPAASection />
 
-      {/* FAQ */}
-      <FAQSection />
+        {/* Pricing */}
+        <PricingSection />
 
-      {/* Footer */}
-      <Footer />
+        {/* Interactive Demo */}
+        <InteractiveDemo />
 
-      {/* Cookie Consent Banner */}
-      <CookieConsent />
-    </div>
+        {/* FAQ */}
+        <FAQSection />
+
+        {/* Footer */}
+        <Footer />
+
+        {/* Cookie Consent Banner */}
+        <CookieConsent />
+      </div>
+    </HelmetProvider>
   );
 }
 
