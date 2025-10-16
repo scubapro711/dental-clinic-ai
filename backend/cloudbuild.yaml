@@ -23,3 +23,6 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-backend:$SHORT_SHA'
+
+# Increase timeout for large dependencies (PyTorch, LangChain, etc.)
+timeout: 3600s  # 60 minutes
