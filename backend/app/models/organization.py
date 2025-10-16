@@ -80,6 +80,8 @@ class Organization(Base):
     proactive_suggestions = relationship("ProactiveSuggestion", back_populates="organization", cascade="all, delete-orphan")
     xrays = relationship("XRay", back_populates="organization", cascade="all, delete-orphan")
     treatment_categories = relationship("TreatmentCategory", back_populates="organization", cascade="all, delete-orphan")
+    usage_metrics = relationship("UsageMetric", back_populates="organization", cascade="all, delete-orphan")
+    cost_tracking = relationship("CostTracking", back_populates="organization", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Organization {self.name}>"

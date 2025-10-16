@@ -129,3 +129,27 @@ async def get_current_membership(
         )
     
     return membership
+
+
+
+async def require_super_admin(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """
+    Require Super Admin role.
+    
+    Usage:
+        @router.get("/super-admin-only")
+        async def super_admin_endpoint(user: User = Depends(require_super_admin)):
+            ...
+    
+    Raises:
+        HTTPException: If user is not a super admin
+    """
+    if current_user.role != UserRole.SUPER_ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Super admin access required"
+        )
+    return current_user
+

@@ -48,6 +48,12 @@ from app.models.consent import (
 from app.models.baa_signature import BAASignature
 from app.models.audit_log import AuditLog
 
+# Super Admin Dashboard
+from app.models.usage_metric import UsageMetric, UsageMetricType
+from app.models.cost_tracking import CostTracking
+from app.models.analytics_snapshot import AnalyticsSnapshot, SnapshotType
+from app.models.admin_action import AdminAction, AdminActionType
+
 # Other
 from app.models.proactive_suggestion import ProactiveSuggestion
 from app.models.user_patient_mapping import UserPatientMapping
@@ -97,6 +103,14 @@ __all__ = [
     "ConsentStatus",
     "BAASignature",
     "AuditLog",
+    # Super Admin Dashboard
+    "UsageMetric",
+    "UsageMetricType",
+    "CostTracking",
+    "AnalyticsSnapshot",
+    "SnapshotType",
+    "AdminAction",
+    "AdminActionType",
     # Other
     "ProactiveSuggestion",
     "UserPatientMapping",
