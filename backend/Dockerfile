@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
+# Updated: 2025-10-16 - Added google-cloud-bigquery
 COPY requirements.txt .
 
 # Install Python dependencies
