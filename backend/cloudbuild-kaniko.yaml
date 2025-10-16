@@ -1,0 +1,56 @@
+steps:
+  # Build with Kaniko using layer caching
+  - name: 'gcr.io/kaniko-project/executor:latest'
+    args:
+      - --dockerfile=Dockerfile
+      - --context=dir:///workspace
+      - --destination=gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA
+      - --destination=gcr.io/dentaflow-production/dentaflow-backend:latest
+      - --cache=true
+      - --cache-ttl=168h
+      - --compressed-caching=false
+      - --snapshot-mode=redo
+      - --use-new-run
+    timeout: 3600s
+
+  # Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'dentaflow-backend'
+      - '--image'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA'
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      - '--memory'
+      - '4Gi'
+      - '--cpu'
+      - '2'
+      - '--timeout'
+      - '300'
+      - '--min-instances'
+      - '0'
+      - '--max-instances'
+      - '10'
+      - '--set-cloudsql-instances'
+      - 'dentaflow-production:us-central1:dentaflow-db-instance'
+    timeout: 600s
+
+images:
+  - 'gcr.io/dentaflow-production/dentaflow-backend:$SHORT_SHA'
+  - 'gcr.io/dentaflow-production/dentaflow-backend:latest'
+
+# Total timeout: 2 hours (enough for first build)
+timeout: 7200s
+
+# Use faster machine with more CPU and disk
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+  logging: CLOUD_LOGGING_ONLY
+
