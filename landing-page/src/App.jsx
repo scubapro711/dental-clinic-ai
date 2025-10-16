@@ -1,36 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { Button } from '@/components/ui/button.jsx'
-import './App.css'
+import './App.css';
+import HeroSection from './components/HeroSection';
+import CompetitiveAdvantages from './components/CompetitiveAdvantages';
+import AITeamSection from './components/AITeamSection';
+import HIPAASection from './components/HIPAASection';
+import PricingSection from './components/PricingSection';
+import InteractiveDemo from './components/InteractiveDemo';
+import FAQSection from './components/FAQSection';
+import Footer from './components/Footer';
 
+/**
+ * DentaFlow Landing Page
+ * 
+ * Main application component that assembles all sections:
+ * 1. Hero Section - Main value proposition with 4 AI agents
+ * 2. Competitive Advantages - Comparison with competitors
+ * 3. AI Team Section - Detailed showcase of all 4 agents
+ * 4. HIPAA Compliance - Built-in compliance as competitive advantage
+ * 5. Pricing - Transparent pricing with early adopter discount
+ * 6. Interactive Demo - Try Alex AI live
+ * 7. FAQ - Common questions
+ * 8. Footer - Company info and links
+ */
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div>
-        <Button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </Button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="min-h-screen bg-white">
+      {/* Hero Section */}
+      <HeroSection />
+
+      {/* Competitive Advantages */}
+      <CompetitiveAdvantages />
+
+      {/* AI Team Section */}
+      <AITeamSection />
+
+      {/* HIPAA Compliance */}
+      <HIPAASection />
+
+      {/* Pricing */}
+      <PricingSection />
+
+      {/* Interactive Demo */}
+      <InteractiveDemo />
+
+      {/* FAQ */}
+      <FAQSection />
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;
+
