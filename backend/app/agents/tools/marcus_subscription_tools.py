@@ -391,3 +391,14 @@ def get_billing_summary(organization_id: str) -> str:
         logger.error(f"Error getting billing summary: {e}")
         return f"שגיאה בקבלת סיכום חיוב: {str(e)}"
 
+
+
+# Export tools as a list
+marcus_subscription_tools = [
+    get_subscription_status,
+    list_subscription_invoices,
+    analyze_subscription_usage,
+    suggest_plan_upgrade,
+    get_billing_summary,
+]
+
