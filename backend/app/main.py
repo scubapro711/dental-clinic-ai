@@ -173,7 +173,7 @@ app = FastAPI(
     - Documentation: https://docs.dentaflow.ai
     - Status: https://status.dentaflow.ai
     """,
-    version="20.3.0",
+    version="24.0.3",
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_tags=tags_metadata,
@@ -264,7 +264,7 @@ async def health_check():
         content={
             "status": "healthy",
             "service": "dentaflow-backend",
-            "version": "20.3.0",
+            "version": "24.0.3",
             "phase": "Phase 4 - Production Ready",
         },
     )
