@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FileText, ArrowRight, Download, Print, AlertCircle } from 'lucide-react';
+import { FileText, ArrowRight, Download, Printer, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 /**
