@@ -46,6 +46,13 @@ import LegalDocument from './pages/legal/LegalDocument'
 // Onboarding
 import ClinicOnboarding from './pages/onboarding/ClinicOnboarding'
 
+// Demo Portal
+import { DemoProvider } from './contexts/DemoContext'
+import DemoPortal from './pages/DemoPortal'
+
+// Landing Page
+import LandingPage from './pages/LandingPage'
+
 // 404 Page
 function NotFoundPage() {
   return (
@@ -83,8 +90,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Root - Role-based redirect */}
-        <Route path="/" element={<RoleBasedRedirect />} />
+        {/* Landing Page (Public) */}
+        <Route path="/" element={<LandingPage />} />
+        
+        {/* Dashboard - Role-based redirect */}
+        <Route path="/dashboard-redirect" element={<RoleBasedRedirect />} />
         
         {/* Auth Routes (Public) */}
         <Route path="/login" element={<SimpleMockLogin />} />
@@ -97,6 +107,16 @@ function App() {
         
         {/* Legal Pages (Public) */}
         <Route path="/legal/:documentId" element={<LegalDocument />} />
+        
+        {/* Demo Portal (Public) */}
+        <Route 
+          path="/demo" 
+          element={
+            <DemoProvider>
+              <DemoPortal />
+            </DemoProvider>
+          } 
+        />
         
         {/* Pricing Page (Public) */}
         <Route path="/pricing" element={<PricingPage />} />
