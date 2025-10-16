@@ -368,8 +368,8 @@ async def suspend_organization(
 @router.delete("/organizations/{org_id}")
 async def delete_organization(
     org_id: str,
-    hard_delete: bool = Query(False, description="Permanently delete (true) or soft delete (false)"),
     request: Request,
+    hard_delete: bool = Query(False, description="Permanently delete (true) or soft delete (false)"),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_super_admin)
 ):
