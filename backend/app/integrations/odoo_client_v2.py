@@ -242,6 +242,39 @@ class OdooClientV2:
             logger.error(f"Failed to search_read {model}: {e}")
             raise
     
+    def search_count(
+        self,
+        model: str,
+        domain: List[Tuple] = None
+    ) -> int:
+        """
+        Count records matching the domain.
+        
+        This is more efficient than search() when you only need the count.
+        
+        Args:
+            model: Odoo model name (e.g., 'res.partner', 'patient.appointment')
+            domain: Search domain (list of tuples)
+        
+        Returns:
+            Number of records matching the domain
+        
+        Example:
+            >>> client.search_count(
+            ...     'res.partner',
+            ...     domain=[('customer_rank', '>', 0)]
+            ... )
+            42
+        """
+        if domain is None:
+            domain = []
+        
+        try:
+            return self._execute(model, 'search_count', [domain], {})
+        except Exception as e:
+            logger.error(f"Failed to count {model} records: {e}")
+            raise
+    
     def read(
         self,
         model: str,

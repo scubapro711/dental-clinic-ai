@@ -154,26 +154,26 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
     # Update last login
     AuthService.update_last_login(db, user.id)
 
-    # Get user's membership to include odoo_partner_id in token
+    # Get user's membership to include organization_id and odoo_partner_id in token
     from app.models.organization_membership import OrganizationMembership
-    membership = None
+    membership = db.query(OrganizationMembership).filter(
+        OrganizationMembership.user_id == user.id,
+        OrganizationMembership.is_active == True
+    ).first()
+    
+    organization_id = None
     odoo_partner_id = None
     
-    if user.organization_id:
-        membership = db.query(OrganizationMembership).filter(
-            OrganizationMembership.user_id == user.id,
-            OrganizationMembership.organization_id == user.organization_id
-        ).first()
-        
-        if membership:
-            odoo_partner_id = membership.odoo_partner_id
+    if membership:
+        organization_id = str(membership.organization_id)
+        odoo_partner_id = membership.odoo_partner_id
 
-    # Create tokens with odoo_partner_id
+    # Create tokens with organization_id and odoo_partner_id
     token_data = {
         "sub": str(user.id),
         "email": user.email,
         "role": user.role.value,
-        "organization_id": str(user.organization_id) if user.organization_id else None,
+        "organization_id": organization_id,
         "odoo_partner_id": odoo_partner_id,  # Include Odoo link
     }
 
