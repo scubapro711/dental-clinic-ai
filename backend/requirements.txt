@@ -80,6 +80,9 @@ fastapi-cors==0.0.6
 # AWS Cognito & Cloud Services
 boto3>=1.28.0
 
+# Google Cloud Services
+google-cloud-bigquery>=3.11.0
+
 # Encryption
 cryptography>=41.0.0
 
