@@ -184,6 +184,15 @@ const PendingDecisionsWidget = () => {
     },
     {
       id: 3,
+      agent: 'Sarah',
+      type: 'treatment_plan',
+      title: 'Treatment Plan Approval',
+      description: 'Complex treatment plan for David Cohen: Root canal + crown. Estimated cost: ₪3,200',
+      priority: 'high',
+      timestamp: '15 minutes ago'
+    },
+    {
+      id: 4,
       agent: 'Sophia',
       type: 'inventory_order',
       title: 'Inventory Reorder',
@@ -539,6 +548,35 @@ const TransparencyPanelDemo = () => {
       ],
       tools_used: ['get_patient_balance', 'analyze_payment_history', 'create_payment_plan'],
       outcome: 'Pending approval'
+    },
+    {
+      title: 'Treatment Plan Analysis',
+      agent: 'Sarah',
+      timestamp: '15 minutes ago',
+      reasoning: [
+        {
+          step: 1,
+          thought: 'Patient David Cohen reports severe tooth pain in lower right molar',
+          confidence: 100
+        },
+        {
+          step: 2,
+          thought: 'Reviewed X-rays: Deep cavity reaching pulp chamber - root canal required',
+          confidence: 97
+        },
+        {
+          step: 3,
+          thought: 'Assessed tooth structure: Crown needed post-treatment to prevent fracture',
+          confidence: 95
+        },
+        {
+          step: 4,
+          thought: 'Recommended immediate treatment: Root canal + crown. Total cost: ₪3,200',
+          confidence: 93
+        }
+      ],
+      tools_used: ['review_xrays', 'analyze_symptoms', 'estimate_treatment_cost'],
+      outcome: 'Pending approval'
     }
   ];
 
@@ -674,6 +712,16 @@ const DemoDashboardEnhanced = () => {
             <h4>Revenue Opportunity Detected</h4>
             <p>3 patients are due for routine checkups. Estimated revenue: ₪1,800</p>
             <button className="insight-action">Contact Patients</button>
+          </div>
+
+          <div className="insight-card">
+            <div className="insight-header">
+              <span className="agent-badge">Sarah</span>
+              <span className="insight-priority high">High Priority</span>
+            </div>
+            <h4>Urgent Treatment Required</h4>
+            <p>Patient David Cohen needs immediate root canal treatment. Delay may cause complications.</p>
+            <button className="insight-action">Schedule Treatment</button>
           </div>
 
           <div className="insight-card">
