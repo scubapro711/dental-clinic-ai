@@ -265,7 +265,8 @@ export const DemoProvider = ({ children }) => {
         setDemoSessionId(storedSessionId);
         setDemoMode(true);
         setTimeRemaining(remaining);
-        loadDemoData(storedSessionId);
+        const data = loadDemoData(storedSessionId);
+        setDemoData(data);
       } else {
         // Session expired
         sessionStorage.removeItem('demoSessionId');
