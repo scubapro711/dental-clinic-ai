@@ -90,7 +90,8 @@ function ComingSoon({ title }) {
 function App() {
   return (
     <Router>
-      <Routes>
+      <DemoProvider>
+        <Routes>
         {/* Landing Page (Public) */}
         <Route path="/" element={<LandingPage />} />
         
@@ -112,21 +113,13 @@ function App() {
         {/* Demo Portal (Public) */}
         <Route 
           path="/demo" 
-          element={
-            <DemoProvider>
-              <DemoPortalEnhanced />
-            </DemoProvider>
-          } 
+          element={<DemoPortalEnhanced />} 
         />
         
         {/* Demo Portal - Basic Version (Public) */}
         <Route 
           path="/demo-basic" 
-          element={
-            <DemoProvider>
-              <DemoPortal />
-            </DemoProvider>
-          } 
+          element={<DemoPortal />} 
         />
         
         {/* Pricing Page (Public) */}
@@ -202,6 +195,7 @@ function App() {
         {/* 404 */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </DemoProvider>
     </Router>
   )
 }
