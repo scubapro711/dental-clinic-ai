@@ -422,5 +422,145 @@
     "monthsAgo": "{{count}} months ago",
     "yearAgo": "A year ago",
     "yearsAgo": "{{count}} years ago"
+  },
+  "landing": {
+    "nav": {
+      "features": "Features",
+      "whyNotBot": "Why Not a Bot?",
+      "pricing": "Pricing",
+      "pilot": "Pilot Program",
+      "tryDemo": "Try Demo",
+      "startTrial": "Start Free Trial"
+    },
+    "hero": {
+      "badge": "🚀 Now accepting 10 clinics for pilot program",
+      "title1": "4 AI Specialists Working 24/7",
+      "title2": "For Your Dental Clinic",
+      "subtitle": "Not a chatbot. A complete Multi-Agent AI system that handles patient communication, scheduling, billing, and operations—saving you 10+ hours per week.",
+      "tryDemo": "Try Interactive Demo",
+      "noSignup": "No signup required",
+      "startTrial": "Start 30-Day Free Trial",
+      "noCredit": "No credit card",
+      "joinPilot": "Join Pilot Program",
+      "monthsFree": "6 months free",
+      "hipaa": "HIPAA Compliant",
+      "gdpr": "GDPR Ready",
+      "uptime": "99.9% Uptime SLA",
+      "odoo": "Odoo Integration",
+      "liveDemo": "LIVE DEMO",
+      "active247": "24/7 Active"
+    },
+    "agents": {
+      "alex": {
+        "name": "Alex",
+        "role": "Patient Relations",
+        "fullRole": "Patient Relations & Reception",
+        "feature1": "24/7 appointment scheduling",
+        "feature2": "Patient inquiries & support",
+        "feature3": "Multi-channel communication",
+        "feature4": "Appointment reminders",
+        "stat": "3x",
+        "statLabel": "faster response time"
+      },
+      "sarah": {
+        "name": "Sarah",
+        "role": "Clinical Operations",
+        "feature1": "Treatment plan management",
+        "feature2": "Medical records coordination",
+        "feature3": "Clinical workflows",
+        "feature4": "Doctor-patient communication",
+        "stat": "85%",
+        "statLabel": "reduction in admin tasks"
+      },
+      "marcus": {
+        "name": "Marcus",
+        "role": "Financial Analysis",
+        "fullRole": "Financial Analysis & CFO",
+        "feature1": "Revenue analytics & insights",
+        "feature2": "Invoice management",
+        "feature3": "Payment tracking",
+        "feature4": "Financial forecasting",
+        "stat": "₪15K+",
+        "statLabel": "average monthly revenue increase"
+      },
+      "sophia": {
+        "name": "Sophia",
+        "role": "Practice Management",
+        "feature1": "Operations optimization",
+        "feature2": "Staff coordination",
+        "feature3": "Inventory management",
+        "feature4": "Performance analytics",
+        "stat": "10h+",
+        "statLabel": "saved per week"
+      }
+    },
+    "whyNotBot": {
+      "title": "Why This Isn't Just Another Chatbot",
+      "subtitle": "Research shows users expect 40% lower quality from chatbots. We built something better.",
+      "chatbot": "Traditional Chatbot",
+      "dentaflow": "DentaFlow Multi-Agent System",
+      "bad1": "Single AI, limited context",
+      "bad2": "Fails with complex questions",
+      "bad3": "Generic, scripted responses",
+      "bad4": "No real understanding",
+      "bad5": "Can't handle handoffs",
+      "good1": "4 specialized AI agents",
+      "good2": "Deep context understanding",
+      "good3": "Personalized, intelligent responses",
+      "good4": "Real Odoo integration",
+      "good5": "Seamless agent collaboration",
+      "research": "Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ citations"
+    },
+    "agentsSection": {
+      "title": "Meet Your 4 AI Specialists",
+      "subtitle": "Each agent is an expert in their domain, working together seamlessly"
+    },
+    "communication": {
+      "title": "Multi-Channel Patient Communication",
+      "subtitle": "Meet patients where they are—WhatsApp, Email, Phone, or Web Chat"
+    },
+    "pricing": {
+      "title": "Simple, Transparent Pricing",
+      "subtitle": "Choose the plan that fits your clinic",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "save20": "Save 20%",
+      "starter": "Starter",
+      "professional": "Professional",
+      "enterprise": "Enterprise",
+      "perMonth": "/month",
+      "getStarted": "Get Started",
+      "contactSales": "Contact Sales",
+      "mostPopular": "Most Popular",
+      "custom": "Custom"
+    },
+    "pilot": {
+      "title": "Join Our Pilot Program",
+      "subtitle": "Limited spots available for early adopters",
+      "benefit1": "6 months completely free",
+      "benefit2": "Priority support & onboarding",
+      "benefit3": "Influence product roadmap",
+      "benefit4": "Lifetime 30% discount",
+      "apply": "Apply for Pilot Program",
+      "limited": "Only 10 spots available"
+    },
+    "footer": {
+      "product": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "demo": "Demo",
+      "docs": "Documentation",
+      "company": "Company",
+      "about": "About Us",
+      "blog": "Blog",
+      "careers": "Careers",
+      "contact": "Contact",
+      "legal": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "security": "Security",
+      "compliance": "Compliance",
+      "allRights": "All rights reserved"
+    }
   }
 }

@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import DemoChatButton from '../components/DemoChatButton';
 import './LandingPage.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [selectedPlan, setSelectedPlan] = useState('professional');
 
   return (
@@ -17,12 +20,13 @@ const LandingPage = () => {
             <span className="logo-text">DentaFlow</span>
           </div>
           <div className="nav-links">
-            <a href="#features">Features</a>
-            <a href="#why-not-bot">Why Not a Bot?</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#pilot">Pilot Program</a>
-            <Link to="/demo" className="nav-cta-demo">Try Demo</Link>
-            <Link to="/register" className="nav-cta">Start Free Trial</Link>
+            <a href="#features">{t("landing.nav.features")}</a>
+            <a href="#why-not-bot">{t("landing.nav.whyNotBot")}</a>
+            <a href="#pricing">{t("landing.nav.pricing")}</a>
+            <a href="#pilot">{t("landing.nav.pilot")}</a>
+            <LanguageSwitcher />
+            <Link to="/demo" className="nav-cta-demo">{t("landing.nav.tryDemo")}</Link>
+            <Link to="/register" className="nav-cta">{t("landing.nav.startTrial")}</Link>
           </div>
         </div>
       </nav>
@@ -31,32 +35,31 @@ const LandingPage = () => {
       <section className="hero">
         <div className="hero-container">
           <div className="hero-content">
-            <div className="hero-badge">🚀 Now accepting 10 clinics for pilot program</div>
+            <div className="hero-badge">{t("landing.hero.badge")}</div>
             <h1 className="hero-title">
-              4 AI Specialists Working 24/7
-              <span className="hero-gradient">For Your Dental Clinic</span>
+              {t("landing.hero.title1")}
+              <span className="hero-gradient">{t("landing.hero.title2")}</span>
             </h1>
             <p className="hero-subtitle">
-              Not a chatbot. A complete Multi-Agent AI system that handles patient communication,
-              scheduling, billing, and operations—saving you 10+ hours per week.
+              {t("landing.hero.subtitle")}
             </p>
             
             {/* 3-Level CTA Strategy */}
             <div className="hero-ctas">
               <button className="cta-primary" onClick={() => navigate('/demo')}>
                 <span className="cta-icon">💬</span>
-                Try Interactive Demo
-                <span className="cta-badge">No signup required</span>
+                {t("landing.hero.tryDemo")}
+                <span className="cta-badge">{t("landing.hero.noSignup")}</span>
               </button>
               <button className="cta-secondary" onClick={() => navigate('/register')}>
                 <span className="cta-icon">🎁</span>
-                Start 30-Day Free Trial
-                <span className="cta-badge">No credit card</span>
+                {t("landing.hero.startTrial")}
+                <span className="cta-badge">{t("landing.hero.noCredit")}</span>
               </button>
               <button className="cta-tertiary" onClick={() => document.getElementById('pilot').scrollIntoView({ behavior: 'smooth' })}>
                 <span className="cta-icon">🌟</span>
-                Join Pilot Program
-                <span className="cta-badge">6 months free</span>
+                {t("landing.hero.joinPilot")}
+                <span className="cta-badge">{t("landing.hero.monthsFree")}</span>
               </button>
             </div>
 
@@ -64,19 +67,19 @@ const LandingPage = () => {
             <div className="hero-trust">
               <div className="trust-item">
                 <span className="trust-icon">✓</span>
-                <span>HIPAA Compliant</span>
+                <span>{t("landing.hero.hipaa")}</span>
               </div>
               <div className="trust-item">
                 <span className="trust-icon">✓</span>
-                <span>GDPR Ready</span>
+                <span>{t("landing.hero.gdpr")}</span>
               </div>
               <div className="trust-item">
                 <span className="trust-icon">✓</span>
-                <span>99.9% Uptime SLA</span>
+                <span>{t("landing.hero.uptime")}</span>
               </div>
               <div className="trust-item">
                 <span className="trust-icon">✓</span>
-                <span>Odoo Integration</span>
+                <span>{t("landing.hero.odoo")}</span>
               </div>
             </div>
           </div>
@@ -84,39 +87,39 @@ const LandingPage = () => {
           <div className="hero-visual">
             <div className="hero-card">
               <div className="card-header">
-                <span className="card-badge">LIVE DEMO</span>
-                <span className="card-time">24/7 Active</span>
+                <span className="card-badge">{t("landing.hero.liveDemo")}</span>
+                <span className="card-time">{t("landing.hero.active247")}</span>
               </div>
               <div className="card-agents">
                 <div className="agent-item">
                   <span className="agent-avatar">👨‍💼</span>
                   <div className="agent-info">
-                    <div className="agent-name">Alex</div>
-                    <div className="agent-role">Patient Relations</div>
+                    <div className="agent-name">{t("landing.agents.alex.name")}</div>
+                    <div className="agent-role">{t("landing.agents.alex.role")}</div>
                   </div>
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
                   <span className="agent-avatar">👩‍⚕️</span>
                   <div className="agent-info">
-                    <div className="agent-name">Sarah</div>
-                    <div className="agent-role">Clinical Operations</div>
+                    <div className="agent-name">{t("landing.agents.sarah.name")}</div>
+                    <div className="agent-role">{t("landing.agents.sarah.role")}</div>
                   </div>
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
                   <span className="agent-avatar">👨‍💼</span>
                   <div className="agent-info">
-                    <div className="agent-name">Marcus</div>
-                    <div className="agent-role">Financial Analysis</div>
+                    <div className="agent-name">{t("landing.agents.marcus.name")}</div>
+                    <div className="agent-role">{t("landing.agents.marcus.role")}</div>
                   </div>
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
                   <span className="agent-avatar">👩‍💼</span>
                   <div className="agent-info">
-                    <div className="agent-name">Sophia</div>
-                    <div className="agent-role">Practice Management</div>
+                    <div className="agent-name">{t("landing.agents.sophia.name")}</div>
+                    <div className="agent-role">{t("landing.agents.sophia.role")}</div>
                   </div>
                   <span className="agent-status online">●</span>
                 </div>
@@ -130,9 +133,9 @@ const LandingPage = () => {
       <section id="why-not-bot" className="why-not-bot">
         <div className="section-container">
           <div className="section-header">
-            <h2>Why This Isn't Just Another Chatbot</h2>
+            <h2>{t("landing.whyNotBot.title")}</h2>
             <p className="section-subtitle">
-              Research shows users expect 40% lower quality from chatbots. We built something better.
+              {t("landing.whyNotBot.subtitle")}
             </p>
           </div>
 
@@ -140,7 +143,7 @@ const LandingPage = () => {
             <div className="comparison-card bad">
               <div className="comparison-header">
                 <span className="comparison-icon">🤖</span>
-                <h3>Traditional Chatbot</h3>
+                <h3>{t("landing.whyNotBot.chatbot")}</h3>
               </div>
               <ul className="comparison-list">
                 <li className="comparison-item bad">
@@ -169,7 +172,7 @@ const LandingPage = () => {
             <div className="comparison-card good">
               <div className="comparison-header">
                 <span className="comparison-icon">🎯</span>
-                <h3>DentaFlow Multi-Agent System</h3>
+                <h3>{t("landing.whyNotBot.dentaflow")}</h3>
               </div>
               <ul className="comparison-list">
                 <li className="comparison-item good">
@@ -210,9 +213,9 @@ const LandingPage = () => {
       <section id="agents" className="agents-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Meet Your 4 AI Specialists</h2>
+            <h2>{t("landing.agentsSection.title")}</h2>
             <p className="section-subtitle">
-              Each agent is an expert in their domain, working together seamlessly
+              {t("landing.agentsSection.subtitle")}
             </p>
           </div>
 
@@ -505,7 +508,7 @@ const LandingPage = () => {
 
           <div className="pricing-note">
             <p>
-              🎁 <strong>30-day free trial</strong> on all plans. No credit card required.
+              🎁 <strong>30-day free trial</strong> on all plans. {t("landing.hero.noCredit")} required.
               Cancel anytime.
             </p>
           </div>
@@ -612,7 +615,7 @@ const LandingPage = () => {
               <h4>Can I try before I buy?</h4>
               <p>
                 Yes! You can try our Interactive Demo (no signup), start a 30-day free trial
-                (no credit card), or apply for our Pilot Program (6 months free). Three ways to
+                (no credit card), or apply for our Pilot Program ({t("landing.hero.monthsFree")}). Three ways to
                 experience DentaFlow risk-free.
               </p>
             </div>
@@ -635,7 +638,7 @@ const LandingPage = () => {
           <p>Join forward-thinking clinics using AI to save time and increase revenue</p>
           <div className="final-ctas">
             <button className="cta-large primary" onClick={() => navigate('/demo')}>
-              Try Interactive Demo
+              {t("landing.hero.tryDemo")}
             </button>
             <button className="cta-large secondary" onClick={() => navigate('/register')}>
               Start Free Trial
@@ -650,14 +653,14 @@ const LandingPage = () => {
           <div className="footer-grid">
             <div className="footer-col">
               <h4>Product</h4>
-              <a href="#features">Features</a>
+              <a href="#features">{t("landing.nav.features")}</a>
               <a href="#agents">AI Agents</a>
-              <a href="#pricing">Pricing</a>
+              <a href="#pricing">{t("landing.nav.pricing")}</a>
               <a href="/demo">Interactive Demo</a>
             </div>
             <div className="footer-col">
               <h4>Company</h4>
-              <a href="#pilot">Pilot Program</a>
+              <a href="#pilot">{t("landing.nav.pilot")}</a>
               <a href="/register">Start Trial</a>
               <a href="mailto:support@dentaflow.ai">Contact</a>
             </div>
