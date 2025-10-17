@@ -59,7 +59,7 @@ const DemoPortalEnhanced = () => {
       <div className="demo-portal-error">
         <h2>⚠️ {t("landing.demo.demoError")}</h2>
         <p>{error}</p>
-        <button onClick={() => navigate(\'/\')}>{t("landing.demo.returnHome")}</button>
+        <button onClick={() => navigate('/')}>{t("landing.demo.returnHome")}</button>
       </div>
     );
   }
