@@ -544,7 +544,27 @@
     },
     "communication": {
       "title": "Multi-Channel Patient Communication",
-      "subtitle": "Meet patients where they are—WhatsApp, Email, Phone, or Web Chat"
+      "subtitle": "Reach patients where they are—3x higher response rates",
+      "availableNow": "✓ Available Now",
+      "currentChannels": "Current Channels",
+      "webChat": "Web Chat",
+      "instant": "Instant",
+      "sms": "SMS",
+      "smsRate": "98% open rate",
+      "email": "Email",
+      "professional": "Professional",
+      "comingSoon": "🚀 Coming Q1 2026",
+      "expandingSoon": "Expanding Soon",
+      "whatsapp": "WhatsApp",
+      "whatsappUsers": "2B+ users",
+      "telegram": "Telegram",
+      "telegramUsers": "700M+ users",
+      "higherResponse": "3x Higher Response Rate",
+      "higherResponseDesc": "Patients respond faster when contacted via their preferred channel",
+      "lowerCost": "Lower Cost Per Message",
+      "lowerCostDesc": "WhatsApp & Telegram cost 80% less than SMS",
+      "patientChoice": "Patient Choice",
+      "patientChoiceDesc": "Let patients choose their preferred communication method"
     },
     "pricing": {
       "title": "Simple, Transparent Pricing",
@@ -704,6 +724,20 @@
       "low": "low"
     },
     "features": {
+      "title": "Everything Your Clinic Needs",
+      "subtitle": "Comprehensive practice management powered by AI",
+      "scheduling": {
+        "title": "Smart Scheduling",
+        "description": "AI-powered appointment booking with automatic reminders and rescheduling"
+      },
+      "communication": {
+        "title": "Patient Communication",
+        "description": "Multi-channel messaging with intelligent routing and personalization"
+      },
+      "billing": {
+        "title": "Billing & Payments",
+        "description": "Automated invoicing, payment tracking, and financial analytics"
+      },
       "analytics": {
         "title": "Analytics Dashboard",
         "description": "Real-time insights into revenue, patients, and operations"

@@ -544,7 +544,27 @@
     },
     "communication": {
       "title": "תקשורת רב-ערוצית עם מטופלים",
-      "subtitle": "פגשו את המטופלים היכן שהם—WhatsApp, אימייל, טלפון או צ'אט באתר"
+      "subtitle": "הגיעו למטופלים היכן שהם נמצאים - שיעור תגובה גבוה פי 3",
+      "availableNow": "✓ זמין כעת",
+      "currentChannels": "ערוצים נוכחיים",
+      "webChat": "צ'אט אינטרנט",
+      "instant": "מיידי",
+      "sms": "SMS",
+      "smsRate": "98% שיעור פתיחה",
+      "email": "אימייל",
+      "professional": "מקצועי",
+      "comingSoon": "🚀 בקרוב Q1 2026",
+      "expandingSoon": "מתרחב בקרוב",
+      "whatsapp": "WhatsApp",
+      "whatsappUsers": "2B+ משתמשים",
+      "telegram": "Telegram",
+      "telegramUsers": "700M+ משתמשים",
+      "higherResponse": "שיעור תגובה גבוה פי 3",
+      "higherResponseDesc": "מטופלים מגיבים מהר יותר כשפונים אליהם דרך הערוץ המועדף עליהם",
+      "lowerCost": "עלות נמוכה יותר להודעה",
+      "lowerCostDesc": "WhatsApp ו-Telegram עולים 80% פחות מ-SMS",
+      "patientChoice": "בחירת מטופל",
+      "patientChoiceDesc": "תנו למטופלים לבחור את שיטת התקשורת המועדפת עליהם"
     },
     "pricing": {
       "title": "מחירים פשוטים ושקופים",
@@ -683,22 +703,28 @@
       "age": "גיל"
     },
     "features": {
+      "title": "כל מה שהמרפאה שלך צריכה",
+      "subtitle": "ניהול מרפאה מקיף מופעל על ידי AI",
+      "scheduling": {
+        "title": "תזמון חכם",
+        "description": "הזמנת תורים מופעלת AI עם תזכורות אוטומטיות ותזמון מחדש"
+      },
+      "communication": {
+        "title": "תקשורת עם מטופלים",
+        "description": "הודעות רב-ערוציות עם ניתוב חכם והתאמה אישית"
+      },
+      "billing": {
+        "title": "חיוב ותשלומים",
+        "description": "חשבוניות אוטומטיות, מעקב תשלומים וניתוח פיננסי"
+      },
       "analytics": {
-        "title": "לוח בקרה אנליטי",
+        "title": "דשבורד אנליטיקה",
         "description": "תובנות בזמן אמת על הכנסות, מטופלים ותפעול"
       },
       "odoo": {
         "title": "אינטגרציה עם Odoo",
         "description": "חיבור חלק למערכת ה-ERP Odoo הקיימת שלך"
       },
-      "startingDemo": "מתחיל את הדמו המופעל על ידי AI...",
-      "demoError": "שגיאת סשן דמו",
-      "returnHome": "חזור לדף הבית",
-      "exitConfirm": "האם אתה בטוח שברצונך לצאת מהדמו? הסשן שלך יסתיים.",
-      "decisionApproved": "✅ החלטה אושרה! סוכן ה-AI יבצע את הפעולה.",
-      "decisionRejected": "❌ החלטה נדחתה. סוכן ה-AI לא יבצע את הפעולה.",
-      "noPendingDecisions": "אין החלטות ממתינות",
-      "allReviewed": "כל ההחלטות נבדקו!",
       "hipaa": {
         "title": "תאימות HIPAA",
         "description": "אבטחה ברמה ארגונית עם תאימות מלאה ל-HIPAA ו-GDPR"

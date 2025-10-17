@@ -298,51 +298,51 @@ const LandingPage = () => {
       <section id="communication" className="communication-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Multi-Channel Patient Communication</h2>
+            <h2>{t("landing.communication.title")}</h2>
             <p className="section-subtitle">
-              Reach patients where they are—3x higher response rates
+              {t("landing.communication.subtitle")}
             </p>
           </div>
 
           <div className="channels-timeline">
             <div className="timeline-item available">
-              <div className="timeline-badge">✓ Available Now</div>
+              <div className="timeline-badge">{t("landing.communication.availableNow")}</div>
               <div className="timeline-content">
-                <h3>Current Channels</h3>
+                <h3>{t("landing.communication.currentChannels")}</h3>
                 <div className="channels-grid">
                   <div className="channel-item">
                     <span className="channel-icon">💬</span>
-                    <span className="channel-name">Web Chat</span>
-                    <span className="channel-stat">Instant</span>
+                    <span className="channel-name">{t("landing.communication.webChat")}</span>
+                    <span className="channel-stat">{t("landing.communication.instant")}</span>
                   </div>
                   <div className="channel-item">
                     <span className="channel-icon">📱</span>
-                    <span className="channel-name">SMS</span>
-                    <span className="channel-stat">98% open rate</span>
+                    <span className="channel-name">{t("landing.communication.sms")}</span>
+                    <span className="channel-stat">{t("landing.communication.smsRate")}</span>
                   </div>
                   <div className="channel-item">
                     <span className="channel-icon">📧</span>
-                    <span className="channel-name">Email</span>
-                    <span className="channel-stat">Professional</span>
+                    <span className="channel-name">{t("landing.communication.email")}</span>
+                    <span className="channel-stat">{t("landing.communication.professional")}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="timeline-item coming-soon">
-              <div className="timeline-badge">🚀 Coming Q1 2026</div>
+              <div className="timeline-badge">{t("landing.communication.comingSoon")}</div>
               <div className="timeline-content">
-                <h3>Expanding Soon</h3>
+                <h3>{t("landing.communication.expandingSoon")}</h3>
                 <div className="channels-grid">
                   <div className="channel-item">
                     <span className="channel-icon">📲</span>
-                    <span className="channel-name">WhatsApp</span>
-                    <span className="channel-stat">2B+ users</span>
+                    <span className="channel-name">{t("landing.communication.whatsapp")}</span>
+                    <span className="channel-stat">{t("landing.communication.whatsappUsers")}</span>
                   </div>
                   <div className="channel-item">
                     <span className="channel-icon">✈️</span>
-                    <span className="channel-name">Telegram</span>
-                    <span className="channel-stat">700M+ users</span>
+                    <span className="channel-name">{t("landing.communication.telegram")}</span>
+                    <span className="channel-stat">{t("landing.communication.telegramUsers")}</span>
                   </div>
                 </div>
               </div>
@@ -352,18 +352,18 @@ const LandingPage = () => {
           <div className="communication-benefits">
             <div className="benefit-card">
               <span className="benefit-icon">📈</span>
-              <h4>3x Higher Response Rate</h4>
-              <p>Patients respond faster when contacted via their preferred channel</p>
+              <h4>{t("landing.communication.higherResponse")}</h4>
+              <p>{t("landing.communication.higherResponseDesc")}</p>
             </div>
             <div className="benefit-card">
               <span className="benefit-icon">💰</span>
-              <h4>Lower Cost Per Message</h4>
-              <p>WhatsApp & Telegram cost 80% less than SMS</p>
+              <h4>{t("landing.communication.lowerCost")}</h4>
+              <p>{t("landing.communication.lowerCostDesc")}</p>
             </div>
             <div className="benefit-card">
               <span className="benefit-icon">🎯</span>
-              <h4>Patient Choice</h4>
-              <p>Let patients choose their preferred communication method</p>
+              <h4>{t("landing.communication.patientChoice")}</h4>
+              <p>{t("landing.communication.patientChoiceDesc")}</p>
             </div>
           </div>
         </div>
@@ -373,42 +373,42 @@ const LandingPage = () => {
       <section id="features" className="features-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Everything Your Clinic Needs</h2>
+            <h2>{t("landing.features.title")}</h2>
             <p className="section-subtitle">
-              Comprehensive practice management powered by AI
+              {t("landing.features.subtitle")}
             </p>
           </div>
 
           <div className="features-grid">
             <div className="feature-card">
               <span className="feature-icon">📅</span>
-              <h3>Smart Scheduling</h3>
-              <p>AI-powered appointment booking with automatic reminders and rescheduling</p>
+              <h3>{t("landing.features.scheduling.title")}</h3>
+              <p>{t("landing.features.scheduling.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">💬</span>
-              <h3>Patient Communication</h3>
-              <p>Multi-channel messaging with intelligent routing and personalization</p>
+              <h3>{t("landing.features.communication.title")}</h3>
+              <p>{t("landing.features.communication.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">💰</span>
-              <h3>Billing & Payments</h3>
-              <p>Automated invoicing, payment tracking, and financial analytics</p>
+              <h3>{t("landing.features.billing.title")}</h3>
+              <p>{t("landing.features.billing.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">📊</span>
-              <h3>Analytics Dashboard</h3>
-              <p>Real-time insights into revenue, patients, and operations</p>
+              <h3>{t("landing.features.analytics.title")}</h3>
+              <p>{t("landing.features.analytics.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">🔗</span>
-              <h3>Odoo Integration</h3>
-              <p>Seamless connection with your existing Odoo ERP system</p>
+              <h3>{t("landing.features.odoo.title")}</h3>
+              <p>{t("landing.features.odoo.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">🔒</span>
-              <h3>HIPAA Compliant</h3>
-              <p>Enterprise-grade security with full HIPAA and GDPR compliance</p>
+              <h3>{t("landing.features.hipaa.title")}</h3>
+              <p>{t("landing.features.hipaa.description")}</p>
             </div>
           </div>
         </div>
