@@ -489,6 +489,10 @@
       }
     },
     "whyNotBot": {
+      "title": "Why This Isn't Another Chatbot",
+      "subtitle": "Research shows users expect 40% lower quality from chatbots. We built something better.",
+      "chatbot": "Traditional Chatbot",
+      "dentaflow": "DentaFlow Multi-Agent System",
       "research": "Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ citations"
     },
     "agentsSection": {

@@ -489,6 +489,10 @@
       }
     },
     "whyNotBot": {
+      "title": "למה זה לא עוד צ'אטבוט",
+      "subtitle": "מחקרים מראים שמשתמשים מצפים לאיכות נמוכה ב-40% מצ'אטבוטים. בנינו משהו טוב יותר.",
+      "chatbot": "צ'אטבוט מסורתי",
+      "dentaflow": "מערכת רב-סוכנית DentaFlow",
       "research": "מבוסס על מחקרים עמיתים: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ ציטוטים"
     },
     "agentsSection": {
