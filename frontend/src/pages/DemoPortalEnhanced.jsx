@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
 import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
-import './DemoPortalEnhanced.css';
-
-/**
+import LanguageSwitcher from '../components/LanguageSwitcher';
+import './DemoPortalEnhanced.css';/**
  * Enhanced Demo Portal - Showcases AI Agent Features
  * 
  * This demo portal includes all the AI agent features from production:
@@ -17,6 +17,7 @@ import './DemoPortalEnhanced.css';
  */
 const DemoPortalEnhanced = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { demoMode, startDemoSession, endDemoSession, timeRemaining, isLoading, error } = useDemoContext();
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [showTransparency, setShowTransparency] = useState(true);
@@ -123,12 +124,7 @@ const DemoPortalEnhanced = () => {
             >
               💰 Financial
             </button>
-            <button
-              className={`demo-nav-btn ${currentPage === 'clinical' ? 'active' : ''}`}
-              onClick={() => setCurrentPage('clinical')}
-            >
-              🩺 Clinical
-            </button>
+
           </div>
 
           <div className="demo-content">
@@ -136,7 +132,6 @@ const DemoPortalEnhanced = () => {
             {currentPage === 'patients' && <DemoPatientsEnhanced />}
             {currentPage === 'appointments' && <DemoAppointmentsEnhanced />}
             {currentPage === 'financial' && <DemoFinancialEnhanced />}
-            {currentPage === 'clinical' && <DemoClinicalEnhanced />}
           </div>
         </div>
 
@@ -762,6 +757,7 @@ const DemoPatientsEnhanced = () => {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [activeTab, setActiveTab] = useState('overview');
 
   if (!demoData) {
     return <div className="demo-loading">Loading patients...</div>;
@@ -871,28 +867,132 @@ const DemoPatientsEnhanced = () => {
         </div>
 
         {selectedPatient && (
-          <div className="patient-details-enhanced">
-            <h3>{selectedPatient.name}</h3>
-            <div className="ai-summary">
-              <h4>🤖 AI Summary</h4>
-              <p>Alex has sent 3 appointment reminders and 2 follow-up messages this month.</p>
-              <p>Last interaction: Confirmed appointment for Oct 25</p>
+          <div className="patient-profile">
+            <div className="patient-profile-header">
+              <div className="patient-profile-info">
+                <div className="patient-avatar-large">{selectedPatient.name.charAt(0)}</div>
+                <div>
+                  <h3>{selectedPatient.name}</h3>
+                  <p className="patient-meta">Age: {selectedPatient.age || 'N/A'} | Last Visit: {selectedPatient.lastVisit}</p>
+                </div>
+              </div>
+              <button className="close-profile" onClick={() => setSelectedPatient(null)}>✕</button>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">Email:</span>
-              <span className="detail-value">{selectedPatient.email}</span>
+
+            {/* Profile Tabs */}
+            <div className="profile-tabs">
+              <button 
+                className={`profile-tab ${activeTab === 'overview' ? 'active' : ''}`}
+                onClick={() => setActiveTab('overview')}
+              >
+                📋 Overview
+              </button>
+              <button 
+                className={`profile-tab ${activeTab === 'clinical' ? 'active' : ''}`}
+                onClick={() => setActiveTab('clinical')}
+              >
+                🦷 Clinical
+              </button>
+              <button 
+                className={`profile-tab ${activeTab === 'appointments' ? 'active' : ''}`}
+                onClick={() => setActiveTab('appointments')}
+              >
+                📅 Appointments
+              </button>
+              <button 
+                className={`profile-tab ${activeTab === 'billing' ? 'active' : ''}`}
+                onClick={() => setActiveTab('billing')}
+              >
+                💰 Billing
+              </button>
             </div>
-            <div className="detail-row">
-              <span className="detail-label">Phone:</span>
-              <span className="detail-value">{selectedPatient.phone}</span>
-            </div>
-            <div className="detail-row">
-              <span className="detail-label">Balance:</span>
-              <span className="detail-value">₪{selectedPatient.balance}</span>
-            </div>
-            <div className="detail-actions">
-              <button className="btn-primary">💬 Chat with Alex</button>
-              <button className="btn-secondary">📅 Schedule Appointment</button>
+
+            {/* Tab Content */}
+            <div className="profile-tab-content">
+              {activeTab === 'overview' && (
+                <div className="profile-overview">
+                  <div className="ai-summary">
+                    <h4>🤖 AI Summary</h4>
+                    <p>Alex has sent 3 appointment reminders and 2 follow-up messages this month.</p>
+                    <p>Last interaction: Confirmed appointment for Oct 25</p>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Email:</span>
+                    <span className="detail-value">{selectedPatient.email}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Phone:</span>
+                    <span className="detail-value">{selectedPatient.phone}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Status:</span>
+                    <span className="detail-value">{selectedPatient.status}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Balance:</span>
+                    <span className="detail-value">₪{selectedPatient.balance}</span>
+                  </div>
+                  <div className="detail-actions">
+                    <button className="btn-primary">💬 Chat with Alex</button>
+                    <button className="btn-secondary">📅 Schedule Appointment</button>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'clinical' && (
+                <div className="profile-clinical">
+                  <ClinicalDashboard patient={selectedPatient} />
+                </div>
+              )}
+
+              {activeTab === 'appointments' && (
+                <div className="profile-appointments">
+                  <h4>Upcoming Appointments</h4>
+                  <div className="appointment-item">
+                    <div className="appointment-date">Oct 25, 2025 - 10:00 AM</div>
+                    <div className="appointment-type">Regular Checkup</div>
+                    <div className="appointment-status">Confirmed</div>
+                  </div>
+                  <div className="appointment-item">
+                    <div className="appointment-date">Nov 15, 2025 - 2:00 PM</div>
+                    <div className="appointment-type">Cleaning</div>
+                    <div className="appointment-status">Scheduled</div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'billing' && (
+                <div className="profile-billing">
+                  <h4>Billing History</h4>
+                  <div className="billing-summary">
+                    <div className="billing-stat">
+                      <span className="billing-label">Total Billed:</span>
+                      <span className="billing-value">₪{selectedPatient.totalBilled || 5200}</span>
+                    </div>
+                    <div className="billing-stat">
+                      <span className="billing-label">Total Paid:</span>
+                      <span className="billing-value">₪{(selectedPatient.totalBilled || 5200) - selectedPatient.balance}</span>
+                    </div>
+                    <div className="billing-stat">
+                      <span className="billing-label">Outstanding:</span>
+                      <span className="billing-value">₪{selectedPatient.balance}</span>
+                    </div>
+                  </div>
+                  <h4>Recent Invoices</h4>
+                  <div className="invoice-item">
+                    <div className="invoice-date">Sep 15, 2025</div>
+                    <div className="invoice-desc">Root Canal Treatment</div>
+                    <div className="invoice-amount">₪2,400</div>
+                    <div className="invoice-status paid">Paid</div>
+                  </div>
+                  <div className="invoice-item">
+                    <div className="invoice-date">Aug 10, 2025</div>
+                    <div className="invoice-desc">Regular Checkup</div>
+                    <div className="invoice-amount">₪{selectedPatient.balance}</div>
+                    <div className="invoice-status unpaid">Unpaid</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
