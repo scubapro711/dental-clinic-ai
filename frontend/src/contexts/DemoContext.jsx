@@ -40,7 +40,8 @@ export const DemoProvider = ({ children }) => {
       setTimeRemaining(remaining);
 
       // Load demo data immediately (synchronous)
-      loadDemoData(session_id);
+      const data = loadDemoData(session_id);
+      setDemoData(data);
 
       // Store in sessionStorage for persistence
       sessionStorage.setItem('demoSessionId', session_id);
@@ -78,7 +79,7 @@ export const DemoProvider = ({ children }) => {
   const loadDemoData = (sessionId) => {
       // In a real implementation, this would fetch from the backend
       // For now, we'll use the demo data service directly
-      const demoData = {
+      return {
         patients: [
           {
             id: 'demo_patient_1',
@@ -229,8 +230,6 @@ export const DemoProvider = ({ children }) => {
           ],
         },
       };
-
-      setDemoData(demoData);
   };
 
   // Update time remaining every second
