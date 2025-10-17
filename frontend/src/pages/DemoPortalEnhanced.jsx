@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
 import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
-import LanguageSwitcher from '../components/LanguageSwitcher';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import './DemoPortalEnhanced.css';/**
  * Enhanced Demo Portal - Showcases AI Agent Features
  * 
@@ -33,7 +33,7 @@ const DemoPortalEnhanced = () => {
   }, [demoMode, startDemoSession, navigate]);
 
   const handleExitDemo = () => {
-    if (window.confirm('Are you sure you want to exit the demo? Your session will be ended.')) {
+    if (window.confirm(t("landing.demo.exitConfirm"))) {
       endDemoSession();
       navigate('/');
     }
@@ -49,7 +49,7 @@ const DemoPortalEnhanced = () => {
     return (
       <div className="demo-portal-loading">
         <div className="loading-spinner"></div>
-        <p>Starting your AI-powered demo session...</p>
+        <p>{t("landing.demo.startingDemo")}</p>
       </div>
     );
   }
@@ -57,9 +57,9 @@ const DemoPortalEnhanced = () => {
   if (error) {
     return (
       <div className="demo-portal-error">
-        <h2>⚠️ Demo Session Error</h2>
+        <h2>⚠️ {t("landing.demo.demoError")}</h2>
         <p>{error}</p>
-        <button onClick={() => navigate('/')}>Return to Home</button>
+        <button onClick={() => navigate('/')}>{t("landing.demo.returnHome")}</button>
       </div>
     );
   }
@@ -69,21 +69,22 @@ const DemoPortalEnhanced = () => {
       {/* Demo Header */}
       <div className="demo-header">
         <div className="demo-header-left">
-          <div className="demo-badge">🤖 AI DEMO MODE</div>
-          <h1>DentaFlow AI Mission Control</h1>
-          <p className="demo-subtitle">Experience the power of AI agents</p>
+          <div className="demo-badge">🤖 {t("landing.demo.demoMode")}</div>
+          <h1>{t("landing.demo.title")}</h1>
+          <p className="demo-subtitle">{t("landing.demo.subtitle")}</p>
         </div>
         <div className="demo-header-right">
+          <LanguageSwitcher />
           {timeRemaining !== null && (
             <div className={`demo-timer ${timeRemaining < 300 ? 'warning' : ''}`}>
-              ⏰ {formatTime(timeRemaining)} remaining
+              ⏰ {formatTime(timeRemaining)} {t("landing.demo.remaining")}
             </div>
           )}
           <button className="toggle-btn" onClick={() => setShowTransparency(!showTransparency)}>
-            {showTransparency ? '🔍 Hide Transparency' : '🔍 Show Transparency'}
+            {showTransparency ? `🔍 ${t("landing.demo.hideTransparency")}` : `🔍 ${t("landing.demo.showTransparency")}`}
           </button>
           <button className="exit-demo-btn" onClick={handleExitDemo}>
-            Exit Demo
+            {t("landing.demo.exitDemo")}
           </button>
         </div>
       </div>
@@ -148,8 +149,8 @@ const DemoPortalEnhanced = () => {
       {/* Demo Footer */}
       <div className="demo-footer">
         <p>
-          ⚠️ This is a demo environment with sample data and simulated AI responses. 
-          <a href="/register" className="cta-link">Start Free Trial</a> to use with your real clinic data and live AI agents.
+          ⚠️ {t("landing.demo.demoEnvironment")} 
+          <a href="/register" className="cta-link">{t("landing.demo.startFreeTrial")}</a> {t("landing.demo.toUseWithReal")}
         </p>
       </div>
 
@@ -166,6 +167,7 @@ const DemoPortalEnhanced = () => {
  * Shows AI agent decisions waiting for approval
  */
 const PendingDecisionsWidget = () => {
+  const { t } = useTranslation();
   const [decisions, setDecisions] = useState([
     {
       id: 1,
@@ -207,12 +209,12 @@ const PendingDecisionsWidget = () => {
 
   const handleApprove = (id) => {
     setDecisions(decisions.filter(d => d.id !== id));
-    alert('✅ Decision approved! AI agent will execute the action.');
+    alert(t("landing.demo.decisionApproved"));
   };
 
   const handleReject = (id) => {
     setDecisions(decisions.filter(d => d.id !== id));
-    alert('❌ Decision rejected. AI agent will not proceed.');
+    alert(t("landing.demo.decisionRejected"));
   };
 
   const getPriorityColor = (priority) => {
@@ -227,14 +229,14 @@ const PendingDecisionsWidget = () => {
   return (
     <div className="widget pending-decisions-widget">
       <div className="widget-header">
-        <h3>⏳ Pending Decisions</h3>
+        <h3>⏳ {t("landing.demo.pendingDecisions")}</h3>
         <span className="badge">{decisions.length}</span>
       </div>
       <div className="widget-content">
         {decisions.length === 0 ? (
           <div className="empty-state">
-            <p>✅ No pending decisions</p>
-            <p className="text-sm">All AI suggestions have been reviewed</p>
+            <p>✅ {t("landing.demo.noPendingDecisions")}</p>
+            <p className="text-sm">{t("landing.demo.allReviewed")}</p>
           </div>
         ) : (
           <div className="decisions-list">
@@ -282,6 +284,7 @@ const PendingDecisionsWidget = () => {
  * Shows real-time AI agent activity
  */
 const AgentActivityWidget = () => {
+  const { t } = useTranslation();
   const [activities, setActivities] = useState([
     {
       id: 1,
@@ -353,7 +356,7 @@ const AgentActivityWidget = () => {
   return (
     <div className="widget agent-activity-widget">
       <div className="widget-header">
-        <h3>🤖 Agent Activity</h3>
+        <h3>🤖 {t("landing.demo.agentActivity")}</h3>
         <span className="live-indicator">● LIVE</span>
       </div>
       <div className="widget-content">
@@ -491,6 +494,7 @@ const FineTuningWidget = () => {
  * Shows AI decision-making process
  */
 const TransparencyPanelDemo = () => {
+  const { t } = useTranslation();
   const [selectedDecision, setSelectedDecision] = useState(0);
   
   const decisions = [
@@ -587,7 +591,7 @@ const TransparencyPanelDemo = () => {
 
   return (
     <div className="transparency-panel-demo">
-      <h3>🔍 AI Transparency</h3>
+      <h3>🔍 {t("landing.demo.aiTransparency")}</h3>
       <p className="panel-subtitle">See how AI agents make decisions</p>
       
       <div className="decision-selector">
