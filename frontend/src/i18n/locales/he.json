@@ -493,11 +493,54 @@
       "subtitle": "מחקרים מראים שמשתמשים מצפים לאיכות נמוכה ב-40% מצ'אטבוטים. בנינו משהו טוב יותר.",
       "chatbot": "צ'אטבוט מסורתי",
       "dentaflow": "מערכת רב-סוכנית DentaFlow",
-      "research": "מבוסס על מחקרים עמיתים: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ ציטוטים"
+      "research": "מבוסס על מחקרים עמיתים: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ ציטוטים",
+      "singleAI": "AI בודד, הקשר מוגבל",
+      "failsComplex": "נכשל בשאלות מורכבות",
+      "genericResponses": "תגובות גנריות ומתוסריטות",
+      "noUnderstanding": "אין הבנה אמיתית",
+      "noHandoffs": "לא יכול לטפל בהעברות",
+      "specializedAgents": "4 סוכני AI מתמחים",
+      "deepContext": "הבנת הקשר עמוקה",
+      "personalizedResponses": "תגובות מותאמות אישית ואינטליגנטיות",
+      "realOdoo": "אינטגרציה אמיתית עם Odoo",
+      "seamlessCollaboration": "שיתוף פעולה חלק בין סוכנים",
+      "researchNote": "מבוסס על מחקר עמיתים: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ ציטוטים"
     },
     "agentsSection": {
       "title": "הכירו את 4 המומחים שלכם",
-      "subtitle": "כל סוכן הוא מומחה בתחומו, עובדים יחד בצורה חלקה"
+      "subtitle": "כל סוכן הוא מומחה בתחומו, עובדים יחד בצורה חלקה",
+      "alex": {
+        "role": "Patient Relations & Reception",
+        "feature1": "24/7 appointment scheduling",
+        "feature2": "Patient inquiries & support",
+        "feature3": "Multi-channel communication",
+        "feature4": "Appointment reminders",
+        "statLabel": "faster response time"
+      },
+      "sarah": {
+        "role": "Clinical Operations",
+        "feature1": "Treatment plan management",
+        "feature2": "Medical records coordination",
+        "feature3": "Clinical workflows",
+        "feature4": "Doctor-patient communication",
+        "statLabel": "reduction in admin tasks"
+      },
+      "marcus": {
+        "role": "Financial Analysis & CFO",
+        "feature1": "Revenue analytics & insights",
+        "feature2": "Invoice management",
+        "feature3": "Payment tracking",
+        "feature4": "Financial forecasting",
+        "statLabel": "average monthly revenue increase"
+      },
+      "sophia": {
+        "role": "Practice Management",
+        "feature1": "Operations optimization",
+        "feature2": "Staff coordination",
+        "feature3": "Inventory management",
+        "feature4": "Performance analytics",
+        "statLabel": "saved per week"
+      }
     },
     "communication": {
       "title": "תקשורת רב-ערוצית עם מטופלים",

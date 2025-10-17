@@ -493,11 +493,54 @@
       "subtitle": "Research shows users expect 40% lower quality from chatbots. We built something better.",
       "chatbot": "Traditional Chatbot",
       "dentaflow": "DentaFlow Multi-Agent System",
-      "research": "Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ citations"
+      "research": "Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ citations",
+      "singleAI": "Single AI, limited context",
+      "failsComplex": "Fails with complex questions",
+      "genericResponses": "Generic, scripted responses",
+      "noUnderstanding": "No real understanding",
+      "noHandoffs": "Can't handle handoffs",
+      "specializedAgents": "4 specialized AI agents",
+      "deepContext": "Deep context understanding",
+      "personalizedResponses": "Personalized, intelligent responses",
+      "realOdoo": "Real Odoo integration",
+      "seamlessCollaboration": "Seamless agent collaboration",
+      "researchNote": "Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), Laymouna et al. (2024) - 220+ citations"
     },
     "agentsSection": {
       "title": "Meet Your 4 AI Specialists",
-      "subtitle": "Each agent is an expert in their domain, working together seamlessly"
+      "subtitle": "Each agent is an expert in their domain, working together seamlessly",
+      "alex": {
+        "role": "Patient Relations & Reception",
+        "feature1": "24/7 appointment scheduling",
+        "feature2": "Patient inquiries & support",
+        "feature3": "Multi-channel communication",
+        "feature4": "Appointment reminders",
+        "statLabel": "faster response time"
+      },
+      "sarah": {
+        "role": "Clinical Operations",
+        "feature1": "Treatment plan management",
+        "feature2": "Medical records coordination",
+        "feature3": "Clinical workflows",
+        "feature4": "Doctor-patient communication",
+        "statLabel": "reduction in admin tasks"
+      },
+      "marcus": {
+        "role": "Financial Analysis & CFO",
+        "feature1": "Revenue analytics & insights",
+        "feature2": "Invoice management",
+        "feature3": "Payment tracking",
+        "feature4": "Financial forecasting",
+        "statLabel": "average monthly revenue increase"
+      },
+      "sophia": {
+        "role": "Practice Management",
+        "feature1": "Operations optimization",
+        "feature2": "Staff coordination",
+        "feature3": "Inventory management",
+        "feature4": "Performance analytics",
+        "statLabel": "saved per week"
+      }
     },
     "communication": {
       "title": "Multi-Channel Patient Communication",

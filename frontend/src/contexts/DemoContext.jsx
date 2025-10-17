@@ -189,7 +189,8 @@ export const DemoProvider = ({ children }) => {
     isEndingSession.current = true;
 
     try {
-      await axios.delete(`${API_BASE_URL}/api/v1/demo/session/${demoSessionId}`);
+      // No backend API call needed - just clean up local state
+      console.log('Ending demo session:', demoSessionId);
     } catch (err) {
       console.error('Error ending demo session:', err);
     } finally {
@@ -209,14 +210,15 @@ export const DemoProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
 
-      const response = await axios.post(`${API_BASE_URL}/api/v1/demo/session/create`);
-      const { session_id, expires_at } = response.data;
+      // Generate local demo session (no backend needed)
+      const session_id = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const expiresAt = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
+      const expires_at = expiresAt.toISOString();
 
       setDemoSessionId(session_id);
       setDemoMode(true);
 
       // Calculate time remaining
-      const expiresAt = new Date(expires_at);
       const now = new Date();
       const remaining = Math.floor((expiresAt - now) / 1000);
       setTimeRemaining(remaining);

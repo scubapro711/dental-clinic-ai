@@ -148,23 +148,23 @@ const LandingPage = () => {
               <ul className="comparison-list">
                 <li className="comparison-item bad">
                   <span className="item-icon">✗</span>
-                  <span>Single AI, limited context</span>
+                  <span>{t("landing.whyNotBot.singleAI")}</span>
                 </li>
                 <li className="comparison-item bad">
                   <span className="item-icon">✗</span>
-                  <span>Fails with complex questions</span>
+                  <span>{t("landing.whyNotBot.failsComplex")}</span>
                 </li>
                 <li className="comparison-item bad">
                   <span className="item-icon">✗</span>
-                  <span>Generic, scripted responses</span>
+                  <span>{t("landing.whyNotBot.genericResponses")}</span>
                 </li>
                 <li className="comparison-item bad">
                   <span className="item-icon">✗</span>
-                  <span>No real understanding</span>
+                  <span>{t("landing.whyNotBot.noUnderstanding")}</span>
                 </li>
                 <li className="comparison-item bad">
                   <span className="item-icon">✗</span>
-                  <span>Can't handle handoffs</span>
+                  <span>{t("landing.whyNotBot.noHandoffs")}</span>
                 </li>
               </ul>
             </div>
@@ -177,23 +177,23 @@ const LandingPage = () => {
               <ul className="comparison-list">
                 <li className="comparison-item good">
                   <span className="item-icon">✓</span>
-                  <span>4 specialized AI agents</span>
+                  <span>{t("landing.whyNotBot.specializedAgents")}</span>
                 </li>
                 <li className="comparison-item good">
                   <span className="item-icon">✓</span>
-                  <span>Deep context understanding</span>
+                  <span>{t("landing.whyNotBot.deepContext")}</span>
                 </li>
                 <li className="comparison-item good">
                   <span className="item-icon">✓</span>
-                  <span>Personalized, intelligent responses</span>
+                  <span>{t("landing.whyNotBot.personalizedResponses")}</span>
                 </li>
                 <li className="comparison-item good">
                   <span className="item-icon">✓</span>
-                  <span>Real Odoo integration</span>
+                  <span>{t("landing.whyNotBot.realOdoo")}</span>
                 </li>
                 <li className="comparison-item good">
                   <span className="item-icon">✓</span>
-                  <span>Seamless agent collaboration</span>
+                  <span>{t("landing.whyNotBot.seamlessCollaboration")}</span>
                 </li>
               </ul>
             </div>
@@ -202,8 +202,7 @@ const LandingPage = () => {
           <div className="research-note">
             <span className="research-icon">📚</span>
             <span>
-              Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), 
-              Laymouna et al. (2024) - 220+ citations
+              {t("landing.whyNotBot.researchNote")}
             </span>
           </div>
         </div>
@@ -224,17 +223,17 @@ const LandingPage = () => {
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👨‍💼</span>
                 <h3>Alex</h3>
-                <p className="agent-card-role">Patient Relations & Reception</p>
+                <p className="agent-card-role">{t("landing.agentsSection.alex.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>24/7 appointment scheduling</li>
-                <li>Patient inquiries & support</li>
-                <li>Multi-channel communication</li>
-                <li>Appointment reminders</li>
+                <li>{t("landing.agentsSection.alex.feature1")}</li>
+                <li>{t("landing.agentsSection.alex.feature2")}</li>
+                <li>{t("landing.agentsSection.alex.feature3")}</li>
+                <li>{t("landing.agentsSection.alex.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">3x</span>
-                <span className="stat-label">faster response time</span>
+                <span className="stat-label">{t("landing.agentsSection.alex.statLabel")}</span>
               </div>
             </div>
 
@@ -242,17 +241,17 @@ const LandingPage = () => {
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👩‍⚕️</span>
                 <h3>Sarah</h3>
-                <p className="agent-card-role">Clinical Operations</p>
+                <p className="agent-card-role">{t("landing.agentsSection.sarah.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Treatment plan management</li>
-                <li>Medical records coordination</li>
-                <li>Clinical workflows</li>
-                <li>Doctor-patient communication</li>
+                <li>{t("landing.agentsSection.sarah.feature1")}</li>
+                <li>{t("landing.agentsSection.sarah.feature2")}</li>
+                <li>{t("landing.agentsSection.sarah.feature3")}</li>
+                <li>{t("landing.agentsSection.sarah.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">85%</span>
-                <span className="stat-label">reduction in admin tasks</span>
+                <span className="stat-label">{t("landing.agentsSection.sarah.statLabel")}</span>
               </div>
             </div>
 
@@ -260,17 +259,17 @@ const LandingPage = () => {
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👨‍💼</span>
                 <h3>Marcus</h3>
-                <p className="agent-card-role">Financial Analysis & CFO</p>
+                <p className="agent-card-role">{t("landing.agentsSection.marcus.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Revenue analytics & insights</li>
-                <li>Invoice management</li>
-                <li>Payment tracking</li>
-                <li>Financial forecasting</li>
+                <li>{t("landing.agentsSection.marcus.feature1")}</li>
+                <li>{t("landing.agentsSection.marcus.feature2")}</li>
+                <li>{t("landing.agentsSection.marcus.feature3")}</li>
+                <li>{t("landing.agentsSection.marcus.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">₪15K+</span>
-                <span className="stat-label">average monthly revenue increase</span>
+                <span className="stat-label">{t("landing.agentsSection.marcus.statLabel")}</span>
               </div>
             </div>
 
@@ -278,17 +277,17 @@ const LandingPage = () => {
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👩‍💼</span>
                 <h3>Sophia</h3>
-                <p className="agent-card-role">Practice Management</p>
+                <p className="agent-card-role">{t("landing.agentsSection.sophia.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Operations optimization</li>
-                <li>Staff coordination</li>
-                <li>Inventory management</li>
-                <li>Performance analytics</li>
+                <li>{t("landing.agentsSection.sophia.feature1")}</li>
+                <li>{t("landing.agentsSection.sophia.feature2")}</li>
+                <li>{t("landing.agentsSection.sophia.feature3")}</li>
+                <li>{t("landing.agentsSection.sophia.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">10h+</span>
-                <span className="stat-label">saved per week</span>
+                <span className="stat-label">{t("landing.agentsSection.sophia.statLabel")}</span>
               </div>
             </div>
           </div>
