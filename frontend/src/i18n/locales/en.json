@@ -568,28 +568,62 @@
     },
     "pricing": {
       "title": "Simple, Transparent Pricing",
-      "subtitle": "Choose the plan that fits your clinic",
-      "monthly": "Monthly",
-      "yearly": "Yearly",
-      "save20": "Save 20%",
-      "starter": "Starter",
-      "professional": "Professional",
-      "enterprise": "Enterprise",
-      "perMonth": "/month",
-      "getStarted": "Get Started",
-      "contactSales": "Contact Sales",
-      "mostPopular": "Most Popular",
-      "custom": "Custom"
+      "subtitle": "Choose the plan that fits your clinic. No hidden fees",
+      "starter": {
+        "name": "Starter",
+        "price": "₪499/month",
+        "description": "Perfect for small clinics",
+        "feature1": "Up to 100 patients",
+        "feature2": "2 AI agents (Alex + Sarah)",
+        "feature3": "Web Chat + SMS",
+        "feature4": "Basic analytics",
+        "feature5": "Email support",
+        "cta": "Start Free Trial"
+      },
+      "professional": {
+        "name": "Professional",
+        "price": "₪799/month",
+        "description": "For growing practices",
+        "badge": "Most Popular",
+        "feature1": "Up to 500 patients",
+        "feature2": "All 4 AI agents",
+        "feature3": "All channels (incl. WhatsApp)",
+        "feature4": "Advanced analytics",
+        "feature5": "Priority support",
+        "feature6": "Odoo integration",
+        "cta": "Start Free Trial"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "price": "₪1,499/month",
+        "description": "For large clinics",
+        "feature1": "Unlimited patients",
+        "feature2": "All 4 AI agents",
+        "feature3": "All channels",
+        "feature4": "Custom analytics",
+        "feature5": "Dedicated support",
+        "feature6": "Custom integrations",
+        "feature7": "SLA guarantee",
+        "cta": "Contact Sales"
+      },
+      "trial": "🎁 30-day free trial on all plans.",
+      "noCard": "No credit card required",
+      "cancelAnytime": "Cancel anytime"
     },
     "pilot": {
+      "badge": "🌟 Limited Opportunity",
       "title": "Join Our Pilot Program",
-      "subtitle": "Limited spots available for early adopters",
-      "benefit1": "6 months completely free",
-      "benefit2": "Priority support & onboarding",
-      "benefit3": "Influence product roadmap",
-      "benefit4": "Lifetime 30% discount",
-      "apply": "Apply for Pilot Program",
-      "limited": "Only 10 spots available"
+      "subtitle": "Be one of 10 pioneering clinics to shape the future of dental AI",
+      "benefit1Title": "6 Months Completely Free",
+      "benefit1Desc": "Full access to all features, zero cost",
+      "benefit2Title": "20% Lifetime Discount",
+      "benefit2Desc": "After pilot ends, pay 20% less forever",
+      "benefit3Title": "Dedicated Support",
+      "benefit3Desc": "Direct line to our team, priority assistance",
+      "benefit4Title": "Shape the Product",
+      "benefit4Desc": "Your feedback directly influences development",
+      "cta": "Apply for Pilot Program",
+      "spotsRemaining": "⚠️ Only 3 spots remaining out of 10"
     },
     "footer": {
       "product": "Product",
@@ -854,6 +888,21 @@
       "hipaaCompliant": "🔒 HIPAA Compliant",
       "gdprReady": "🛡️ GDPR Ready",
       "uptime": "✓ 99.9% Uptime"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1": "How is this different from a chatbot?",
+      "a1": "DentaFlow uses a Multi-Agent AI system with 4 specialized agents, not a single chatbot. Each agent is an expert in their domain (patient relations, clinical ops, finance, management) and they collaborate seamlessly. Research shows this approach delivers 40% higher quality than traditional chatbots.",
+      "q2": "Do I need to change my current system?",
+      "a2": "No! DentaFlow integrates seamlessly with Odoo ERP. Your existing data, workflows, and processes remain unchanged. We add an AI layer on top.",
+      "q3": "Is my patient data secure?",
+      "a3": "Absolutely. We're fully HIPAA compliant and GDPR ready. All data is encrypted in transit and at rest. We have a 99.9% uptime SLA and enterprise-grade security.",
+      "q4": "How long does implementation take?",
+      "a4": "Most clinics are up and running in 2-3 days. We handle the Odoo integration, data migration, and team training. You'll have dedicated support throughout.",
+      "q5": "Can I try before I buy?",
+      "a5": "Yes! You can try our Interactive Demo (no signup), start a 30-day free trial (no credit card), or apply for our Pilot Program (6 months free). Three ways to experience DentaFlow risk-free.",
+      "q6": "What if I need help?",
+      "a6": "We offer email support on Starter, priority support on Professional, and dedicated support on Enterprise. Pilot program members get direct access to our team."
     }
   }
 }

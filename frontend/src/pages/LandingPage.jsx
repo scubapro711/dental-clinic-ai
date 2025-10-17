@@ -418,29 +418,29 @@ const LandingPage = () => {
       <section id="pricing" className="pricing-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Simple, Transparent Pricing</h2>
+            <h2>{t("landing.pricing.title")}</h2>
             <p className="section-subtitle">
-              Choose the plan that fits your clinic. No hidden fees.
+              {t("landing.pricing.subtitle")}
             </p>
           </div>
 
           <div className="pricing-grid">
             <div className={`pricing-card ${selectedPlan === 'starter' ? 'selected' : ''}`}>
               <div className="pricing-header">
-                <h3>Starter</h3>
+                <h3>{t("landing.pricing.starter.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">499</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">Perfect for small clinics</p>
+                <p className="pricing-description">{t("landing.pricing.starter.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Up to 100 patients</li>
-                <li>✓ 2 AI agents (Alex + Sarah)</li>
-                <li>✓ Web Chat + SMS</li>
-                <li>✓ Basic analytics</li>
-                <li>✓ Email support</li>
+                <li>✓ {t("landing.pricing.starter.feature1")}</li>
+                <li>✓ {t("landing.pricing.starter.feature2")}</li>
+                <li>✓ {t("landing.pricing.starter.feature3")}</li>
+                <li>✓ {t("landing.pricing.starter.feature4")}</li>
+                <li>✓ {t("landing.pricing.starter.feature5")}</li>
               </ul>
               <button 
                 className="pricing-cta"
@@ -451,23 +451,23 @@ const LandingPage = () => {
             </div>
 
             <div className={`pricing-card popular ${selectedPlan === 'professional' ? 'selected' : ''}`}>
-              <div className="popular-badge">Most Popular</div>
+              <div className="popular-badge">{t("landing.pricing.professional.badge")}</div>
               <div className="pricing-header">
-                <h3>Professional</h3>
+                <h3>{t("landing.pricing.professional.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">799</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">For growing practices</p>
+                <p className="pricing-description">{t("landing.pricing.professional.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Up to 500 patients</li>
-                <li>✓ All 4 AI agents</li>
-                <li>✓ All channels (incl. WhatsApp)</li>
-                <li>✓ Advanced analytics</li>
-                <li>✓ Priority support</li>
-                <li>✓ Odoo integration</li>
+                <li>✓ {t("landing.pricing.professional.feature1")}</li>
+                <li>✓ {t("landing.pricing.professional.feature2")}</li>
+                <li>✓ {t("landing.pricing.professional.feature3")}</li>
+                <li>✓ {t("landing.pricing.professional.feature4")}</li>
+                <li>✓ {t("landing.pricing.professional.feature5")}</li>
+                <li>✓ {t("landing.pricing.professional.feature6")}</li>
               </ul>
               <button 
                 className="pricing-cta primary"
@@ -479,22 +479,22 @@ const LandingPage = () => {
 
             <div className={`pricing-card ${selectedPlan === 'enterprise' ? 'selected' : ''}`}>
               <div className="pricing-header">
-                <h3>Enterprise</h3>
+                <h3>{t("landing.pricing.enterprise.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">1,499</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">For large clinics</p>
+                <p className="pricing-description">{t("landing.pricing.enterprise.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Unlimited patients</li>
-                <li>✓ All 4 AI agents</li>
-                <li>✓ All channels</li>
-                <li>✓ Custom analytics</li>
-                <li>✓ Dedicated support</li>
-                <li>✓ Custom integrations</li>
-                <li>✓ SLA guarantee</li>
+                <li>✓ {t("landing.pricing.enterprise.feature1")}</li>
+                <li>✓ {t("landing.pricing.professional.feature2")}</li>
+                <li>✓ {t("landing.pricing.enterprise.feature3")}</li>
+                <li>✓ {t("landing.pricing.enterprise.feature4")}</li>
+                <li>✓ {t("landing.pricing.enterprise.feature5")}</li>
+                <li>✓ {t("landing.pricing.enterprise.feature6")}</li>
+                <li>✓ {t("landing.pricing.enterprise.feature7")}</li>
               </ul>
               <button 
                 className="cta"
@@ -507,8 +507,8 @@ const LandingPage = () => {
 
           <div className="pricing-note">
             <p>
-              🎁 <strong>30-day free trial</strong> on all plans. {t("landing.hero.noCredit")} required.
-              Cancel anytime.
+              🎁 <strong>{t("landing.pricing.trial")}</strong> on all plans. {t("landing.hero.noCredit")} required.
+              {t("landing.pricing.cancelAnytime")}
             </p>
           </div>
         </div>
@@ -519,7 +519,7 @@ const LandingPage = () => {
         <div className="section-container">
           <div className="pilot-card">
             <div className="pilot-badge">🌟 Limited Opportunity</div>
-            <h2>Join Our Pilot Program</h2>
+            <h2>{t("landing.pilot.title")}</h2>
             <p className="pilot-subtitle">
               Be one of 10 pioneering clinics to shape the future of dental AI
             </p>
@@ -572,7 +572,7 @@ const LandingPage = () => {
       <section className="faq-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Frequently Asked Questions</h2>
+            <h2>{t("landing.faq.title")}</h2>
           </div>
 
           <div className="faq-grid">
@@ -613,7 +613,7 @@ const LandingPage = () => {
             <div className="faq-item">
               <h4>Can I try before I buy?</h4>
               <p>
-                Yes! You can try our Interactive Demo (no signup), start a 30-day free trial
+                Yes! You can try our Interactive Demo (no signup), start a {t("landing.pricing.trial")}
                 (no credit card), or apply for our Pilot Program ({t("landing.hero.monthsFree")}). Three ways to
                 experience DentaFlow risk-free.
               </p>
