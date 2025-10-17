@@ -75,7 +75,7 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: str = Field(
-        default="http://localhost:5173,http://localhost:3000"
+        default="http://localhost:5173,http://localhost:3000,https://dentaflow-frontend-688311017213.us-central1.run.app,https://dentaflow-frontend-gmi5lyn5wq-uc.a.run.app"
     )
     
     @property
