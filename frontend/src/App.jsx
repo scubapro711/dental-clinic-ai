@@ -49,6 +49,7 @@ import ClinicOnboarding from './pages/onboarding/ClinicOnboarding'
 // Demo Portal
 import { DemoProvider } from './contexts/DemoContext'
 import DemoPortal from './pages/DemoPortal'
+import DemoPortalEnhanced from './pages/DemoPortalEnhanced'
 
 // Landing Page
 import LandingPage from './pages/LandingPage'
@@ -111,6 +112,16 @@ function App() {
         {/* Demo Portal (Public) */}
         <Route 
           path="/demo" 
+          element={
+            <DemoProvider>
+              <DemoPortalEnhanced />
+            </DemoProvider>
+          } 
+        />
+        
+        {/* Demo Portal - Basic Version (Public) */}
+        <Route 
+          path="/demo-basic" 
           element={
             <DemoProvider>
               <DemoPortal />

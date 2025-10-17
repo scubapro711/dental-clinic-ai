@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import DemoChatButton from '../components/DemoChatButton';
 import './LandingPage.css';
 
@@ -21,8 +21,8 @@ const LandingPage = () => {
             <a href="#why-not-bot">Why Not a Bot?</a>
             <a href="#pricing">Pricing</a>
             <a href="#pilot">Pilot Program</a>
-            <a href="/demo" className="nav-cta-demo">Try Demo</a>
-            <a href="/register" className="nav-cta">Start Free Trial</a>
+            <Link to="/demo" className="nav-cta-demo">Try Demo</Link>
+            <Link to="/register" className="nav-cta">Start Free Trial</Link>
           </div>
         </div>
       </nav>

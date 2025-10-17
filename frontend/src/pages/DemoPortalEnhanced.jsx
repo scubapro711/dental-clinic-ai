@@ -1,0 +1,853 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDemoContext } from '../contexts/DemoContext';
+import DemoChatButton from '../components/DemoChatButton';
+import './DemoPortalEnhanced.css';
+
+/**
+ * Enhanced Demo Portal - Showcases AI Agent Features
+ * 
+ * This demo portal includes all the AI agent features from production:
+ * - Pending Decisions Widget
+ * - Agent Activity Monitor
+ * - AI Chat Interface
+ * - Fine-Tuning Section
+ * - Transparency Panel
+ */
+const DemoPortalEnhanced = () => {
+  const navigate = useNavigate();
+  const { demoMode, startDemoSession, endDemoSession, timeRemaining, isLoading, error } = useDemoContext();
+  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [showTransparency, setShowTransparency] = useState(true);
+
+  useEffect(() => {
+    // Start demo session if not already started
+    if (!demoMode) {
+      startDemoSession().catch((err) => {
+        console.error('Failed to start demo session:', err);
+        navigate('/');
+      });
+    }
+  }, []);
+
+  const handleExitDemo = () => {
+    if (window.confirm('Are you sure you want to exit the demo? Your session will be ended.')) {
+      endDemoSession();
+      navigate('/');
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  if (isLoading) {
+    return (
+      <div className="demo-portal-loading">
+        <div className="loading-spinner"></div>
+        <p>Starting your AI-powered demo session...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="demo-portal-error">
+        <h2>⚠️ Demo Session Error</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate('/')}>Return to Home</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="demo-portal-enhanced">
+      {/* Demo Header */}
+      <div className="demo-header">
+        <div className="demo-header-left">
+          <div className="demo-badge">🤖 AI DEMO MODE</div>
+          <h1>DentaFlow AI Mission Control</h1>
+          <p className="demo-subtitle">Experience the power of AI agents</p>
+        </div>
+        <div className="demo-header-right">
+          {timeRemaining !== null && (
+            <div className={`demo-timer ${timeRemaining < 300 ? 'warning' : ''}`}>
+              ⏰ {formatTime(timeRemaining)} remaining
+            </div>
+          )}
+          <button className="toggle-btn" onClick={() => setShowTransparency(!showTransparency)}>
+            {showTransparency ? '🔍 Hide Transparency' : '🔍 Show Transparency'}
+          </button>
+          <button className="exit-demo-btn" onClick={handleExitDemo}>
+            Exit Demo
+          </button>
+        </div>
+      </div>
+
+      {/* Main Layout */}
+      <div className="demo-main-layout">
+        {/* Left Sidebar - Widgets */}
+        <div className="demo-left-sidebar">
+          <PendingDecisionsWidget />
+          <AgentActivityWidget />
+          <FineTuningWidget />
+        </div>
+
+        {/* Center - Dashboard Content */}
+        <div className="demo-center-content">
+          <div className="demo-nav">
+            <button
+              className={`demo-nav-btn ${currentPage === 'dashboard' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('dashboard')}
+            >
+              📊 Dashboard
+            </button>
+            <button
+              className={`demo-nav-btn ${currentPage === 'patients' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('patients')}
+            >
+              👥 Patients
+            </button>
+            <button
+              className={`demo-nav-btn ${currentPage === 'appointments' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('appointments')}
+            >
+              📅 Appointments
+            </button>
+            <button
+              className={`demo-nav-btn ${currentPage === 'financial' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('financial')}
+            >
+              💰 Financial
+            </button>
+          </div>
+
+          <div className="demo-content">
+            {currentPage === 'dashboard' && <DemoDashboardEnhanced />}
+            {currentPage === 'patients' && <DemoPatientsEnhanced />}
+            {currentPage === 'appointments' && <DemoAppointmentsEnhanced />}
+            {currentPage === 'financial' && <DemoFinancialEnhanced />}
+          </div>
+        </div>
+
+        {/* Right Sidebar - Transparency */}
+        <div className="demo-right-sidebar">
+          {showTransparency && (
+            <div className="demo-transparency-panel">
+              <TransparencyPanelDemo />
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Demo Footer */}
+      <div className="demo-footer">
+        <p>
+          ⚠️ This is a demo environment with sample data and simulated AI responses. 
+          <a href="/register" className="cta-link">Start Free Trial</a> to use with your real clinic data and live AI agents.
+        </p>
+      </div>
+
+      {/* Floating AI Chat Button */}
+      <DemoChatButton />
+    </div>
+  );
+};
+
+// ==================== WIDGETS ====================
+
+/**
+ * Pending Decisions Widget
+ * Shows AI agent decisions waiting for approval
+ */
+const PendingDecisionsWidget = () => {
+  const [decisions, setDecisions] = useState([
+    {
+      id: 1,
+      agent: 'Alex',
+      type: 'appointment_reschedule',
+      title: 'Reschedule Appointment',
+      description: 'Patient Sarah Johnson requested to move appointment from Oct 25 to Oct 27',
+      priority: 'medium',
+      timestamp: '10 minutes ago'
+    },
+    {
+      id: 2,
+      agent: 'Marcus',
+      type: 'payment_plan',
+      title: 'Payment Plan Approval',
+      description: 'Suggested 3-month payment plan for Rachel Levi (₪2,400 total)',
+      priority: 'high',
+      timestamp: '25 minutes ago'
+    },
+    {
+      id: 3,
+      agent: 'Sophia',
+      type: 'inventory_order',
+      title: 'Inventory Reorder',
+      description: 'Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes.',
+      priority: 'low',
+      timestamp: '1 hour ago'
+    }
+  ]);
+
+  const handleApprove = (id) => {
+    setDecisions(decisions.filter(d => d.id !== id));
+    alert('✅ Decision approved! AI agent will execute the action.');
+  };
+
+  const handleReject = (id) => {
+    setDecisions(decisions.filter(d => d.id !== id));
+    alert('❌ Decision rejected. AI agent will not proceed.');
+  };
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return '#ff4444';
+      case 'medium': return '#ffaa00';
+      case 'low': return '#00aa00';
+      default: return '#888';
+    }
+  };
+
+  return (
+    <div className="widget pending-decisions-widget">
+      <div className="widget-header">
+        <h3>⏳ Pending Decisions</h3>
+        <span className="badge">{decisions.length}</span>
+      </div>
+      <div className="widget-content">
+        {decisions.length === 0 ? (
+          <div className="empty-state">
+            <p>✅ No pending decisions</p>
+            <p className="text-sm">All AI suggestions have been reviewed</p>
+          </div>
+        ) : (
+          <div className="decisions-list">
+            {decisions.map(decision => (
+              <div key={decision.id} className="decision-card">
+                <div className="decision-header">
+                  <span className="agent-badge">{decision.agent}</span>
+                  <span 
+                    className="priority-badge"
+                    style={{ backgroundColor: getPriorityColor(decision.priority) }}
+                  >
+                    {decision.priority}
+                  </span>
+                </div>
+                <h4>{decision.title}</h4>
+                <p>{decision.description}</p>
+                <div className="decision-footer">
+                  <span className="timestamp">{decision.timestamp}</span>
+                  <div className="decision-actions">
+                    <button 
+                      className="btn-approve"
+                      onClick={() => handleApprove(decision.id)}
+                    >
+                      ✓ Approve
+                    </button>
+                    <button 
+                      className="btn-reject"
+                      onClick={() => handleReject(decision.id)}
+                    >
+                      ✗ Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Agent Activity Widget
+ * Shows real-time AI agent activity
+ */
+const AgentActivityWidget = () => {
+  const [activities, setActivities] = useState([
+    {
+      id: 1,
+      agent: 'Alex',
+      action: 'Sent appointment reminder',
+      patient: 'David Cohen',
+      status: 'completed',
+      timestamp: '2 min ago'
+    },
+    {
+      id: 2,
+      agent: 'Marcus',
+      action: 'Generated invoice',
+      patient: 'Rachel Levi',
+      status: 'completed',
+      timestamp: '5 min ago'
+    },
+    {
+      id: 3,
+      agent: 'Sarah',
+      action: 'Reviewing treatment plan',
+      patient: 'Tamar Shapiro',
+      status: 'in_progress',
+      timestamp: 'Just now'
+    },
+    {
+      id: 4,
+      agent: 'Sophia',
+      action: 'Checking inventory levels',
+      patient: null,
+      status: 'in_progress',
+      timestamp: 'Just now'
+    }
+  ]);
+
+  useEffect(() => {
+    // Simulate real-time activity updates
+    const interval = setInterval(() => {
+      const newActivity = {
+        id: Date.now(),
+        agent: ['Alex', 'Marcus', 'Sarah', 'Sophia'][Math.floor(Math.random() * 4)],
+        action: [
+          'Sent SMS reminder',
+          'Updated patient record',
+          'Processed payment',
+          'Scheduled follow-up'
+        ][Math.floor(Math.random() * 4)],
+        patient: ['David Cohen', 'Rachel Levi', 'Sarah Johnson'][Math.floor(Math.random() * 3)],
+        status: 'completed',
+        timestamp: 'Just now'
+      };
+      
+      setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
+    }, 15000); // New activity every 15 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const getAgentColor = (agent) => {
+    const colors = {
+      'Alex': '#3b82f6',
+      'Marcus': '#10b981',
+      'Sarah': '#f59e0b',
+      'Sophia': '#8b5cf6'
+    };
+    return colors[agent] || '#888';
+  };
+
+  return (
+    <div className="widget agent-activity-widget">
+      <div className="widget-header">
+        <h3>🤖 Agent Activity</h3>
+        <span className="live-indicator">● LIVE</span>
+      </div>
+      <div className="widget-content">
+        <div className="activity-stream">
+          {activities.map(activity => (
+            <div key={activity.id} className="activity-item">
+              <div 
+                className="activity-dot"
+                style={{ backgroundColor: getAgentColor(activity.agent) }}
+              />
+              <div className="activity-details">
+                <div className="activity-agent">{activity.agent}</div>
+                <div className="activity-action">{activity.action}</div>
+                {activity.patient && (
+                  <div className="activity-patient">Patient: {activity.patient}</div>
+                )}
+                <div className="activity-timestamp">{activity.timestamp}</div>
+              </div>
+              {activity.status === 'in_progress' && (
+                <div className="activity-status">
+                  <div className="spinner-small"></div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Fine-Tuning Widget
+ * Shows AI agent configuration and performance
+ */
+const FineTuningWidget = () => {
+  const [agents, setAgents] = useState([
+    {
+      name: 'Alex',
+      role: 'Patient Experience',
+      performance: 94,
+      conversations: 1247,
+      satisfaction: 4.8,
+      enabled: true
+    },
+    {
+      name: 'Marcus',
+      role: 'Financial Intelligence',
+      performance: 91,
+      conversations: 856,
+      satisfaction: 4.7,
+      enabled: true
+    },
+    {
+      name: 'Sarah',
+      role: 'Clinical Support',
+      performance: 96,
+      conversations: 623,
+      satisfaction: 4.9,
+      enabled: true
+    },
+    {
+      name: 'Sophia',
+      role: 'Operations',
+      performance: 89,
+      conversations: 445,
+      satisfaction: 4.6,
+      enabled: true
+    }
+  ]);
+
+  const toggleAgent = (name) => {
+    setAgents(agents.map(agent => 
+      agent.name === name 
+        ? { ...agent, enabled: !agent.enabled }
+        : agent
+    ));
+  };
+
+  return (
+    <div className="widget fine-tuning-widget">
+      <div className="widget-header">
+        <h3>⚙️ AI Fine-Tuning</h3>
+      </div>
+      <div className="widget-content">
+        <div className="agents-grid">
+          {agents.map(agent => (
+            <div key={agent.name} className={`agent-card ${!agent.enabled ? 'disabled' : ''}`}>
+              <div className="agent-card-header">
+                <div>
+                  <h4>{agent.name}</h4>
+                  <p className="agent-role">{agent.role}</p>
+                </div>
+                <label className="toggle-switch">
+                  <input 
+                    type="checkbox" 
+                    checked={agent.enabled}
+                    onChange={() => toggleAgent(agent.name)}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
+              </div>
+              <div className="agent-metrics">
+                <div className="metric">
+                  <span className="metric-label">Performance</span>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill"
+                      style={{ width: `${agent.performance}%` }}
+                    />
+                  </div>
+                  <span className="metric-value">{agent.performance}%</span>
+                </div>
+                <div className="metric-row">
+                  <div className="metric-small">
+                    <span className="metric-label">Conversations</span>
+                    <span className="metric-value">{agent.conversations}</span>
+                  </div>
+                  <div className="metric-small">
+                    <span className="metric-label">Satisfaction</span>
+                    <span className="metric-value">⭐ {agent.satisfaction}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * Transparency Panel Demo
+ * Shows AI decision-making process
+ */
+const TransparencyPanelDemo = () => {
+  const [selectedDecision, setSelectedDecision] = useState(0);
+  
+  const decisions = [
+    {
+      title: 'Appointment Rescheduling',
+      agent: 'Alex',
+      timestamp: '10 minutes ago',
+      reasoning: [
+        {
+          step: 1,
+          thought: 'Patient requested to reschedule from Oct 25 to Oct 27',
+          confidence: 100
+        },
+        {
+          step: 2,
+          thought: 'Checked doctor availability for Oct 27 at 10:00 AM',
+          confidence: 95
+        },
+        {
+          step: 3,
+          thought: 'Verified no conflicts with existing appointments',
+          confidence: 98
+        },
+        {
+          step: 4,
+          thought: 'Recommended approval based on availability and patient preference',
+          confidence: 92
+        }
+      ],
+      tools_used: ['check_availability', 'get_patient_history', 'send_notification'],
+      outcome: 'Pending approval'
+    },
+    {
+      title: 'Payment Plan Creation',
+      agent: 'Marcus',
+      timestamp: '25 minutes ago',
+      reasoning: [
+        {
+          step: 1,
+          thought: 'Patient has outstanding balance of ₪2,400',
+          confidence: 100
+        },
+        {
+          step: 2,
+          thought: 'Analyzed patient payment history - consistent on-time payments',
+          confidence: 94
+        },
+        {
+          step: 3,
+          thought: 'Calculated 3-month plan: ₪800/month based on patient income estimate',
+          confidence: 88
+        },
+        {
+          step: 4,
+          thought: 'Recommended approval with standard terms',
+          confidence: 91
+        }
+      ],
+      tools_used: ['get_patient_balance', 'analyze_payment_history', 'create_payment_plan'],
+      outcome: 'Pending approval'
+    }
+  ];
+
+  const decision = decisions[selectedDecision];
+
+  return (
+    <div className="transparency-panel-demo">
+      <h3>🔍 AI Transparency</h3>
+      <p className="panel-subtitle">See how AI agents make decisions</p>
+      
+      <div className="decision-selector">
+        {decisions.map((d, index) => (
+          <button
+            key={index}
+            className={`decision-tab ${selectedDecision === index ? 'active' : ''}`}
+            onClick={() => setSelectedDecision(index)}
+          >
+            {d.title}
+          </button>
+        ))}
+      </div>
+
+      <div className="decision-details">
+        <div className="decision-meta">
+          <span className="agent-badge">{decision.agent}</span>
+          <span className="timestamp">{decision.timestamp}</span>
+        </div>
+
+        <h4>Reasoning Process</h4>
+        <div className="reasoning-steps">
+          {decision.reasoning.map((step) => (
+            <div key={step.step} className="reasoning-step">
+              <div className="step-number">{step.step}</div>
+              <div className="step-content">
+                <p>{step.thought}</p>
+                <div className="confidence-bar">
+                  <div 
+                    className="confidence-fill"
+                    style={{ width: `${step.confidence}%` }}
+                  />
+                  <span className="confidence-label">{step.confidence}% confidence</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h4>Tools Used</h4>
+        <div className="tools-used">
+          {decision.tools_used.map((tool, index) => (
+            <span key={index} className="tool-badge">{tool}</span>
+          ))}
+        </div>
+
+        <div className="decision-outcome">
+          <strong>Outcome:</strong> {decision.outcome}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ==================== DASHBOARD PAGES ====================
+
+const DemoDashboardEnhanced = () => {
+  const { demoData } = useDemoContext();
+
+  if (!demoData) {
+    return <div className="demo-loading">Loading dashboard...</div>;
+  }
+
+  const { financialSummary, patients, appointments } = demoData;
+  const activePatients = patients.filter(p => p.status === 'Active').length;
+  const upcomingAppointments = appointments.length;
+
+  return (
+    <div className="demo-dashboard-enhanced">
+      <h2>AI-Powered Dashboard</h2>
+      <p className="dashboard-subtitle">Real-time insights powered by 4 AI agents</p>
+
+      {/* Metrics Cards */}
+      <div className="metrics-grid">
+        <div className="metric-card">
+          <div className="metric-icon">💰</div>
+          <div className="metric-content">
+            <div className="metric-label">Total Revenue</div>
+            <div className="metric-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
+            <div className="metric-change positive">+12% from last month</div>
+            <div className="metric-agent">Tracked by Marcus 🤖</div>
+          </div>
+        </div>
+
+        <div className="metric-card">
+          <div className="metric-icon">👥</div>
+          <div className="metric-content">
+            <div className="metric-label">Active Patients</div>
+            <div className="metric-value">{activePatients}</div>
+            <div className="metric-change positive">+2 new this week</div>
+            <div className="metric-agent">Managed by Alex 🤖</div>
+          </div>
+        </div>
+
+        <div className="metric-card">
+          <div className="metric-icon">📅</div>
+          <div className="metric-content">
+            <div className="metric-label">Upcoming Appointments</div>
+            <div className="metric-value">{upcomingAppointments}</div>
+            <div className="metric-change neutral">Next 7 days</div>
+            <div className="metric-agent">Scheduled by Alex 🤖</div>
+          </div>
+        </div>
+
+        <div className="metric-card">
+          <div className="metric-icon">⚠️</div>
+          <div className="metric-content">
+            <div className="metric-label">Outstanding Balance</div>
+            <div className="metric-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
+            <div className="metric-change negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
+            <div className="metric-agent">Monitored by Marcus 🤖</div>
+          </div>
+        </div>
+      </div>
+
+      {/* AI Insights */}
+      <div className="ai-insights-section">
+        <h3>🤖 AI Insights & Recommendations</h3>
+        <div className="insights-grid">
+          <div className="insight-card">
+            <div className="insight-header">
+              <span className="agent-badge">Marcus</span>
+              <span className="insight-priority high">High Priority</span>
+            </div>
+            <h4>Revenue Opportunity Detected</h4>
+            <p>3 patients are due for routine checkups. Estimated revenue: ₪1,800</p>
+            <button className="insight-action">Contact Patients</button>
+          </div>
+
+          <div className="insight-card">
+            <div className="insight-header">
+              <span className="agent-badge">Sophia</span>
+              <span className="insight-priority medium">Medium Priority</span>
+            </div>
+            <h4>Inventory Alert</h4>
+            <p>Dental gloves running low (12 boxes left). Recommend reordering soon.</p>
+            <button className="insight-action">Create Order</button>
+          </div>
+
+          <div className="insight-card">
+            <div className="insight-header">
+              <span className="agent-badge">Alex</span>
+              <span className="insight-priority low">Low Priority</span>
+            </div>
+            <h4>Patient Satisfaction</h4>
+            <p>Average satisfaction score increased to 4.8/5 this month (+0.3)</p>
+            <button className="insight-action">View Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const DemoPatientsEnhanced = () => {
+  const { demoData } = useDemoContext();
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  if (!demoData) {
+    return <div className="demo-loading">Loading patients...</div>;
+  }
+
+  const { patients } = demoData;
+
+  return (
+    <div className="demo-patients-enhanced">
+      <h2>AI-Assisted Patient Management</h2>
+      <p className="page-subtitle">Alex monitors all patient interactions</p>
+
+      <div className="patients-container">
+        <div className="patients-list">
+          {patients.map((patient) => (
+            <div
+              key={patient.id}
+              className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
+              onClick={() => setSelectedPatient(patient)}
+            >
+              <div className="patient-avatar">{patient.name.charAt(0)}</div>
+              <div className="patient-info">
+                <div className="patient-name">{patient.name}</div>
+                <div className="patient-details">
+                  Last visit: {patient.lastVisit || 'Never'}
+                </div>
+                {patient.balance > 0 && (
+                  <div className="patient-balance">Balance: ₪{patient.balance}</div>
+                )}
+              </div>
+              <div className={`patient-status ${patient.status.toLowerCase()}`}>
+                {patient.status}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {selectedPatient && (
+          <div className="patient-details-enhanced">
+            <h3>{selectedPatient.name}</h3>
+            <div className="ai-summary">
+              <h4>🤖 AI Summary</h4>
+              <p>Alex has sent 3 appointment reminders and 2 follow-up messages this month.</p>
+              <p>Last interaction: Confirmed appointment for Oct 25</p>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Email:</span>
+              <span className="detail-value">{selectedPatient.email}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Phone:</span>
+              <span className="detail-value">{selectedPatient.phone}</span>
+            </div>
+            <div className="detail-row">
+              <span className="detail-label">Balance:</span>
+              <span className="detail-value">₪{selectedPatient.balance}</span>
+            </div>
+            <div className="detail-actions">
+              <button className="btn-primary">💬 Chat with Alex</button>
+              <button className="btn-secondary">📅 Schedule Appointment</button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const DemoAppointmentsEnhanced = () => {
+  const { demoData } = useDemoContext();
+
+  if (!demoData) {
+    return <div className="demo-loading">Loading appointments...</div>;
+  }
+
+  const { appointments } = demoData;
+
+  return (
+    <div className="demo-appointments-enhanced">
+      <h2>AI-Managed Appointments</h2>
+      <p className="page-subtitle">Alex handles all scheduling and reminders automatically</p>
+
+      <div className="appointments-list">
+        {appointments.map((apt, index) => (
+          <div key={index} className="appointment-card">
+            <div className="appointment-time">
+              <div className="time-label">{apt.time}</div>
+              <div className="date-label">{apt.date}</div>
+            </div>
+            <div className="appointment-details">
+              <h4>{apt.patientName}</h4>
+              <p>{apt.treatmentType}</p>
+              <p className="doctor">Dr. {apt.doctor}</p>
+            </div>
+            <div className="appointment-ai-status">
+              <span className="ai-badge">✅ Reminder sent by Alex</span>
+              <span className="ai-badge">📧 Confirmed via email</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const DemoFinancialEnhanced = () => {
+  const { demoData } = useDemoContext();
+
+  if (!demoData) {
+    return <div className="demo-loading">Loading financial data...</div>;
+  }
+
+  const { financialSummary } = demoData;
+
+  return (
+    <div className="demo-financial-enhanced">
+      <h2>AI Financial Intelligence</h2>
+      <p className="page-subtitle">Marcus provides real-time financial insights</p>
+
+      <div className="financial-summary">
+        <div className="summary-card">
+          <h3>Monthly Revenue</h3>
+          <div className="summary-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
+          <div className="summary-trend positive">+12% vs last month</div>
+          <p className="ai-insight">🤖 Marcus predicts ₪48,000 next month based on scheduled appointments</p>
+        </div>
+
+        <div className="summary-card">
+          <h3>Outstanding Balance</h3>
+          <div className="summary-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
+          <div className="summary-trend negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
+          <p className="ai-insight">🤖 Marcus recommends sending payment reminders to 3 patients</p>
+        </div>
+
+        <div className="summary-card">
+          <h3>Collection Rate</h3>
+          <div className="summary-value">87%</div>
+          <div className="summary-trend positive">+3% vs last month</div>
+          <p className="ai-insight">🤖 Marcus automated 15 payment reminders this month</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DemoPortalEnhanced;
+
