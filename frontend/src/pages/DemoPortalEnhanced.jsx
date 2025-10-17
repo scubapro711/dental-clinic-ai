@@ -752,6 +752,8 @@ const DemoDashboardEnhanced = () => {
 const DemoPatientsEnhanced = () => {
   const { demoData } = useDemoContext();
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
 
   if (!demoData) {
     return <div className="demo-loading">Loading patients...</div>;
@@ -759,14 +761,84 @@ const DemoPatientsEnhanced = () => {
 
   const { patients } = demoData;
 
+  // Filter patients based on search query and status
+  const filteredPatients = patients.filter(patient => {
+    const matchesSearch = 
+      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.phone.includes(searchQuery);
+    
+    const matchesStatus = 
+      filterStatus === 'all' || 
+      patient.status.toLowerCase() === filterStatus.toLowerCase();
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="demo-patients-enhanced">
       <h2>AI-Assisted Patient Management</h2>
       <p className="page-subtitle">Alex monitors all patient interactions</p>
 
+      {/* Search and Filter Bar */}
+      <div className="patients-search-bar">
+        <div className="search-input-wrapper">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Search by name, phone, or email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button 
+              className="clear-search"
+              onClick={() => setSearchQuery('')}
+              aria-label="Clear search"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${filterStatus === 'all' ? 'active' : ''}`}
+            onClick={() => setFilterStatus('all')}
+          >
+            All ({patients.length})
+          </button>
+          <button
+            className={`filter-btn ${filterStatus === 'active' ? 'active' : ''}`}
+            onClick={() => setFilterStatus('active')}
+          >
+            Active ({patients.filter(p => p.status === 'Active').length})
+          </button>
+          <button
+            className={`filter-btn ${filterStatus === 'inactive' ? 'active' : ''}`}
+            onClick={() => setFilterStatus('inactive')}
+          >
+            Inactive ({patients.filter(p => p.status === 'Inactive').length})
+          </button>
+        </div>
+      </div>
+
+      {/* Results count */}
+      {searchQuery && (
+        <div className="search-results-info">
+          Found {filteredPatients.length} patient{filteredPatients.length !== 1 ? 's' : ''}
+        </div>
+      )}
+
       <div className="patients-container">
         <div className="patients-list">
-          {patients.map((patient) => (
+          {filteredPatients.length === 0 ? (
+            <div className="no-results">
+              <p>No patients found matching your search.</p>
+              <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>Clear filters</button>
+            </div>
+          ) : (
+            filteredPatients.map((patient) => (
             <div
               key={patient.id}
               className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
@@ -786,7 +858,8 @@ const DemoPatientsEnhanced = () => {
                 {patient.status}
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
 
         {selectedPatient && (
