@@ -518,39 +518,39 @@ const LandingPage = () => {
       <section id="pilot" className="pilot-section">
         <div className="section-container">
           <div className="pilot-card">
-            <div className="pilot-badge">🌟 Limited Opportunity</div>
+            <div className="pilot-badge">{t("landing.pilot.badge")}</div>
             <h2>{t("landing.pilot.title")}</h2>
             <p className="pilot-subtitle">
-              Be one of 10 pioneering clinics to shape the future of dental AI
+              {t("landing.pilot.subtitle")}
             </p>
 
             <div className="pilot-benefits">
               <div className="pilot-benefit">
                 <span className="pilot-icon">🎁</span>
                 <div>
-                  <h4>6 Months Completely Free</h4>
-                  <p>Full access to all features, zero cost</p>
+                  <h4>{t("landing.pilot.benefit1Title")}</h4>
+                  <p>{t("landing.pilot.benefit1Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">💎</span>
                 <div>
-                  <h4>20% Lifetime Discount</h4>
-                  <p>After pilot ends, pay 20% less forever</p>
+                  <h4>{t("landing.pilot.benefit2Title")}</h4>
+                  <p>{t("landing.pilot.benefit2Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">🤝</span>
                 <div>
-                  <h4>Dedicated Support</h4>
-                  <p>Direct line to our team, priority assistance</p>
+                  <h4>{t("landing.pilot.benefit3Title")}</h4>
+                  <p>{t("landing.pilot.benefit3Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">🎯</span>
                 <div>
-                  <h4>Shape the Product</h4>
-                  <p>Your feedback directly influences development</p>
+                  <h4>{t("landing.pilot.benefit4Title")}</h4>
+                  <p>{t("landing.pilot.benefit4Desc")}</p>
                 </div>
               </div>
             </div>
@@ -560,9 +560,9 @@ const LandingPage = () => {
                 className="pilot-cta"
                 onClick={() => navigate('/register?pilot=true')}
               >
-                Apply for Pilot Program
+                {t("landing.pilot.cta")}
               </button>
-              <p className="pilot-spots">⚠️ Only <strong>3 spots remaining</strong> out of 10</p>
+              <p className="pilot-spots">⚠️ {t("landing.pilot.spotsRemaining")}</p>
             </div>
           </div>
         </div>
@@ -577,54 +577,33 @@ const LandingPage = () => {
 
           <div className="faq-grid">
             <div className="faq-item">
-              <h4>How is this different from a chatbot?</h4>
-              <p>
-                DentaFlow uses a Multi-Agent AI system with 4 specialized agents, not a single chatbot.
-                Each agent is an expert in their domain (patient relations, clinical ops, finance, management)
-                and they collaborate seamlessly. Research shows this approach delivers 40% higher quality
-                than traditional chatbots.
-              </p>
+              <h4>{t("landing.faq.q1")}</h4>
+              <p>{t("landing.faq.a1")}</p>
             </div>
 
             <div className="faq-item">
-              <h4>Do I need to change my current system?</h4>
-              <p>
-                No! DentaFlow integrates seamlessly with Odoo ERP. Your existing data, workflows,
-                and processes remain unchanged. We add an AI layer on top.
-              </p>
+              <h4>{t("landing.faq.q2")}</h4>
+              <p>{t("landing.faq.a2")}</p>
             </div>
 
             <div className="faq-item">
-              <h4>Is my patient data secure?</h4>
-              <p>
-                Absolutely. We're fully HIPAA compliant and GDPR ready. All data is encrypted in transit
-                and at rest. We have a 99.9% uptime SLA and enterprise-grade security.
-              </p>
+              <h4>{t("landing.faq.q3")}</h4>
+              <p>{t("landing.faq.a3")}</p>
             </div>
 
             <div className="faq-item">
-              <h4>How long does implementation take?</h4>
-              <p>
-                Most clinics are up and running in 2-3 days. We handle the Odoo integration,
-                data migration, and team training. You'll have dedicated support throughout.
-              </p>
+              <h4>{t("landing.faq.q4")}</h4>
+              <p>{t("landing.faq.a4")}</p>
             </div>
 
             <div className="faq-item">
-              <h4>Can I try before I buy?</h4>
-              <p>
-                Yes! You can try our Interactive Demo (no signup), start a {t("landing.pricing.trial")}
-                (no credit card), or apply for our Pilot Program ({t("landing.hero.monthsFree")}). Three ways to
-                experience DentaFlow risk-free.
-              </p>
+              <h4>{t("landing.faq.q5")}</h4>
+              <p>{t("landing.faq.a5")}</p>
             </div>
 
             <div className="faq-item">
-              <h4>What if I need help?</h4>
-              <p>
-                We offer email support on Starter, priority support on Professional, and dedicated
-                support on Enterprise. Pilot program members get direct access to our team.
-              </p>
+              <h4>{t("landing.faq.q6")}</h4>
+              <p>{t("landing.faq.a6")}</p>
             </div>
           </div>
         </div>
