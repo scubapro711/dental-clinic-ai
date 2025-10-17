@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 
 const DemoContext = createContext();
@@ -20,63 +20,12 @@ export const DemoProvider = ({ children }) => {
   const [timeRemaining, setTimeRemaining] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // Create demo session when demo mode is activated
-  const startDemoSession = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await axios.post(`${API_BASE_URL}/api/v1/demo/session/create`);
-      const { session_id, expires_at } = response.data;
-
-      setDemoSessionId(session_id);
-      setDemoMode(true);
-
-      // Calculate time remaining
-      const expiresAt = new Date(expires_at);
-      const now = new Date();
-      const remaining = Math.floor((expiresAt - now) / 1000);
-      setTimeRemaining(remaining);
-
-      // Load demo data immediately (synchronous)
-      const data = loadDemoData(session_id);
-      setDemoData(data);
-
-      // Store in sessionStorage for persistence
-      sessionStorage.setItem('demoSessionId', session_id);
-      sessionStorage.setItem('demoExpiresAt', expires_at);
-
-      return session_id;
-    } catch (err) {
-      console.error('Error starting demo session:', err);
-      setError('Failed to start demo session. Please try again.');
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // End demo session
-  const endDemoSession = async () => {
-    if (!demoSessionId) return;
-
-    try {
-      await axios.delete(`${API_BASE_URL}/api/v1/demo/session/${demoSessionId}`);
-    } catch (err) {
-      console.error('Error ending demo session:', err);
-    } finally {
-      setDemoMode(false);
-      setDemoSessionId(null);
-      setDemoData(null);
-      setTimeRemaining(null);
-      sessionStorage.removeItem('demoSessionId');
-      sessionStorage.removeItem('demoExpiresAt');
-    }
-  };
+  
+  // Use ref to track if session is being ended to prevent race conditions
+  const isEndingSession = useRef(false);
 
   // Load demo data (patients, appointments, etc.)
-  const loadDemoData = (sessionId) => {
+  const loadDemoData = useCallback((sessionId) => {
       // In a real implementation, this would fetch from the backend
       // For now, we'll use the demo data service directly
       return {
@@ -230,16 +179,76 @@ export const DemoProvider = ({ children }) => {
           ],
         },
       };
-  };
+  }, []);
+
+  // End demo session - wrapped in useCallback to stabilize reference
+  const endDemoSession = useCallback(async () => {
+    if (!demoSessionId || isEndingSession.current) return;
+    
+    // Set flag to prevent multiple simultaneous calls
+    isEndingSession.current = true;
+
+    try {
+      await axios.delete(`${API_BASE_URL}/api/v1/demo/session/${demoSessionId}`);
+    } catch (err) {
+      console.error('Error ending demo session:', err);
+    } finally {
+      setDemoMode(false);
+      setDemoSessionId(null);
+      setDemoData(null);
+      setTimeRemaining(null);
+      sessionStorage.removeItem('demoSessionId');
+      sessionStorage.removeItem('demoExpiresAt');
+      isEndingSession.current = false;
+    }
+  }, [demoSessionId]);
+
+  // Create demo session when demo mode is activated
+  const startDemoSession = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const response = await axios.post(`${API_BASE_URL}/api/v1/demo/session/create`);
+      const { session_id, expires_at } = response.data;
+
+      setDemoSessionId(session_id);
+      setDemoMode(true);
+
+      // Calculate time remaining
+      const expiresAt = new Date(expires_at);
+      const now = new Date();
+      const remaining = Math.floor((expiresAt - now) / 1000);
+      setTimeRemaining(remaining);
+
+      // Load demo data immediately (synchronous)
+      const data = loadDemoData(session_id);
+      setDemoData(data);
+
+      // Store in sessionStorage for persistence
+      sessionStorage.setItem('demoSessionId', session_id);
+      sessionStorage.setItem('demoExpiresAt', expires_at);
+
+      return session_id;
+    } catch (err) {
+      console.error('Error starting demo session:', err);
+      setError('Failed to start demo session. Please try again.');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [loadDemoData]);
 
   // Update time remaining every second
+  // FIX: Added endDemoSession to dependency array to prevent stale closure
   useEffect(() => {
-    if (!demoMode || timeRemaining === null) return;
+    if (!demoMode || timeRemaining === null || timeRemaining <= 0) return;
 
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
-        if (prev <= 0) {
+        if (prev <= 1) {
           clearInterval(interval);
+          // Only end session when timer actually expires
           endDemoSession();
           return 0;
         }
@@ -248,9 +257,10 @@ export const DemoProvider = ({ children }) => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [demoMode]);
+  }, [demoMode, timeRemaining, endDemoSession]);
 
   // Restore demo session from sessionStorage on mount
+  // FIX: Added loadDemoData to dependency array
   useEffect(() => {
     const storedSessionId = sessionStorage.getItem('demoSessionId');
     const storedExpiresAt = sessionStorage.getItem('demoExpiresAt');
@@ -273,7 +283,7 @@ export const DemoProvider = ({ children }) => {
         sessionStorage.removeItem('demoExpiresAt');
       }
     }
-  }, []);
+  }, [loadDemoData]);
 
   const value = {
     demoMode,

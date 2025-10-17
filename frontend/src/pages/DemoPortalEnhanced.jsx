@@ -28,7 +28,7 @@ const DemoPortalEnhanced = () => {
         navigate('/');
       });
     }
-  }, []);
+  }, [demoMode, startDemoSession, navigate]);
 
   const handleExitDemo = () => {
     if (window.confirm('Are you sure you want to exit the demo? Your session will be ended.')) {
