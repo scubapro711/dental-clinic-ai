@@ -3,14 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
-import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
+import {t("landing.demo.clinical")}Dashboard from '../components/clinical/{t("landing.demo.clinical")}Dashboard';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import './DemoPortalEnhanced.css';/**
- * Enhanced Demo Portal - Showcases AI Agent Features
+ * Enhanced Demo Portal - Showcases AI {t("landing.demo.age")}nt Features
  * 
  * This demo portal includes all the AI agent features from production:
  * - Pending Decisions Widget
- * - Agent Activity Monitor
+ * - {t("landing.demo.age")}nt Activity Monitor
  * - AI Chat Interface
  * - Fine-Tuning Section
  * - Transparency Panel
@@ -33,7 +33,7 @@ const DemoPortalEnhanced = () => {
   }, [demoMode, startDemoSession, navigate]);
 
   const handleExitDemo = () => {
-    if (window.confirm('Are you sure you want to exit the demo? Your session will be ended.')) {
+    if (window.confirm(t('landing.demo.exitConfirm'))) {
       endDemoSession();
       navigate('/');
     }
@@ -49,7 +49,7 @@ const DemoPortalEnhanced = () => {
     return (
       <div className="demo-portal-loading">
         <div className="loading-spinner"></div>
-        <p>Starting your AI-powered demo session...</p>
+        <p>{t("landing.demo.startingDemo")}</p>
       </div>
     );
   }
@@ -57,9 +57,9 @@ const DemoPortalEnhanced = () => {
   if (error) {
     return (
       <div className="demo-portal-error">
-        <h2>⚠️ Demo Session Error</h2>
+        <h2>⚠️ {t("landing.demo.demoError")}</h2>
         <p>{error}</p>
-        <button onClick={() => navigate('/')}>Return to Home</button>
+        <button onClick={() => navigate('/')}>{t("landing.demo.returnHome")}</button>
       </div>
     );
   }
@@ -69,21 +69,22 @@ const DemoPortalEnhanced = () => {
       {/* Demo Header */}
       <div className="demo-header">
         <div className="demo-header-left">
-          <div className="demo-badge">🤖 AI DEMO MODE</div>
-          <h1>DentaFlow AI Mission Control</h1>
-          <p className="demo-subtitle">Experience the power of AI agents</p>
+          <div className="demo-badge">{t("landing.demo.demoMode")}</div>
+          <h1>{t("landing.demo.title")}</h1>
+          <p className="demo-subtitle">{t("landing.demo.subtitle")}</p>
         </div>
         <div className="demo-header-right">
+          <LanguageSwitcher />
           {timeRemaining !== null && (
             <div className={`demo-timer ${timeRemaining < 300 ? 'warning' : ''}`}>
-              ⏰ {formatTime(timeRemaining)} remaining
+              ⏰ {formatTime(timeRemaining)} {t("landing.demo.remaining")}
             </div>
           )}
           <button className="toggle-btn" onClick={() => setShowTransparency(!showTransparency)}>
-            {showTransparency ? '🔍 Hide Transparency' : '🔍 Show Transparency'}
+            {showTransparency ? `🔍 ${t("landing.demo.hideTransparency")}` : `🔍 ${t("landing.demo.showTransparency")}`}
           </button>
           <button className="exit-demo-btn" onClick={handleExitDemo}>
-            Exit Demo
+            {t("landing.demo.exitDemo")}
           </button>
         </div>
       </div>
@@ -93,7 +94,7 @@ const DemoPortalEnhanced = () => {
         {/* Left Sidebar - Widgets */}
         <div className="demo-left-sidebar">
           <PendingDecisionsWidget />
-          <AgentActivityWidget />
+          <{t("landing.demo.age")}ntActivityWidget />
           <FineTuningWidget />
         </div>
 
@@ -104,25 +105,25 @@ const DemoPortalEnhanced = () => {
               className={`demo-nav-btn ${currentPage === 'dashboard' ? 'active' : ''}`}
               onClick={() => setCurrentPage('dashboard')}
             >
-              📊 Dashboard
+              📊 {t("landing.demo.dashboard")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'patients' ? 'active' : ''}`}
               onClick={() => setCurrentPage('patients')}
             >
-              👥 Patients
+              👥 {t("landing.demo.patients")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'appointments' ? 'active' : ''}`}
               onClick={() => setCurrentPage('appointments')}
             >
-              📅 Appointments
+              📅 {t("landing.demo.appointments")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'financial' ? 'active' : ''}`}
               onClick={() => setCurrentPage('financial')}
             >
-              💰 Financial
+              💰 {t("landing.demo.financial")}
             </button>
 
           </div>
@@ -148,8 +149,8 @@ const DemoPortalEnhanced = () => {
       {/* Demo Footer */}
       <div className="demo-footer">
         <p>
-          ⚠️ This is a demo environment with sample data and simulated AI responses. 
-          <a href="/register" className="cta-link">Start Free Trial</a> to use with your real clinic data and live AI agents.
+          ⚠️ {t("landing.demo.demoEnvironment")} 
+          <a href="/register" className="cta-link">{t("landing.demo.startFreeTrial")}</a> {t("landing.demo.toUseWithReal")}
         </p>
       </div>
 
@@ -171,55 +172,55 @@ const PendingDecisionsWidget = () => {
       id: 1,
       agent: 'Alex',
       type: 'appointment_reschedule',
-      title: 'Reschedule Appointment',
+      title: t('landing.demo.rescheduleAppointment'),
       description: 'Patient Sarah Johnson requested to move appointment from Oct 25 to Oct 27',
-      priority: 'medium',
-      timestamp: '10 minutes ago'
+      priority: t('landing.demo.medium'),
+      timestamp: '10 {t("landing.demo.minutesAgo")}'
     },
     {
       id: 2,
       agent: 'Marcus',
       type: 'payment_plan',
-      title: 'Payment Plan Approval',
+      title: t('landing.demo.paymentPlanApproval'),
       description: 'Suggested 3-month payment plan for Rachel Levi (₪2,400 total)',
-      priority: 'high',
-      timestamp: '25 minutes ago'
+      priority: t('landing.demo.high'),
+      timestamp: '25 {t("landing.demo.minutesAgo")}'
     },
     {
       id: 3,
       agent: 'Sarah',
       type: 'treatment_plan',
-      title: 'Treatment Plan Approval',
+      title: t('landing.demo.treatmentPlanApproval'),
       description: 'Complex treatment plan for David Cohen: Root canal + crown. Estimated cost: ₪3,200',
-      priority: 'high',
-      timestamp: '15 minutes ago'
+      priority: t('landing.demo.high'),
+      timestamp: '15 {t("landing.demo.minutesAgo")}'
     },
     {
       id: 4,
       agent: 'Sophia',
       type: 'inventory_order',
-      title: 'Inventory Reorder',
-      description: 'Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes.',
-      priority: 'low',
-      timestamp: '1 hour ago'
+      title: t('landing.demo.inventoryReorder'),
+      description: 'Dental gloves stock low (12 boxes {t("landing.demo.remaining")}). Recommend ordering 50 boxes.',
+      priority: t('landing.demo.low'),
+      timestamp: '1 {t("landing.demo.hourAgo")}'
     }
   ]);
 
   const handleApprove = (id) => {
     setDecisions(decisions.filter(d => d.id !== id));
-    alert('✅ Decision approved! AI agent will execute the action.');
+    alert(t('landing.demo.decisionApproved'));
   };
 
   const handleReject = (id) => {
     setDecisions(decisions.filter(d => d.id !== id));
-    alert('❌ Decision rejected. AI agent will not proceed.');
+    alert(t('landing.demo.decisionRejected'));
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return '#ff4444';
-      case 'medium': return '#ffaa00';
-      case 'low': return '#00aa00';
+      case t('landing.demo.high'): return '#ff4444';
+      case t('landing.demo.medium'): return '#ffaa00';
+      case t('landing.demo.low'): return '#00aa00';
       default: return '#888';
     }
   };
@@ -227,14 +228,14 @@ const PendingDecisionsWidget = () => {
   return (
     <div className="widget pending-decisions-widget">
       <div className="widget-header">
-        <h3>⏳ Pending Decisions</h3>
+        <h3>⏳ {t("landing.demo.pendingDecisions")}</h3>
         <span className="badge">{decisions.length}</span>
       </div>
       <div className="widget-content">
         {decisions.length === 0 ? (
           <div className="empty-state">
-            <p>✅ No pending decisions</p>
-            <p className="text-sm">All AI suggestions have been reviewed</p>
+            <p>✅ {t("landing.demo.noPendingDecisions")}</p>
+            <p className="text-sm">{t("landing.demo.allReviewed")}</p>
           </div>
         ) : (
           <div className="decisions-list">
@@ -258,13 +259,13 @@ const PendingDecisionsWidget = () => {
                       className="btn-approve"
                       onClick={() => handleApprove(decision.id)}
                     >
-                      ✓ Approve
+                      ✓ {t("landing.demo.approve")}
                     </button>
                     <button 
                       className="btn-reject"
                       onClick={() => handleReject(decision.id)}
                     >
-                      ✗ Reject
+                      ✗ {t("landing.demo.reject")}
                     </button>
                   </div>
                 </div>
@@ -278,42 +279,42 @@ const PendingDecisionsWidget = () => {
 };
 
 /**
- * Agent Activity Widget
+ * {t("landing.demo.age")}nt Activity Widget
  * Shows real-time AI agent activity
  */
-const AgentActivityWidget = () => {
+const {t("landing.demo.age")}ntActivityWidget = () => {
   const [activities, setActivities] = useState([
     {
       id: 1,
       agent: 'Alex',
-      action: 'Sent appointment reminder',
-      patient: 'David Cohen',
-      status: 'completed',
+      action: t('landing.demo.sentAppointmentReminder'),
+      {t("landing.demo.patient")}: 'David Cohen',
+      status: t('landing.demo.completed'),
       timestamp: '2 min ago'
     },
     {
       id: 2,
       agent: 'Marcus',
-      action: 'Generated invoice',
-      patient: 'Rachel Levi',
-      status: 'completed',
+      action: t('landing.demo.generatedInvoice'),
+      {t("landing.demo.patient")}: 'Rachel Levi',
+      status: t('landing.demo.completed'),
       timestamp: '5 min ago'
     },
     {
       id: 3,
       agent: 'Sarah',
-      action: 'Reviewing treatment plan',
-      patient: 'Tamar Shapiro',
-      status: 'in_progress',
-      timestamp: 'Just now'
+      action: t('landing.demo.reviewingTreatmentPlan'),
+      {t("landing.demo.patient")}: 'Tamar Shapiro',
+      status: t('landing.demo.inProgress'),
+      timestamp: '{t("landing.demo.justNow")}'
     },
     {
       id: 4,
       agent: 'Sophia',
-      action: 'Checking inventory levels',
-      patient: null,
-      status: 'in_progress',
-      timestamp: 'Just now'
+      action: t('landing.demo.checkingInventory'),
+      {t("landing.demo.patient")}: null,
+      status: t('landing.demo.inProgress'),
+      timestamp: '{t("landing.demo.justNow")}'
     }
   ]);
 
@@ -325,13 +326,13 @@ const AgentActivityWidget = () => {
         agent: ['Alex', 'Marcus', 'Sarah', 'Sophia'][Math.floor(Math.random() * 4)],
         action: [
           'Sent SMS reminder',
-          'Updated patient record',
+          'Updated {t("landing.demo.patient")} record',
           'Processed payment',
           'Scheduled follow-up'
         ][Math.floor(Math.random() * 4)],
-        patient: ['David Cohen', 'Rachel Levi', 'Sarah Johnson'][Math.floor(Math.random() * 3)],
-        status: 'completed',
-        timestamp: 'Just now'
+        {t("landing.demo.patient")}: ['David Cohen', 'Rachel Levi', 'Sarah Johnson'][Math.floor(Math.random() * 3)],
+        status: t('landing.demo.completed'),
+        timestamp: '{t("landing.demo.justNow")}'
       };
       
       setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
@@ -340,7 +341,7 @@ const AgentActivityWidget = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const getAgentColor = (agent) => {
+  const get{t("landing.demo.age")}ntColor = (agent) => {
     const colors = {
       'Alex': '#3b82f6',
       'Marcus': '#10b981',
@@ -353,8 +354,8 @@ const AgentActivityWidget = () => {
   return (
     <div className="widget agent-activity-widget">
       <div className="widget-header">
-        <h3>🤖 Agent Activity</h3>
-        <span className="live-indicator">● LIVE</span>
+        <h3>🤖 {t("landing.demo.agentActivity")}</h3>
+        <span className="live-indicator">● {t("landing.demo.live")}</span>
       </div>
       <div className="widget-content">
         <div className="activity-stream">
@@ -362,7 +363,7 @@ const AgentActivityWidget = () => {
             <div key={activity.id} className="activity-item">
               <div 
                 className="activity-dot"
-                style={{ backgroundColor: getAgentColor(activity.agent) }}
+                style={{ backgroundColor: get{t("landing.demo.age")}ntColor(activity.agent) }}
               />
               <div className="activity-details">
                 <div className="activity-agent">{activity.agent}</div>
@@ -372,7 +373,7 @@ const AgentActivityWidget = () => {
                 )}
                 <div className="activity-timestamp">{activity.timestamp}</div>
               </div>
-              {activity.status === 'in_progress' && (
+              {activity.status === t('landing.demo.inProgress') && (
                 <div className="activity-status">
                   <div className="spinner-small"></div>
                 </div>
@@ -390,10 +391,10 @@ const AgentActivityWidget = () => {
  * Shows AI agent configuration and performance
  */
 const FineTuningWidget = () => {
-  const [agents, setAgents] = useState([
+  const [agents, set{t("landing.demo.age")}nts] = useState([
     {
       name: 'Alex',
-      role: 'Patient Experience',
+      role: '{t("landing.demo.patientExperience")}',
       performance: 94,
       conversations: 1247,
       satisfaction: 4.8,
@@ -401,7 +402,7 @@ const FineTuningWidget = () => {
     },
     {
       name: 'Marcus',
-      role: 'Financial Intelligence',
+      role: '{t("landing.demo.financialIntelligence")}',
       performance: 91,
       conversations: 856,
       satisfaction: 4.7,
@@ -409,7 +410,7 @@ const FineTuningWidget = () => {
     },
     {
       name: 'Sarah',
-      role: 'Clinical Support',
+      role: '{t("landing.demo.clinicalSupport")}',
       performance: 96,
       conversations: 623,
       satisfaction: 4.9,
@@ -417,7 +418,7 @@ const FineTuningWidget = () => {
     },
     {
       name: 'Sophia',
-      role: 'Operations',
+      role: '{t("landing.demo.operations")}',
       performance: 89,
       conversations: 445,
       satisfaction: 4.6,
@@ -425,8 +426,8 @@ const FineTuningWidget = () => {
     }
   ]);
 
-  const toggleAgent = (name) => {
-    setAgents(agents.map(agent => 
+  const toggle{t("landing.demo.age")}nt = (name) => {
+    set{t("landing.demo.age")}nts(agents.map(agent => 
       agent.name === name 
         ? { ...agent, enabled: !agent.enabled }
         : agent
@@ -451,14 +452,14 @@ const FineTuningWidget = () => {
                   <input 
                     type="checkbox" 
                     checked={agent.enabled}
-                    onChange={() => toggleAgent(agent.name)}
+                    onChange={() => toggle{t("landing.demo.age")}nt(agent.name)}
                   />
                   <span className="toggle-slider"></span>
                 </label>
               </div>
               <div className="agent-metrics">
                 <div className="metric">
-                  <span className="metric-label">Performance</span>
+                  <span className="metric-label">{t("landing.demo.performance")}</span>
                   <div className="progress-bar">
                     <div 
                       className="progress-fill"
@@ -469,11 +470,11 @@ const FineTuningWidget = () => {
                 </div>
                 <div className="metric-row">
                   <div className="metric-small">
-                    <span className="metric-label">Conversations</span>
+                    <span className="metric-label">{t("landing.demo.conversations")}</span>
                     <span className="metric-value">{agent.conversations}</span>
                   </div>
                   <div className="metric-small">
-                    <span className="metric-label">Satisfaction</span>
+                    <span className="metric-label">{t("landing.demo.satisfaction")}</span>
                     <span className="metric-value">⭐ {agent.satisfaction}</span>
                   </div>
                 </div>
@@ -497,7 +498,7 @@ const TransparencyPanelDemo = () => {
     {
       title: 'Appointment Rescheduling',
       agent: 'Alex',
-      timestamp: '10 minutes ago',
+      timestamp: '10 {t("landing.demo.minutesAgo")}',
       reasoning: [
         {
           step: 1,
@@ -516,7 +517,7 @@ const TransparencyPanelDemo = () => {
         },
         {
           step: 4,
-          thought: 'Recommended approval based on availability and patient preference',
+          thought: 'Recommended approval based on availability and {t("landing.demo.patient")} preference',
           confidence: 92
         }
       ],
@@ -526,7 +527,7 @@ const TransparencyPanelDemo = () => {
     {
       title: 'Payment Plan Creation',
       agent: 'Marcus',
-      timestamp: '25 minutes ago',
+      timestamp: '25 {t("landing.demo.minutesAgo")}',
       reasoning: [
         {
           step: 1,
@@ -535,12 +536,12 @@ const TransparencyPanelDemo = () => {
         },
         {
           step: 2,
-          thought: 'Analyzed patient payment history - consistent on-time payments',
+          thought: 'Analyzed {t("landing.demo.patient")} payment history - consistent on-time payments',
           confidence: 94
         },
         {
           step: 3,
-          thought: 'Calculated 3-month plan: ₪800/month based on patient income estimate',
+          thought: 'Calculated 3-month plan: ₪800/month based on {t("landing.demo.patient")} income estimate',
           confidence: 88
         },
         {
@@ -555,7 +556,7 @@ const TransparencyPanelDemo = () => {
     {
       title: 'Treatment Plan Analysis',
       agent: 'Sarah',
-      timestamp: '15 minutes ago',
+      timestamp: '15 {t("landing.demo.minutesAgo")}',
       reasoning: [
         {
           step: 1,
@@ -587,8 +588,8 @@ const TransparencyPanelDemo = () => {
 
   return (
     <div className="transparency-panel-demo">
-      <h3>🔍 AI Transparency</h3>
-      <p className="panel-subtitle">See how AI agents make decisions</p>
+      <h3>🔍 {t("landing.demo.aiTransparency")}</h3>
+      <p className="panel-subtitle">{t("landing.demo.seeHowAI")}</p>
       
       <div className="decision-selector">
         {decisions.map((d, index) => (
@@ -608,7 +609,7 @@ const TransparencyPanelDemo = () => {
           <span className="timestamp">{decision.timestamp}</span>
         </div>
 
-        <h4>Reasoning Process</h4>
+        <h4>{t("landing.demo.reasoningProcess")}</h4>
         <div className="reasoning-steps">
           {decision.reasoning.map((step) => (
             <div key={step.step} className="reasoning-step">
@@ -627,7 +628,7 @@ const TransparencyPanelDemo = () => {
           ))}
         </div>
 
-        <h4>Tools Used</h4>
+        <h4>{t("landing.demo.toolsUsed")}</h4>
         <div className="tools-used">
           {decision.tools_used.map((tool, index) => (
             <span key={index} className="tool-badge">{tool}</span>
@@ -635,7 +636,7 @@ const TransparencyPanelDemo = () => {
         </div>
 
         <div className="decision-outcome">
-          <strong>Outcome:</strong> {decision.outcome}
+          <strong>{t("landing.demo.outcome")}:</strong> {decision.outcome}
         </div>
       </div>
     </div>
@@ -651,54 +652,54 @@ const DemoDashboardEnhanced = () => {
     return <div className="demo-loading">Loading dashboard...</div>;
   }
 
-  const { financialSummary, patients, appointments } = demoData;
-  const activePatients = patients.filter(p => p.status === 'Active').length;
+  const { financialSummary, {t("landing.demo.patient")}s, appointments } = demoData;
+  const activePatients = {t("landing.demo.patient")}s.filter(p => p.status === '{t("landing.demo.active")}').length;
   const upcomingAppointments = appointments.length;
 
   return (
     <div className="demo-dashboard-enhanced">
-      <h2>AI-Powered Dashboard</h2>
-      <p className="dashboard-subtitle">Real-time insights powered by 4 AI agents</p>
+      <h2>{t("landing.demo.aiPoweredDashboard")}</h2>
+      <p className="dashboard-subtitle">{t("landing.demo.realTimeInsights")}</p>
 
       {/* Metrics Cards */}
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-icon">💰</div>
           <div className="metric-content">
-            <div className="metric-label">Total Revenue</div>
+            <div className="metric-label">{t("landing.demo.totalRevenue")}</div>
             <div className="metric-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
-            <div className="metric-change positive">+12% from last month</div>
-            <div className="metric-agent">Tracked by Marcus 🤖</div>
+            <div className="metric-change positive">+12% {t("landing.demo.fromLastMonth")}</div>
+            <div className="metric-agent">{t("landing.demo.trackedBy")} Marcus 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">👥</div>
           <div className="metric-content">
-            <div className="metric-label">Active Patients</div>
+            <div className="metric-label">{t("landing.demo.activePatients")}</div>
             <div className="metric-value">{activePatients}</div>
-            <div className="metric-change positive">+2 new this week</div>
-            <div className="metric-agent">Managed by Alex 🤖</div>
+            <div className="metric-change positive">+2 {t("landing.demo.newThisWeek")}</div>
+            <div className="metric-agent">{t("landing.demo.managedBy")} Alex 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">📅</div>
           <div className="metric-content">
-            <div className="metric-label">Upcoming Appointments</div>
+            <div className="metric-label">{t("landing.demo.upcomingAppointments")}</div>
             <div className="metric-value">{upcomingAppointments}</div>
             <div className="metric-change neutral">Next 7 days</div>
-            <div className="metric-agent">Scheduled by Alex 🤖</div>
+            <div className="metric-agent">{t("landing.demo.scheduledBy")} Alex 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">⚠️</div>
           <div className="metric-content">
-            <div className="metric-label">Outstanding Balance</div>
-            <div className="metric-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
-            <div className="metric-change negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
-            <div className="metric-agent">Monitored by Marcus 🤖</div>
+            <div className="metric-label">{t("landing.demo.outstanding{t("landing.demo.balance")}")}</div>
+            <div className="metric-value">₪{financialSummary.outstanding{t("landing.demo.balance")}.toLocaleString()}</div>
+            <div className="metric-change negative">{financialSummary.unpaidInvoices} {t("landing.demo.unpaidInvoices")}</div>
+            <div className="metric-agent">{t("landing.demo.monitoredBy")} Marcus 🤖</div>
           </div>
         </div>
       </div>
@@ -710,41 +711,41 @@ const DemoDashboardEnhanced = () => {
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Marcus</span>
-              <span className="insight-priority high">High Priority</span>
+              <span className="insight-priority high">{t("landing.demo.highPriority")}</span>
             </div>
             <h4>Revenue Opportunity Detected</h4>
-            <p>3 patients are due for routine checkups. Estimated revenue: ₪1,800</p>
-            <button className="insight-action">Contact Patients</button>
+            <p>3 {t("landing.demo.patient")}s are due for routine checkups. Estimated revenue: ₪1,800</p>
+            <button className="insight-action">{t("landing.demo.contactPatients")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Sarah</span>
-              <span className="insight-priority high">High Priority</span>
+              <span className="insight-priority high">{t("landing.demo.highPriority")}</span>
             </div>
             <h4>Urgent Treatment Required</h4>
             <p>Patient David Cohen needs immediate root canal treatment. Delay may cause complications.</p>
-            <button className="insight-action">Schedule Treatment</button>
+            <button className="insight-action">{t("landing.demo.scheduleTreatment")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Sophia</span>
-              <span className="insight-priority medium">Medium Priority</span>
+              <span className="insight-priority medium">{t("landing.demo.mediumPriority")}</span>
             </div>
             <h4>Inventory Alert</h4>
             <p>Dental gloves running low (12 boxes left). Recommend reordering soon.</p>
-            <button className="insight-action">Create Order</button>
+            <button className="insight-action">{t("landing.demo.createOrder")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Alex</span>
-              <span className="insight-priority low">Low Priority</span>
+              <span className="insight-priority low">{t("landing.demo.lowPriority")}</span>
             </div>
-            <h4>Patient Satisfaction</h4>
+            <h4>Patient {t("landing.demo.satisfaction")}</h4>
             <p>Average satisfaction score increased to 4.8/5 this month (+0.3)</p>
-            <button className="insight-action">View Details</button>
+            <button className="insight-action">{t("landing.demo.viewDetails")}</button>
           </div>
         </div>
       </div>
@@ -756,33 +757,33 @@ const DemoPatientsEnhanced = () => {
   const { demoData } = useDemoContext();
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [filter{t("landing.demo.status")}, setFilter{t("landing.demo.status")}] = useState('all');
+  const [activeTab, set{t("landing.demo.active")}Tab] = useState('overview');
 
   if (!demoData) {
-    return <div className="demo-loading">Loading patients...</div>;
+    return <div className="demo-loading">Loading {t("landing.demo.patient")}s...</div>;
   }
 
-  const { patients } = demoData;
+  const { {t("landing.demo.patient")}s } = demoData;
 
-  // Filter patients based on search query and status
-  const filteredPatients = patients.filter(patient => {
+  // Filter {t("landing.demo.patient")}s based on search query and status
+  const filteredPatients = {t("landing.demo.patient")}s.filter(patient => {
     const matchesSearch = 
-      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.phone.includes(searchQuery);
+      {t("landing.demo.patient")}.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      {t("landing.demo.patient")}.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      {t("landing.demo.patient")}.phone.includes(searchQuery);
     
-    const matchesStatus = 
-      filterStatus === 'all' || 
-      patient.status.toLowerCase() === filterStatus.toLowerCase();
+    const matches{t("landing.demo.status")} = 
+      filter{t("landing.demo.status")} === 'all' || 
+      {t("landing.demo.patient")}.status.toLowerCase() === filter{t("landing.demo.status")}.toLowerCase();
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matches{t("landing.demo.status")};
   });
 
   return (
     <div className="demo-patients-enhanced">
       <h2>AI-Assisted Patient Management</h2>
-      <p className="page-subtitle">Alex monitors all patient interactions</p>
+      <p className="page-subtitle">{t("landing.demo.alexMonitors")}</p>
 
       {/* Search and Filter Bar */}
       <div className="patients-search-bar">
@@ -791,7 +792,7 @@ const DemoPatientsEnhanced = () => {
           <input
             type="text"
             className="search-input"
-            placeholder="Search by name, phone, or email..."
+            placeholder="{t("landing.demo.searchByName")}"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -807,22 +808,22 @@ const DemoPatientsEnhanced = () => {
         </div>
         <div className="filter-buttons">
           <button
-            className={`filter-btn ${filterStatus === 'all' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('all')}
+            className={`filter-btn ${filter{t("landing.demo.status")} === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter{t("landing.demo.status")}('all')}
           >
-            All ({patients.length})
+            {t("landing.demo.all")} ({patients.length})
           </button>
           <button
-            className={`filter-btn ${filterStatus === 'active' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('active')}
+            className={`filter-btn ${filter{t("landing.demo.status")} === 'active' ? 'active' : ''}`}
+            onClick={() => setFilter{t("landing.demo.status")}('active')}
           >
-            Active ({patients.filter(p => p.status === 'Active').length})
+            {t("landing.demo.active")} ({patients.filter(p => p.status === '{t("landing.demo.active")}').length})
           </button>
           <button
-            className={`filter-btn ${filterStatus === 'inactive' ? 'active' : ''}`}
-            onClick={() => setFilterStatus('inactive')}
+            className={`filter-btn ${filter{t("landing.demo.status")} === 'inactive' ? 'active' : ''}`}
+            onClick={() => setFilter{t("landing.demo.status")}('inactive')}
           >
-            Inactive ({patients.filter(p => p.status === 'Inactive').length})
+            {t("landing.demo.inactive")} ({patients.filter(p => p.status === '{t("landing.demo.inactive")}').length})
           </button>
         </div>
       </div>
@@ -830,7 +831,7 @@ const DemoPatientsEnhanced = () => {
       {/* Results count */}
       {searchQuery && (
         <div className="search-results-info">
-          Found {filteredPatients.length} patient{filteredPatients.length !== 1 ? 's' : ''}
+          Found {filteredPatients.length} {t("landing.demo.patient")}{filteredPatients.length !== 1 ? 's' : ''}
         </div>
       )}
 
@@ -838,24 +839,24 @@ const DemoPatientsEnhanced = () => {
         <div className="patients-list">
           {filteredPatients.length === 0 ? (
             <div className="no-results">
-              <p>No patients found matching your search.</p>
-              <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>Clear filters</button>
+              <p>No {t("landing.demo.patient")}s {t("landing.demo.found")} matching your search.</p>
+              <button onClick={() => { setSearchQuery(''); setFilter{t("landing.demo.status")}('all'); }}>Clear filters</button>
             </div>
           ) : (
             filteredPatients.map((patient) => (
             <div
               key={patient.id}
-              className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
+              className={`patient-card ${selectedPatient?.id === {t("landing.demo.patient")}.id ? 'selected' : ''}`}
               onClick={() => setSelectedPatient(patient)}
             >
               <div className="patient-avatar">{patient.name.charAt(0)}</div>
               <div className="patient-info">
                 <div className="patient-name">{patient.name}</div>
                 <div className="patient-details">
-                  Last visit: {patient.lastVisit || 'Never'}
+                  Last visit: {patient.lastVisit || '{t("landing.demo.never")}'}
                 </div>
                 {patient.balance > 0 && (
-                  <div className="patient-balance">Balance: ₪{patient.balance}</div>
+                  <div className="patient-balance">{t("landing.demo.balance")}: ₪{patient.balance}</div>
                 )}
               </div>
               <div className={`patient-status ${patient.status.toLowerCase()}`}>
@@ -873,7 +874,7 @@ const DemoPatientsEnhanced = () => {
                 <div className="patient-avatar-large">{selectedPatient.name.charAt(0)}</div>
                 <div>
                   <h3>{selectedPatient.name}</h3>
-                  <p className="patient-meta">Age: {selectedPatient.age || 'N/A'} | Last Visit: {selectedPatient.lastVisit}</p>
+                  <p className="patient-meta">{t("landing.demo.age")}: {selectedPatient.age || 'N/A'} | {t("landing.demo.lastVisit")}: {selectedPatient.lastVisit}</p>
                 </div>
               </div>
               <button className="close-profile" onClick={() => setSelectedPatient(null)}>✕</button>
@@ -883,27 +884,27 @@ const DemoPatientsEnhanced = () => {
             <div className="profile-tabs">
               <button 
                 className={`profile-tab ${activeTab === 'overview' ? 'active' : ''}`}
-                onClick={() => setActiveTab('overview')}
+                onClick={() => set{t("landing.demo.active")}Tab('overview')}
               >
-                📋 Overview
+                📋 {t("landing.demo.overview")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'clinical' ? 'active' : ''}`}
-                onClick={() => setActiveTab('clinical')}
+                onClick={() => set{t("landing.demo.active")}Tab('clinical')}
               >
-                🦷 Clinical
+                🦷 {t("landing.demo.clinical")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'appointments' ? 'active' : ''}`}
-                onClick={() => setActiveTab('appointments')}
+                onClick={() => set{t("landing.demo.active")}Tab('appointments')}
               >
-                📅 Appointments
+                📅 {t("landing.demo.appointments")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'billing' ? 'active' : ''}`}
-                onClick={() => setActiveTab('billing')}
+                onClick={() => set{t("landing.demo.active")}Tab('billing')}
               >
-                💰 Billing
+                💰 {t("landing.demo.billing")}
               </button>
             </div>
 
@@ -912,42 +913,42 @@ const DemoPatientsEnhanced = () => {
               {activeTab === 'overview' && (
                 <div className="profile-overview">
                   <div className="ai-summary">
-                    <h4>🤖 AI Summary</h4>
+                    <h4>🤖 {t("landing.demo.aiSummary")}</h4>
                     <p>Alex has sent 3 appointment reminders and 2 follow-up messages this month.</p>
                     <p>Last interaction: Confirmed appointment for Oct 25</p>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Email:</span>
+                    <span className="detail-label">{t("landing.demo.email")}:</span>
                     <span className="detail-value">{selectedPatient.email}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Phone:</span>
+                    <span className="detail-label">{t("landing.demo.phone")}:</span>
                     <span className="detail-value">{selectedPatient.phone}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Status:</span>
+                    <span className="detail-label">{t("landing.demo.status")}:</span>
                     <span className="detail-value">{selectedPatient.status}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Balance:</span>
+                    <span className="detail-label">{t("landing.demo.balance")}:</span>
                     <span className="detail-value">₪{selectedPatient.balance}</span>
                   </div>
                   <div className="detail-actions">
-                    <button className="btn-primary">💬 Chat with Alex</button>
-                    <button className="btn-secondary">📅 Schedule Appointment</button>
+                    <button className="btn-primary">💬 {t("landing.demo.chatWithAlex")}</button>
+                    <button className="btn-secondary">📅 {t("landing.demo.scheduleAppointment")}</button>
                   </div>
                 </div>
               )}
 
               {activeTab === 'clinical' && (
                 <div className="profile-clinical">
-                  <ClinicalDashboard patient={selectedPatient} />
+                  <{t("landing.demo.clinical")}Dashboard {t("landing.demo.patient")}={selectedPatient} />
                 </div>
               )}
 
               {activeTab === 'appointments' && (
                 <div className="profile-appointments">
-                  <h4>Upcoming Appointments</h4>
+                  <h4>{t("landing.demo.upcomingAppointments")}</h4>
                   <div className="appointment-item">
                     <div className="appointment-date">Oct 25, 2025 - 10:00 AM</div>
                     <div className="appointment-type">Regular Checkup</div>
@@ -963,33 +964,33 @@ const DemoPatientsEnhanced = () => {
 
               {activeTab === 'billing' && (
                 <div className="profile-billing">
-                  <h4>Billing History</h4>
+                  <h4>{t("landing.demo.billing")} History</h4>
                   <div className="billing-summary">
                     <div className="billing-stat">
-                      <span className="billing-label">Total Billed:</span>
+                      <span className="billing-label">{t("landing.demo.totalBilled")}:</span>
                       <span className="billing-value">₪{selectedPatient.totalBilled || 5200}</span>
                     </div>
                     <div className="billing-stat">
-                      <span className="billing-label">Total Paid:</span>
+                      <span className="billing-label">{t("landing.demo.total{t("landing.demo.paid")}")}:</span>
                       <span className="billing-value">₪{(selectedPatient.totalBilled || 5200) - selectedPatient.balance}</span>
                     </div>
                     <div className="billing-stat">
-                      <span className="billing-label">Outstanding:</span>
+                      <span className="billing-label">{t("landing.demo.outstanding")}:</span>
                       <span className="billing-value">₪{selectedPatient.balance}</span>
                     </div>
                   </div>
-                  <h4>Recent Invoices</h4>
+                  <h4>{t("landing.demo.recentInvoices")}</h4>
                   <div className="invoice-item">
                     <div className="invoice-date">Sep 15, 2025</div>
                     <div className="invoice-desc">Root Canal Treatment</div>
                     <div className="invoice-amount">₪2,400</div>
-                    <div className="invoice-status paid">Paid</div>
+                    <div className="invoice-status paid">{t("landing.demo.paid")}</div>
                   </div>
                   <div className="invoice-item">
                     <div className="invoice-date">Aug 10, 2025</div>
                     <div className="invoice-desc">Regular Checkup</div>
                     <div className="invoice-amount">₪{selectedPatient.balance}</div>
-                    <div className="invoice-status unpaid">Unpaid</div>
+                    <div className="invoice-status unpaid">{t("landing.demo.unpaid")}</div>
                   </div>
                 </div>
               )}
@@ -1049,7 +1050,7 @@ const DemoFinancialEnhanced = () => {
 
   return (
     <div className="demo-financial-enhanced">
-      <h2>AI Financial Intelligence</h2>
+      <h2>AI {t("landing.demo.financialIntelligence")}</h2>
       <p className="page-subtitle">Marcus provides real-time financial insights</p>
 
       <div className="financial-summary">
@@ -1061,10 +1062,10 @@ const DemoFinancialEnhanced = () => {
         </div>
 
         <div className="summary-card">
-          <h3>Outstanding Balance</h3>
-          <div className="summary-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
-          <div className="summary-trend negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
-          <p className="ai-insight">🤖 Marcus recommends sending payment reminders to 3 patients</p>
+          <h3>{t("landing.demo.outstanding{t("landing.demo.balance")}")}</h3>
+          <div className="summary-value">₪{financialSummary.outstanding{t("landing.demo.balance")}.toLocaleString()}</div>
+          <div className="summary-trend negative">{financialSummary.unpaidInvoices} {t("landing.demo.unpaidInvoices")}</div>
+          <p className="ai-insight">🤖 Marcus recommends sending payment reminders to 3 {t("landing.demo.patient")}s</p>
         </div>
 
         <div className="summary-card">
@@ -1078,7 +1079,7 @@ const DemoFinancialEnhanced = () => {
   );
 };
 
-const DemoClinicalEnhanced = () => {
+const Demo{t("landing.demo.clinical")}Enhanced = () => {
   const [selectedPatient] = useState({
     id: 1,
     name: 'David Cohen',
@@ -1088,17 +1089,17 @@ const DemoClinicalEnhanced = () => {
 
   return (
     <div className="demo-clinical-enhanced">
-      <h2>🩺 AI-Powered Clinical System</h2>
+      <h2>🩺 AI-Powered {t("landing.demo.clinical")} System</h2>
       <p className="page-subtitle">Sarah provides intelligent clinical analysis and recommendations</p>
       
       <div className="clinical-patient-header">
         <div className="patient-info">
           <h3>{selectedPatient.name}</h3>
-          <p>Age: {selectedPatient.age} | Last Visit: {selectedPatient.lastVisit}</p>
+          <p>{t("landing.demo.age")}: {selectedPatient.age} | {t("landing.demo.lastVisit")}: {selectedPatient.lastVisit}</p>
         </div>
       </div>
 
-      <ClinicalDashboard patient={selectedPatient} />
+      <{t("landing.demo.clinical")}Dashboard {t("landing.demo.patient")}={selectedPatient} />
     </div>
   );
 };

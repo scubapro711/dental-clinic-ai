@@ -202,8 +202,7 @@ const LandingPage = () => {
           <div className="research-note">
             <span className="research-icon">📚</span>
             <span>
-              Based on peer-reviewed research: Zhou et al. (2023), Chaudhry et al. (2024), 
-              Laymouna et al. (2024) - 220+ citations
+              {t("landing.whyNotBot.research")}
             </span>
           </div>
         </div>
@@ -223,72 +222,72 @@ const LandingPage = () => {
             <div className="agent-card">
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👨‍💼</span>
-                <h3>Alex</h3>
-                <p className="agent-card-role">Patient Relations & Reception</p>
+                <h3>{t("landing.agents.alex.name")}</h3>
+                <p className="agent-card-role">{t("landing.agents.alex.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>24/7 appointment scheduling</li>
-                <li>Patient inquiries & support</li>
-                <li>Multi-channel communication</li>
-                <li>Appointment reminders</li>
+                <li>{t("landing.agents.alex.feature1")}</li>
+                <li>{t("landing.agents.alex.feature2")}</li>
+                <li>{t("landing.agents.alex.feature3")}</li>
+                <li>{t("landing.agents.alex.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">3x</span>
-                <span className="stat-label">faster response time</span>
+                <span className="stat-label">{t("landing.agents.alex.stat")}</span>
               </div>
             </div>
 
             <div className="agent-card">
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👩‍⚕️</span>
-                <h3>Sarah</h3>
-                <p className="agent-card-role">Clinical Operations</p>
+                <h3>{t("landing.agents.sarah.name")}</h3>
+                <p className="agent-card-role">{t("landing.agents.sarah.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Treatment plan management</li>
-                <li>Medical records coordination</li>
-                <li>Clinical workflows</li>
-                <li>Doctor-patient communication</li>
+                <li>{t("landing.agents.sarah.feature1")}</li>
+                <li>{t("landing.agents.sarah.feature2")}</li>
+                <li>{t("landing.agents.sarah.feature3")}</li>
+                <li>{t("landing.agents.sarah.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">85%</span>
-                <span className="stat-label">reduction in admin tasks</span>
+                <span className="stat-label">{t("landing.agents.sarah.stat")}</span>
               </div>
             </div>
 
             <div className="agent-card">
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👨‍💼</span>
-                <h3>Marcus</h3>
-                <p className="agent-card-role">Financial Analysis & CFO</p>
+                <h3>{t("landing.agents.marcus.name")}</h3>
+                <p className="agent-card-role">{t("landing.agents.marcus.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Revenue analytics & insights</li>
-                <li>Invoice management</li>
-                <li>Payment tracking</li>
-                <li>Financial forecasting</li>
+                <li>{t("landing.agents.marcus.feature1")}</li>
+                <li>{t("landing.agents.marcus.feature2")}</li>
+                <li>{t("landing.agents.marcus.feature3")}</li>
+                <li>{t("landing.agents.marcus.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">₪15K+</span>
-                <span className="stat-label">average monthly revenue increase</span>
+                <span className="stat-label">{t("landing.agents.marcus.stat")}</span>
               </div>
             </div>
 
             <div className="agent-card">
               <div className="agent-card-header">
                 <span className="agent-card-avatar">👩‍💼</span>
-                <h3>Sophia</h3>
-                <p className="agent-card-role">Practice Management</p>
+                <h3>{t("landing.agents.sophia.name")}</h3>
+                <p className="agent-card-role">{t("landing.agents.sophia.role")}</p>
               </div>
               <ul className="agent-card-features">
-                <li>Operations optimization</li>
-                <li>Staff coordination</li>
-                <li>Inventory management</li>
-                <li>Performance analytics</li>
+                <li>{t("landing.agents.sophia.feature1")}</li>
+                <li>{t("landing.agents.sophia.feature2")}</li>
+                <li>{t("landing.agents.sophia.feature3")}</li>
+                <li>{t("landing.agents.sophia.feature4")}</li>
               </ul>
               <div className="agent-card-stat">
                 <span className="stat-value">10h+</span>
-                <span className="stat-label">saved per week</span>
+                <span className="stat-label">{t("landing.agents.sophia.stat")}</span>
               </div>
             </div>
           </div>
@@ -398,18 +397,18 @@ const LandingPage = () => {
             </div>
             <div className="feature-card">
               <span className="feature-icon">📊</span>
-              <h3>Analytics Dashboard</h3>
-              <p>Real-time insights into revenue, patients, and operations</p>
+              <h3>{t("landing.features.analytics.title")}</h3>
+              <p>{t("landing.features.analytics.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">🔗</span>
-              <h3>Odoo Integration</h3>
-              <p>Seamless connection with your existing Odoo ERP system</p>
+              <h3>{t("landing.features.odoo.title")}</h3>
+              <p>{t("landing.features.odoo.description")}</p>
             </div>
             <div className="feature-card">
               <span className="feature-icon">🔒</span>
-              <h3>HIPAA Compliant</h3>
-              <p>Enterprise-grade security with full HIPAA and GDPR compliance</p>
+              <h3>{t("landing.features.hipaa.title")}</h3>
+              <p>{t("landing.features.hipaa.description")}</p>
             </div>
           </div>
         </div>
@@ -419,83 +418,83 @@ const LandingPage = () => {
       <section id="pricing" className="pricing-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Simple, Transparent Pricing</h2>
+            <h2>{t("landing.pricingSection.title")}</h2>
             <p className="section-subtitle">
-              Choose the plan that fits your clinic. No hidden fees.
+              {t("landing.pricingSection.subtitle")}
             </p>
           </div>
 
           <div className="pricing-grid">
             <div className={`pricing-card ${selectedPlan === 'starter' ? 'selected' : ''}`}>
               <div className="pricing-header">
-                <h3>Starter</h3>
+                <h3>{t("landing.pricingSection.starter.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">499</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">Perfect for small clinics</p>
+                <p className="pricing-description">{t("landing.pricingSection.starter.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Up to 100 patients</li>
-                <li>✓ 2 AI agents (Alex + Sarah)</li>
-                <li>✓ Web Chat + SMS</li>
-                <li>✓ Basic analytics</li>
-                <li>✓ Email support</li>
+                <li>✓ {t("landing.pricingSection.starter.feature1")}</li>
+                <li>✓ {t("landing.pricingSection.starter.feature2")}</li>
+                <li>✓ {t("landing.pricingSection.starter.feature3")}</li>
+                <li>✓ {t("landing.pricingSection.starter.feature4")}</li>
+                <li>✓ {t("landing.pricingSection.starter.feature5")}</li>
               </ul>
               <button 
                 className="pricing-cta"
                 onClick={() => navigate('/register?plan=starter')}
               >
-                Start Free Trial
+                {t("landing.pricingSection.cta")}
               </button>
             </div>
 
             <div className={`pricing-card popular ${selectedPlan === 'professional' ? 'selected' : ''}`}>
-              <div className="popular-badge">Most Popular</div>
+              <div className="popular-badge">{t("landing.pricingSection.professional.mostPopular")}</div>
               <div className="pricing-header">
-                <h3>Professional</h3>
+                <h3>{t("landing.pricingSection.professional.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">799</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">For growing practices</p>
+                <p className="pricing-description">{t("landing.pricingSection.professional.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Up to 500 patients</li>
-                <li>✓ All 4 AI agents</li>
-                <li>✓ All channels (incl. WhatsApp)</li>
-                <li>✓ Advanced analytics</li>
-                <li>✓ Priority support</li>
-                <li>✓ Odoo integration</li>
+                <li>✓ {t("landing.pricingSection.professional.feature1")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature2")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature3")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature4")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature5")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature6")}</li>
               </ul>
               <button 
                 className="pricing-cta primary"
                 onClick={() => navigate('/register?plan=professional')}
               >
-                Start Free Trial
+                {t("landing.pricingSection.cta")}
               </button>
             </div>
 
             <div className={`pricing-card ${selectedPlan === 'enterprise' ? 'selected' : ''}`}>
               <div className="pricing-header">
-                <h3>Enterprise</h3>
+                <h3>{t("landing.pricingSection.enterprise.name")}</h3>
                 <div className="pricing-price">
                   <span className="price-currency">₪</span>
                   <span className="price-amount">1,499</span>
                   <span className="price-period">/month</span>
                 </div>
-                <p className="pricing-description">For large clinics</p>
+                <p className="pricing-description">{t("landing.pricingSection.enterprise.description")}</p>
               </div>
               <ul className="pricing-features">
-                <li>✓ Unlimited patients</li>
-                <li>✓ All 4 AI agents</li>
+                <li>✓ {t("landing.pricingSection.enterprise.feature1")}</li>
+                <li>✓ {t("landing.pricingSection.professional.feature2")}</li>
                 <li>✓ All channels</li>
-                <li>✓ Custom analytics</li>
-                <li>✓ Dedicated support</li>
-                <li>✓ Custom integrations</li>
-                <li>✓ SLA guarantee</li>
+                <li>✓ {t("landing.pricingSection.enterprise.feature4")}</li>
+                <li>✓ {t("landing.pricingSection.enterprise.feature5")}</li>
+                <li>✓ {t("landing.pricingSection.enterprise.feature6")}</li>
+                <li>✓ {t("landing.pricingSection.enterprise.feature7")}</li>
               </ul>
               <button 
                 className="cta"
@@ -508,8 +507,7 @@ const LandingPage = () => {
 
           <div className="pricing-note">
             <p>
-              🎁 <strong>30-day free trial</strong> on all plans. {t("landing.hero.noCredit")} required.
-              Cancel anytime.
+              {t("landing.pricingSection.trialNote")}
             </p>
           </div>
         </div>
@@ -519,39 +517,39 @@ const LandingPage = () => {
       <section id="pilot" className="pilot-section">
         <div className="section-container">
           <div className="pilot-card">
-            <div className="pilot-badge">🌟 Limited Opportunity</div>
-            <h2>Join Our Pilot Program</h2>
+            <div className="pilot-badge">{t("landing.pilotSection.badge")}</div>
+            <h2>{t("landing.pilotSection.title")}</h2>
             <p className="pilot-subtitle">
-              Be one of 10 pioneering clinics to shape the future of dental AI
+              {t("landing.pilotSection.subtitle")}
             </p>
 
             <div className="pilot-benefits">
               <div className="pilot-benefit">
                 <span className="pilot-icon">🎁</span>
                 <div>
-                  <h4>6 Months Completely Free</h4>
-                  <p>Full access to all features, zero cost</p>
+                  <h4>{t("landing.pilotSection.benefit1Title")}</h4>
+                  <p>{t("landing.pilotSection.benefit1Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">💎</span>
                 <div>
-                  <h4>20% Lifetime Discount</h4>
-                  <p>After pilot ends, pay 20% less forever</p>
+                  <h4>{t("landing.pilotSection.benefit2Title")}</h4>
+                  <p>{t("landing.pilotSection.benefit2Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">🤝</span>
                 <div>
-                  <h4>Dedicated Support</h4>
-                  <p>Direct line to our team, priority assistance</p>
+                  <h4>{t("landing.pilotSection.benefit3Title")}</h4>
+                  <p>{t("landing.pilotSection.benefit3Desc")}</p>
                 </div>
               </div>
               <div className="pilot-benefit">
                 <span className="pilot-icon">🎯</span>
                 <div>
-                  <h4>Shape the Product</h4>
-                  <p>Your feedback directly influences development</p>
+                  <h4>{t("landing.pilotSection.benefit4Title")}</h4>
+                  <p>{t("landing.pilotSection.benefit4Desc")}</p>
                 </div>
               </div>
             </div>
@@ -561,9 +559,9 @@ const LandingPage = () => {
                 className="pilot-cta"
                 onClick={() => navigate('/register?pilot=true')}
               >
-                Apply for Pilot Program
+                {t("landing.pilotSection.cta")}
               </button>
-              <p className="pilot-spots">⚠️ Only <strong>3 spots remaining</strong> out of 10</p>
+              <p className="pilot-spots">{t("landing.pilotSection.spotsRemaining")}</p>
             </div>
           </div>
         </div>
@@ -573,58 +571,49 @@ const LandingPage = () => {
       <section className="faq-section">
         <div className="section-container">
           <div className="section-header">
-            <h2>Frequently Asked Questions</h2>
+            <h2>{t("landing.faqSection.title")}</h2>
           </div>
 
           <div className="faq-grid">
             <div className="faq-item">
-              <h4>How is this different from a chatbot?</h4>
+              <h4>{t("landing.faqSection.q1")}</h4>
               <p>
-                DentaFlow uses a Multi-Agent AI system with 4 specialized agents, not a single chatbot.
-                Each agent is an expert in their domain (patient relations, clinical ops, finance, management)
-                and they collaborate seamlessly. Research shows this approach delivers 40% higher quality
-                than traditional chatbots.
+                {t("landing.faqSection.a1")}
               </p>
             </div>
 
             <div className="faq-item">
-              <h4>Do I need to change my current system?</h4>
+              <h4>{t("landing.faqSection.q2")}</h4>
               <p>
-                No! DentaFlow integrates seamlessly with Odoo ERP. Your existing data, workflows,
-                and processes remain unchanged. We add an AI layer on top.
+                {t("landing.faqSection.a2")}
               </p>
             </div>
 
             <div className="faq-item">
-              <h4>Is my patient data secure?</h4>
+              <h4>{t("landing.faqSection.q3")}</h4>
               <p>
-                Absolutely. We're fully HIPAA compliant and GDPR ready. All data is encrypted in transit
-                and at rest. We have a 99.9% uptime SLA and enterprise-grade security.
+                {t("landing.faqSection.a3")}
               </p>
             </div>
 
             <div className="faq-item">
-              <h4>How long does implementation take?</h4>
+              <h4>{t("landing.faqSection.q4")}</h4>
               <p>
-                Most clinics are up and running in 2-3 days. We handle the Odoo integration,
-                data migration, and team training. You'll have dedicated support throughout.
+                {t("landing.faqSection.a4")}
               </p>
             </div>
 
             <div className="faq-item">
-              <h4>Can I try before I buy?</h4>
+              <h4>{t("landing.faqSection.q5")}</h4>
               <p>
-                Yes! You can try our Interactive Demo (no signup), start a 30-day free trial
-                (no credit card), or apply for our Pilot Program ({t("landing.hero.monthsFree")}). Three ways to
-                experience DentaFlow risk-free.
+                {t("landing.faqSection.a5")}
               </p>
             </div>
 
             <div className="faq-item">
-              <h4>What if I need help?</h4>
+              <h4>{t("landing.faqSection.q6")}</h4>
               <p>
-                We offer email support on Starter, priority support on Professional, and dedicated
-                support on Enterprise. Pilot program members get direct access to our team.
+                {t("landing.faqSection.a6")}
               </p>
             </div>
           </div>
@@ -634,14 +623,14 @@ const LandingPage = () => {
       {/* Final CTA Section */}
       <section className="final-cta-section">
         <div className="section-container">
-          <h2>Ready to Transform Your Dental Practice?</h2>
-          <p>Join forward-thinking clinics using AI to save time and increase revenue</p>
+          <h2>{t("landing.finalCta.title")}</h2>
+          <p>{t("landing.finalCta.subtitle")}</p>
           <div className="final-ctas">
             <button className="cta-large primary" onClick={() => navigate('/demo')}>
               {t("landing.hero.tryDemo")}
             </button>
             <button className="cta-large secondary" onClick={() => navigate('/register')}>
-              Start Free Trial
+              {t("landing.pricingSection.cta")}
             </button>
           </div>
         </div>
@@ -652,39 +641,39 @@ const LandingPage = () => {
         <div className="footer-container">
           <div className="footer-grid">
             <div className="footer-col">
-              <h4>Product</h4>
+              <h4>{t("landing.footerSection.product")}</h4>
               <a href="#features">{t("landing.nav.features")}</a>
-              <a href="#agents">AI Agents</a>
+              <a href="#agents">{t("landing.footerSection.agents")}</a>
               <a href="#pricing">{t("landing.nav.pricing")}</a>
-              <a href="/demo">Interactive Demo</a>
+              <a href="/demo">{t("landing.footerSection.demo")}</a>
             </div>
             <div className="footer-col">
-              <h4>Company</h4>
+              <h4>{t("landing.footerSection.company")}</h4>
               <a href="#pilot">{t("landing.nav.pilot")}</a>
-              <a href="/register">Start Trial</a>
-              <a href="mailto:support@dentaflow.ai">Contact</a>
+              <a href="/register">{t("landing.footerSection.startTrial")}</a>
+              <a href="mailto:support@dentaflow.ai">{t("landing.footerSection.contact")}</a>
             </div>
             <div className="footer-col">
-              <h4>Legal</h4>
-              <a href="/legal/terms">Terms of Service</a>
-              <a href="/legal/privacy">Privacy Policy</a>
-              <a href="/legal/baa">BAA (HIPAA)</a>
-              <a href="/legal/dpa">DPA (GDPR)</a>
-              <a href="/legal/sla">SLA</a>
+              <h4>{t("landing.footerSection.legal")}</h4>
+              <a href="/legal/terms">{t("landing.footerSection.terms")}</a>
+              <a href="/legal/privacy">{t("landing.footerSection.privacy")}</a>
+              <a href="/legal/baa">{t("landing.footerSection.baa")}</a>
+              <a href="/legal/dpa">{t("landing.footerSection.dpa")}</a>
+              <a href="/legal/sla">{t("landing.footerSection.sla")}</a>
             </div>
             <div className="footer-col">
-              <h4>Resources</h4>
-              <a href="/legal/acceptable-use">Acceptable Use</a>
-              <a href="/legal/cookies">Cookie Policy</a>
-              <a href="mailto:support@dentaflow.ai">Support</a>
+              <h4>{t("landing.footerSection.resources")}</h4>
+              <a href="/legal/acceptable-use">{t("landing.footerSection.acceptableUse")}</a>
+              <a href="/legal/cookies">{t("landing.footerSection.cookies")}</a>
+              <a href="mailto:support@dentaflow.ai">{t("landing.footerSection.support")}</a>
             </div>
           </div>
           <div className="footer-bottom">
-            <p>&copy; 2025 DentaFlow. All rights reserved.</p>
+            <p>{t("landing.footerSection.copyright")}</p>
             <div className="footer-trust">
-              <span>🔒 HIPAA Compliant</span>
-              <span>🛡️ GDPR Ready</span>
-              <span>✓ 99.9% Uptime</span>
+              <span>{t("landing.footerSection.hipaaCompliant")}</span>
+              <span>{t("landing.footerSection.gdprReady")}</span>
+              <span>{t("landing.footerSection.uptime")}</span>
             </div>
           </div>
         </div>
