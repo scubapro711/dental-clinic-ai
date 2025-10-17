@@ -248,7 +248,7 @@ export const DemoProvider = ({ children }) => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [demoMode, timeRemaining]);
+  }, [demoMode]);
 
   // Restore demo session from sessionStorage on mount
   useEffect(() => {
