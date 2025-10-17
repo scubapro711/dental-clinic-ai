@@ -191,12 +191,12 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               <div className="overview-card">
                 <div className="card-icon">🦷</div>
                 <div className="card-content">
-                  <h3>Teeth Status</h3>
+                  <h3>{t("clinical.overview.teethStatus")}</h3>
                   <div className="stat-large">28</div>
-                  <p className="stat-label">Healthy teeth</p>
+                  <p className="stat-label">{t("clinical.overview.healthyTeeth")}</p>
                   <div className="stat-details">
-                    <span className="stat-item">2 with cavities</span>
-                    <span className="stat-item">2 AI flagged</span>
+                    <span className="stat-item">2 {t("clinical.overview.withCavities")}</span>
+                    <span className="stat-item">2 {t("clinical.overview.aiFlagged")}</span>
                   </div>
                 </div>
               </div>
@@ -204,11 +204,11 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               <div className="overview-card">
                 <div className="card-icon">📸</div>
                 <div className="card-content">
-                  <h3>Recent X-rays</h3>
+                  <h3>{t("clinical.overview.recentXrays")}</h3>
                   <div className="stat-large">{mockXrays.length}</div>
-                  <p className="stat-label">Images analyzed</p>
+                  <p className="stat-label">{t("clinical.overview.imagesAnalyzed")}</p>
                   <div className="stat-details">
-                    <span className="stat-item">AI confidence: 95%</span>
+                    <span className="stat-item">{t("clinical.overview.aiConfidence")}: 95%</span>
                   </div>
                 </div>
               </div>
@@ -216,12 +216,12 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               <div className="overview-card">
                 <div className="card-icon">📋</div>
                 <div className="card-content">
-                  <h3>Treatment Plans</h3>
+                  <h3>{t("clinical.overview.treatmentPlans")}</h3>
                   <div className="stat-large">{treatmentPlans.length}</div>
-                  <p className="stat-label">Pending approval</p>
+                  <p className="stat-label">{t("clinical.overview.pendingApproval")}</p>
                   <div className="stat-details">
-                    <span className="stat-item">1 urgent</span>
-                    <span className="stat-item">1 routine</span>
+                    <span className="stat-item">1 {t("clinical.overview.urgent")}</span>
+                    <span className="stat-item">1 {t("clinical.overview.routine")}</span>
                   </div>
                 </div>
               </div>
@@ -229,37 +229,37 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               <div className="overview-card">
                 <div className="card-icon">💰</div>
                 <div className="card-content">
-                  <h3>Estimated Cost</h3>
+                  <h3>{t("clinical.overview.estimatedCost")}</h3>
                   <div className="stat-large">₪{treatmentPlans.reduce((sum, plan) => sum + plan.cost, 0).toLocaleString()}</div>
-                  <p className="stat-label">Total treatment cost</p>
+                  <p className="stat-label">{t("clinical.overview.totalTreatmentCost")}</p>
                   <div className="stat-details">
-                    <span className="stat-item">2 procedures</span>
+                    <span className="stat-item">2 {t("clinical.overview.procedures")}</span>
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="ai-insights-clinical">
-              <h3>🤖 Sarah's Clinical Insights</h3>
+              <h3>🤖 {t("clinical.insights.title")}</h3>
               <div className="insight-list">
                 <div className="insight-item urgent">
                   <div className="insight-header">
                     <span className="insight-icon">⚠️</span>
-                    <span className="insight-title">Urgent Treatment Required</span>
-                    <span className="confidence-badge">97% confidence</span>
+                    <span className="insight-title">{t("clinical.insights.urgentTreatment")}</span>
+                    <span className="confidence-badge">97% {t("clinical.insights.confidence")}</span>
                   </div>
-                  <p>Tooth #14 has a deep cavity reaching the pulp chamber. Root canal treatment recommended within 1 week to prevent infection.</p>
-                  <button className="insight-action-btn">Review Treatment Plan →</button>
+                  <p>{t("clinical.insights.urgentDesc")}</p>
+                  <button className="insight-action-btn">{t("clinical.insights.reviewPlan")}</button>
                 </div>
 
                 <div className="insight-item medium">
                   <div className="insight-header">
                     <span className="insight-icon">🔍</span>
-                    <span className="insight-title">Early Cavity Detected</span>
-                    <span className="confidence-badge">78% confidence</span>
+                    <span className="insight-title">{t("clinical.insights.earlyCavity")}</span>
+                    <span className="confidence-badge">78% {t("clinical.insights.confidence")}</span>
                   </div>
-                  <p>Tooth #47 shows signs of early cavity formation. Preventive filling can avoid more extensive treatment later.</p>
-                  <button className="insight-action-btn">Review Treatment Plan →</button>
+                  <p>{t("clinical.insights.earlyCavityDesc")}</p>
+                  <button className="insight-action-btn">{t("clinical.insights.reviewPlan")}</button>
                 </div>
               </div>
             </div>
@@ -291,7 +291,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
                     <span className="xray-date">{xray.date}</span>
                   </div>
                   <div className="xray-info">
-                    <h4>{xray.type} X-ray</h4>
+                    <h4>{xray.type} {t("clinical.xrays.title")}</h4>
                     <p className="xray-findings">
                       {xray.aiAnalysis.findings.length} findings detected
                     </p>
@@ -303,18 +303,18 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
             {selectedXray && (
               <div className="xray-analysis-panel">
                 <div className="analysis-header">
-                  <h3>🤖 Sarah's X-ray Analysis</h3>
+                  <h3>🤖 {t("clinical.xrays.sarahAnalysis")}</h3>
                   <button onClick={() => setSelectedXray(null)}>✕</button>
                 </div>
                 
                 <div className="analysis-content">
-                  <h4>Findings:</h4>
+                  <h4>{t("clinical.xrays.findings")}:</h4>
                   <div className="findings-list">
                     {selectedXray.aiAnalysis.findings.map((finding, index) => (
                       <div key={index} className={`finding-item severity-${finding.severity}`}>
                         <div className="finding-header">
-                          <span className="tooth-number">Tooth #{finding.tooth}</span>
-                          <span className="confidence-badge">{finding.confidence}% confidence</span>
+                          <span className="tooth-number">{t("clinical.xrays.tooth")} #{finding.tooth}</span>
+                          <span className="confidence-badge">{finding.confidence}% {t("clinical.insights.confidence")}</span>
                         </div>
                         <p className="finding-condition">{finding.condition}</p>
                         <span className={`severity-badge ${finding.severity}`}>
@@ -324,7 +324,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
                     ))}
                   </div>
 
-                  <h4>Recommendations:</h4>
+                  <h4>{t("clinical.xrays.recommendations")}:</h4>
                   <ul className="recommendations-list">
                     {selectedXray.aiAnalysis.recommendations.map((rec, index) => (
                       <li key={index}>{rec}</li>
@@ -343,9 +343,9 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
                 <div key={plan.id} className={`treatment-plan-card ${plan.status}`}>
                   <div className="plan-header">
                     <div>
-                      <h3>Tooth #{plan.tooth}: {plan.treatment}</h3>
+                      <h3>{t("clinical.treatment.tooth")} #{plan.tooth}: {plan.treatment}</h3>
                       {plan.aiSuggested && (
-                        <span className="ai-suggested-badge">🤖 AI Suggested</span>
+                        <span className="ai-suggested-badge">🤖 {t("clinical.treatment.aiSuggested")}</span>
                       )}
                     </div>
                     <div className="plan-meta">
@@ -360,7 +360,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
 
                   <div className="plan-content">
                     <div className="plan-section">
-                      <h4>🤖 Sarah's Reasoning:</h4>
+                      <h4>🤖 {t("clinical.treatment.reasoning")}:</h4>
                       <ol className="reasoning-list">
                         {plan.aiReasoning.map((reason, index) => (
                           <li key={index}>{reason}</li>
@@ -370,11 +370,11 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
 
                     <div className="plan-details-grid">
                       <div className="detail-item">
-                        <span className="detail-label">💰 Cost:</span>
+                        <span className="detail-label">💰 {t("clinical.treatment.cost")}:</span>
                         <span className="detail-value">₪{plan.cost.toLocaleString()}</span>
                       </div>
                       <div className="detail-item">
-                        <span className="detail-label">⏱️ Time:</span>
+                        <span className="detail-label">⏱️ {t("clinical.treatment.estimatedTime")}:</span>
                         <span className="detail-value">{plan.estimatedTime}</span>
                       </div>
                     </div>
@@ -405,14 +405,14 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
                     {plan.status === 'approved' && (
                       <div className="plan-approved">
                         <span className="approved-icon">✅</span>
-                        <span>Treatment plan approved and ready to schedule</span>
+                        <span>{t("clinical.treatment.approvedReady")}</span>
                       </div>
                     )}
 
                     {plan.status === 'rejected' && (
                       <div className="plan-rejected">
                         <span className="rejected-icon">❌</span>
-                        <span>Treatment plan rejected</span>
+                        <span>{t("clinical.treatment.rejectedPlan")}</span>
                       </div>
                     )}
                   </div>
@@ -425,13 +425,13 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
         {activeTab === 'notes' && (
           <div className="notes-tab">
             <div className="notes-header">
-              <h3>📝 Clinical Notes (SOAP Format)</h3>
+              <h3>📝 {t("clinical.notes.title")}</h3>
               <button className="btn-add-note">+ Add Note</button>
             </div>
             
             <div className="soap-note-editor">
               <div className="soap-section">
-                <h4>S - Subjective</h4>
+                <h4>S - {t("clinical.notes.subjective")}</h4>
                 <textarea
                   placeholder="Patient's chief complaint and symptoms..."
                   rows="3"
@@ -440,7 +440,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               </div>
 
               <div className="soap-section">
-                <h4>O - Objective</h4>
+                <h4>O - {t("clinical.notes.objective")}</h4>
                 <textarea
                   placeholder="Clinical findings and observations..."
                   rows="3"
@@ -453,7 +453,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               </div>
 
               <div className="soap-section">
-                <h4>A - Assessment</h4>
+                <h4>A - {t("clinical.notes.assessment")}</h4>
                 <textarea
                   placeholder="Diagnosis and clinical assessment..."
                   rows="3"
@@ -466,7 +466,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
               </div>
 
               <div className="soap-section">
-                <h4>P - Plan</h4>
+                <h4>P - {t("clinical.notes.plan")}</h4>
                 <textarea
                   placeholder="Treatment plan and follow-up..."
                   rows="3"
