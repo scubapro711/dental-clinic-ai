@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
 import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
-import './DemoPortalEnhanced.css';ed.css';
+import './DemoPortalEnhanced.css';
 
 /**
  * Enhanced Demo Portal - Showcases AI Agent Features
