@@ -648,6 +648,14 @@
         "title": "אינטגרציה עם Odoo",
         "description": "חיבור חלק למערכת ה-ERP Odoo הקיימת שלך"
       },
+      "startingDemo": "מתחיל את הדמו המופעל על ידי AI...",
+      "demoError": "שגיאת סשן דמו",
+      "returnHome": "חזור לדף הבית",
+      "exitConfirm": "האם אתה בטוח שברצונך לצאת מהדמו? הסשן שלך יסתיים.",
+      "decisionApproved": "✅ החלטה אושרה! סוכן ה-AI יבצע את הפעולה.",
+      "decisionRejected": "❌ החלטה נדחתה. סוכן ה-AI לא יבצע את הפעולה.",
+      "noPendingDecisions": "אין החלטות ממתינות",
+      "allReviewed": "כל ההחלטות נבדקו!",
       "hipaa": {
         "title": "תאימות HIPAA",
         "description": "אבטחה ברמה ארגונית עם תאימות מלאה ל-HIPAA ו-GDPR"
