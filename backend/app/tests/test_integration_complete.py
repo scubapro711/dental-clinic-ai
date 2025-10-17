@@ -45,7 +45,7 @@ class TestSingleAgentWorkflows:
         }
         
         # Act
-        result = graph.invoke(initial_state)
+        result = graph.graph.invoke(initial_state, config={"configurable": {"thread_id": "test_thread_1"}})
         
         # Assert
         assert result is not None
@@ -77,7 +77,7 @@ class TestSingleAgentWorkflows:
         }
         
         # Act
-        result = graph.invoke(initial_state)
+        result = graph.graph.invoke(initial_state, config={"configurable": {"thread_id": "test_thread_2"}})
         
         # Assert
         assert result is not None
@@ -109,7 +109,7 @@ class TestSingleAgentWorkflows:
         }
         
         # Act
-        result = graph.invoke(initial_state)
+        result = graph.graph.invoke(initial_state, config={"configurable": {"thread_id": "test_thread_3"}})
         
         # Assert
         assert result is not None
@@ -141,7 +141,7 @@ class TestSingleAgentWorkflows:
         }
         
         # Act
-        result = graph.invoke(initial_state)
+        result = graph.graph.invoke(initial_state, config={"configurable": {"thread_id": "test_thread_4"}})
         
         # Assert
         assert result is not None
@@ -178,7 +178,7 @@ class TestMultiAgentWorkflows:
             "user_id": "patient_456"
         }
         
-        result1 = graph.invoke(state1)
+        result1 = graph.graph.invoke(state1, config={"configurable": {"thread_id": "test_thread_13"}})
         
         # Assert step 1
         assert result1 is not None
@@ -194,7 +194,7 @@ class TestMultiAgentWorkflows:
             "user_id": "patient_456"
         }
         
-        result2 = graph.invoke(state2)
+        result2 = graph.graph.invoke(state2, config={"configurable": {"thread_id": "test_thread_14"}})
         
         # Assert step 2
         assert result2 is not None
@@ -224,7 +224,7 @@ class TestMultiAgentWorkflows:
             "user_id": "doctor_789"
         }
         
-        result1 = graph.invoke(state1)
+        result1 = graph.graph.invoke(state1, config={"configurable": {"thread_id": "test_thread_15"}})
         
         # Assert step 1
         assert result1 is not None
@@ -240,7 +240,7 @@ class TestMultiAgentWorkflows:
             "user_id": "doctor_789"
         }
         
-        result2 = graph.invoke(state2)
+        result2 = graph.graph.invoke(state2, config={"configurable": {"thread_id": "test_thread_16"}})
         
         # Assert step 2
         assert result2 is not None
@@ -265,7 +265,7 @@ class TestSupervisorRouting:
             "user_id": "patient_456"
         }
         
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_5"}})
         
         assert result is not None
         assert "current_agent" in result
@@ -282,7 +282,7 @@ class TestSupervisorRouting:
             "user_id": "patient_456"
         }
         
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_6"}})
         
         assert result is not None
         assert "current_agent" in result
@@ -299,7 +299,7 @@ class TestSupervisorRouting:
             "user_id": "patient_456"
         }
         
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_7"}})
         
         assert result is not None
         assert "current_agent" in result
@@ -316,7 +316,7 @@ class TestSupervisorRouting:
             "user_id": "doctor_789"
         }
         
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_8"}})
         
         assert result is not None
         assert "current_agent" in result
@@ -338,7 +338,7 @@ class TestErrorHandling:
         }
         
         # Should not raise exception
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_9"}})
         
         assert result is not None
         assert "messages" in result
@@ -355,7 +355,7 @@ class TestErrorHandling:
         }
         
         # Should not raise exception
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_10"}})
         
         assert result is not None
         assert "messages" in result
@@ -372,7 +372,7 @@ class TestErrorHandling:
         }
         
         # Should not raise exception
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_11"}})
         
         assert result is not None
         assert "messages" in result
@@ -394,7 +394,7 @@ class TestDataConsistency:
             "user_id": "patient_456"
         }
         
-        result = graph.invoke(state)
+        result = graph.graph.invoke(state, config={"configurable": {"thread_id": "test_thread_12"}})
         
         # Assert state preservation
         assert result["organization_id"] == "test_org_123"
@@ -415,7 +415,7 @@ class TestDataConsistency:
             "user_id": "patient_456"
         }
         
-        result1 = graph.invoke(state1)
+        result1 = graph.graph.invoke(state1, config={"configurable": {"thread_id": "test_thread_17"}})
         
         # Step 2 - continue conversation
         state2 = {
@@ -425,7 +425,7 @@ class TestDataConsistency:
             "user_id": "patient_456"
         }
         
-        result2 = graph.invoke(state2)
+        result2 = graph.graph.invoke(state2, config={"configurable": {"thread_id": "test_thread_18"}})
         
         # Assert message accumulation
         assert len(result2["messages"]) >= 4  # 2 user + 2 agent responses

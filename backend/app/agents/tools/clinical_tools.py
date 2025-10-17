@@ -14,7 +14,8 @@ from typing import Dict, Any, List, Optional
 from langchain.tools import tool
 import logging
 
-from app.integrations.odoo_client_v3 import odoo_client_v3
+from app.integrations.odoo_client import OdooClient
+odoo_client = OdooClient()
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ def get_patient_dental_chart(patient_id: int) -> Dict[str, Any]:
         Dental chart with all teeth status and last update date
     """
     try:
-        result = odoo_client_v3.get_dental_chart(patient_id)
+        result = odoo_client.get_dental_chart(patient_id)
         
         if not result:
             return {
@@ -91,7 +92,7 @@ def update_tooth_status(
         Success status and record ID
     """
     try:
-        record_id = odoo_client_v3.update_tooth_status(
+        record_id = odoo_client.update_tooth_status(
             patient_id=patient_id,
             tooth_code=tooth_code,
             status=status,
@@ -141,7 +142,7 @@ def get_treatment_history(
         List of treatment records with dates, types, and outcomes
     """
     try:
-        treatments = odoo_client_v3.get_treatment_history(
+        treatments = odoo_client.get_treatment_history(
             patient_id=patient_id,
             tooth_code=tooth_code,
             limit=limit
@@ -198,7 +199,7 @@ def create_treatment_record(
         Success status and treatment record ID
     """
     try:
-        record_id = odoo_client_v3.create_treatment_record(
+        record_id = odoo_client.create_treatment_record(
             patient_id=patient_id,
             treatment_type=treatment_type,
             tooth_code=tooth_code,
@@ -251,7 +252,7 @@ def get_patient_prescriptions(
         List of prescription records
     """
     try:
-        prescriptions = odoo_client_v3.get_patient_prescriptions(
+        prescriptions = odoo_client.get_patient_prescriptions(
             patient_id=patient_id,
             active_only=active_only
         )
@@ -308,7 +309,7 @@ def create_prescription(
         import json
         medications_list = json.loads(medications)
         
-        prescription_id = odoo_client_v3.create_prescription(
+        prescription_id = odoo_client.create_prescription(
             patient_id=patient_id,
             doctor_id=doctor_id,
             medications=medications_list,
@@ -368,7 +369,7 @@ def search_medications(
         List of matching medications with IDs and details
     """
     try:
-        medications = odoo_client_v3.search_medications(
+        medications = odoo_client.search_medications(
             name=name,
             category=category,
             limit=limit
@@ -410,7 +411,7 @@ def get_patient_medical_history(patient_id: int) -> Dict[str, Any]:
         Complete medical history including allergies and conditions
     """
     try:
-        history = odoo_client_v3.get_patient_medical_history(patient_id)
+        history = odoo_client.get_patient_medical_history(patient_id)
         
         return {
             "success": True,
@@ -456,7 +457,7 @@ def add_patient_allergy(
         Success status and record ID
     """
     try:
-        record_id = odoo_client_v3.add_patient_disease(
+        record_id = odoo_client.add_patient_disease(
             patient_id=patient_id,
             disease_id=disease_id,
             is_allergy=True,
@@ -504,7 +505,7 @@ def add_patient_condition(
         Success status and record ID
     """
     try:
-        record_id = odoo_client_v3.add_patient_disease(
+        record_id = odoo_client.add_patient_disease(
             patient_id=patient_id,
             disease_id=disease_id,
             is_allergy=False,
@@ -551,7 +552,7 @@ def search_diseases(
         List of matching diseases with IDs and details
     """
     try:
-        diseases = odoo_client_v3.search_diseases(
+        diseases = odoo_client.search_diseases(
             name=name,
             category=category,
             limit=limit
@@ -595,7 +596,7 @@ def get_treatment_plans(
         List of treatment plans
     """
     try:
-        plans = odoo_client_v3.get_treatment_plans(
+        plans = odoo_client.get_treatment_plans(
             patient_id=patient_id,
             active_only=active_only
         )
@@ -655,7 +656,7 @@ def create_treatment_plan(
             import json
             treatments_list = json.loads(treatments)
         
-        plan_id = odoo_client_v3.create_treatment_plan(
+        plan_id = odoo_client.create_treatment_plan(
             patient_id=patient_id,
             name=name,
             doctor_id=doctor_id,
@@ -713,7 +714,7 @@ def get_dentist_schedule(
         List of time slots with availability status
     """
     try:
-        slots = odoo_client_v3.get_dentist_schedule(
+        slots = odoo_client.get_dentist_schedule(
             doctor_id=doctor_id,
             date_from=date_from,
             date_to=date_to

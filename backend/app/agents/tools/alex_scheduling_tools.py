@@ -15,7 +15,7 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ def bulk_reschedule_appointments_tool(
         - notifications_sent: Number of notifications sent
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate doctor
         doctor = odoo.read('clinic.doctor', doctor_id, ['name'])
@@ -208,7 +208,7 @@ def bulk_reschedule_appointments_tool(
 
 
 def _get_available_slots_for_date(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     doctor_id: int,
     date: str,
 ) -> List[str]:
@@ -255,7 +255,7 @@ def _get_available_slots_for_date(
 
 
 def _send_reschedule_notification(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     patient_id: int,
     doctor_name: str,
     original_time: str,
@@ -346,7 +346,7 @@ def manage_waitlist_tool(
         Dictionary with action result and waitlist status
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         if action == 'add':
             return _add_to_waitlist(
@@ -381,7 +381,7 @@ def manage_waitlist_tool(
 
 
 def _add_to_waitlist(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     patient_id: int,
     doctor_id: Optional[int],
     preferred_date: Optional[str],
@@ -449,7 +449,7 @@ def _add_to_waitlist(
 
 
 def _remove_from_waitlist(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     patient_id: int,
 ) -> Dict[str, Any]:
     """Remove patient from waitlist."""
@@ -488,7 +488,7 @@ def _remove_from_waitlist(
 
 
 def _notify_next_in_waitlist(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     doctor_id: Optional[int],
     preferred_date: Optional[str],
     treatment_type: Optional[str],
@@ -547,7 +547,7 @@ def _notify_next_in_waitlist(
 
 
 def _get_waitlist(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     doctor_id: Optional[int],
     preferred_date: Optional[str],
     treatment_type: Optional[str],
@@ -602,7 +602,7 @@ def _get_waitlist(
 
 
 def _calculate_waitlist_priority(
-    odoo: OdooClientV3,
+    odoo: OdooClient,
     patient_id: int,
     treatment_type: Optional[str],
 ) -> int:

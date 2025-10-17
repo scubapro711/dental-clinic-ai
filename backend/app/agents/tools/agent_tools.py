@@ -11,7 +11,7 @@ from typing import Optional
 from datetime import datetime, timedelta
 import logging
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.agents.rbac import (
     has_permission,
@@ -24,9 +24,9 @@ from app.agents.rbac import (
 logger = logging.getLogger(__name__)
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Get Odoo client instance."""
-    return OdooClientV3(
+    return OdooClient(
         url=settings.ODOO_URL,
         db=settings.ODOO_DB,
         username=settings.ODOO_USERNAME,
@@ -88,7 +88,7 @@ def search_patient_tool(
             )
             return get_permission_denied_message(requesting_user_role or "unknown", "search_patients")
         
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         # Build search domain
         domain = [('is_patient', '=', True)]
@@ -130,7 +130,7 @@ def get_available_slots_tool(days_ahead: int = 7) -> str:
         days_ahead: Number of days to look ahead (default: 7)
     """
     try:
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         date_from = datetime.now()
         date_to = date_from + timedelta(days=days_ahead)
@@ -196,7 +196,7 @@ def create_appointment_tool(
         notes: Optional notes about the appointment
     """
     try:
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         # Search for existing patient
         patients = odoo.search_read(
@@ -253,7 +253,7 @@ def get_patient_invoices_tool(patient_name: str, patient_phone: Optional[str] = 
         patient_phone: Patient phone (optional)
     """
     try:
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         # Search for patient
         domain = [('name', 'ilike', patient_name), ('is_patient', '=', True)]
@@ -311,7 +311,7 @@ def get_invoice_details_tool(invoice_id: int) -> str:
         invoice_id: Invoice ID
     """
     try:
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         # Get invoice
         invoices = odoo.read(

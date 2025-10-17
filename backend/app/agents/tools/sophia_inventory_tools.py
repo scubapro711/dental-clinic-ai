@@ -9,7 +9,9 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.odoo_client_v3 import odoo_client_v3
+from app.integrations.odoo_client import OdooClient
+
+odoo_client_v3 = OdooClient()
 
 logger = logging.getLogger(__name__)
 

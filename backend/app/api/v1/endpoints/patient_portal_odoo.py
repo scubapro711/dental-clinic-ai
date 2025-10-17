@@ -12,7 +12,7 @@ import logging
 from app.core.database import get_db
 from app.api.dependencies import get_current_user
 from app.models.user import User
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.crud import user_patient_mapping as mapping_crud
 
@@ -21,9 +21,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3(
+    return OdooClient(
         url=settings.ODOO_URL,
         db=settings.ODOO_DB,
         username=settings.ODOO_USERNAME,
@@ -69,7 +69,7 @@ def get_odoo_patient_id(user: User, db: Session) -> Optional[int]:
 async def get_patient_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    odoo: OdooClientV3 = Depends(get_odoo_client),
+    odoo: OdooClient = Depends(OdooClient),
 ):
     """Get current patient profile from Odoo"""
     try:
@@ -126,7 +126,7 @@ async def get_patient_profile(
 async def get_health_score(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    odoo: OdooClientV3 = Depends(get_odoo_client),
+    odoo: OdooClient = Depends(OdooClient),
 ):
     """
     Get patient's dental health score
@@ -234,7 +234,7 @@ async def get_appointments(
     offset: Optional[int] = Query(0, ge=0),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    odoo: OdooClientV3 = Depends(get_odoo_client),
+    odoo: OdooClient = Depends(OdooClient),
 ):
     """Get patient's appointments from Odoo"""
     try:
@@ -312,7 +312,7 @@ async def get_appointments(
 async def get_doctors(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    odoo: OdooClientV3 = Depends(get_odoo_client),
+    odoo: OdooClient = Depends(OdooClient),
 ):
     """Get list of doctors from Odoo"""
     try:
@@ -385,7 +385,7 @@ async def get_available_slots(
     date: str = Query(..., description="Date in YYYY-MM-DD format"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    odoo: OdooClientV3 = Depends(get_odoo_client),
+    odoo: OdooClient = Depends(OdooClient),
 ):
     """
     Get available time slots for a doctor on a specific date

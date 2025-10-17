@@ -15,7 +15,7 @@ from app.api.dependencies import get_current_user
 from app.core.rbac import require_role, Role
 from app.models.user import User
 from app.crud import user_patient_mapping as mapping_crud
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3(
+    return OdooClient(
         url=settings.ODOO_URL,
         db=settings.ODOO_DB,
         username=settings.ODOO_USERNAME,
@@ -199,7 +199,7 @@ async def sync_mapping(
     Fetches latest data from Odoo and updates the mapping.
     """
     try:
-        odoo_client = OdooClientV3()
+        odoo_client = OdooClient()
         
         # Get current mapping
         mapping = mapping_crud.get_mapping_by_user_id(db, current_user.id)
@@ -268,7 +268,7 @@ async def search_patients(
     Returns up to 10 matching patients.
     """
     try:
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         
         # Build search domain
         domain = ['|', '|', 
@@ -328,7 +328,7 @@ async def create_my_mapping(
     
     try:
         # Verify patient exists in Odoo
-        odoo = get_odoo_client()
+        odoo = OdooClient()
         patients = odoo.read(
             'res.partner',
             [request.odoo_patient_id],

@@ -39,8 +39,8 @@ export const DemoProvider = ({ children }) => {
       const remaining = Math.floor((expiresAt - now) / 1000);
       setTimeRemaining(remaining);
 
-      // Load demo data
-      await loadDemoData(session_id);
+      // Load demo data immediately (synchronous)
+      loadDemoData(session_id);
 
       // Store in sessionStorage for persistence
       sessionStorage.setItem('demoSessionId', session_id);
@@ -75,8 +75,7 @@ export const DemoProvider = ({ children }) => {
   };
 
   // Load demo data (patients, appointments, etc.)
-  const loadDemoData = async (sessionId) => {
-    try {
+  const loadDemoData = (sessionId) => {
       // In a real implementation, this would fetch from the backend
       // For now, we'll use the demo data service directly
       const demoData = {
@@ -232,10 +231,6 @@ export const DemoProvider = ({ children }) => {
       };
 
       setDemoData(demoData);
-    } catch (err) {
-      console.error('Error loading demo data:', err);
-      throw err;
-    }
   };
 
   // Update time remaining every second

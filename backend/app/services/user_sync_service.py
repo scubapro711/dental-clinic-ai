@@ -12,7 +12,7 @@ import logging
 
 from app.models.user import User
 from app.models.organization_membership import OrganizationMembership
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class UserSyncService:
     
     def __init__(self, db: Session):
         self.db = db
-        self.odoo = OdooClientV3()
+        self.odoo = OdooClient()
     
     def create_user_with_odoo_patient(
         self,

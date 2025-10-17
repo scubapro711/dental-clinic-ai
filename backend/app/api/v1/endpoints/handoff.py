@@ -7,15 +7,15 @@ from typing import List, Dict, Any
 from datetime import datetime, timedelta
 import random
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 
 router = APIRouter()
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3(
+    return OdooClient(
         url=settings.ODOO_URL,
         db=settings.ODOO_DB,
         username=settings.ODOO_USERNAME,
@@ -133,7 +133,7 @@ def generate_handoff_items(odoo_data: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 @router.get("/pending")
 async def get_pending_handoffs(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ):
     """Get items requiring human decision"""
     try:
@@ -220,7 +220,7 @@ async def get_resolved_handoffs():
 
 @router.get("/alex/activity")
 async def get_alex_activity(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ):
     """Get Alex's recent activity"""
     try:
@@ -305,7 +305,7 @@ async def get_alex_activity(
 
 @router.get("/alex/performance")
 async def get_alex_performance(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ):
     """Get Alex's performance metrics"""
     try:

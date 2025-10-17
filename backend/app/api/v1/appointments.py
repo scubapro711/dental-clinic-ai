@@ -10,7 +10,7 @@ from typing import List, Optional
 import logging
 
 from app.core.database import get_db
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Initialize Odoo client
-odoo_client = OdooClientV3()
+odoo_client = OdooClient()
 
 
 @router.get("/today")

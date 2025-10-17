@@ -124,10 +124,25 @@ const DemoPortal = () => {
 
 // Demo Dashboard Component
 const DemoDashboard = () => {
-  const { demoData } = useDemoContext();
+  const { demoData, isLoading, error } = useDemoContext();
 
-  if (!demoData) {
-    return <div className="demo-loading">Loading dashboard...</div>;
+  if (error) {
+    return (
+      <div className="demo-error">
+        <h3>⚠️ Unable to load dashboard</h3>
+        <p>{error}</p>
+        <button onClick={() => window.location.reload()}>Reload Page</button>
+      </div>
+    );
+  }
+
+  if (!demoData || isLoading) {
+    return (
+      <div className="demo-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading dashboard...</p>
+      </div>
+    );
   }
 
   const { financialSummary, patients, appointments } = demoData;

@@ -1,17 +1,17 @@
 """
 Improved Odoo tools for AI agents with better error handling.
 
-Uses OdooClientV3 with comprehensive validation and error handling.
+Uses OdooClient with comprehensive validation and error handling.
 """
 
 from typing import Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 # Initialize V3 client
-odoo_client_v2 = OdooClientV3()
+odoo_client_v2 = OdooClient()
 
 # Exception classes for backward compatibility
 class OdooValidationError(Exception):

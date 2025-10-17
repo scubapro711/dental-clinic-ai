@@ -162,7 +162,9 @@ def can_access_agent(user_role: str, agent_name: str) -> bool:
         "alex": Permission.ACCESS_ALEX.value,
         "sarah": Permission.ACCESS_SARAH.value,
         "cfo": Permission.ACCESS_CFO.value,
+        "marcus": Permission.ACCESS_CFO.value,  # Alias for CFO agent
         "admin": Permission.ACCESS_ADMIN.value,
+        "sophia": Permission.ACCESS_ADMIN.value,  # Alias for Admin agent
     }
     
     required_permission = agent_permission_map.get(agent_name.lower())

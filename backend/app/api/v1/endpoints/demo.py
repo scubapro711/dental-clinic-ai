@@ -14,6 +14,7 @@ from datetime import datetime, timedelta
 
 from app.agents.agent_graph_v4 import AgentGraphV4
 from langchain_core.messages import HumanMessage, AIMessage
+from langgraph.checkpoint.memory import MemorySaver
 
 logger = logging.getLogger(__name__)
 
@@ -80,8 +81,9 @@ async def create_demo_session():
         session_id = f"demo_{uuid.uuid4().hex[:12]}"
         expires_at = datetime.now() + timedelta(minutes=30)
         
-        # Initialize demo agent graph
-        demo_graph = AgentGraphV4(demo_mode=True)
+        # Initialize demo agent graph with in-memory storage (faster, no DB dependency)
+        memory_saver = MemorySaver()
+        demo_graph = AgentGraphV4(memory=memory_saver, demo_mode=True)
         
         # Store session
         demo_sessions[session_id] = {

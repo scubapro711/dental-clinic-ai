@@ -14,7 +14,7 @@ import logging
 from datetime import datetime
 from typing import Optional
 from langchain_core.tools import tool
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +52,7 @@ def create_referral_tool(
                               reason="Impacted wisdom tooth extraction", urgency="urgent")
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate specialist type
         valid_specialists = [
@@ -175,7 +175,7 @@ def order_xray_tool(
                          reason="Initial assessment")
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate X-ray type
         valid_types = {
@@ -301,7 +301,7 @@ def order_lab_test_tool(
                              reason="Suspicious lesion", urgency="urgent")
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate test type
         valid_types = {
@@ -463,7 +463,7 @@ def create_clinical_note_tool(
           )
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate note type
         valid_types = {
@@ -585,7 +585,7 @@ def get_referrals_tool(patient_id: int, status: Optional[str] = None) -> str:
         A formatted string listing the patient's referrals.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation. In a real scenario, this would query the Odoo database.
         notes = odoo.get_patient_notes(patient_id, note_type="referral")
         if not notes:
@@ -619,7 +619,7 @@ def get_clinical_notes_tool(patient_id: int, query: Optional[str] = None) -> str
         A formatted string listing the patient's clinical notes.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation. In a real scenario, this would query the Odoo database.
         notes = odoo.get_patient_notes(patient_id, note_type="clinical_soap")
         if not notes:
@@ -657,7 +657,7 @@ def upload_xray_tool(patient_id: int, file_path: str, xray_type: str) -> str:
         A success message with the file details.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would upload the file to a PACS or S3.
         # For now, we'll just record a note.
         note = f"📸 **צילום הועלה**\n\n**סוג צילום:** {xray_type}\n**קובץ:** {file_path}"
@@ -680,7 +680,7 @@ def get_xrays_tool(patient_id: int) -> str:
         A formatted string listing the patient's X-rays.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation. In a real scenario, this would query the PACS system.
         notes = odoo.get_patient_notes(patient_id, note_type="xray_upload")
         if not notes:
@@ -750,7 +750,7 @@ def schedule_followup_tool(patient_id: int, reason: str, days_from_now: int) -> 
     try:
         from datetime import datetime, timedelta
 
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         appointment_date = datetime.now() + timedelta(days=days_from_now)
 
         # This is a mock implementation. In a real scenario, this would create an appointment in Odoo.
@@ -783,7 +783,7 @@ def get_lab_results_tool(patient_id: int, order_id: Optional[int] = None) -> str
         A formatted string with the lab results.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation. In a real scenario, this would query the lab partner's API.
         if order_id:
             notes = odoo.get_patient_notes(patient_id, note_type="lab_order")

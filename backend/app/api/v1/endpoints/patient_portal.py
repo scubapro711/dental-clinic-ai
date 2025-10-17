@@ -12,7 +12,7 @@ import logging
 from app.core.database import get_db
 from app.core.auth import get_current_user
 from app.models.user import User
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 

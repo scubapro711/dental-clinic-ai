@@ -11,12 +11,12 @@ from uuid import UUID
 from langchain_core.tools import tool
 from sqlalchemy.orm import Session
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.services.user_sync_service import UserSyncService
 from app.core.database import get_db
 
 # Initialize V3 client
-odoo_client = OdooClientV3()
+odoo_client = OdooClient()
 
 # Helper to get a DB session in a thread-safe way for tools
 def _get_db_session() -> Session:

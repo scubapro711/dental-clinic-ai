@@ -7,14 +7,14 @@ These tools enable Alex to perform complete patient lifecycle management:
 - Retrieving comprehensive patient context
 - Adding quick notes
 
-All tools integrate with Odoo ERP via OdooClientV3.
+All tools integrate with Odoo ERP via OdooClient.
 """
 
 from typing import Dict, Any, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 
 # ============================================================================
@@ -90,7 +90,7 @@ def create_patient_tool(
         - next_steps: Suggested next actions
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Step 1: Create partner (res.partner)
         partner_data = {
@@ -239,7 +239,7 @@ def update_patient_info_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient record to find partner_id
         patient = odoo.read('patient.patient', patient_id, ['partner_id', 'name'])
@@ -363,7 +363,7 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
         - summary: High-level patient snapshot
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient and partner data
         patient = odoo.read('patient.patient', patient_id, [
@@ -591,7 +591,7 @@ def add_patient_note_tool(
         - timestamp: When the note was created
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient name
         patient = odoo.read('patient.patient', patient_id, ['name'])

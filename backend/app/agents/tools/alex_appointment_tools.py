@@ -1,3 +1,4 @@
+from app.integrations.odoo_client import OdooClient
 """
 Fixed version of alex_appointment_tools.py with Odoo days_ahead fix
 Replace: backend/app/agents/tools/alex_appointment_tools.py
@@ -6,7 +7,7 @@ Replace: backend/app/agents/tools/alex_appointment_tools.py
 from langchain.tools import tool
 from typing import Dict, Any, Optional, List
 from datetime import datetime, timedelta
-from app.integrations.odoo_client_v2 import OdooClientV2
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,7 @@ def get_available_slots_tool(
         logger.info(f"Getting available slots: days_ahead={days_ahead}, doctor_id={doctor_id}, duration={duration_minutes}")
         
         # Initialize Odoo client
-        odoo = OdooClientV2()
+        odoo = OdooClient()
         
         # ✅ FIX: Calculate date range from days_ahead
         start_date = datetime.now()
@@ -107,7 +108,7 @@ def create_appointment_tool(
     try:
         logger.info(f"Creating appointment: patient={patient_id}, doctor={doctor_id}, date={appointment_date}")
         
-        odoo = OdooClientV2()
+        odoo = OdooClient()
         
         appointment = odoo.create_appointment(
             patient_id=patient_id,
@@ -160,7 +161,7 @@ def update_appointment_tool(
     try:
         logger.info(f"Updating appointment {appointment_id}")
         
-        odoo = OdooClientV2()
+        odoo = OdooClient()
         
         update_data = {}
         if new_date:
@@ -212,7 +213,7 @@ def cancel_appointment_tool(
     try:
         logger.info(f"Cancelling appointment {appointment_id}")
         
-        odoo = OdooClientV2()
+        odoo = OdooClient()
         
         appointment = odoo.cancel_appointment(
             appointment_id=appointment_id,
@@ -262,7 +263,7 @@ def search_appointments_tool(
     try:
         logger.info(f"Searching appointments with filters")
         
-        odoo = OdooClientV2()
+        odoo = OdooClient()
         
         appointments = odoo.search_appointments(
             patient_id=patient_id,

@@ -11,7 +11,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime, date
 import logging
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.agents.rbac import (
     has_permission,
     can_access_resource,
@@ -23,7 +23,7 @@ from app.agents.rbac import (
 logger = logging.getLogger(__name__)
 
 # Initialize V3 client
-odoo_client = OdooClientV3()
+odoo_client = OdooClient()
 
 
 def search_patient_odoo(

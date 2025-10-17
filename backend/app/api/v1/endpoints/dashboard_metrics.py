@@ -32,7 +32,7 @@ from app.agents.tools.admin_tools import (
     get_schedule_conflicts_tool,
     get_operational_metrics_tool,
 )
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.api.dependencies import get_current_membership
 from app.models.organization_membership import OrganizationMembership
@@ -42,9 +42,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3()
+    return OdooClient()
 
 
 # ===== Schemas =====
@@ -94,7 +94,7 @@ class AgentMetrics(BaseModel):
 @router.get("/metrics", response_model=DashboardMetrics)
 async def get_dashboard_metrics(
     membership: OrganizationMembership = Depends(get_current_membership),
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ):
     """
     Get aggregated dashboard metrics from all agents.

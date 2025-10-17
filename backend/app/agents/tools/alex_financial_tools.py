@@ -25,7 +25,7 @@ try:
 except ImportError:
     REQUESTS_AVAILABLE = False
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +128,7 @@ def process_payment_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate patient
         patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
@@ -325,7 +325,7 @@ def _process_tranzila_payment(
         }
 
 
-def _get_payment_method_id(odoo: OdooClientV3, payment_method: str) -> int:
+def _get_payment_method_id(odoo: OdooClient, payment_method: str) -> int:
     """Get Odoo payment method ID."""
     method_mapping = {
         'credit_card': 'Credit Card',
@@ -396,7 +396,7 @@ def create_payment_plan_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Validate patient
         patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
@@ -553,7 +553,7 @@ def check_insurance_coverage_tool(
         - confirmation: Coverage details
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient insurance info
         patient = odoo.read('patient.patient', patient_id, [

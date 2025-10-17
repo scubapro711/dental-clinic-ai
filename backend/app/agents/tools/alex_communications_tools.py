@@ -41,7 +41,7 @@ try:
 except ImportError:
     REQUESTS_AVAILABLE = False
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 
 logger = logging.getLogger(__name__)
 
@@ -237,7 +237,7 @@ def send_sms_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient phone number
         patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
@@ -433,7 +433,7 @@ def send_email_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient email
         patient = odoo.read('patient.patient', patient_id, ['name', 'partner_id'])
@@ -626,7 +626,7 @@ def send_telegram_message_tool(
         - confirmation: Success message
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         
         # Get patient Telegram ID
         telegram_user = odoo.search_read('telegram.user', [

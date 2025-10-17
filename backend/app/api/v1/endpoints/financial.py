@@ -15,7 +15,9 @@ from pydantic import BaseModel
 
 from app.api.dependencies import get_current_user, require_role
 from app.models.user import User, UserRole
-from app.integrations.odoo_client_v3 import odoo_client_v3
+from app.integrations.odoo_client import OdooClient
+
+odoo_client_v3 = OdooClient()
 
 router = APIRouter(prefix="/financial", tags=["Financial"])
 logger = logging.getLogger(__name__)

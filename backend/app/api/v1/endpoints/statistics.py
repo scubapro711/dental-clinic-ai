@@ -9,7 +9,7 @@ from typing import Dict, Any
 from fastapi import APIRouter, HTTPException, Depends
 from datetime import datetime, timedelta
 
-from app.integrations.odoo_client_v3 import OdooClientV3
+from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def get_odoo_client() -> OdooClientV3:
+def OdooClient() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClientV3(
+    return OdooClient(
         url=settings.ODOO_URL,
         db=settings.ODOO_DB,
         username=settings.ODOO_USERNAME,
@@ -29,7 +29,7 @@ def get_odoo_client() -> OdooClientV3:
 
 @router.get("/overview")
 async def get_overview_statistics(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ) -> Dict[str, Any]:
     """
     Get overview statistics for the clinic dashboard.
@@ -110,7 +110,7 @@ async def get_overview_statistics(
 
 @router.get("/patients")
 async def get_patient_statistics(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ) -> Dict[str, Any]:
     """
     Get patient-related statistics.
@@ -181,7 +181,7 @@ async def get_patient_statistics(
 
 @router.get("/appointments")
 async def get_appointment_statistics(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ) -> Dict[str, Any]:
     """
     Get appointment-related statistics.
@@ -234,7 +234,7 @@ async def get_appointment_statistics(
 
 @router.get("/revenue")
 async def get_revenue_statistics(
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ) -> Dict[str, Any]:
     """
     Get revenue and financial statistics.
@@ -291,7 +291,7 @@ async def get_revenue_statistics(
 @router.get("/top-patients")
 async def get_top_patients(
     limit: int = 10,
-    odoo: OdooClientV3 = Depends(get_odoo_client)
+    odoo: OdooClient = Depends(OdooClient)
 ) -> Dict[str, Any]:
     """
     Get top patients by revenue.

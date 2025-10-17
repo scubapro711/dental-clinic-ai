@@ -11,7 +11,8 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from langchain.tools import tool
 
-from app.integrations.odoo_client_v3 import odoo_client_v3
+from app.integrations.odoo_client import OdooClient
+odoo_client = OdooClient()
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ def get_revenue_overview(
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        revenue_data = odoo_client_v3.get_revenue_by_period(date_from, date_to)
+        revenue_data = odoo_client.get_revenue_by_period(date_from, date_to)
         
         result = f"""
 📊 **סקירת הכנסות**
@@ -79,7 +80,7 @@ def get_outstanding_invoices(patient_id: Optional[int] = None) -> str:
         Outstanding invoices summary as formatted string
     """
     try:
-        outstanding_data = odoo_client_v3.get_outstanding_balance(patient_id=patient_id)
+        outstanding_data = odoo_client.get_outstanding_balance(patient_id=patient_id)
         
         result = f"""
 ⚠️ **חשבוניות ממתינות לתשלום**
@@ -125,7 +126,7 @@ def get_top_treatments_by_revenue(
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        treatments = odoo_client_v3.get_treatment_revenue(
+        treatments = odoo_client.get_treatment_revenue(
             date_from=date_from,
             date_to=date_to,
             limit=limit
@@ -173,7 +174,7 @@ def get_payment_collection_status(
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        payments = odoo_client_v3.get_payments(
+        payments = odoo_client.get_payments(
             date_from=date_from,
             date_to=date_to
         )
@@ -220,7 +221,7 @@ def get_financial_summary(
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        summary = odoo_client_v3.get_financial_summary(date_from, date_to)
+        summary = odoo_client.get_financial_summary(date_from, date_to)
         
         result = f"""
 📊 **סיכום פיננסי מקיף**
@@ -268,13 +269,13 @@ def analyze_patient_financial_status(patient_id: int) -> str:
     """
     try:
         # Get patient invoices
-        invoices = odoo_client_v3.get_invoices(patient_id=patient_id, limit=100)
+        invoices = odoo_client.get_invoices(patient_id=patient_id, limit=100)
         
         # Get patient payments
-        payments = odoo_client_v3.get_payments(patient_id=patient_id, limit=100)
+        payments = odoo_client.get_payments(patient_id=patient_id, limit=100)
         
         # Get outstanding balance
-        outstanding = odoo_client_v3.get_outstanding_balance(patient_id=patient_id)
+        outstanding = odoo_client.get_outstanding_balance(patient_id=patient_id)
         
         # Calculate totals
         total_invoiced = sum(inv.get('amount_total', 0) for inv in invoices)
@@ -327,7 +328,7 @@ def get_monthly_revenue_trend(months: int = 6) -> str:
             start_date = (end_date - timedelta(days=30)).replace(day=1)
             
             # Get revenue for month
-            revenue_data = odoo_client_v3.get_revenue_by_period(
+            revenue_data = odoo_client.get_revenue_by_period(
                 start_date.strftime("%Y-%m-%d"),
                 end_date.strftime("%Y-%m-%d")
             )
@@ -388,7 +389,7 @@ def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
         A success message with the invoice details.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         green_invoice = GreenInvoiceClient()
 
         patient = odoo.get_patient(patient_id)
@@ -494,7 +495,7 @@ def create_expense_tool(amount: float, category: str, description: str) -> str:
         A success message with the expense details.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would create an expense record in Odoo.
         expense_id = odoo.create_expense(amount, category, description)
         return f"✅ הוצאה בסך {amount} נרשמה בהצלחה. קטגוריה: {category}. מזהה: {expense_id}"
@@ -515,7 +516,7 @@ def get_budget_tool(department: str) -> str:
         A formatted string with the budget details.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation.
         budget_data = odoo.get_budget(department)
         return f"📊 **תקציב למחלקת {department}**\n\n**תקציב מאושר:** {budget_data['allocated']}\n**ניצול עד כה:** {budget_data['spent']}\n**יתרה:** {budget_data['remaining']}"
@@ -538,7 +539,7 @@ def create_budget_tool(department: str, amount: float, year: int) -> str:
         A success message.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would create a budget record in Odoo.
         budget_id = odoo.create_budget(department, amount, year)
         return f"✅ תקציב בסך {amount} למחלקת {department} לשנת {year} נוצר בהצלחה. מזהה: {budget_id}"
@@ -567,7 +568,7 @@ def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_comp
         A success message with the claim details.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would integrate with Israeli insurance APIs.
         claim_id = odoo.submit_insurance_claim(patient_id, invoice_id, insurance_company)
         return f"✅ תביעת ביטוח נשלחה בהצלחה עבור מטופל {patient_id} לחברת {insurance_company}. מספר תביעה: {claim_id}"
@@ -589,7 +590,7 @@ def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None) -> 
         A formatted string with the claims list.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # This is a mock implementation.
         claims = odoo.get_insurance_claims(patient_id, status)
         if not claims:
@@ -619,7 +620,7 @@ def export_to_accounting_tool(format: str = "csv") -> str:
         A success message with the file path.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would generate a file with financial data.
         file_path = odoo.export_to_accounting(format)
         return f"✅ נתונים פיננסיים יוצאו בהצלחה לקובץ: {file_path}"
@@ -640,7 +641,7 @@ def generate_tax_report_tool(year: int) -> str:
         A success message with the report file path.
     """
     try:
-        odoo = OdooClientV3()
+        odoo = OdooClient()
         # In a real implementation, this would generate a tax report compliant with Israeli tax law.
         report_path = odoo.generate_tax_report(year)
         return f"✅ דוח מס לשנת {year} נוצר בהצלחה: {report_path}"
