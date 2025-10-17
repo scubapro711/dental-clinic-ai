@@ -510,36 +510,36 @@
       "title": "הכירו את 4 המומחים שלכם",
       "subtitle": "כל סוכן הוא מומחה בתחומו, עובדים יחד בצורה חלקה",
       "alex": {
-        "role": "Patient Relations & Reception",
-        "feature1": "24/7 appointment scheduling",
-        "feature2": "Patient inquiries & support",
-        "feature3": "Multi-channel communication",
-        "feature4": "Appointment reminders",
-        "statLabel": "faster response time"
+        "role": "יחסי מטופלים וקבלה",
+        "feature1": "תזמון תורים 24/7",
+        "feature2": "פניות ותמיכה למטופלים",
+        "feature3": "תקשורת רב-ערוצית",
+        "feature4": "תזכורות לתורים",
+        "statLabel": "זמן תגובה מהיר יותר"
       },
       "sarah": {
-        "role": "Clinical Operations",
-        "feature1": "Treatment plan management",
-        "feature2": "Medical records coordination",
-        "feature3": "Clinical workflows",
-        "feature4": "Doctor-patient communication",
-        "statLabel": "reduction in admin tasks"
+        "role": "תפעול קליני",
+        "feature1": "ניהול תוכניות טיפול",
+        "feature2": "תיאום רשומות רפואיות",
+        "feature3": "זרימות עבודה קליניות",
+        "feature4": "תקשורת רופא-מטופל",
+        "statLabel": "הפחתה במשימות ניהוליות"
       },
       "marcus": {
-        "role": "Financial Analysis & CFO",
-        "feature1": "Revenue analytics & insights",
-        "feature2": "Invoice management",
-        "feature3": "Payment tracking",
-        "feature4": "Financial forecasting",
-        "statLabel": "average monthly revenue increase"
+        "role": "ניתוח פיננסי ומנכ\"ל כספים",
+        "feature1": "אנליטיקה ותובנות הכנסות",
+        "feature2": "ניהול חשבוניות",
+        "feature3": "מעקב תשלומים",
+        "feature4": "תחזית פיננסית",
+        "statLabel": "עלייה ממוצעת בהכנסות חודשיות"
       },
       "sophia": {
-        "role": "Practice Management",
-        "feature1": "Operations optimization",
-        "feature2": "Staff coordination",
-        "feature3": "Inventory management",
-        "feature4": "Performance analytics",
-        "statLabel": "saved per week"
+        "role": "ניהול מרפאה",
+        "feature1": "אופטימיזציה תפעולית",
+        "feature2": "תיאום צוות",
+        "feature3": "ניהול מלאי",
+        "feature4": "אנליטיקת ביצועים",
+        "statLabel": "נחסך בשבוע"
       }
     },
     "communication": {
