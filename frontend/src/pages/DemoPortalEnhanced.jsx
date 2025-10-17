@@ -200,7 +200,7 @@ const PendingDecisionsWidget = () => {
       agent: 'Sophia',
       type: 'inventory_order',
       title: 'Inventory Reorder',
-      description: 'Dental gloves stock low (12 boxes {t("landing.demo.remaining")}). Recommend ordering 50 boxes.',
+      description: 'Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes.',
       priority: 'low',
       timestamp: '1 hour ago'
     }
