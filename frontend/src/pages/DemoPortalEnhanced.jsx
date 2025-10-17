@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
-import './DemoPortalEnhanced.css';
+import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
+import './DemoPortalEnhanced.css';ed.css';
 
 /**
  * Enhanced Demo Portal - Showcases AI Agent Features
@@ -122,6 +123,12 @@ const DemoPortalEnhanced = () => {
             >
               💰 Financial
             </button>
+            <button
+              className={`demo-nav-btn ${currentPage === 'clinical' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('clinical')}
+            >
+              🩺 Clinical
+            </button>
           </div>
 
           <div className="demo-content">
@@ -129,6 +136,7 @@ const DemoPortalEnhanced = () => {
             {currentPage === 'patients' && <DemoPatientsEnhanced />}
             {currentPage === 'appointments' && <DemoAppointmentsEnhanced />}
             {currentPage === 'financial' && <DemoFinancialEnhanced />}
+            {currentPage === 'clinical' && <DemoClinicalEnhanced />}
           </div>
         </div>
 
@@ -966,6 +974,31 @@ const DemoFinancialEnhanced = () => {
           <p className="ai-insight">🤖 Marcus automated 15 payment reminders this month</p>
         </div>
       </div>
+    </div>
+  );
+};
+
+const DemoClinicalEnhanced = () => {
+  const [selectedPatient] = useState({
+    id: 1,
+    name: 'David Cohen',
+    age: 45,
+    lastVisit: '2025-09-15'
+  });
+
+  return (
+    <div className="demo-clinical-enhanced">
+      <h2>🩺 AI-Powered Clinical System</h2>
+      <p className="page-subtitle">Sarah provides intelligent clinical analysis and recommendations</p>
+      
+      <div className="clinical-patient-header">
+        <div className="patient-info">
+          <h3>{selectedPatient.name}</h3>
+          <p>Age: {selectedPatient.age} | Last Visit: {selectedPatient.lastVisit}</p>
+        </div>
+      </div>
+
+      <ClinicalDashboard patient={selectedPatient} />
     </div>
   );
 };

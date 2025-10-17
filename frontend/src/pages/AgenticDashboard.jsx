@@ -7,6 +7,7 @@ import TodaysPatientsWidget from '../components/widgets/TodaysPatientsWidget';
 import RevenueWidget from '../components/widgets/RevenueWidget';
 import DecisionQueueWidget from '../components/widgets/DecisionQueueWidget';
 import FineTuningWidget from '../components/widgets/FineTuningWidget';
+import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
 import EnhancedFineTuningWidget from '../components/fine-tuning/EnhancedFineTuningWidget';
 import ConversationHistorySidebar from '../components/ConversationHistorySidebar';
 import ProtectedWidget from '../components/rbac/ProtectedWidget';
@@ -162,6 +163,17 @@ export default function AgenticDashboard() {
             {/* Enhanced Fine-Tuning - Admin only */}
             <ProtectedWidget widgetId="fine-tuning">
               <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
+            </ProtectedWidget>
+            
+            {/* Clinical System - Staff and Admin */}
+            <ProtectedWidget widgetId="clinical-system">
+              <div className="widget-card">
+                <div className="widget-header">
+                  <h3>🩺 Clinical System</h3>
+                  <p className="text-sm text-gray-600">AI-powered clinical analysis</p>
+                </div>
+                <ClinicalDashboard patient={{ id: 1, name: 'David Cohen', age: 45, lastVisit: '2025-09-15' }} />
+              </div>
             </ProtectedWidget>
           </div>
         )}
