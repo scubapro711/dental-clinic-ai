@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ToothChart from './ToothChart';
 import './ClinicalDashboard.css';
 
@@ -11,6 +12,7 @@ import './ClinicalDashboard.css';
  * - Complete clinical workflow from diagnosis to treatment plan
  */
 const ClinicalDashboard = ({ patientId, patientName }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedXray, setSelectedXray] = useState(null);
   
@@ -138,9 +140,9 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
     <div className="clinical-dashboard">
       <div className="clinical-header">
         <div>
-          <h2>🩺 Clinical Dashboard</h2>
+          <h2>🩺 {t("clinical.title")}</h2>
           <p className="patient-info">
-            Patient: <strong>{patientName}</strong> (ID: {patientId})
+            {t("clinical.patient")}: <strong>{patientName}</strong> (ID: {patientId})
           </p>
         </div>
         <div className="ai-status">
@@ -154,31 +156,31 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
           className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
-          📊 Overview
+            📊 {t("clinical.tabs.overview")}
         </button>
         <button
           className={`tab-btn ${activeTab === 'tooth-chart' ? 'active' : ''}`}
           onClick={() => setActiveTab('tooth-chart')}
         >
-          🦷 Tooth Chart
+            🦷 {t("clinical.tabs.toothChart")}
         </button>
         <button
           className={`tab-btn ${activeTab === 'xrays' ? 'active' : ''}`}
           onClick={() => setActiveTab('xrays')}
         >
-          📸 X-rays
+            📸 {t("clinical.tabs.xrays")}
         </button>
         <button
           className={`tab-btn ${activeTab === 'treatment-plans' ? 'active' : ''}`}
           onClick={() => setActiveTab('treatment-plans')}
         >
-          📋 Treatment Plans
+            📋 {t("clinical.tabs.treatmentPlans")}
         </button>
         <button
           className={`tab-btn ${activeTab === 'notes' ? 'active' : ''}`}
           onClick={() => setActiveTab('notes')}
         >
-          📝 Clinical Notes
+            📝 {t("clinical.tabs.clinicalNotes")}
         </button>
       </div>
 
@@ -383,19 +385,19 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
                           className="btn-approve"
                           onClick={() => handleApproveTreatment(plan.id)}
                         >
-                          ✓ Approve
+                          ✓ {t("clinical.treatment.approve")}
                         </button>
                         <button
                           className="btn-modify"
                           onClick={() => handleModifyTreatment(plan.id)}
                         >
-                          ✏️ Modify
+                           ✎ {t("clinical.treatment.modify")}
                         </button>
                         <button
                           className="btn-reject"
                           onClick={() => handleRejectTreatment(plan.id)}
                         >
-                          ✗ Reject
+                          ✗ {t("clinical.treatment.reject")}
                         </button>
                       </div>
                     )}

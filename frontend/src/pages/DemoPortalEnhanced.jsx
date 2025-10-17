@@ -105,25 +105,25 @@ const DemoPortalEnhanced = () => {
               className={`demo-nav-btn ${currentPage === 'dashboard' ? 'active' : ''}`}
               onClick={() => setCurrentPage('dashboard')}
             >
-              📊 Dashboard
+              📊 {t("demo.nav.dashboard")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'patients' ? 'active' : ''}`}
               onClick={() => setCurrentPage('patients')}
             >
-              👥 Patients
+              👥 {t("demo.nav.patients")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'appointments' ? 'active' : ''}`}
               onClick={() => setCurrentPage('appointments')}
             >
-              📅 Appointments
+              📅 {t("demo.nav.appointments")}
             </button>
             <button
               className={`demo-nav-btn ${currentPage === 'financial' ? 'active' : ''}`}
               onClick={() => setCurrentPage('financial')}
             >
-              💰 Financial
+              💰 {t("demo.nav.financial")}
             </button>
 
           </div>
@@ -260,13 +260,13 @@ const PendingDecisionsWidget = () => {
                       className="btn-approve"
                       onClick={() => handleApprove(decision.id)}
                     >
-                      ✓ Approve
+                      ✓ {t("demo.widgets.approve")}
                     </button>
                     <button 
                       className="btn-reject"
                       onClick={() => handleReject(decision.id)}
                     >
-                      ✗ Reject
+                      ✗ {t("demo.widgets.reject")}
                     </button>
                   </div>
                 </div>
@@ -649,10 +649,11 @@ const TransparencyPanelDemo = () => {
 // ==================== DASHBOARD PAGES ====================
 
 const DemoDashboardEnhanced = () => {
+  const { t } = useTranslation();
   const { demoData } = useDemoContext();
 
   if (!demoData) {
-    return <div className="demo-loading">Loading dashboard...</div>;
+    return <div className="demo-loading">{t("demo.dashboard.loading")}</div>;
   }
 
   const { financialSummary, patients, appointments } = demoData;
@@ -661,94 +662,94 @@ const DemoDashboardEnhanced = () => {
 
   return (
     <div className="demo-dashboard-enhanced">
-      <h2>AI-Powered Dashboard</h2>
-      <p className="dashboard-subtitle">Real-time insights powered by 4 AI agents</p>
+      <h2>{t("demo.dashboard.title")}</h2>
+      <p className="dashboard-subtitle">{t("demo.dashboard.subtitle")}</p>
 
       {/* Metrics Cards */}
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-icon">💰</div>
           <div className="metric-content">
-            <div className="metric-label">Total Revenue</div>
+            <div className="metric-label">{t("demo.dashboard.metrics.totalRevenue")}</div>
             <div className="metric-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
-            <div className="metric-change positive">+12% from last month</div>
-            <div className="metric-agent">Tracked by Marcus 🤖</div>
+            <div className="metric-change positive">+12% {t("demo.dashboard.metrics.fromLastMonth")}</div>
+            <div className="metric-agent">{t("demo.dashboard.metrics.trackedBy")} Marcus 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">👥</div>
           <div className="metric-content">
-            <div className="metric-label">Active Patients</div>
+            <div className="metric-label">{t("demo.dashboard.metrics.activePatients")}</div>
             <div className="metric-value">{activePatients}</div>
-            <div className="metric-change positive">+2 new this week</div>
-            <div className="metric-agent">Managed by Alex 🤖</div>
+            <div className="metric-change positive">+2 {t("demo.dashboard.metrics.newThisWeek")}</div>
+            <div className="metric-agent">{t("demo.dashboard.metrics.managedBy")} Alex 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">📅</div>
           <div className="metric-content">
-            <div className="metric-label">Upcoming Appointments</div>
+            <div className="metric-label">{t("demo.dashboard.metrics.upcomingAppointments")}</div>
             <div className="metric-value">{upcomingAppointments}</div>
-            <div className="metric-change neutral">Next 7 days</div>
-            <div className="metric-agent">Scheduled by Alex 🤖</div>
+            <div className="metric-change neutral">{t("demo.dashboard.metrics.next7Days")}</div>
+            <div className="metric-agent">{t("demo.dashboard.metrics.scheduledBy")} Alex 🤖</div>
           </div>
         </div>
 
         <div className="metric-card">
           <div className="metric-icon">⚠️</div>
           <div className="metric-content">
-            <div className="metric-label">Outstanding Balance</div>
+            <div className="metric-label">{t("demo.dashboard.metrics.outstandingBalance")}</div>
             <div className="metric-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
             <div className="metric-change negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
-            <div className="metric-agent">Monitored by Marcus 🤖</div>
+            <div className="metric-agent">{t("demo.dashboard.metrics.monitoredBy")} Marcus 🤖</div>
           </div>
         </div>
       </div>
 
       {/* AI Insights */}
       <div className="ai-insights-section">
-        <h3>🤖 AI Insights & Recommendations</h3>
+        <h3>🤖 {t("demo.dashboard.insights.title")}</h3>
         <div className="insights-grid">
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Marcus</span>
-              <span className="insight-priority high">High Priority</span>
+              <span className="insight-priority high">{t("demo.dashboard.insights.highPriority")}</span>
             </div>
-            <h4>Revenue Opportunity Detected</h4>
-            <p>3 patients are due for routine checkups. Estimated revenue: ₪1,800</p>
-            <button className="insight-action">Contact Patients</button>
+            <h4>{t("demo.dashboard.insights.revenueOpportunity")}</h4>
+            <p>{t("demo.dashboard.insights.revenueOpportunityDesc")}</p>
+            <button className="insight-action">{t("demo.dashboard.insights.contactPatients")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Sarah</span>
-              <span className="insight-priority high">High Priority</span>
+              <span className="insight-priority high">{t("demo.dashboard.insights.highPriority")}</span>
             </div>
-            <h4>Urgent Treatment Required</h4>
-            <p>Patient David Cohen needs immediate root canal treatment. Delay may cause complications.</p>
-            <button className="insight-action">Schedule Treatment</button>
+            <h4>{t("demo.dashboard.insights.urgentTreatment")}</h4>
+            <p>{t("demo.dashboard.insights.urgentTreatmentDesc")}</p>
+            <button className="insight-action">{t("demo.dashboard.insights.scheduleTreatment")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Sophia</span>
-              <span className="insight-priority medium">Medium Priority</span>
+              <span className="insight-priority medium">{t("demo.dashboard.insights.mediumPriority")}</span>
             </div>
-            <h4>Inventory Alert</h4>
-            <p>Dental gloves running low (12 boxes left). Recommend reordering soon.</p>
-            <button className="insight-action">Create Order</button>
+            <h4>{t("demo.dashboard.insights.inventoryAlert")}</h4>
+            <p>{t("demo.dashboard.insights.inventoryAlertDesc")}</p>
+            <button className="insight-action">{t("demo.dashboard.insights.createOrder")}</button>
           </div>
 
           <div className="insight-card">
             <div className="insight-header">
               <span className="agent-badge">Alex</span>
-              <span className="insight-priority low">Low Priority</span>
+              <span className="insight-priority low">{t("demo.dashboard.insights.lowPriority")}</span>
             </div>
-            <h4>Patient Satisfaction</h4>
-            <p>Average satisfaction score increased to 4.8/5 this month (+0.3)</p>
-            <button className="insight-action">View Details</button>
+            <h4>{t("demo.dashboard.insights.patientSatisfaction")}</h4>
+            <p>{t("demo.dashboard.insights.patientSatisfactionDesc")}</p>
+            <button className="insight-action">{t("demo.dashboard.insights.viewDetails")}</button>
           </div>
         </div>
       </div>
@@ -757,6 +758,7 @@ const DemoDashboardEnhanced = () => {
 };
 
 const DemoPatientsEnhanced = () => {
+  const { t } = useTranslation();
   const { demoData } = useDemoContext();
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -764,7 +766,7 @@ const DemoPatientsEnhanced = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   if (!demoData) {
-    return <div className="demo-loading">Loading patients...</div>;
+    return <div className="demo-loading">{t("demo.patients.loading")}</div>;
   }
 
   const { patients } = demoData;
@@ -785,8 +787,8 @@ const DemoPatientsEnhanced = () => {
 
   return (
     <div className="demo-patients-enhanced">
-      <h2>AI-Assisted Patient Management</h2>
-      <p className="page-subtitle">Alex monitors all patient interactions</p>
+      <h2>{t("demo.patients.title")}</h2>
+      <p className="page-subtitle">{t("demo.patients.subtitle")}</p>
 
       {/* Search and Filter Bar */}
       <div className="patients-search-bar">
@@ -795,7 +797,7 @@ const DemoPatientsEnhanced = () => {
           <input
             type="text"
             className="search-input"
-            placeholder="Search by name, phone, or email..."
+            placeholder={t("demo.patients.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -814,19 +816,19 @@ const DemoPatientsEnhanced = () => {
             className={`filter-btn ${filterStatus === 'all' ? 'active' : ''}`}
             onClick={() => setFilterStatus('all')}
           >
-            All ({patients.length})
+            {t("demo.patients.all")} ({patients.length})
           </button>
           <button
             className={`filter-btn ${filterStatus === 'active' ? 'active' : ''}`}
             onClick={() => setFilterStatus('active')}
           >
-            Active ({patients.filter(p => p.status === 'Active').length})
+            {t("demo.patients.active")} ({patients.filter(p => p.status === 'Active').length})
           </button>
           <button
             className={`filter-btn ${filterStatus === 'inactive' ? 'active' : ''}`}
             onClick={() => setFilterStatus('inactive')}
           >
-            Inactive ({patients.filter(p => p.status === 'Inactive').length})
+            {t("demo.patients.inactive")} ({patients.filter(p => p.status === 'Inactive').length})
           </button>
         </div>
       </div>
@@ -842,8 +844,8 @@ const DemoPatientsEnhanced = () => {
         <div className="patients-list">
           {filteredPatients.length === 0 ? (
             <div className="no-results">
-              <p>No patients found matching your search.</p>
-              <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>Clear filters</button>
+              <p>{t("demo.patients.noResults")}</p>
+              <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>{t("demo.patients.clearFilters")}</button>
             </div>
           ) : (
             filteredPatients.map((patient) => (
@@ -889,25 +891,25 @@ const DemoPatientsEnhanced = () => {
                 className={`profile-tab ${activeTab === 'overview' ? 'active' : ''}`}
                 onClick={() => setActiveTab('overview')}
               >
-                📋 Overview
+                📋 {t("demo.patients.profile.overview")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'clinical' ? 'active' : ''}`}
                 onClick={() => setActiveTab('clinical')}
               >
-                🦷 Clinical
+                🦷 {t("demo.patients.profile.clinical")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'appointments' ? 'active' : ''}`}
                 onClick={() => setActiveTab('appointments')}
               >
-                📅 Appointments
+                📅 {t("demo.nav.appointments")}
               </button>
               <button 
                 className={`profile-tab ${activeTab === 'billing' ? 'active' : ''}`}
                 onClick={() => setActiveTab('billing')}
               >
-                💰 Billing
+                💰 {t("demo.patients.profile.billing")}
               </button>
             </div>
 
@@ -916,29 +918,29 @@ const DemoPatientsEnhanced = () => {
               {activeTab === 'overview' && (
                 <div className="profile-overview">
                   <div className="ai-summary">
-                    <h4>🤖 AI Summary</h4>
-                    <p>Alex has sent 3 appointment reminders and 2 follow-up messages this month.</p>
-                    <p>Last interaction: Confirmed appointment for Oct 25</p>
+                    <h4>🤖 {t("demo.patients.profile.aiSummary")}</h4>
+                    <p>{t("demo.patients.profile.aiSummaryText")}</p>
+                    <p>{t("demo.patients.profile.lastInteraction")}</p>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Email:</span>
+                    <span className="detail-label">{t("demo.patients.profile.email")}</span>
                     <span className="detail-value">{selectedPatient.email}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Phone:</span>
+                    <span className="detail-label">{t("demo.patients.profile.phone")}</span>
                     <span className="detail-value">{selectedPatient.phone}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Status:</span>
+                    <span className="detail-label">{t("demo.patients.status")}</span>
                     <span className="detail-value">{selectedPatient.status}</span>
                   </div>
                   <div className="detail-row">
-                    <span className="detail-label">Balance:</span>
+                    <span className="detail-label">{t("demo.patients.balance")}</span>
                     <span className="detail-value">₪{selectedPatient.balance}</span>
                   </div>
                   <div className="detail-actions">
-                    <button className="btn-primary">💬 Chat with Alex</button>
-                    <button className="btn-secondary">📅 Schedule Appointment</button>
+                    <button className="btn-primary">💬 {t("demo.patients.profile.chatWithAlex")}</button>
+                    <button className="btn-secondary">📅 {t("demo.patients.profile.scheduleAppointment")}</button>
                   </div>
                 </div>
               )}
@@ -951,49 +953,49 @@ const DemoPatientsEnhanced = () => {
 
               {activeTab === 'appointments' && (
                 <div className="profile-appointments">
-                  <h4>Upcoming Appointments</h4>
+                  <h4>{t("demo.patients.profile.upcomingAppointments")}</h4>
                   <div className="appointment-item">
                     <div className="appointment-date">Oct 25, 2025 - 10:00 AM</div>
-                    <div className="appointment-type">Regular Checkup</div>
-                    <div className="appointment-status">Confirmed</div>
+                    <div className="appointment-type">{t("demo.patients.profile.regularCheckup")}</div>
+                    <div className="appointment-status">{t("demo.patients.profile.confirmed")}</div>
                   </div>
                   <div className="appointment-item">
                     <div className="appointment-date">Nov 15, 2025 - 2:00 PM</div>
-                    <div className="appointment-type">Cleaning</div>
-                    <div className="appointment-status">Scheduled</div>
+                    <div className="appointment-type">{t("demo.patients.profile.cleaning")}</div>
+                    <div className="appointment-status">{t("demo.patients.profile.scheduled")}</div>
                   </div>
                 </div>
               )}
 
               {activeTab === 'billing' && (
                 <div className="profile-billing">
-                  <h4>Billing History</h4>
+                  <h4>{t("demo.patients.profile.billingHistory")}</h4>
                   <div className="billing-summary">
                     <div className="billing-stat">
-                      <span className="billing-label">Total Billed:</span>
+                      <span className="billing-label">{t("demo.patients.profile.totalBilled")}</span>
                       <span className="billing-value">₪{selectedPatient.totalBilled || 5200}</span>
                     </div>
                     <div className="billing-stat">
-                      <span className="billing-label">Total Paid:</span>
+                      <span className="billing-label">{t("demo.patients.profile.totalPaid")}</span>
                       <span className="billing-value">₪{(selectedPatient.totalBilled || 5200) - selectedPatient.balance}</span>
                     </div>
                     <div className="billing-stat">
-                      <span className="billing-label">Outstanding:</span>
+                      <span className="billing-label">{t("demo.patients.profile.outstanding")}</span>
                       <span className="billing-value">₪{selectedPatient.balance}</span>
                     </div>
                   </div>
-                  <h4>Recent Invoices</h4>
+                  <h4>{t("demo.patients.profile.recentInvoices")}</h4>
                   <div className="invoice-item">
                     <div className="invoice-date">Sep 15, 2025</div>
-                    <div className="invoice-desc">Root Canal Treatment</div>
+                    <div className="invoice-desc">{t("demo.patients.profile.rootCanalTreatment")}</div>
                     <div className="invoice-amount">₪2,400</div>
-                    <div className="invoice-status paid">Paid</div>
+                    <div className="invoice-status paid">{t("demo.patients.profile.paid")}</div>
                   </div>
                   <div className="invoice-item">
                     <div className="invoice-date">Aug 10, 2025</div>
-                    <div className="invoice-desc">Regular Checkup</div>
+                    <div className="invoice-desc">{t("demo.patients.profile.regularCheckup")}</div>
                     <div className="invoice-amount">₪{selectedPatient.balance}</div>
-                    <div className="invoice-status unpaid">Unpaid</div>
+                    <div className="invoice-status unpaid">{t("demo.patients.profile.unpaid")}</div>
                   </div>
                 </div>
               )}
@@ -1006,18 +1008,19 @@ const DemoPatientsEnhanced = () => {
 };
 
 const DemoAppointmentsEnhanced = () => {
+  const { t } = useTranslation();
   const { demoData } = useDemoContext();
 
   if (!demoData) {
-    return <div className="demo-loading">Loading appointments...</div>;
+    return <div className="demo-loading">{t("demo.appointments.loading")}</div>;
   }
 
   const { appointments } = demoData;
 
   return (
     <div className="demo-appointments-enhanced">
-      <h2>AI-Managed Appointments</h2>
-      <p className="page-subtitle">Alex handles all scheduling and reminders automatically</p>
+      <h2>{t("demo.appointments.title")}</h2>
+      <p className="page-subtitle">{t("demo.appointments.subtitle")}</p>
 
       <div className="appointments-list">
         {appointments.map((apt, index) => (
@@ -1032,8 +1035,8 @@ const DemoAppointmentsEnhanced = () => {
               <p className="doctor">Dr. {apt.doctor}</p>
             </div>
             <div className="appointment-ai-status">
-              <span className="ai-badge">✅ Reminder sent by Alex</span>
-              <span className="ai-badge">📧 Confirmed via email</span>
+              <span className="ai-badge">✅ {t("demo.appointments.reminderSent")}</span>
+              <span className="ai-badge">📧 {t("demo.appointments.confirmedViaEmail")}</span>
             </div>
           </div>
         ))}
@@ -1043,36 +1046,37 @@ const DemoAppointmentsEnhanced = () => {
 };
 
 const DemoFinancialEnhanced = () => {
+  const { t } = useTranslation();
   const { demoData } = useDemoContext();
 
   if (!demoData) {
-    return <div className="demo-loading">Loading financial data...</div>;
+    return <div className="demo-loading">{t("demo.financial.loading")}</div>;
   }
 
   const { financialSummary } = demoData;
 
   return (
     <div className="demo-financial-enhanced">
-      <h2>AI Financial Intelligence</h2>
-      <p className="page-subtitle">Marcus provides real-time financial insights</p>
+      <h2>{t("demo.financial.title")}</h2>
+      <p className="page-subtitle">{t("demo.financial.subtitle")}</p>
 
       <div className="financial-summary">
         <div className="summary-card">
-          <h3>Monthly Revenue</h3>
+          <h3>{t("demo.financial.monthlyRevenue")}</h3>
           <div className="summary-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
           <div className="summary-trend positive">+12% vs last month</div>
           <p className="ai-insight">🤖 Marcus predicts ₪48,000 next month based on scheduled appointments</p>
         </div>
 
         <div className="summary-card">
-          <h3>Outstanding Balance</h3>
+          <h3>{t("demo.financial.outstandingBalance")}</h3>
           <div className="summary-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
           <div className="summary-trend negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
           <p className="ai-insight">🤖 Marcus recommends sending payment reminders to 3 patients</p>
         </div>
 
         <div className="summary-card">
-          <h3>Collection Rate</h3>
+          <h3>{t("demo.financial.collectionRate")}</h3>
           <div className="summary-value">87%</div>
           <div className="summary-trend positive">+3% vs last month</div>
           <p className="ai-insight">🤖 Marcus automated 15 payment reminders this month</p>
