@@ -90,46 +90,6 @@ const LandingPage = () => {
             <div className="hero-image">
               <img src="/images/hero-dentist.png" alt="DentaFlow AI System" className="hero-dentist-img" />
             </div>
-            <div className="hero-card">
-              <div className="card-header">
-                <span className="card-badge">{t("landing.hero.liveDemo")}</span>
-                <span className="card-time">{t("landing.hero.active247")}</span>
-              </div>
-              <div className="card-agents">
-                <div className="agent-item">
-                  <img src="/images/alex-avatar.png" alt="Alex" className="agent-avatar-img" />
-                  <div className="agent-info">
-                    <div className="agent-name">{t("landing.agents.alex.name")}</div>
-                    <div className="agent-role">{t("landing.agents.alex.role")}</div>
-                  </div>
-                  <span className="agent-status online">●</span>
-                </div>
-                <div className="agent-item">
-                  <img src="/images/sarah-avatar.png" alt="Sarah" className="agent-avatar-img" />
-                  <div className="agent-info">
-                    <div className="agent-name">{t("landing.agents.sarah.name")}</div>
-                    <div className="agent-role">{t("landing.agents.sarah.role")}</div>
-                  </div>
-                  <span className="agent-status online">●</span>
-                </div>
-                <div className="agent-item">
-                  <img src="/images/marcus-avatar.png" alt="Marcus" className="agent-avatar-img" />
-                  <div className="agent-info">
-                    <div className="agent-name">{t("landing.agents.marcus.name")}</div>
-                    <div className="agent-role">{t("landing.agents.marcus.role")}</div>
-                  </div>
-                  <span className="agent-status online">●</span>
-                </div>
-                <div className="agent-item">
-                  <img src="/images/sophia-avatar.png" alt="Sophia" className="agent-avatar-img" />
-                  <div className="agent-info">
-                    <div className="agent-name">{t("landing.agents.sophia.name")}</div>
-                    <div className="agent-role">{t("landing.agents.sophia.role")}</div>
-                  </div>
-                  <span className="agent-status online">●</span>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </section>
