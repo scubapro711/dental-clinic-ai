@@ -173,8 +173,8 @@ const PendingDecisionsWidget = () => {
       id: 1,
       agent: 'Alex',
       type: 'appointment_reschedule',
-      title: 'Reschedule Appointment',
-      description: 'Patient Sarah Johnson requested to move appointment from Oct 25 to Oct 27',
+      title: t('demo.decisions.appointment_rescheduling'),
+      description: t('demo.decisions.reschedule_desc', { patient: 'Sarah Johnson', from: 'Oct 25', to: 'Oct 27' }),
       priority: 'medium',
       timestamp: '10 minutes ago'
     },
@@ -182,8 +182,8 @@ const PendingDecisionsWidget = () => {
       id: 2,
       agent: 'Marcus',
       type: 'payment_plan',
-      title: 'Payment Plan Approval',
-      description: 'Suggested 3-month payment plan for Rachel Levi (₪2,400 total)',
+      title: t('demo.decisions.payment_plan_creation'),
+      description: t('demo.decisions.payment_plan_desc', { months: 3, patient: 'Rachel Levi', amount: '₪2,400' }),
       priority: 'high',
       timestamp: '25 minutes ago'
     },
@@ -191,8 +191,8 @@ const PendingDecisionsWidget = () => {
       id: 3,
       agent: 'Sarah',
       type: 'treatment_plan',
-      title: 'Treatment Plan Approval',
-      description: 'Complex treatment plan for David Cohen: Root canal + crown. Estimated cost: ₪3,200',
+      title: t('demo.decisions.treatment_plan_analysis'),
+      description: t('demo.decisions.treatment_plan_desc', { patient: 'David Cohen', treatment: 'Root canal + crown', cost: '₪3,200' }),
       priority: 'high',
       timestamp: '15 minutes ago'
     },
@@ -200,8 +200,8 @@ const PendingDecisionsWidget = () => {
       id: 4,
       agent: 'Sophia',
       type: 'inventory_order',
-      title: 'Inventory Reorder',
-      description: 'Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes.',
+      title: t('demo.decisions.inventory_desc', { item: 'Dental gloves', count: 12, recommended: 50 }),
+      description: t('demo.decisions.inventory_desc', { item: 'Dental gloves', count: 12, recommended: 50 }),
       priority: 'low',
       timestamp: '1 hour ago'
     }
@@ -289,7 +289,7 @@ const AgentActivityWidget = () => {
     {
       id: 1,
       agent: 'Alex',
-      action: 'Sent appointment reminder',
+      action: t('demo.activity.sent_reminder'),
       patient: 'David Cohen',
       status: 'completed',
       timestamp: '2 min ago'
@@ -297,7 +297,7 @@ const AgentActivityWidget = () => {
     {
       id: 2,
       agent: 'Marcus',
-      action: 'Generated invoice',
+      action: t('demo.activity.generated_invoice'),
       patient: 'Rachel Levi',
       status: 'completed',
       timestamp: '5 min ago'
@@ -305,7 +305,7 @@ const AgentActivityWidget = () => {
     {
       id: 3,
       agent: 'Sarah',
-      action: 'Reviewing treatment plan',
+      action: t('demo.activity.reviewing_plan'),
       patient: 'Tamar Shapiro',
       status: 'in_progress',
       timestamp: 'Just now'
@@ -313,7 +313,7 @@ const AgentActivityWidget = () => {
     {
       id: 4,
       agent: 'Sophia',
-      action: 'Checking inventory levels',
+      action: t('demo.activity.checking_inventory'),
       patient: null,
       status: 'in_progress',
       timestamp: 'Just now'
