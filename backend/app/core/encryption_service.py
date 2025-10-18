@@ -28,13 +28,22 @@ class EncryptionService:
         Initialize encryption service.
         
         Args:
-            key: Encryption key (base64 encoded). If None, reads from ENCRYPTION_KEY env var.
+            key: Encryption key (base64 encoded). If None, tries GCP Secret Manager first,
+                 then falls back to ENCRYPTION_KEY env var.
         """
         if key is None:
-            key = os.getenv('ENCRYPTION_KEY')
+            # Try GCP Secret Manager first
+            try:
+                from .gcp_secrets import get_encryption_key
+                key = get_encryption_key()
+                logger.info("Using encryption key from GCP Secret Manager")
+            except Exception as e:
+                logger.warning(f"Failed to get encryption key from GCP Secret Manager: {e}")
+                logger.warning("Falling back to ENCRYPTION_KEY environment variable")
+                key = os.getenv('ENCRYPTION_KEY')
         
         if not key:
-            raise ValueError("ENCRYPTION_KEY environment variable not set")
+            raise ValueError("ENCRYPTION_KEY not found in GCP Secret Manager or environment variables")
         
         # Derive Fernet key from provided key using PBKDF2
         self.cipher = Fernet(self._derive_key(key))

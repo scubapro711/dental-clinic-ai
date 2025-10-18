@@ -1056,6 +1056,30 @@
       "step2Treatment": "בדק צילומי רנטגן: חלל עמוק המגיע לתא העיסה - נדרש טיפול שורש",
       "step3Treatment": "הערכת מבנה השן: נדרש כתר לאחר הטיפול למניעת שבר",
       "step4Treatment": "המליץ על טיפול מיידי: טיפול שורש + כתר. עלות כוללת: ₪3,200"
+    },
+    "insights": {
+      "high_priority": "עדיפות גבוהה",
+      "medium_priority": "עדיפות בינונית",
+      "low_priority": "עדיפות נמוכה",
+      "info": "מידע"
+    },
+    "activity": {
+      "title": "פעילות סוכנים",
+      "all": "הכל",
+      "no_activities": "אין פעילויות אחרונות",
+      "show_more": "הצג עוד",
+      "show_less": "הצג פחות",
+      "status": {
+        "success": "הושלם",
+        "pending": "ממתין",
+        "error": "שגיאה"
+      }
+    },
+    "agents": {
+      "alex": "אלכס",
+      "sarah": "שרה",
+      "marcus": "מרקוס",
+      "sophia": "סופיה"
     }
   },
   "clinical": {

@@ -1077,6 +1077,30 @@
       "step2Treatment": "Reviewed X-rays: Deep cavity reaching pulp chamber - root canal required",
       "step3Treatment": "Assessed tooth structure: Crown needed post-treatment to prevent fracture",
       "step4Treatment": "Recommended immediate treatment: Root canal + crown. Total cost: ₪3,200"
+    },
+    "insights": {
+      "high_priority": "High Priority",
+      "medium_priority": "Medium Priority",
+      "low_priority": "Low Priority",
+      "info": "Info"
+    },
+    "activity": {
+      "title": "Agent Activity",
+      "all": "All",
+      "no_activities": "No recent activities",
+      "show_more": "Show more",
+      "show_less": "Show less",
+      "status": {
+        "success": "Completed",
+        "pending": "Pending",
+        "error": "Error"
+      }
+    },
+    "agents": {
+      "alex": "Alex",
+      "sarah": "Sarah",
+      "marcus": "Marcus",
+      "sophia": "Sophia"
     }
   },
   "clinical": {

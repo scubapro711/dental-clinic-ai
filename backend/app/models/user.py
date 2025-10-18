@@ -68,6 +68,7 @@ class User(Base):
     # MFA (optional)
     mfa_enabled = Column(Boolean, default=False, nullable=False)
     mfa_secret = Column(String(255), nullable=True)
+    mfa_backup_codes = Column(String(1000), nullable=True)  # Encrypted comma-separated backup codes
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
