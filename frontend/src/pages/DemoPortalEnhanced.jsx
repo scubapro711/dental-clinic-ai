@@ -5,7 +5,12 @@ import { useDemoContext } from '../contexts/DemoContext';
 import DemoChatButton from '../components/DemoChatButton';
 import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
-import './DemoPortalEnhanced.css';/**
+import './DemoPortalEnhanced.css';
+import MetricCard from '../components/demo/MetricCard';
+import InsightCard from '../components/demo/InsightCard';
+import DecisionCard from '../components/demo/DecisionCard';
+import AgentCard from '../components/demo/AgentCard';
+import TransparencyPanel from '../components/demo/TransparencyPanel';/**
  * Enhanced Demo Portal - Showcases AI Agent Features
  * 
  * This demo portal includes all the AI agent features from production:
@@ -660,97 +665,104 @@ const DemoDashboardEnhanced = () => {
   const activePatients = patients.filter(p => p.status === 'Active').length;
   const upcomingAppointments = appointments.length;
 
+  // Agent colors for consistency
+  const agentColors = {
+    Alex: '#3b82f6',
+    Marcus: '#10b981',
+    Sarah: '#f59e0b',
+    Sophia: '#8b5cf6'
+  };
+
   return (
     <div className="demo-dashboard-enhanced">
       <h2>{t("demo.dashboard.title")}</h2>
       <p className="dashboard-subtitle">{t("demo.dashboard.subtitle")}</p>
 
-      {/* Metrics Cards */}
+      {/* Metrics Cards - Using new MetricCard component */}
       <div className="metrics-grid">
-        <div className="metric-card">
-          <div className="metric-icon">💰</div>
-          <div className="metric-content">
-            <div className="metric-label">{t("demo.dashboard.metrics.totalRevenue")}</div>
-            <div className="metric-value">₪{financialSummary.totalRevenue.toLocaleString()}</div>
-            <div className="metric-change positive">+12% {t("demo.dashboard.metrics.fromLastMonth")}</div>
-            <div className="metric-agent">{t("demo.dashboard.metrics.trackedBy")} Marcus 🤖</div>
-          </div>
-        </div>
+        <MetricCard
+          icon="💰"
+          value={`₪${financialSummary.totalRevenue.toLocaleString()}`}
+          label={t("demo.dashboard.metrics.totalRevenue")}
+          trend={12}
+          trendLabel={t("demo.dashboard.metrics.fromLastMonth")}
+          agentName="Marcus"
+          agentColor={agentColors.Marcus}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon">👥</div>
-          <div className="metric-content">
-            <div className="metric-label">{t("demo.dashboard.metrics.activePatients")}</div>
-            <div className="metric-value">{activePatients}</div>
-            <div className="metric-change positive">+2 {t("demo.dashboard.metrics.newThisWeek")}</div>
-            <div className="metric-agent">{t("demo.dashboard.metrics.managedBy")} Alex 🤖</div>
-          </div>
-        </div>
+        <MetricCard
+          icon="👥"
+          value={activePatients}
+          label={t("demo.dashboard.metrics.activePatients")}
+          trend={5}
+          trendLabel={`+2 ${t("demo.dashboard.metrics.newThisWeek")}`}
+          agentName="Alex"
+          agentColor={agentColors.Alex}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon">📅</div>
-          <div className="metric-content">
-            <div className="metric-label">{t("demo.dashboard.metrics.upcomingAppointments")}</div>
-            <div className="metric-value">{upcomingAppointments}</div>
-            <div className="metric-change neutral">{t("demo.dashboard.metrics.next7Days")}</div>
-            <div className="metric-agent">{t("demo.dashboard.metrics.scheduledBy")} Alex 🤖</div>
-          </div>
-        </div>
+        <MetricCard
+          icon="📅"
+          value={upcomingAppointments}
+          label={t("demo.dashboard.metrics.upcomingAppointments")}
+          trendLabel={t("demo.dashboard.metrics.next7Days")}
+          agentName="Alex"
+          agentColor={agentColors.Alex}
+        />
 
-        <div className="metric-card">
-          <div className="metric-icon">⚠️</div>
-          <div className="metric-content">
-            <div className="metric-label">{t("demo.dashboard.metrics.outstandingBalance")}</div>
-            <div className="metric-value">₪{financialSummary.outstandingBalance.toLocaleString()}</div>
-            <div className="metric-change negative">{financialSummary.unpaidInvoices} unpaid invoices</div>
-            <div className="metric-agent">{t("demo.dashboard.metrics.monitoredBy")} Marcus 🤖</div>
-          </div>
-        </div>
+        <MetricCard
+          icon="⚠️"
+          value={`₪${financialSummary.outstandingBalance.toLocaleString()}`}
+          label={t("demo.dashboard.metrics.outstandingBalance")}
+          trend={-8}
+          trendLabel={`${financialSummary.unpaidInvoices} ${t("demo.dashboard.metrics.unpaidInvoices")}`}
+          agentName="Marcus"
+          agentColor={agentColors.Marcus}
+        />
       </div>
 
-      {/* AI Insights */}
+      {/* AI Insights - Using new InsightCard component */}
       <div className="ai-insights-section">
         <h3>🤖 {t("demo.dashboard.insights.title")}</h3>
         <div className="insights-grid">
-          <div className="insight-card">
-            <div className="insight-header">
-              <span className="agent-badge">Marcus</span>
-              <span className="insight-priority high">{t("demo.dashboard.insights.highPriority")}</span>
-            </div>
-            <h4>{t("demo.dashboard.insights.revenueOpportunity")}</h4>
-            <p>{t("demo.dashboard.insights.revenueOpportunityDesc")}</p>
-            <button className="insight-action">{t("demo.dashboard.insights.contactPatients")}</button>
-          </div>
+          <InsightCard
+            title={t("demo.dashboard.insights.revenueOpportunity")}
+            description={t("demo.dashboard.insights.revenueOpportunityDesc")}
+            priority="high"
+            agent="Marcus"
+            agentColor={agentColors.Marcus}
+            actionLabel={t("demo.dashboard.insights.contactPatients")}
+            onAction={() => alert('Contact patients feature - Demo')}
+          />
 
-          <div className="insight-card">
-            <div className="insight-header">
-              <span className="agent-badge">Sarah</span>
-              <span className="insight-priority high">{t("demo.dashboard.insights.highPriority")}</span>
-            </div>
-            <h4>{t("demo.dashboard.insights.urgentTreatment")}</h4>
-            <p>{t("demo.dashboard.insights.urgentTreatmentDesc")}</p>
-            <button className="insight-action">{t("demo.dashboard.insights.scheduleTreatment")}</button>
-          </div>
+          <InsightCard
+            title={t("demo.dashboard.insights.urgentTreatment")}
+            description={t("demo.dashboard.insights.urgentTreatmentDesc")}
+            priority="high"
+            agent="Sarah"
+            agentColor={agentColors.Sarah}
+            actionLabel={t("demo.dashboard.insights.scheduleTreatment")}
+            onAction={() => alert('Schedule treatment feature - Demo')}
+          />
 
-          <div className="insight-card">
-            <div className="insight-header">
-              <span className="agent-badge">Sophia</span>
-              <span className="insight-priority medium">{t("demo.dashboard.insights.mediumPriority")}</span>
-            </div>
-            <h4>{t("demo.dashboard.insights.inventoryAlert")}</h4>
-            <p>{t("demo.dashboard.insights.inventoryAlertDesc")}</p>
-            <button className="insight-action">{t("demo.dashboard.insights.createOrder")}</button>
-          </div>
+          <InsightCard
+            title={t("demo.dashboard.insights.inventoryAlert")}
+            description={t("demo.dashboard.insights.inventoryAlertDesc")}
+            priority="medium"
+            agent="Sophia"
+            agentColor={agentColors.Sophia}
+            actionLabel={t("demo.dashboard.insights.createOrder")}
+            onAction={() => alert('Create order feature - Demo')}
+          />
 
-          <div className="insight-card">
-            <div className="insight-header">
-              <span className="agent-badge">Alex</span>
-              <span className="insight-priority low">{t("demo.dashboard.insights.lowPriority")}</span>
-            </div>
-            <h4>{t("demo.dashboard.insights.patientSatisfaction")}</h4>
-            <p>{t("demo.dashboard.insights.patientSatisfactionDesc")}</p>
-            <button className="insight-action">{t("demo.dashboard.insights.viewDetails")}</button>
-          </div>
+          <InsightCard
+            title={t("demo.dashboard.insights.patientSatisfaction")}
+            description={t("demo.dashboard.insights.patientSatisfactionDesc")}
+            priority="low"
+            agent="Alex"
+            agentColor={agentColors.Alex}
+            actionLabel={t("demo.dashboard.insights.viewDetails")}
+            onAction={() => alert('View details feature - Demo')}
+          />
         </div>
       </div>
     </div>

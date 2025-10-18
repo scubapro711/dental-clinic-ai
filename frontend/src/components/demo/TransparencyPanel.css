@@ -1,0 +1,143 @@
+.transparency-panel {
+  height: 100%;
+}
+
+.transparency-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transparency-panel__agent {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 12px;
+}
+
+.transparency-panel__section {
+  margin-bottom: 24px;
+}
+
+.transparency-panel__section:last-child {
+  margin-bottom: 0;
+}
+
+.transparency-panel__section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Reasoning Steps */
+.transparency-panel__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transparency-panel__step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.transparency-panel__step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.transparency-panel__step-text {
+  flex: 1;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.6;
+  padding-top: 2px;
+}
+
+/* Tools */
+.transparency-panel__tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.transparency-panel__tool {
+  padding: 6px 12px;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Outcome */
+.transparency-panel__outcome {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.transparency-panel__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid;
+  font-size: 13px;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+.transparency-panel__outcome-text {
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Confidence */
+.transparency-panel__confidence {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.transparency-panel__confidence-bar {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.transparency-panel__confidence-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.transparency-panel__confidence-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  min-width: 45px;
+  text-align: right;
+}
+
