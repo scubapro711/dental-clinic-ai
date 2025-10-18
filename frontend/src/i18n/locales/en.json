@@ -1215,5 +1215,9 @@
   "demo.disclaimer.title": "⚠️ Demo Environment",
   "demo.disclaimer.text": "This is a demo environment with sample data and simulated AI responses. Not a real production system.",
   "demo.disclaimer.cta": "Start Free Trial",
-  "demo.disclaimer.cta_desc": "To use with your real clinic data and live AI agents"
+  "demo.disclaimer.cta_desc": "To use with your real clinic data and live AI agents",
+  "demo.decisions.reschedule_sarah": "Patient Sarah Johnson requested to move appointment from Oct 25 to Oct 27",
+  "demo.decisions.payment_rachel": "Suggested 3-month payment plan for Rachel Levi (₪2,400 total)",
+  "demo.decisions.treatment_david": "Complex treatment plan for David Cohen: Root canal + crown. Estimated cost: ₪3,200",
+  "demo.decisions.inventory_gloves": "Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes"
 }

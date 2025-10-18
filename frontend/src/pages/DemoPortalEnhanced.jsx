@@ -174,7 +174,7 @@ const PendingDecisionsWidget = () => {
       agent: 'Alex',
       type: 'appointment_reschedule',
       title: t('demo.decisions.appointment_rescheduling'),
-      description: t('demo.decisions.reschedule_desc', { patient: 'Sarah Johnson', from: 'Oct 25', to: 'Oct 27' }),
+      description: t('demo.decisions.reschedule_sarah'),
       priority: 'medium',
       timestamp: '10 minutes ago'
     },
@@ -183,7 +183,7 @@ const PendingDecisionsWidget = () => {
       agent: 'Marcus',
       type: 'payment_plan',
       title: t('demo.decisions.payment_plan_creation'),
-      description: t('demo.decisions.payment_plan_desc', { months: 3, patient: 'Rachel Levi', amount: '₪2,400' }),
+      description: t('demo.decisions.payment_rachel'),
       priority: 'high',
       timestamp: '25 minutes ago'
     },
@@ -192,7 +192,7 @@ const PendingDecisionsWidget = () => {
       agent: 'Sarah',
       type: 'treatment_plan',
       title: t('demo.decisions.treatment_plan_analysis'),
-      description: t('demo.decisions.treatment_plan_desc', { patient: 'David Cohen', treatment: 'Root canal + crown', cost: '₪3,200' }),
+      description: t('demo.decisions.treatment_david'),
       priority: 'high',
       timestamp: '15 minutes ago'
     },
@@ -200,8 +200,8 @@ const PendingDecisionsWidget = () => {
       id: 4,
       agent: 'Sophia',
       type: 'inventory_order',
-      title: t('demo.decisions.inventory_desc', { item: 'Dental gloves', count: 12, recommended: 50 }),
-      description: t('demo.decisions.inventory_desc', { item: 'Dental gloves', count: 12, recommended: 50 }),
+      title: t('demo.decisions.inventory_gloves'),
+      description: t('demo.decisions.inventory_gloves'),
       priority: 'low',
       timestamp: '1 hour ago'
     }

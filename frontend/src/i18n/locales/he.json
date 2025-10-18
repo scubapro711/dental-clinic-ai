@@ -1194,5 +1194,9 @@
   "demo.disclaimer.title": "⚠️ סביבת הדגמה",
   "demo.disclaimer.text": "זוהי סביבת דמו עם נתונים לדוגמה ותגובות AI מדומות. אינה מערכת ייצור אמיתית.",
   "demo.disclaimer.cta": "התחל ניסיון חינם",
-  "demo.disclaimer.cta_desc": "לשימוש עם נתוני המרפאה האמיתיים שלך וסוכני AI חיים"
+  "demo.disclaimer.cta_desc": "לשימוש עם נתוני המרפאה האמיתיים שלך וסוכני AI חיים",
+  "demo.decisions.reschedule_sarah": "מטופלת Sarah Johnson ביקשה להעביר תור מ-Oct 25 ל-Oct 27",
+  "demo.decisions.payment_rachel": "הוצעה תוכנית תשלומים ל-3 חודשים עבור Rachel Levi (סה\"כ ₪2,400)",
+  "demo.decisions.treatment_david": "תוכנית טיפול מורכבת עבור David Cohen: טיפול שורש + כתר. עלות משוערת: ₪3,200",
+  "demo.decisions.inventory_gloves": "מלאי כפפות דנטליות נמוך (12 קופסאות נותרו). מומלץ להזמין 50 קופסאות"
 }
