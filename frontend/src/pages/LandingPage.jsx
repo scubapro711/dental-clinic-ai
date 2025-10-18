@@ -87,6 +87,9 @@ const LandingPage = () => {
           </div>
 
           <div className="hero-visual">
+            <div className="hero-image">
+              <img src="/images/hero-dentist.png" alt="DentaFlow AI System" className="hero-dentist-img" />
+            </div>
             <div className="hero-card">
               <div className="card-header">
                 <span className="card-badge">{t("landing.hero.liveDemo")}</span>
@@ -94,7 +97,7 @@ const LandingPage = () => {
               </div>
               <div className="card-agents">
                 <div className="agent-item">
-                  <span className="agent-avatar">👨‍💼</span>
+                  <img src="/images/alex-avatar.png" alt="Alex" className="agent-avatar-img" />
                   <div className="agent-info">
                     <div className="agent-name">{t("landing.agents.alex.name")}</div>
                     <div className="agent-role">{t("landing.agents.alex.role")}</div>
@@ -102,7 +105,7 @@ const LandingPage = () => {
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
-                  <span className="agent-avatar">👩‍⚕️</span>
+                  <img src="/images/sarah-avatar.png" alt="Sarah" className="agent-avatar-img" />
                   <div className="agent-info">
                     <div className="agent-name">{t("landing.agents.sarah.name")}</div>
                     <div className="agent-role">{t("landing.agents.sarah.role")}</div>
@@ -110,7 +113,7 @@ const LandingPage = () => {
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
-                  <span className="agent-avatar">👨‍💼</span>
+                  <img src="/images/marcus-avatar.png" alt="Marcus" className="agent-avatar-img" />
                   <div className="agent-info">
                     <div className="agent-name">{t("landing.agents.marcus.name")}</div>
                     <div className="agent-role">{t("landing.agents.marcus.role")}</div>
@@ -118,7 +121,7 @@ const LandingPage = () => {
                   <span className="agent-status online">●</span>
                 </div>
                 <div className="agent-item">
-                  <span className="agent-avatar">👩‍💼</span>
+                  <img src="/images/sophia-avatar.png" alt="Sophia" className="agent-avatar-img" />
                   <div className="agent-info">
                     <div className="agent-name">{t("landing.agents.sophia.name")}</div>
                     <div className="agent-role">{t("landing.agents.sophia.role")}</div>
@@ -223,7 +226,7 @@ const LandingPage = () => {
           <div className="agents-grid">
             <div className="agent-card">
               <div className="agent-card-header">
-                <span className="agent-card-avatar">👨‍💼</span>
+                <img src="/images/alex-avatar.png" alt="Alex" className="agent-card-avatar-img" />
                 <h3>Alex</h3>
                 <p className="agent-card-role">{t("landing.agentsSection.alex.role")}</p>
               </div>
@@ -241,7 +244,7 @@ const LandingPage = () => {
 
             <div className="agent-card">
               <div className="agent-card-header">
-                <span className="agent-card-avatar">👩‍⚕️</span>
+                <img src="/images/sarah-avatar.png" alt="Sarah" className="agent-card-avatar-img" />
                 <h3>Sarah</h3>
                 <p className="agent-card-role">{t("landing.agentsSection.sarah.role")}</p>
               </div>
@@ -259,7 +262,7 @@ const LandingPage = () => {
 
             <div className="agent-card">
               <div className="agent-card-header">
-                <span className="agent-card-avatar">👨‍💼</span>
+                <img src="/images/marcus-avatar.png" alt="Marcus" className="agent-card-avatar-img" />
                 <h3>Marcus</h3>
                 <p className="agent-card-role">{t("landing.agentsSection.marcus.role")}</p>
               </div>
@@ -277,7 +280,7 @@ const LandingPage = () => {
 
             <div className="agent-card">
               <div className="agent-card-header">
-                <span className="agent-card-avatar">👩‍💼</span>
+                <img src="/images/sophia-avatar.png" alt="Sophia" className="agent-card-avatar-img" />
                 <h3>Sophia</h3>
                 <p className="agent-card-role">{t("landing.agentsSection.sophia.role")}</p>
               </div>
