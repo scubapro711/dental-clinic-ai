@@ -1477,6 +1477,7 @@ input:checked + .toggle-slider:before {
 }
 
 .patient-profile.expanded {
+  grid-column: 1 / -1;
   min-height: 600px;
   animation: expandProfile 0.3s ease-out;
 }
