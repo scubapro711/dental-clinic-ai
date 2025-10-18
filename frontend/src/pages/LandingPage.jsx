@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import PilotApplicationForm from '../components/PilotApplicationForm';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import DemoChatButton from '../components/DemoChatButton';
 import './LandingPage.css';
@@ -8,6 +9,7 @@ import './LandingPage.css';
 const LandingPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [showPilotForm, setShowPilotForm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('professional');
 
   return (
@@ -558,7 +560,7 @@ const LandingPage = () => {
             <div className="pilot-cta-container">
               <button 
                 className="pilot-cta"
-                onClick={() => navigate('/register?pilot=true')}
+                onClick={() => setShowPilotForm(true)}
               >
                 {t("landing.pilot.cta")}
               </button>
@@ -625,8 +627,14 @@ const LandingPage = () => {
         </div>
       </section>
 
+          {/* Pilot Application Form Modal */}
+      <PilotApplicationForm 
+        isOpen={showPilotForm} 
+        onClose={() => setShowPilotForm(false)} 
+      />
+
       {/* Footer */}
-      <footer className="landing-footer">
+      <footer className="footer">
         <div className="footer-container">
           <div className="footer-grid">
             <div className="footer-col">

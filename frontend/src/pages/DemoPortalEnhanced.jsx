@@ -95,7 +95,7 @@ const DemoPortalEnhanced = () => {
       </div>
 
       {/* Main Layout */}
-      <div className="demo-main-layout">
+      <div className={`demo-main-layout ${!showTransparency ? 'full-width' : ''}`}>
         {/* Left Sidebar - Widgets */}
         <div className="demo-left-sidebar">
           <PendingDecisionsWidget />
@@ -142,13 +142,13 @@ const DemoPortalEnhanced = () => {
         </div>
 
         {/* Right Sidebar - Transparency */}
-        <div className="demo-right-sidebar">
-          {showTransparency && (
+        {showTransparency && (
+          <div className="demo-right-sidebar">
             <div className="demo-transparency-panel">
               <TransparencyPanelDemo />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Demo Footer */}
@@ -853,36 +853,38 @@ const DemoPatientsEnhanced = () => {
       )}
 
       <div className="patients-container">
-        <div className="patients-list">
-          {filteredPatients.length === 0 ? (
-            <div className="no-results">
-              <p>{t("demo.patients.noResults")}</p>
-              <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>{t("demo.patients.clearFilters")}</button>
-            </div>
-          ) : (
-            filteredPatients.map((patient) => (
-            <div
-              key={patient.id}
-              className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
-              onClick={() => setSelectedPatient(patient)}
-            >
-              <div className="patient-avatar">{patient.name.charAt(0)}</div>
-              <div className="patient-info">
-                <div className="patient-name">{patient.name}</div>
-                <div className="patient-details">
-                  Last visit: {patient.lastVisit || 'Never'}
+        {!selectedPatient && (
+          <div className="patients-list">
+            {filteredPatients.length === 0 ? (
+              <div className="no-results">
+                <p>{t("demo.patients.noResults")}</p>
+                <button onClick={() => { setSearchQuery(''); setFilterStatus('all'); }}>{t("demo.patients.clearFilters")}</button>
+              </div>
+            ) : (
+              filteredPatients.map((patient) => (
+              <div
+                key={patient.id}
+                className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
+                onClick={() => setSelectedPatient(patient)}
+              >
+                <div className="patient-avatar">{patient.name.charAt(0)}</div>
+                <div className="patient-info">
+                  <div className="patient-name">{patient.name}</div>
+                  <div className="patient-details">
+                    Last visit: {patient.lastVisit || 'Never'}
+                  </div>
+                  {patient.balance > 0 && (
+                    <div className="patient-balance">Balance: ₪{patient.balance}</div>
+                  )}
                 </div>
-                {patient.balance > 0 && (
-                  <div className="patient-balance">Balance: ₪{patient.balance}</div>
-                )}
+                <div className={`patient-status ${patient.status.toLowerCase()}`}>
+                  {patient.status}
+                </div>
               </div>
-              <div className={`patient-status ${patient.status.toLowerCase()}`}>
-                {patient.status}
-              </div>
-            </div>
-          ))
-          )}
-        </div>
+            ))
+            )}
+          </div>
+        )}
 
         {selectedPatient && (
           <div className="patient-profile">
