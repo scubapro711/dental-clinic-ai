@@ -100,7 +100,6 @@ const DemoPortalEnhanced = () => {
         <div className="demo-left-sidebar">
           <PendingDecisionsWidget />
           <AgentActivityWidget />
-          <FineTuningWidget />
         </div>
 
         {/* Center - Dashboard Content */}
@@ -147,6 +146,7 @@ const DemoPortalEnhanced = () => {
             <div className="demo-transparency-panel">
               <TransparencyPanelDemo />
             </div>
+            <FineTuningWidget />
           </div>
         )}
       </div>
