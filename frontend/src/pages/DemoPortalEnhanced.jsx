@@ -176,7 +176,7 @@ const PendingDecisionsWidget = () => {
       title: t('demo.decisions.appointment_rescheduling'),
       description: t('demo.decisions.reschedule_sarah'),
       priority: 'medium',
-      timestamp: '10 minutes ago'
+      timestamp: t('demo.time.min_ago_10')
     },
     {
       id: 2,
@@ -185,7 +185,7 @@ const PendingDecisionsWidget = () => {
       title: t('demo.decisions.payment_plan_creation'),
       description: t('demo.decisions.payment_rachel'),
       priority: 'high',
-      timestamp: '25 minutes ago'
+      timestamp: t('demo.time.min_ago_25')
     },
     {
       id: 3,
@@ -194,7 +194,7 @@ const PendingDecisionsWidget = () => {
       title: t('demo.decisions.treatment_plan_analysis'),
       description: t('demo.decisions.treatment_david'),
       priority: 'high',
-      timestamp: '15 minutes ago'
+      timestamp: t('demo.time.min_ago_15')
     },
     {
       id: 4,
@@ -203,7 +203,7 @@ const PendingDecisionsWidget = () => {
       title: t('demo.decisions.inventory_gloves'),
       description: t('demo.decisions.inventory_gloves'),
       priority: 'low',
-      timestamp: '1 hour ago'
+      timestamp: t('demo.time.hour_ago_1')
     }
   ]);
 
@@ -292,7 +292,7 @@ const AgentActivityWidget = () => {
       action: t('demo.activity.sent_reminder'),
       patient: 'David Cohen',
       status: 'completed',
-      timestamp: '2 min ago'
+      timestamp: t('demo.time.min_ago_2')
     },
     {
       id: 2,
@@ -300,7 +300,7 @@ const AgentActivityWidget = () => {
       action: t('demo.activity.generated_invoice'),
       patient: 'Rachel Levi',
       status: 'completed',
-      timestamp: '5 min ago'
+      timestamp: t('demo.time.min_ago_5')
     },
     {
       id: 3,
@@ -308,7 +308,7 @@ const AgentActivityWidget = () => {
       action: t('demo.activity.reviewing_plan'),
       patient: 'Tamar Shapiro',
       status: 'in_progress',
-      timestamp: 'Just now'
+      timestamp: t('demo.time.just_now')
     },
     {
       id: 4,
@@ -316,7 +316,7 @@ const AgentActivityWidget = () => {
       action: t('demo.activity.checking_inventory'),
       patient: null,
       status: 'in_progress',
-      timestamp: 'Just now'
+      timestamp: t('demo.time.just_now')
     }
   ]);
 
@@ -334,7 +334,7 @@ const AgentActivityWidget = () => {
         ][Math.floor(Math.random() * 4)],
         patient: ['David Cohen', 'Rachel Levi', 'Sarah Johnson'][Math.floor(Math.random() * 3)],
         status: 'completed',
-        timestamp: 'Just now'
+        timestamp: t('demo.time.just_now')
       };
       
       setActivities(prev => [newActivity, ...prev.slice(0, 9)]);
@@ -371,7 +371,7 @@ const AgentActivityWidget = () => {
                 <div className="activity-agent">{activity.agent}</div>
                 <div className="activity-action">{activity.action}</div>
                 {activity.patient && (
-                  <div className="activity-patient">Patient: {activity.patient}</div>
+                  <div className="activity-patient">{t('demo.patient')}: {activity.patient}</div>
                 )}
                 <div className="activity-timestamp">{activity.timestamp}</div>
               </div>
@@ -499,38 +499,38 @@ const TransparencyPanelDemo = () => {
   
   const decisions = [
     {
-      title: 'Appointment Rescheduling',
+      title: t('demo.decisions.appointment_rescheduling'),
       agent: 'Alex',
-      timestamp: '10 minutes ago',
+      timestamp: t('demo.time.min_ago_10'),
       reasoning: [
         {
           step: 1,
-          thought: 'Patient requested to reschedule from Oct 25 to Oct 27',
+          thought: t('demo.reasoning.reschedule_step1'),
           confidence: 100
         },
         {
           step: 2,
-          thought: 'Checked doctor availability for Oct 27 at 10:00 AM',
+          thought: t('demo.reasoning.reschedule_step2'),
           confidence: 95
         },
         {
           step: 3,
-          thought: 'Verified no conflicts with existing appointments',
+          thought: t('demo.reasoning.reschedule_step3'),
           confidence: 98
         },
         {
           step: 4,
-          thought: 'Recommended approval based on availability and patient preference',
+          thought: t('demo.reasoning.reschedule_step4'),
           confidence: 92
         }
       ],
       tools_used: ['check_availability', 'get_patient_history', 'send_notification'],
-      outcome: 'Pending approval'
+      outcome: t('demo.status.pending')
     },
     {
-      title: 'Payment Plan Creation',
+      title: t('demo.decisions.payment_plan_creation'),
       agent: 'Marcus',
-      timestamp: '25 minutes ago',
+      timestamp: t('demo.time.min_ago_25'),
       reasoning: [
         {
           step: 1,
@@ -554,12 +554,12 @@ const TransparencyPanelDemo = () => {
         }
       ],
       tools_used: ['get_patient_balance', 'analyze_payment_history', 'create_payment_plan'],
-      outcome: 'Pending approval'
+      outcome: t('demo.status.pending')
     },
     {
-      title: 'Treatment Plan Analysis',
+      title: t('demo.decisions.treatment_plan_analysis'),
       agent: 'Sarah',
-      timestamp: '15 minutes ago',
+      timestamp: t('demo.time.min_ago_15'),
       reasoning: [
         {
           step: 1,
@@ -583,7 +583,7 @@ const TransparencyPanelDemo = () => {
         }
       ],
       tools_used: ['review_xrays', 'analyze_symptoms', 'estimate_treatment_cost'],
-      outcome: 'Pending approval'
+      outcome: t('demo.status.pending')
     }
   ];
 

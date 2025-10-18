@@ -1198,5 +1198,19 @@
   "demo.decisions.reschedule_sarah": "מטופלת Sarah Johnson ביקשה להעביר תור מ-Oct 25 ל-Oct 27",
   "demo.decisions.payment_rachel": "הוצעה תוכנית תשלומים ל-3 חודשים עבור Rachel Levi (סה\"כ ₪2,400)",
   "demo.decisions.treatment_david": "תוכנית טיפול מורכבת עבור David Cohen: טיפול שורש + כתר. עלות משוערת: ₪3,200",
-  "demo.decisions.inventory_gloves": "מלאי כפפות דנטליות נמוך (12 קופסאות נותרו). מומלץ להזמין 50 קופסאות"
+  "demo.decisions.inventory_gloves": "מלאי כפפות דנטליות נמוך (12 קופסאות נותרו). מומלץ להזמין 50 קופסאות",
+  "demo.time.min_ago_2": "לפני 2 דק'",
+  "demo.time.min_ago_5": "לפני 5 דק'",
+  "demo.time.min_ago_10": "לפני 10 דקות",
+  "demo.time.min_ago_15": "לפני 15 דקות",
+  "demo.time.min_ago_25": "לפני 25 דקות",
+  "demo.time.hour_ago_1": "לפני שעה",
+  "demo.reasoning.reschedule_step1": "מטופל ביקש לתזמן מחדש מ-Oct 25 ל-Oct 27",
+  "demo.reasoning.reschedule_step2": "בדקתי זמינות רופא ל-Oct 27 בשעה 10:00 AM",
+  "demo.reasoning.reschedule_step3": "אימתתי שאין התנגשויות עם תורים קיימים",
+  "demo.reasoning.reschedule_step4": "המלצתי על אישור בהתבסס על זמינות והעדפת המטופל",
+  "demo.status.pending": "ממתין לאישור",
+  "demo.patient": "מטופל",
+  "demo.agents.sarah_dev": "שרה (בפיתוח)",
+  "demo.clinical.in_development": "בפיתוח"
 }

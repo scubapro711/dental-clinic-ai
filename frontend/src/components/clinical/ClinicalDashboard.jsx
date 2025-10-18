@@ -147,7 +147,7 @@ const ClinicalDashboard = ({ patientId, patientName }) => {
         </div>
         <div className="ai-status">
           <span className="ai-badge-large">🤖 Sarah AI</span>
-          <span className="status-text">Active & Analyzing</span>
+          <span className="dev-badge">{t("demo.clinical.in_development")}</span>
         </div>
       </div>
 

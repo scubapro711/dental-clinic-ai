@@ -1219,5 +1219,19 @@
   "demo.decisions.reschedule_sarah": "Patient Sarah Johnson requested to move appointment from Oct 25 to Oct 27",
   "demo.decisions.payment_rachel": "Suggested 3-month payment plan for Rachel Levi (₪2,400 total)",
   "demo.decisions.treatment_david": "Complex treatment plan for David Cohen: Root canal + crown. Estimated cost: ₪3,200",
-  "demo.decisions.inventory_gloves": "Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes"
+  "demo.decisions.inventory_gloves": "Dental gloves stock low (12 boxes remaining). Recommend ordering 50 boxes",
+  "demo.time.min_ago_2": "2 min ago",
+  "demo.time.min_ago_5": "5 min ago",
+  "demo.time.min_ago_10": "10 minutes ago",
+  "demo.time.min_ago_15": "15 minutes ago",
+  "demo.time.min_ago_25": "25 minutes ago",
+  "demo.time.hour_ago_1": "1 hour ago",
+  "demo.reasoning.reschedule_step1": "Patient requested to reschedule from Oct 25 to Oct 27",
+  "demo.reasoning.reschedule_step2": "Checked doctor availability for Oct 27 at 10:00 AM",
+  "demo.reasoning.reschedule_step3": "Verified no conflicts with existing appointments",
+  "demo.reasoning.reschedule_step4": "Recommended approval based on availability and patient preference",
+  "demo.status.pending": "Pending approval",
+  "demo.patient": "Patient",
+  "demo.agents.sarah_dev": "Sarah (In Development)",
+  "demo.clinical.in_development": "In Development"
 }
