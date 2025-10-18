@@ -1142,5 +1142,16 @@
       "assessment": "הערכה",
       "plan": "תוכנית"
     }
-  }
+  },
+  "demo.financial.unpaidInvoices": "חשבוניות שלא שולמו",
+  "demo.financial.marcusPredicts": "מרקוס צופה",
+  "demo.financial.nextMonth": "בחודש הבא",
+  "demo.financial.basedOnScheduled": "בהתבסס על תורים מתוכננים",
+  "demo.financial.marcusRecommends": "מרקוס ממליץ",
+  "demo.financial.sendReminders": "לשלוח תזכורות תשלום ל",
+  "demo.financial.patients": "מטופלים",
+  "demo.financial.marcusAutomated": "מרקוס הפעיל אוטומטית",
+  "demo.financial.paymentReminders": "תזכורות תשלום",
+  "demo.financial.thisMonth": "החודש",
+  "demo.financial.vsLastMonth": "לעומת חודש שעבר"
 }

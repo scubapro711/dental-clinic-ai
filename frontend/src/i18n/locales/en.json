@@ -1163,5 +1163,16 @@
       "assessment": "Assessment",
       "plan": "Plan"
     }
-  }
+  },
+  "demo.financial.unpaidInvoices": "unpaid invoices",
+  "demo.financial.marcusPredicts": "Marcus predicts",
+  "demo.financial.nextMonth": "next month",
+  "demo.financial.basedOnScheduled": "based on scheduled appointments",
+  "demo.financial.marcusRecommends": "Marcus recommends",
+  "demo.financial.sendReminders": "sending payment reminders to",
+  "demo.financial.patients": "patients",
+  "demo.financial.marcusAutomated": "Marcus automated",
+  "demo.financial.paymentReminders": "payment reminders",
+  "demo.financial.thisMonth": "this month",
+  "demo.financial.vsLastMonth": "vs last month"
 }
