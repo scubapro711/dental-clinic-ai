@@ -1,11 +1,24 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:$SHORT_SHA', '.']
+    args: 
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:${SHORT_SHA}'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:latest'
+      - '.'
   
-  # Push the container image to Container Registry
+  # Push the container images to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:$SHORT_SHA']
+    args: 
+      - 'push'
+      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:${SHORT_SHA}'
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: 
+      - 'push'
+      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:latest'
   
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -15,7 +28,7 @@ steps:
       - 'deploy'
       - 'dentaflow-frontend'
       - '--image'
-      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:$SHORT_SHA'
+      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:${SHORT_SHA}'
       - '--region'
       - 'us-central1'
       - '--platform'
@@ -23,8 +36,11 @@ steps:
       - '--allow-unauthenticated'
       - '--port'
       - '80'
+
 images:
-  - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:${SHORT_SHA}'
+  - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-frontend:latest'
+
 # Increase timeout for npm build
 timeout: 1800s  # 30 minutes
 

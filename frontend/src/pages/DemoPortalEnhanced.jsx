@@ -592,7 +592,7 @@ const TransparencyPanelDemo = () => {
   return (
     <div className="transparency-panel-demo">
       <h3>🔍 {t("landing.demo.aiTransparency")}</h3>
-      <p className="panel-subtitle">See how AI agents make decisions</p>
+      <p className="panel-subtitle">{t('demo.transparency.see_how')}</p>
       
       <div className="decision-selector">
         {decisions.map((d, index) => (
@@ -612,7 +612,7 @@ const TransparencyPanelDemo = () => {
           <span className="timestamp">{decision.timestamp}</span>
         </div>
 
-        <h4>Reasoning Process</h4>
+        <h4>{t('demo.transparency.reasoning_process')}</h4>
         <div className="reasoning-steps">
           {decision.reasoning.map((step) => (
             <div key={step.step} className="reasoning-step">
@@ -624,14 +624,14 @@ const TransparencyPanelDemo = () => {
                     className="confidence-fill"
                     style={{ width: `${step.confidence}%` }}
                   />
-                  <span className="confidence-label">{step.confidence}% confidence</span>
+                  <span className="confidence-label">{step.confidence}% {t('demo.confidence')}</span>
                 </div>
               </div>
             </div>
           ))}
         </div>
 
-        <h4>Tools Used</h4>
+        <h4>{t('demo.transparency.tools_used')}</h4>
         <div className="tools-used">
           {decision.tools_used.map((tool, index) => (
             <span key={index} className="tool-badge">{tool}</span>
@@ -639,7 +639,7 @@ const TransparencyPanelDemo = () => {
         </div>
 
         <div className="decision-outcome">
-          <strong>Outcome:</strong> {decision.outcome}
+          <strong>{t('demo.transparency.outcome')}:</strong> {decision.outcome}
         </div>
       </div>
     </div>

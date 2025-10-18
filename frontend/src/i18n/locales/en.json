@@ -1174,5 +1174,20 @@
   "demo.financial.marcusAutomated": "Marcus automated",
   "demo.financial.paymentReminders": "payment reminders",
   "demo.financial.thisMonth": "this month",
-  "demo.financial.vsLastMonth": "vs last month"
+  "demo.financial.vsLastMonth": "vs last month",
+  "demo.transparency.reasoning_process": "Reasoning Process",
+  "demo.transparency.tools_used": "Tools Used",
+  "demo.transparency.outcome": "Outcome",
+  "demo.transparency.pending_approval": "Pending approval",
+  "demo.transparency.see_how": "See how AI agents make decisions",
+  "demo.agents.alex": "Alex",
+  "demo.agents.marcus": "Marcus",
+  "demo.agents.sarah": "Sarah",
+  "demo.agents.sophia": "Sophia",
+  "demo.agents.performance": "Performance",
+  "demo.agents.conversations": "Conversations",
+  "demo.agents.satisfaction": "Satisfaction",
+  "demo.agents.sarah_description": "Sarah provides intelligent clinical analysis and recommendations",
+  "demo.search.clear": "Clear search",
+  "demo.confidence": "confidence"
 }

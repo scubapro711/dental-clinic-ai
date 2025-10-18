@@ -1153,5 +1153,20 @@
   "demo.financial.marcusAutomated": "מרקוס הפעיל אוטומטית",
   "demo.financial.paymentReminders": "תזכורות תשלום",
   "demo.financial.thisMonth": "החודש",
-  "demo.financial.vsLastMonth": "לעומת חודש שעבר"
+  "demo.financial.vsLastMonth": "לעומת חודש שעבר",
+  "demo.transparency.reasoning_process": "תהליך חשיבה",
+  "demo.transparency.tools_used": "כלים בשימוש",
+  "demo.transparency.outcome": "תוצאה",
+  "demo.transparency.pending_approval": "ממתין לאישור",
+  "demo.transparency.see_how": "ראה כיצד סוכני AI מקבלים החלטות",
+  "demo.agents.alex": "אלכס",
+  "demo.agents.marcus": "מרקוס",
+  "demo.agents.sarah": "שרה",
+  "demo.agents.sophia": "סופיה",
+  "demo.agents.performance": "ביצועים",
+  "demo.agents.conversations": "שיחות",
+  "demo.agents.satisfaction": "שביעות רצון",
+  "demo.agents.sarah_description": "שרה מספקת ניתוח קליני חכם והמלצות",
+  "demo.search.clear": "נקה חיפוש",
+  "demo.confidence": "ביטחון"
 }
