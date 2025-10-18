@@ -15,6 +15,7 @@ import useAgentActivity from '../hooks/useAgentActivity';
 import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelLeftOpen, Sparkles, History, Shield } from 'lucide-react';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
+import DashboardStatsBar from '../components/dashboard/DashboardStatsBar';
 import { getUserInfo, formatRoleName, getRoleBadgeColor } from '../utils/rbac';
 
 /**
@@ -139,6 +140,9 @@ export default function AgenticDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Dashboard Stats Bar */}
+      <DashboardStatsBar />
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
