@@ -887,7 +887,7 @@ const DemoPatientsEnhanced = () => {
         )}
 
         {selectedPatient && (
-          <div className="patient-profile">
+          <div className="patient-profile expanded">
             <div className="patient-profile-header">
               <div className="patient-profile-info">
                 <div className="patient-avatar-large">{selectedPatient.name.charAt(0)}</div>

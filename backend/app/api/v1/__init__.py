@@ -41,6 +41,7 @@ from app.api.v1.endpoints import (
     legal,
     demo,
     mfa,
+    pilot_applications,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -60,6 +61,7 @@ api_router.include_router(auth_google.router, tags=["auth"])
 api_router.include_router(email_verification.router, tags=["auth"])
 api_router.include_router(sms_verification.router, tags=["auth"])
 api_router.include_router(mfa.router, prefix="/mfa", tags=["auth", "mfa"])
+api_router.include_router(pilot_applications.router, prefix="/pilot-applications", tags=["pilot"])
 
 # Core features
 api_router.include_router(chat.router, tags=["chat"])

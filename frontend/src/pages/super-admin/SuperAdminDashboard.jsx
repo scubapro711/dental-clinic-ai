@@ -380,6 +380,24 @@ const SuperAdminDashboard = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
+          <Link to="/super-admin/pilot-applications" style={{ textDecoration: 'none' }}>
+            <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="h3" component="span">🚀</Typography>
+                  <Typography variant="h6" ml={2}>
+                    Pilot Applications
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Review and manage pilot requests
+                </Typography>
+              </CardContent>
+            </Card>
+          </Link>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
           <Link to="/super-admin/analytics" style={{ textDecoration: 'none' }}>
             <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
               <CardContent>

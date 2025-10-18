@@ -36,6 +36,7 @@ import {
   RevenueDashboard,
   UsageDashboard,
   CostDashboard,
+  PilotApplications,
 } from './pages/super-admin'
 
 // Shared
@@ -177,6 +178,7 @@ function App() {
                 <Route path="revenue" element={<RevenueDashboard />} />
                 <Route path="usage" element={<UsageDashboard />} />
                 <Route path="costs" element={<CostDashboard />} />
+                <Route path="pilot-applications" element={<PilotApplications />} />
                 <Route path="analytics" element={<ComingSoon title="Analytics & Insights" />} />
                 <Route path="settings" element={<ComingSoon title="Settings" />} />
                 <Route path="*" element={<Navigate to="/super-admin/dashboard" replace />} />

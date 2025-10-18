@@ -1471,8 +1471,25 @@ input:checked + .toggle-slider:before {
   border-radius: 12px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+
+.patient-profile.expanded {
+  min-height: 600px;
+  animation: expandProfile 0.3s ease-out;
+}
+
+@keyframes expandProfile {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .patient-profile-header {

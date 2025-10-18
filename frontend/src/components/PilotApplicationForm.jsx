@@ -102,8 +102,7 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     
     try {
-      // TODO: Send to backend API
-      const response = await fetch('/api/v1/pilot-applications', {
+      const response = await fetch('/api/v1/pilot-applications/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
