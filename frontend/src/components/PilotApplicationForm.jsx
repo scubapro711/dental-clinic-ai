@@ -16,9 +16,12 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
     contactName: '',
     email: '',
     phone: '',
+    clinicAddress: '',
+    city: '',
     
     // Step 2: Clinic Details
     clinicSize: '',
+    numberOfDentists: '',
     monthlyPatients: '',
     currentSoftware: '',
     teamSize: '',
@@ -32,7 +35,11 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
     // Step 4: Commitment
     willingToProvideFeedback: false,
     willingToBeReferenced: false,
-    agreedToTerms: false
+    agreedToTerms: false,
+    
+    // Additional Info
+    referralSource: '',
+    additionalNotes: ''
   });
   
   const [errors, setErrors] = useState({});
@@ -62,10 +69,12 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
       if (!formData.email.trim()) newErrors.email = t("pilot.form.errors.required");
       else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = t("pilot.form.errors.invalidEmail");
       if (!formData.phone.trim()) newErrors.phone = t("pilot.form.errors.required");
+      if (!formData.city.trim()) newErrors.city = t("pilot.form.errors.required");
     }
     
     if (currentStep === 2) {
       if (!formData.clinicSize) newErrors.clinicSize = t("pilot.form.errors.required");
+      if (!formData.numberOfDentists) newErrors.numberOfDentists = t("pilot.form.errors.required");
       if (!formData.monthlyPatients) newErrors.monthlyPatients = t("pilot.form.errors.required");
       if (!formData.teamSize) newErrors.teamSize = t("pilot.form.errors.required");
     }
@@ -121,7 +130,10 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
             contactName: '',
             email: '',
             phone: '',
+            clinicAddress: '',
+            city: '',
             clinicSize: '',
+            numberOfDentists: '',
             monthlyPatients: '',
             currentSoftware: '',
             teamSize: '',
@@ -131,7 +143,9 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
             budget: '',
             willingToProvideFeedback: false,
             willingToBeReferenced: false,
-            agreedToTerms: false
+            agreedToTerms: false,
+            referralSource: '',
+            additionalNotes: ''
           });
         }, 3000);
       } else {
@@ -253,6 +267,32 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
                 />
                 {errors.phone && <span className="error-message">{errors.phone}</span>}
               </div>
+
+              <div className="form-group">
+                <label htmlFor="city">{t("pilot.form.fields.city")} *</label>
+                <input
+                  type="text"
+                  id="city"
+                  name="city"
+                  value={formData.city}
+                  onChange={handleChange}
+                  placeholder={t("pilot.form.placeholders.city")}
+                  className={errors.city ? 'error' : ''}
+                />
+                {errors.city && <span className="error-message">{errors.city}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="clinicAddress">{t("pilot.form.fields.clinicAddress")}</label>
+                <input
+                  type="text"
+                  id="clinicAddress"
+                  name="clinicAddress"
+                  value={formData.clinicAddress}
+                  onChange={handleChange}
+                  placeholder={t("pilot.form.placeholders.clinicAddress")}
+                />
+              </div>
             </div>
           )}
 
@@ -277,6 +317,25 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
                   <option value="large">{t("pilot.form.options.clinicSize.large")}</option>
                 </select>
                 {errors.clinicSize && <span className="error-message">{errors.clinicSize}</span>}
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="numberOfDentists">{t("pilot.form.fields.numberOfDentists")} *</label>
+                <select
+                  id="numberOfDentists"
+                  name="numberOfDentists"
+                  value={formData.numberOfDentists}
+                  onChange={handleChange}
+                  className={errors.numberOfDentists ? 'error' : ''}
+                >
+                  <option value="">{t("pilot.form.placeholders.select")}</option>
+                  <option value="1">1 {t("pilot.form.options.dentist")}</option>
+                  <option value="2-3">2-3 {t("pilot.form.options.dentists")}</option>
+                  <option value="4-5">4-5 {t("pilot.form.options.dentists")}</option>
+                  <option value="6-10">6-10 {t("pilot.form.options.dentists")}</option>
+                  <option value="10+">10+ {t("pilot.form.options.dentists")}</option>
+                </select>
+                {errors.numberOfDentists && <span className="error-message">{errors.numberOfDentists}</span>}
               </div>
 
               <div className="form-group">
@@ -413,6 +472,30 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
               
               <div className="commitment-info">
                 <p>{t("pilot.form.commitmentInfo")}</p>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="referralSource">{t("pilot.form.fields.referralSource")}</label>
+                <input
+                  type="text"
+                  id="referralSource"
+                  name="referralSource"
+                  value={formData.referralSource}
+                  onChange={handleChange}
+                  placeholder={t("pilot.form.placeholders.referralSource")}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="additionalNotes">{t("pilot.form.fields.additionalNotes")}</label>
+                <textarea
+                  id="additionalNotes"
+                  name="additionalNotes"
+                  value={formData.additionalNotes}
+                  onChange={handleChange}
+                  placeholder={t("pilot.form.placeholders.additionalNotes")}
+                  rows="4"
+                />
               </div>
 
               <div className="form-group checkbox-group">
