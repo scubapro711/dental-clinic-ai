@@ -18,6 +18,13 @@ import logging
 from functools import wraps
 import time
 
+# Security: Protect against XML vulnerabilities
+try:
+    from defusedxml.xmlrpc import monkey_patch
+    monkey_patch()
+except ImportError:
+    logger.warning("defusedxml not installed - xmlrpc may be vulnerable to XML attacks")
+
 from app.core.config import settings
 
 

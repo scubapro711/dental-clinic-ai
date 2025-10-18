@@ -319,7 +319,7 @@ class CognitoClient:
             return self._jwks_cache
         
         # Fetch new keys
-        response = requests.get(self.config.jwks_url)
+        response = requests.get(self.config.jwks_url, timeout=10)
         response.raise_for_status()
         
         self._jwks_cache = response.json()

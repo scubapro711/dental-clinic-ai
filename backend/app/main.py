@@ -202,6 +202,9 @@ app = FastAPI(
     ],
 )
 
+# Security headers middleware
+from app.middleware.security_headers import SecurityHeadersMiddleware
+
 # Rate limiting middleware
 from app.middleware.rate_limiter import (
     limiter,
@@ -218,6 +221,9 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Add SlowAPI middleware
 app.add_middleware(SlowAPIMiddleware)
+
+# Add security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
 
 # CORS middleware
 app.add_middleware(

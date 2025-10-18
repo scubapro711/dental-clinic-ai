@@ -38,12 +38,19 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https:",
             "font-src 'self' data:",
-            f"connect-src 'self' {settings.API_URL} wss://{settings.API_URL.replace('https://', '')}",
             "frame-ancestors 'none'",
             "base-uri 'self'",
             "form-action 'self'",
             "upgrade-insecure-requests",
         ]
+        
+        # Add connect-src with API URL if available
+        if hasattr(settings, 'API_URL') and settings.API_URL:
+            api_url = settings.API_URL
+            wss_url = api_url.replace('https://', '').replace('http://', '')
+            directives.insert(5, f"connect-src 'self' {api_url} wss://{wss_url}")
+        else:
+            directives.insert(5, "connect-src 'self'")
         
         return "; ".join(directives) + ";"
     
@@ -93,7 +100,8 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         response.headers["Permissions-Policy"] = ", ".join(permissions)
         
         # Remove server header to avoid information disclosure
-        response.headers.pop("Server", None)
+        if "Server" in response.headers:
+            del response.headers["Server"]
         
         # Add rate limit headers if available
         if hasattr(request.state, "rate_limit"):
