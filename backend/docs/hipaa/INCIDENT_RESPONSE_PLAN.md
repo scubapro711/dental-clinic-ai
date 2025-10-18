@@ -1,8 +1,8 @@
 # DentaFlow - Incident Response Plan
 
-**Version:** 1.0  
-**Date:** October 8, 2025  
-**Status:** Final
+**Version:** 1.1  
+**Date:** October 18, 2025  
+**Status:** Active
 
 ---
 
@@ -18,10 +18,10 @@ This plan applies to all DentaFlow workforce members and all information systems
 
 An Incident Response Team will be activated to manage security incidents. The team includes:
 
-*   **Security Officer (IRT Lead):** [Name/Title to be assigned]
-*   **Privacy Officer:** [Name/Title to be assigned]
-*   **Technical Lead:** [Name/Title to be assigned]
-*   **Legal Counsel:** [Name/Title to be assigned]
+*   **Security Officer (IRT Lead):** Eran Sarfaty, CTO & Lead Developer
+*   **Privacy Officer:** Eran Sarfaty, CTO & Lead Developer
+*   **Technical Lead:** Eran Sarfaty, CTO & Lead Developer
+*   **Legal Counsel:** [External counsel - to be engaged as needed]
 
 ## 4. Incident Response Phases
 
