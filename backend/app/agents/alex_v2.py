@@ -639,7 +639,7 @@ makes sure patients get the right help at the right time! 😊
                 tool_results.append(f"💰 *Checking your account...*\n\n{invoice_result}")
         
         # Build conversation
-        conversation = [SystemMessage(content=self.SYSTEM_PROMPT)]
+        conversation = [SystemMessage(content=self.system_prompt)]
         
         # Add tool results if available
         if tool_results:
@@ -658,15 +658,71 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
         
         conversation.extend(messages)
         
-        # Generate response with retry logic
+        # Generate response with retry logic and tool calling support
         logger.info(f"Alex processing message for user {user_id} (escalation: {escalation_level or 'none'})")
-        response = retry_handler.execute(self.llm.invoke, conversation)
+        
+        # Agent loop: Keep calling LLM until it's done (no more tool calls)
+        max_iterations = 5
+        iteration = 0
+        
+        while iteration < max_iterations:
+            response = retry_handler.execute(self.llm.invoke, conversation)
+            
+            # Check if LLM wants to call tools
+            if hasattr(response, 'tool_calls') and response.tool_calls:
+                logger.info(f"Alex calling {len(response.tool_calls)} tools")
+                
+                # Add AI message with tool calls to conversation
+                conversation.append(response)
+                
+                # Execute each tool call
+                for tool_call in response.tool_calls:
+                    tool_name = tool_call['name']
+                    tool_args = tool_call['args']
+                    
+                    logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
+                    
+                    # Find and execute the tool
+                    tool_result = None
+                    for tool in self.tools:
+                        if tool.name == tool_name:
+                            try:
+                                tool_result = tool.invoke(tool_args)
+                            except Exception as e:
+                                tool_result = f"Error executing {tool_name}: {str(e)}"
+                                logger.error(f"Tool execution error: {e}")
+                            break
+                    
+                    if tool_result is None:
+                        tool_result = f"Tool {tool_name} not found"
+                    
+                    # Add tool result to conversation
+                    from langchain_core.messages import ToolMessage
+                    conversation.append(ToolMessage(
+                        content=str(tool_result),
+                        tool_call_id=tool_call['id']
+                    ))
+                
+                iteration += 1
+            else:
+                # No more tool calls, we're done
+                break
         
         # Check if escalation tag is present
-        requires_human = "[ESCALATE:" in response.content
+        requires_human = "[ESCALATE:" in response.content if hasattr(response, 'content') else False
         
         if requires_human:
             logger.warning(f"Alex escalating to doctor for user {user_id}: {escalation_level}")
+        
+        # Ensure response has content (fallback for empty responses)
+        if not hasattr(response, 'content') or not response.content or response.content.strip() == "":
+            logger.warning("Alex generated empty response, using fallback")
+            from langchain_core.messages import AIMessage
+            if self.demo_mode:
+                fallback_content = "שלום! אני אלכס, העוזר הדיגיטלי של DentaFlow. אשמח לעזור לך! נסה לשאול אותי על תכונות המערכת, קביעת תורים, או מידע על מטופלים."
+            else:
+                fallback_content = "I'm here to help! Please let me know what you need assistance with."
+            response = AIMessage(content=fallback_content)
         
         # Update state
         state["messages"] = messages + [response]

@@ -792,9 +792,17 @@ input:checked + .toggle-slider:before {
 
 .metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 2rem;
+  max-width: 100%;
+}
+
+/* במסכים רחבים - הגבל ל-3 עמודות מקסימום */
+@media (min-width: 1400px) {
+  .metrics-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .metric-card {
@@ -823,13 +831,13 @@ input:checked + .toggle-slider:before {
 }
 
 .metric-label {
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #666;
   font-weight: 500;
 }
 
 .metric-value {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #333;
 }
@@ -872,8 +880,15 @@ input:checked + .toggle-slider:before {
 
 .insights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+}
+
+/* במסכים רחבים - הגבל ל-2 עמודות מקסימום */
+@media (min-width: 1400px) {
+  .insights-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .insight-card {
