@@ -119,6 +119,13 @@ export default function ClinicLayout() {
                   <span className="text-blue-100 ml-2">({user.role})</span>
                 </div>
               )}
+              <Link
+                to="/clinic/security"
+                className="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                aria-label="Security settings"
+              >
+                🔒 Security
+              </Link>
               <button
                 onClick={handleLogout}
                 className="text-white hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -171,6 +178,13 @@ export default function ClinicLayout() {
                     <span className="text-blue-100 ml-2">({user.role})</span>
                   </div>
                 )}
+                <Link
+                  to="/clinic/security"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
+                >
+                  🔒 Security
+                </Link>
                 <button
                   onClick={() => {
                     handleLogout();
