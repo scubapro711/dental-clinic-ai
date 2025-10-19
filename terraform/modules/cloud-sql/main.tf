@@ -16,6 +16,26 @@ resource "google_sql_database_instance" "main" {
   settings {
     tier = "db-g1-small"
     disk_type = "PD_SSD"
+    
+    # Backup Configuration
+    backup_configuration {
+      enabled = true
+      start_time = "02:00"  # 2 AM UTC daily backups
+      
+      # Point-in-Time Recovery
+      point_in_time_recovery_enabled = true
+      transaction_log_retention_days = 7
+      
+      # Backup retention
+      backup_retention_settings {
+        retained_backups = 30
+        retention_unit = "COUNT"
+      }
+      
+      # Binary log backup
+      binary_log_enabled = true
+    }
+    
     ip_configuration {
       ipv4_enabled = true
       private_network = var.network_id
