@@ -176,5 +176,3 @@ async def get_baa_status(
     else:
         return BAAStatusResponse(is_signed=False)
 
-False)
-
