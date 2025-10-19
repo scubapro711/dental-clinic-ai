@@ -5,6 +5,7 @@ Handles incoming messages from Telegram and routes them to Alex agent.
 """
 
 import logging
+import re
 from typing import Dict, Any
 from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from uuid import uuid4
@@ -25,6 +26,30 @@ agent_graph = AgentGraphV4()
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _filter_system_context(message: str) -> str:
+    """
+    Remove SYSTEM CONTEXT from message before sending to user.
+    
+    Args:
+        message: The message that may contain SYSTEM CONTEXT
+        
+    Returns:
+        Cleaned message without SYSTEM CONTEXT
+    """
+    # Remove everything between SYSTEM CONTEXT markers
+    pattern = r'SYSTEM CONTEXT.*?END SYSTEM CONTEXT\s*'
+    cleaned = re.sub(pattern, '', message, flags=re.DOTALL | re.IGNORECASE)
+    
+    # Also remove any standalone markers that might remain
+    cleaned = re.sub(r'SYSTEM CONTEXT.*?$', '', cleaned, flags=re.MULTILINE | re.IGNORECASE)
+    cleaned = re.sub(r'END SYSTEM CONTEXT.*?$', '', cleaned, flags=re.MULTILINE | re.IGNORECASE)
+    
+    # Clean up extra whitespace
+    cleaned = re.sub(r'\n\s*\n\s*\n', '\n\n', cleaned)  # Max 2 newlines
+    
+    return cleaned.strip()
 
 
 # Store conversation context per Telegram chat
@@ -250,6 +275,9 @@ async def handle_message(message: Dict[str, Any]):
             
             # Format response for Telegram
             response_text = response.get("response", "")
+            
+            # ✅ CRITICAL: Filter SYSTEM CONTEXT from response
+            response_text = _filter_system_context(response_text)
             
             # Add escalation notice if needed
             if response.get("escalation_level") == "EMERGENCY":

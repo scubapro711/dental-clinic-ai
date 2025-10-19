@@ -376,7 +376,7 @@ def get_conversation_messages(
 
 
 @router.post("/send")
-def send_telegram_message(
+async def send_telegram_message(
     chat_id: int,
     message: str,
     current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
@@ -403,7 +403,7 @@ def send_telegram_message(
         # Send message via Telegram client
         from app.integrations.telegram_client import telegram_client
         
-        result = telegram_client.send_message(
+        result = await telegram_client.send_message(
             chat_id=chat_id,
             text=message
         )
