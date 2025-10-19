@@ -19,10 +19,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy backup script and application
+# Copy backup application
 COPY backup_app.py .
-COPY ../scripts/backup-database-gcs.sh /app/backup-database-gcs.sh
-RUN chmod +x /app/backup-database-gcs.sh
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
