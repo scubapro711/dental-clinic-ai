@@ -331,6 +331,166 @@ def send_telegram_rich_message_tool(
 ✅ הקבלה נשמרה במערכת
 
 תודה! 😊
+""",
+            'appointment_cancelled': """
+❌ *התור בוטל בהצלחה*
+
+📋 *פרטי התור שבוטל:*
+📅 תאריך: {date}
+🕐 שעה: {time}
+👨‍⚕️ רופא: {doctor}
+
+💡 *רוצה לקבוע תור חדש?*
+אני כאן לעזור! 😊
+""",
+            'appointment_rescheduled': """
+✅ *התור עודכן בהצלחה!*
+
+📋 *פרטי התור החדש:*
+👤 מטופל: {patient_name}
+📅 תאריך חדש: {new_date}
+🕐 שעה חדשה: {new_time}
+👨‍⚕️ רופא: {doctor}
+⏱️ משך: {duration} דקות
+
+📍 *כתובת המרפאה:*
+{clinic_address}
+
+💡 *זכור:*
+• הגע 5 דקות לפני
+• הבא תעודת זהות
+• תקבל תזכורת 24 שעות לפני
+
+נתראה! 😊
+""",
+            'treatment_plan': """
+📋 *תוכנית הטיפול שלך*
+
+👤 *מטופל:* {patient_name}
+👨‍⚕️ *רופא מטפל:* {doctor}
+📅 *תאריך:* {date}
+
+🦷 *טיפולים מומלצים:*
+{treatments}
+
+💰 *עלות משוערת:* ₪{estimated_cost}
+⏱️ *משך טיפול כולל:* {total_duration} דקות
+
+📄 *הערות:*
+{notes}
+
+💡 *השלב הבא:*
+{next_steps}
+
+יש שאלות? אני כאן! 😊
+""",
+            'post_visit_followup': """
+🦷 *תודה שביקרת אותנו!*
+
+👤 *מטופל:* {patient_name}
+📅 *תאריך הביקור:* {visit_date}
+👨‍⚕️ *רופא:* {doctor}
+
+💡 *הוראות טיפול:*
+{care_instructions}
+
+⚠️ *חשוב לדעת:*
+{important_notes}
+
+📞 *צור קשר אם:*
+• כאב חזק שלא חולף
+• דימום מתמשך
+• נפיחות חריגה
+• חום מעל 38°
+
+🗓️ *תור המשך:*
+{followup_appointment}
+
+רפואה שלמה! 😊
+""",
+            'birthday_greeting': """
+🎉 *יום הולדת שמח {patient_name}!* 🎂
+
+🎈 כל הצוות של {clinic_name} מאחל לך יום הולדת מדהים!
+
+🎁 *מתנה מיוחדת ליום ההולדת:*
+{special_offer}
+
+💝 *תוקף המבצע:* {offer_expiry}
+
+😊 מקווים לראות אותך בקרוב!
+
+מזל טוב! 🥳
+""",
+            'satisfaction_survey': """
+📊 *איך היה הביקור?*
+
+👋 היי {patient_name}!
+
+תודה שביקרת אותנו ב-{visit_date}.
+
+💭 *נשמח לשמוע את דעתך:*
+החוויה שלך חשובה לנו ועוזרת לנו להשתפר.
+
+⏱️ *זה לוקח רק דקה אחת!*
+
+תודה מראש! 😊
+""",
+            'payment_reminder': """
+💰 *תזכורת תשלום*
+
+👤 *מטופל:* {patient_name}
+📅 *תאריך:* {date}
+
+💵 *יתרה לתשלום:* ₪{amount}
+📄 *חשבונית:* {invoice_number}
+⏰ *תאריך פירעון:* {due_date}
+
+💳 *אפשרויות תשלום:*
+• העברה בנקאית
+• כרטיס אשראי
+• תשלומים
+
+📞 *שאלות?* אני כאן לעזור! 😊
+""",
+            'insurance_update': """
+🏥 *עדכון ביטוח*
+
+👤 *מטופל:* {patient_name}
+📋 *תביעה:* {claim_number}
+📅 *תאריך:* {date}
+
+✅ *סטטוס:* {status}
+
+💰 *פירוט:*
+• סכום תביעה: ₪{claim_amount}
+• אושר לתשלום: ₪{approved_amount}
+• השתתפות עצמית: ₪{copay}
+
+📝 *הערות:*
+{notes}
+
+💡 *יתרה לתשלום:* ₪{balance_due}
+
+יש שאלות? אני כאן! 😊
+""",
+            'clinic_announcement': """
+📢 *הודעה חשובה מהמרפאה*
+
+🏥 *{clinic_name}*
+📅 *תאריך:* {date}
+
+📝 *{announcement_title}*
+
+{announcement_body}
+
+💡 *פרטים נוספים:*
+{additional_info}
+
+📞 *שאלות?* אנחנו כאן!
+
+תודה,
+צוות {clinic_name} 😊
 """
         }
         
@@ -378,6 +538,82 @@ def send_telegram_rich_message_tool(
                 ],
                 [
                     {"text": "📄 שלח קבלה למייל", "callback_data": "email_receipt"}
+                ]
+            ],
+            'appointment_cancelled': [
+                [
+                    {"text": "📅 קבע תור חדש", "callback_data": "book_appointment"}
+                ],
+                [
+                    {"text": "✅ הבנתי", "callback_data": "acknowledge"}
+                ]
+            ],
+            'appointment_rescheduled': [
+                [
+                    {"text": "✅ הבנתי, תודה", "callback_data": "acknowledge"}
+                ],
+                [
+                    {"text": "🗓️ הוסף ליומן", "callback_data": "add_to_calendar"},
+                    {"text": "📍 הוראות הגעה", "callback_data": "directions"}
+                ]
+            ],
+            'treatment_plan': [
+                [
+                    {"text": "📅 קבע תור", "callback_data": "book_appointment"}
+                ],
+                [
+                    {"text": "📞 יש לי שאלה", "callback_data": "ask_question"}
+                ]
+            ],
+            'post_visit_followup': [
+                [
+                    {"text": "✅ הבנתי", "callback_data": "acknowledge"}
+                ],
+                [
+                    {"text": "📞 צריך עזרה", "callback_data": "ask_question"}
+                ]
+            ],
+            'birthday_greeting': [
+                [
+                    {"text": "🎁 תודה! אשמח לנצל", "callback_data": "book_appointment"}
+                ],
+                [
+                    {"text": "😊 תודה רבה!", "callback_data": "acknowledge"}
+                ]
+            ],
+            'satisfaction_survey': [
+                [
+                    {"text": "⭐ מעולה (5)", "callback_data": "survey_5"},
+                    {"text": "😊 טוב (4)", "callback_data": "survey_4"}
+                ],
+                [
+                    {"text": "😐 בסדר (3)", "callback_data": "survey_3"},
+                    {"text": "😕 לא טוב (2)", "callback_data": "survey_2"}
+                ]
+            ],
+            'payment_reminder': [
+                [
+                    {"text": "💳 שלם עכשיו", "callback_data": "pay_now"}
+                ],
+                [
+                    {"text": "📅 קבע תשלומים", "callback_data": "payment_plan"},
+                    {"text": "📞 שאלה", "callback_data": "ask_question"}
+                ]
+            ],
+            'insurance_update': [
+                [
+                    {"text": "✅ הבנתי", "callback_data": "acknowledge"}
+                ],
+                [
+                    {"text": "📞 יש לי שאלה", "callback_data": "ask_question"}
+                ]
+            ],
+            'clinic_announcement': [
+                [
+                    {"text": "✅ הבנתי", "callback_data": "acknowledge"}
+                ],
+                [
+                    {"text": "📞 פרטים נוספים", "callback_data": "ask_question"}
                 ]
             ]
         }

@@ -264,6 +264,46 @@ class TelegramClient:
         ]
         return self.create_inline_keyboard(buttons)
     
+    async def answer_callback_query(
+        self,
+        callback_query_id: str,
+        text: Optional[str] = None,
+        show_alert: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Answer a callback query (button click).
+        
+        This removes the loading state from the button and optionally
+        shows a notification to the user.
+        
+        Args:
+            callback_query_id: Unique ID of the callback query
+            text: Optional notification text to show
+            show_alert: If True, shows alert instead of notification
+            
+        Returns:
+            Response from Telegram API
+        """
+        url = f"{self.base_url}/answerCallbackQuery"
+        payload = {
+            "callback_query_id": callback_query_id,
+        }
+        
+        if text:
+            payload["text"] = text
+        if show_alert:
+            payload["show_alert"] = show_alert
+        
+        try:
+            response = await self.client.post(url, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            logger.info(f"[TELEGRAM] Answered callback query {callback_query_id}")
+            return result
+        except httpx.HTTPError as e:
+            logger.error(f"[TELEGRAM] Error answering callback query: {e}")
+            raise
+    
     async def close(self):
         """Close the HTTP client."""
         await self.client.aclose()
