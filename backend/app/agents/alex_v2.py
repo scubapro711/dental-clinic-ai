@@ -677,8 +677,8 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
                 
                 # Execute each tool call
                 for tool_call in response.tool_calls:
-                    tool_name = tool_call['name']
-                    tool_args = tool_call['args']
+                    tool_name = tool_call.name
+                    tool_args = tool_call.args
                     
                     logger.info(f"Executing tool: {tool_name} with args: {tool_args}")
                     
@@ -700,7 +700,7 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
                     from langchain_core.messages import ToolMessage
                     conversation.append(ToolMessage(
                         content=str(tool_result),
-                        tool_call_id=tool_call['id']
+                        tool_call_id=tool_call.id
                     ))
                 
                 iteration += 1
