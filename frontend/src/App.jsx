@@ -39,6 +39,7 @@ import {
   CostDashboard,
   PilotApplications,
 } from './pages/super-admin'
+import ComplianceDashboard from './pages/super-admin/ComplianceDashboard'
 import BAAManagementPageSuperAdmin from './pages/super-admin/BAAManagementPage'
 import DataRetentionPage from './pages/super-admin/DataRetentionPage'
 
@@ -165,7 +166,8 @@ function App() {
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />
           <Route path="analytics" element={<ComingSoon title="Analytics" />} />
           <Route path="subscription" element={<SubscriptionManagement />} />
-<Route path="baa" element={<BAAManagementPage />} />
+          <Route path="baa" element={<BAAManagementPage />} />
+          <Route path="compliance" element={<ComplianceDashboard />} />
           <Route path="security" element={<SecuritySettings />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
         </Route>
@@ -182,6 +184,7 @@ function App() {
                 <Route path="revenue" element={<RevenueDashboard />} />
                 <Route path="usage" element={<UsageDashboard />} />
                 <Route path="costs" element={<CostDashboard />} />
+                <Route path="compliance" element={<ComplianceDashboard />} />
                 <Route path="pilot-applications" element={<PilotApplications />} />
                 <Route path="hipaa/baa-management" element={<BAAManagementPageSuperAdmin />} />
                 <Route path="hipaa/data-retention" element={<DataRetentionPage />} />

@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.telegram_user import TelegramUser
 from app.models.telegram_conversation import TelegramConversation
+from app.services.telegram_buttons import TelegramButtons, ButtonCallbackHandler
 
 # Initialize Multi-Agent Graph (V4 with 4 Agents: Alex, שרה, Marcus, Sophia)
 agent_graph = AgentGraphV4()
@@ -111,9 +112,13 @@ async def handle_message(message: Dict[str, Any]):
                     "telegram_user_id": telegram_user.id,
                 }
                 
+                # Add welcome buttons
+                buttons = TelegramButtons.welcome_buttons()
+                
                 await telegram_client.send_message(
                     chat_id=chat_id,
                     text=response["response"],
+                    reply_markup=buttons,
                 )
                 return
             
@@ -294,6 +299,7 @@ async def handle_callback(callback_query: Dict[str, Any]):
         query_id = callback_query["id"]
         chat_id = callback_query["message"]["chat"]["id"]
         user_id = callback_query["from"]["id"]
+        username = callback_query["from"].get("username", "callback_user")
         callback_data = callback_query["data"]
         
         logger.info(f"Processing callback from user {user_id}: {callback_data}")
@@ -304,24 +310,18 @@ async def handle_callback(callback_query: Dict[str, Any]):
             json={"callback_query_id": query_id}
         )
         
-        # Handle different callback actions
-        if callback_data == "book_appointment":
-            message_text = "I want to book an appointment"
-        elif callback_data == "check_invoice":
-            message_text = "Show me my invoices"
-        elif callback_data == "talk_to_doctor":
-            message_text = "I need to talk to a doctor"
-        elif callback_data == "clinic_location":
-            # Send clinic location
-            await send_clinic_location(chat_id)
-            return
-        else:
-            message_text = callback_data
+        # Parse callback data
+        parsed = ButtonCallbackHandler.parse_callback_data(callback_data)
+        action = parsed["action"]
+        params = parsed["params"]
+        
+        # Convert action to natural language message
+        message_text = ButtonCallbackHandler.get_action_message(action, params)
         
         # Process as regular message
         await handle_message({
             "chat": {"id": chat_id},
-            "from": {"id": user_id, "username": "callback_user"},
+            "from": {"id": user_id, "username": username},
             "text": message_text,
         })
     

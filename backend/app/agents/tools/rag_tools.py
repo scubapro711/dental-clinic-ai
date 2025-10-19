@@ -327,3 +327,63 @@ def search_demo_knowledge_tool(query: str, top_results: int = 3) -> str:
         logger.error(f"Error searching demo knowledge: {e}")
         return f"Error accessing demo knowledge: {str(e)}"
 
+
+
+
+@tool
+def search_hipaa_knowledge_tool(query: str, top_results: int = 3) -> str:
+    """
+    Search HIPAA compliance knowledge base for regulations, policies, and best practices.
+    
+    Use this when you need information about:
+    - HIPAA Privacy Rule, Security Rule, or Breach Notification Rule
+    - DentaFlow HIPAA policies (BAA, Data Retention, Incident Response)
+    - Patient rights under HIPAA
+    - Compliance requirements and obligations
+    - HIPAA violations and penalties
+    - Best practices for HIPAA compliance
+    - Technical, administrative, and physical safeguards
+    
+    Args:
+        query: What you're looking for (e.g., "BAA requirements", "breach notification timeline")
+        top_results: Number of results to return (default: 3)
+        
+    Returns:
+        JSON string with relevant HIPAA compliance knowledge
+    """
+    try:
+        logger.info(f"Searching HIPAA knowledge: {query}")
+        
+        results = knowledge_base.search_knowledge(
+            domain='hipaa',
+            query=query,
+            top_k=top_results
+        )
+        
+        if not results:
+            return "No relevant HIPAA knowledge found. This may be a complex compliance question that requires consultation with a HIPAA compliance attorney or the HHS Office for Civil Rights."
+        
+        # Format results
+        formatted = {
+            'query': query,
+            'results_found': len(results),
+            'knowledge': [],
+            'disclaimer': '⚠️ This information is for general guidance only. For specific legal advice, consult a HIPAA compliance attorney.'
+        }
+        
+        for i, result in enumerate(results, 1):
+            formatted['knowledge'].append({
+                'relevance_score': f"{result['score']:.2f}",
+                'content': result['text'],
+                'source': result['metadata'].get('title', 'Unknown'),
+                'category': result['metadata'].get('category', 'general'),
+                'critical': result['metadata'].get('critical', False),
+            })
+        
+        import json
+        return json.dumps(formatted, ensure_ascii=False, indent=2)
+        
+    except Exception as e:
+        logger.error(f"Error searching HIPAA knowledge: {e}")
+        return f"Error accessing HIPAA knowledge: {str(e)}"
+

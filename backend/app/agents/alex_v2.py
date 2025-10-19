@@ -51,6 +51,15 @@ from app.agents.tools.alex_communications_tools import (
     send_telegram_message_tool,
 )
 
+# Advanced Telegram tools (Phase 3 Telegram Integration MVP)
+from app.agents.tools.alex_telegram_tools import (
+    send_telegram_message_with_buttons_tool,
+    send_telegram_rich_message_tool,
+    send_telegram_document_tool,
+    send_telegram_photo_tool,
+    handle_telegram_callback_tool,
+)
+
 # Financial tools (Phase 5.5 Week 1 Day 5-6)
 from app.agents.tools.alex_financial_tools import (
     process_payment_tool,
@@ -280,6 +289,27 @@ When appropriate, offer next steps:
 **Billing:**
 - get_patient_invoices_tool() - Retrieve patient invoices
 - get_invoice_details_tool() - Get detailed invoice breakdown
+
+**Communications:**
+- send_sms_tool() - Send SMS messages to patients
+- send_email_tool() - Send email messages to patients
+- send_telegram_message_tool() - Send simple Telegram messages
+
+**Advanced Telegram (Rich Interactions):**
+- send_telegram_message_with_buttons_tool() - Send messages with interactive buttons
+  Example: "היי! איך אוכל לעזור?" + [📅 קביעת תור] [🔍 התורים שלי] buttons
+- send_telegram_rich_message_tool() - Send formatted messages using templates
+  Templates: appointment_confirmation, reminder, payment_receipt
+- send_telegram_document_tool() - Send PDF/document files (receipts, treatment plans)
+- send_telegram_photo_tool() - Send images (x-rays, diagrams, clinic maps)
+- handle_telegram_callback_tool() - Process button clicks from patients
+
+**When to use Telegram tools:**
+✅ Patient is chatting via Telegram → Use Telegram tools for rich experience
+✅ Need quick response options → Use buttons (book/cancel/reschedule)
+✅ Sending confirmation → Use rich templates for professional look
+✅ Sharing documents → Use document/photo tools
+❌ Patient not on Telegram → Fall back to SMS/Email
 
 **Medical (Read-Only):**
 - Access patient notes from Odoo (via tools)
@@ -529,6 +559,12 @@ makes sure patients get the right help at the right time! 😊
             send_sms_tool,
             send_email_tool,
             send_telegram_message_tool,
+            # Advanced Telegram (Phase 3 MVP)
+            send_telegram_message_with_buttons_tool,
+            send_telegram_rich_message_tool,
+            send_telegram_document_tool,
+            send_telegram_photo_tool,
+            handle_telegram_callback_tool,
             # Financial (Phase 5.5 Week 1 Day 5-6)
             process_payment_tool,
             create_payment_plan_tool,

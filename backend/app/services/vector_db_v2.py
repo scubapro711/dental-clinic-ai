@@ -18,6 +18,8 @@ from datetime import datetime
 from pinecone import Pinecone, ServerlessSpec
 from openai import OpenAI
 
+from app.core.config import settings
+
 logger = logging.getLogger(__name__)
 
 

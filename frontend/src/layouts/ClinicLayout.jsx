@@ -26,6 +26,7 @@ export default function ClinicLayout() {
     { to: '/clinic/patients', label: 'Patients', icon: '👥' },
     { to: '/clinic/communications', label: 'Communications', icon: '📱' },
     { to: '/clinic/appointments', label: 'Appointments', icon: '📅' },
+    { to: '/clinic/compliance', label: 'Compliance', icon: '🛡️' },
     { to: '/clinic/agents', label: 'AI Agents', icon: '🤖' },
     { to: '/clinic/analytics', label: 'Analytics', icon: '📊' },
     { to: '/clinic/settings', label: 'Settings', icon: '⚙️' },

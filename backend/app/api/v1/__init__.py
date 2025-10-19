@@ -44,6 +44,7 @@ from app.api.v1.endpoints import (
     pilot_applications,
     data_retention,
     security_incidents,
+    compliance,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -101,6 +102,7 @@ api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"
 api_router.include_router(baa.router, prefix="/baa", tags=["compliance", "hipaa"])
 api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])
 api_router.include_router(security_incidents.router, prefix="/super-admin", tags=["super-admin", "hipaa"])
+api_router.include_router(compliance.router, tags=["compliance", "harper"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
 
 # Financial

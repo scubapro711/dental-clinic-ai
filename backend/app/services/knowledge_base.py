@@ -24,6 +24,7 @@ class KnowledgeBaseManager:
     - Financial: Tax laws, accounting best practices, Israeli regulations
     - Operational: Best practices, compliance, safety protocols
     - General: Clinic policies, FAQs, common procedures
+    - HIPAA: Regulations, policies, compliance requirements, best practices
     """
     
     def __init__(self):
@@ -672,6 +673,130 @@ class KnowledgeBaseManager:
         except Exception as e:
             logger.error(f"Failed to initialize knowledge bases: {e}")
             return False
+    
+    def ingest_hipaa_knowledge(self):
+        """
+        Ingest HIPAA compliance knowledge base.
+        
+        Includes:
+        - HIPAA Privacy Rule (45 CFR 164.502-514)
+        - HIPAA Security Rule (45 CFR 164.308-316)
+        - Breach Notification Rule (45 CFR 164.400-414)
+        - DentaFlow HIPAA policies
+        - HIPAA FAQs and best practices
+        """
+        logger.info("Ingesting HIPAA compliance knowledge...")
+        
+        # Load HIPAA knowledge from files
+        hipaa_dir = self.knowledge_dir / "hipaa"
+        
+        if not hipaa_dir.exists():
+            logger.warning(f"HIPAA knowledge directory not found: {hipaa_dir}")
+            return
+        
+        # Ingest regulations
+        regulations_dir = hipaa_dir / "regulations"
+        if regulations_dir.exists():
+            for file_path in regulations_dir.glob("*.md"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    doc_id = f"hipaa_regulation_{file_path.stem}"
+                    title = file_path.stem.replace('_', ' ').title()
+                    
+                    self.ingest_document(
+                        domain='hipaa',
+                        doc_id=doc_id,
+                        title=title,
+                        content=content,
+                        metadata={
+                            'category': 'regulation',
+                            'source': 'HHS.gov',
+                            'critical': True,
+                        }
+                    )
+                    logger.info(f"Ingested HIPAA regulation: {title}")
+                except Exception as e:
+                    logger.error(f"Failed to ingest {file_path}: {e}")
+        
+        # Ingest policies
+        policies_dir = hipaa_dir / "policies"
+        if policies_dir.exists():
+            for file_path in policies_dir.glob("*.md"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    doc_id = f"hipaa_policy_{file_path.stem}"
+                    title = file_path.stem.replace('_', ' ').title()
+                    
+                    self.ingest_document(
+                        domain='hipaa',
+                        doc_id=doc_id,
+                        title=title,
+                        content=content,
+                        metadata={
+                            'category': 'policy',
+                            'source': 'DentaFlow',
+                            'organization': 'internal',
+                        }
+                    )
+                    logger.info(f"Ingested HIPAA policy: {title}")
+                except Exception as e:
+                    logger.error(f"Failed to ingest {file_path}: {e}")
+        
+        # Ingest FAQs
+        faqs_dir = hipaa_dir / "faqs"
+        if faqs_dir.exists():
+            for file_path in faqs_dir.glob("*.md"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    doc_id = f"hipaa_faq_{file_path.stem}"
+                    title = file_path.stem.replace('_', ' ').title()
+                    
+                    self.ingest_document(
+                        domain='hipaa',
+                        doc_id=doc_id,
+                        title=title,
+                        content=content,
+                        metadata={
+                            'category': 'faq',
+                            'source': 'HHS.gov + DentaFlow',
+                        }
+                    )
+                    logger.info(f"Ingested HIPAA FAQ: {title}")
+                except Exception as e:
+                    logger.error(f"Failed to ingest {file_path}: {e}")
+        
+        # Ingest best practices
+        best_practices_dir = hipaa_dir / "best-practices"
+        if best_practices_dir.exists():
+            for file_path in best_practices_dir.glob("*.md"):
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                    
+                    doc_id = f"hipaa_best_practice_{file_path.stem}"
+                    title = file_path.stem.replace('_', ' ').title()
+                    
+                    self.ingest_document(
+                        domain='hipaa',
+                        doc_id=doc_id,
+                        title=title,
+                        content=content,
+                        metadata={
+                            'category': 'best_practice',
+                            'source': 'NIST + HITRUST + Industry',
+                        }
+                    )
+                    logger.info(f"Ingested HIPAA best practice: {title}")
+                except Exception as e:
+                    logger.error(f"Failed to ingest {file_path}: {e}")
+        
+        logger.info("HIPAA knowledge ingestion complete")
 
 
 # Global instance

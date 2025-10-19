@@ -424,6 +424,24 @@ const SuperAdminDashboard = () => {
         </Grid>
 
         <Grid item xs={12} sm={6} md={4}>
+          <Link to="/super-admin/compliance" style={{ textDecoration: 'none' }}>
+            <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="h3" component="span">🛡️</Typography>
+                  <Typography variant="h6" ml={2}>
+                    HIPAA Compliance
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Monitor compliance and ask Harper
+                </Typography>
+              </CardContent>
+            </Card>
+          </Link>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
           <Link to="/super-admin/hipaa/baa-management" style={{ textDecoration: 'none' }}>
             <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
               <CardContent>

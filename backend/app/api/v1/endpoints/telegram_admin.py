@@ -314,6 +314,14 @@ def get_telegram_stats(
     ).count()
     
     return {
+        "total_users": total_users,
+        "linked_users": linked_users,
+        "pending_users": total_users - linked_users - new_users,
+        "active_conversations": active_conversations,
+        "messages_today": 0,  # TODO: Implement message counting
+        "messages_week": 0,   # TODO: Implement message counting
+        "messages_month": 0,  # TODO: Implement message counting
+        "avg_response_time": 0,  # TODO: Implement response time tracking
         "users": {
             "total": total_users,
             "linked": linked_users,
@@ -327,4 +335,91 @@ def get_telegram_stats(
             "active": active_invites,
         },
     }
+
+
+@router.get("/conversations/{conversation_id}/messages")
+def get_conversation_messages(
+    conversation_id: int,
+    limit: int = Query(100, description="Maximum number of messages to return"),
+    offset: int = Query(0, description="Number of messages to skip"),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
+    db: Session = Depends(get_db),
+):
+    """
+    Get messages for a specific conversation.
+    
+    Returns messages in chronological order (oldest first).
+    """
+    # Verify conversation belongs to user's organization
+    conversation = db.query(TelegramConversation).filter(
+        TelegramConversation.id == conversation_id,
+        TelegramConversation.organization_id == current_user.organization_id
+    ).first()
+    
+    if not conversation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Conversation not found"
+        )
+    
+    # TODO: Implement message storage and retrieval
+    # For now, return empty list
+    # In production, you would query a telegram_messages table
+    
+    return {
+        "messages": [],
+        "conversation_id": conversation_id,
+        "total": 0,
+        "limit": limit,
+        "offset": offset
+    }
+
+
+@router.post("/send")
+def send_telegram_message(
+    chat_id: int,
+    message: str,
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
+    db: Session = Depends(get_db),
+):
+    """
+    Send a message to a Telegram chat.
+    
+    The chat must belong to the user's organization.
+    """
+    # Verify chat belongs to user's organization
+    conversation = db.query(TelegramConversation).filter(
+        TelegramConversation.chat_id == chat_id,
+        TelegramConversation.organization_id == current_user.organization_id
+    ).first()
+    
+    if not conversation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Chat not found or does not belong to your organization"
+        )
+    
+    try:
+        # Send message via Telegram client
+        from app.integrations.telegram_client import telegram_client
+        
+        result = telegram_client.send_message(
+            chat_id=chat_id,
+            text=message
+        )
+        
+        logger.info(f"Admin {current_user.id} sent message to chat {chat_id}")
+        
+        return {
+            "success": True,
+            "message_id": result.get("result", {}).get("message_id"),
+            "chat_id": chat_id
+        }
+    
+    except Exception as e:
+        logger.error(f"Error sending Telegram message: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to send message: {str(e)}"
+        )
 

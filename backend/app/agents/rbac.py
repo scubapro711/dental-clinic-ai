@@ -28,6 +28,8 @@ class UserRole(str, Enum):
     PATIENT = "patient"
     DOCTOR = "doctor"
     OWNER = "owner"
+    CLINIC_ADMIN = "clinic_admin"  # Clinic administrator with HIPAA compliance access
+    SUPER_ADMIN = "super_admin"  # System administrator with full access
 
 
 class Permission(str, Enum):
@@ -63,6 +65,7 @@ class Permission(str, Enum):
     ACCESS_SARAH = "access:sarah"  # Clinical assistant
     ACCESS_CFO = "access:cfo"
     ACCESS_ADMIN = "access:admin"
+    ACCESS_HARPER = "access:harper"  # HIPAA Compliance specialist
 
 
 # Role to permissions mapping
@@ -110,6 +113,40 @@ ROLE_PERMISSIONS: Dict[UserRole, List[Permission]] = {
         Permission.ACCESS_ADMIN,
         # Note: Owners CANNOT see individual patient medical records
         # This is for privacy compliance (HIPAA/GDPR)
+    ],
+    
+    UserRole.CLINIC_ADMIN: [
+        # Clinic admins have operational + compliance access
+        Permission.READ_ALL_APPOINTMENTS,
+        Permission.WRITE_ALL_APPOINTMENTS,
+        Permission.READ_ALL_INVOICES,
+        Permission.READ_ALL_SCHEDULES,
+        Permission.WRITE_SCHEDULES,
+        Permission.MANAGE_STAFF,
+        # Clinic admins can access all agents including Harper
+        Permission.ACCESS_ALEX,
+        Permission.ACCESS_SARAH,
+        Permission.ACCESS_CFO,
+        Permission.ACCESS_ADMIN,
+        Permission.ACCESS_HARPER,  # HIPAA Compliance access
+    ],
+    
+    UserRole.SUPER_ADMIN: [
+        # Super admins have full system access
+        Permission.READ_ALL_APPOINTMENTS,
+        Permission.WRITE_ALL_APPOINTMENTS,
+        Permission.READ_ALL_INVOICES,
+        Permission.READ_REVENUE_SUMMARY,
+        Permission.READ_DETAILED_FINANCIALS,
+        Permission.READ_ALL_SCHEDULES,
+        Permission.WRITE_SCHEDULES,
+        Permission.MANAGE_STAFF,
+        # Super admins can access ALL agents
+        Permission.ACCESS_ALEX,
+        Permission.ACCESS_SARAH,
+        Permission.ACCESS_CFO,
+        Permission.ACCESS_ADMIN,
+        Permission.ACCESS_HARPER,  # HIPAA Compliance access
     ],
 }
 
@@ -165,6 +202,7 @@ def can_access_agent(user_role: str, agent_name: str) -> bool:
         "marcus": Permission.ACCESS_CFO.value,  # Alias for CFO agent
         "admin": Permission.ACCESS_ADMIN.value,
         "sophia": Permission.ACCESS_ADMIN.value,  # Alias for Admin agent
+        "harper": Permission.ACCESS_HARPER.value,  # HIPAA Compliance agent
     }
     
     required_permission = agent_permission_map.get(agent_name.lower())
@@ -239,10 +277,12 @@ def get_permission_denied_message(user_role: str, requested_action: str) -> str:
             "access_sarah": "I'm sorry, but clinical operations are handled by medical staff only. I can help you with appointment scheduling and general questions. Is there anything else I can help you with?",
             "access_cfo": "I'm sorry, but financial information is only available to clinic management. Is there anything else I can help you with regarding your appointments or billing?",
             "access_admin": "I'm sorry, but operational information is only available to clinic staff. Is there anything else I can help you with?",
+            "access_harper": "I'm sorry, but HIPAA compliance information is only available to clinic administrators. If you have questions about your privacy rights, please contact your clinic administrator.",
             "view_other_appointments": "I can only show you your own appointments. Would you like to see your upcoming appointments?",
             "view_other_invoices": "I can only show you your own invoices and billing information. Would you like to see your billing history?",
         },
         UserRole.DOCTOR: {
+            "access_harper": "HIPAA compliance management is handled by clinic administrators. If you have compliance questions, please contact your clinic administrator.",
             "view_detailed_financials": "Detailed financial information is only available to clinic management. I can show you treatment profitability statistics if that would help.",
             "manage_staff": "Staff management is handled by clinic administration. I can help you with your schedule or patient appointments instead.",
         },
