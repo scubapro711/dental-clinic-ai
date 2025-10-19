@@ -1,0 +1,486 @@
+# Cloud Monitoring Alert Policies for HIPAA Compliance
+# Automated detection of security incidents and suspicious activity
+
+# ==================== Authentication & Access Control ====================
+
+# Alert: Multiple Failed Login Attempts
+# Triggers when >5 failed login attempts from same IP in 10 minutes
+failed_login_attempts:
+  display_name: "HIPAA - Multiple Failed Login Attempts"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Multiple Failed Login Attempts**
+      
+      **Severity:** HIGH
+      **Category:** Authentication Security
+      
+      **Description:**
+      More than 5 failed login attempts detected from the same IP address within 10 minutes.
+      This may indicate a brute force attack or unauthorized access attempt.
+      
+      **Immediate Actions:**
+      1. Review audit logs for the IP address
+      2. Check if account is compromised
+      3. Consider IP blocking if attack confirmed
+      4. Notify security team
+      
+      **Investigation Steps:**
+      - Check audit_logs table for failed login attempts
+      - Identify affected user accounts
+      - Review geographic location of IP
+      - Check for successful logins from same IP
+      
+      **Compliance:** HIPAA Security Rule § 164.308(a)(5)(ii)(C) - Log-in Monitoring
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Failed login attempts > 5 in 10 minutes"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.action="login_failed"
+        aggregations:
+          - alignment_period: "600s"
+            per_series_aligner: "ALIGN_COUNT"
+            cross_series_reducer: "REDUCE_SUM"
+            group_by_fields:
+              - "jsonPayload.ip_address"
+        comparison: "COMPARISON_GT"
+        threshold_value: 5
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+    - "security-slack-channel"
+  alert_strategy:
+    auto_close: "1800s"  # 30 minutes
+  severity: "ERROR"
+
+# Alert: Unauthorized PHI Access Attempt
+# Triggers when user attempts to access PHI without proper authorization
+unauthorized_phi_access:
+  display_name: "HIPAA - Unauthorized PHI Access Attempt"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Unauthorized PHI Access Attempt**
+      
+      **Severity:** CRITICAL
+      **Category:** Access Control Violation
+      
+      **Description:**
+      A user attempted to access Protected Health Information (PHI) without proper authorization.
+      This is a potential HIPAA violation and security incident.
+      
+      **Immediate Actions:**
+      1. **CRITICAL:** Initiate incident response procedure
+      2. Review user's access permissions
+      3. Check if PHI was actually accessed (view vs attempt)
+      4. Document incident in security log
+      5. Notify Privacy Officer immediately
+      
+      **Investigation Steps:**
+      - Identify user and their role
+      - Review audit logs for access pattern
+      - Check if this is repeated behavior
+      - Assess if breach notification required
+      
+      **Compliance:** HIPAA Security Rule § 164.312(a)(1) - Access Control
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Unauthorized PHI access detected"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.action="unauthorized_access"
+          jsonPayload.resource_type="patient"
+        aggregations:
+          - alignment_period: "60s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+    - "privacy-officer-email"
+    - "security-slack-channel"
+  alert_strategy:
+    auto_close: "3600s"  # 1 hour
+  severity: "CRITICAL"
+
+# Alert: Bulk PHI Data Export
+# Triggers when large amount of patient data is exported
+bulk_phi_export:
+  display_name: "HIPAA - Bulk PHI Data Export Detected"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Bulk PHI Data Export**
+      
+      **Severity:** HIGH
+      **Category:** Data Exfiltration Risk
+      
+      **Description:**
+      A user has exported a large amount of patient data (>100 records).
+      This may be legitimate (e.g., reporting) or could indicate data theft.
+      
+      **Immediate Actions:**
+      1. Verify if export is authorized
+      2. Contact user to confirm business purpose
+      3. Review exported data scope
+      4. Check user's recent activity
+      5. Document in security log
+      
+      **Investigation Steps:**
+      - Identify user and their role
+      - Check if export matches job responsibilities
+      - Review export frequency and patterns
+      - Verify data destination (email, download, API)
+      
+      **Compliance:** HIPAA Security Rule § 164.312(b) - Audit Controls
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Patient data export > 100 records"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.action="data_export"
+          jsonPayload.resource_type="patient"
+          jsonPayload.record_count>100
+        aggregations:
+          - alignment_period: "60s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+    - "security-slack-channel"
+  alert_strategy:
+    auto_close: "1800s"  # 30 minutes
+  severity: "WARNING"
+
+# ==================== System Security ====================
+
+# Alert: Database Connection Failures
+# Triggers when database connections fail repeatedly
+database_connection_failures:
+  display_name: "HIPAA - Database Connection Failures"
+  documentation:
+    content: |
+      **System Alert: Database Connection Failures**
+      
+      **Severity:** HIGH
+      **Category:** System Availability
+      
+      **Description:**
+      Multiple database connection failures detected. This may impact PHI availability
+      and violate HIPAA requirements for data availability.
+      
+      **Immediate Actions:**
+      1. Check Cloud SQL instance status
+      2. Review connection pool settings
+      3. Check for network issues
+      4. Verify database credentials
+      5. Scale database if needed
+      
+      **Compliance:** HIPAA Security Rule § 164.308(a)(7)(ii)(A) - Data Backup Plan
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Database connection failures > 10 in 5 minutes"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          severity="ERROR"
+          jsonPayload.message=~"database connection"
+        aggregations:
+          - alignment_period: "300s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 10
+        duration: "0s"
+  notification_channels:
+    - "devops-team-email"
+    - "devops-slack-channel"
+  alert_strategy:
+    auto_close: "900s"  # 15 minutes
+  severity: "ERROR"
+
+# Alert: Encryption Errors
+# Triggers when encryption/decryption operations fail
+encryption_errors:
+  display_name: "HIPAA - Encryption Errors Detected"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Encryption Errors**
+      
+      **Severity:** CRITICAL
+      **Category:** Data Protection
+      
+      **Description:**
+      Encryption or decryption operations are failing. This may expose PHI
+      and violate HIPAA encryption requirements.
+      
+      **Immediate Actions:**
+      1. **CRITICAL:** Stop processing PHI if possible
+      2. Check encryption key status in Secret Manager
+      3. Review encryption service logs
+      4. Verify key rotation hasn't broken anything
+      5. Initiate incident response if PHI exposed
+      
+      **Compliance:** HIPAA Security Rule § 164.312(a)(2)(iv) - Encryption
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Encryption errors detected"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          severity="ERROR"
+          jsonPayload.message=~"encryption|decrypt"
+        aggregations:
+          - alignment_period: "60s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+    - "devops-team-email"
+    - "security-slack-channel"
+  alert_strategy:
+    auto_close: "3600s"  # 1 hour
+  severity: "CRITICAL"
+
+# ==================== Unusual Activity ====================
+
+# Alert: Access from Unusual Location
+# Triggers when user accesses from unexpected geographic location
+unusual_location_access:
+  display_name: "HIPAA - Access from Unusual Location"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Access from Unusual Location**
+      
+      **Severity:** MEDIUM
+      **Category:** Anomaly Detection
+      
+      **Description:**
+      A user has accessed the system from an unusual geographic location
+      that differs significantly from their normal access pattern.
+      
+      **Immediate Actions:**
+      1. Verify with user if access is legitimate
+      2. Check for account compromise
+      3. Review recent activity from this location
+      4. Consider requiring MFA re-authentication
+      
+      **Compliance:** HIPAA Security Rule § 164.308(a)(5)(ii)(C) - Log-in Monitoring
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Access from unusual country"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.action="login_success"
+          jsonPayload.unusual_location=true
+        aggregations:
+          - alignment_period: "60s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+  alert_strategy:
+    auto_close: "1800s"  # 30 minutes
+  severity: "WARNING"
+
+# Alert: After-Hours PHI Access
+# Triggers when PHI is accessed outside normal business hours
+after_hours_phi_access:
+  display_name: "HIPAA - After-Hours PHI Access"
+  documentation:
+    content: |
+      **HIPAA Security Alert: After-Hours PHI Access**
+      
+      **Severity:** MEDIUM
+      **Category:** Anomaly Detection
+      
+      **Description:**
+      Patient data was accessed outside normal business hours (9 AM - 6 PM local time).
+      This may be legitimate (on-call, emergency) or suspicious.
+      
+      **Immediate Actions:**
+      1. Review user's role and schedule
+      2. Check if access matches on-call schedule
+      3. Verify business justification
+      4. Document in audit log
+      
+      **Compliance:** HIPAA Security Rule § 164.308(a)(5)(ii)(C) - Log-in Monitoring
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "PHI access outside 9 AM - 6 PM"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.resource_type="patient"
+          jsonPayload.action="view"
+          jsonPayload.after_hours=true
+        aggregations:
+          - alignment_period: "300s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 10
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+  alert_strategy:
+    auto_close: "3600s"  # 1 hour
+  severity: "WARNING"
+
+# ==================== Compliance & Audit ====================
+
+# Alert: Audit Log Deletion Attempt
+# Triggers when someone attempts to delete audit logs
+audit_log_deletion_attempt:
+  display_name: "HIPAA - Audit Log Deletion Attempt"
+  documentation:
+    content: |
+      **HIPAA Security Alert: Audit Log Deletion Attempt**
+      
+      **Severity:** CRITICAL
+      **Category:** Compliance Violation
+      
+      **Description:**
+      Someone attempted to delete audit logs. This is a serious HIPAA violation
+      as audit logs must be retained for 6 years.
+      
+      **Immediate Actions:**
+      1. **CRITICAL:** Initiate incident response immediately
+      2. Identify user who attempted deletion
+      3. Verify if any logs were actually deleted
+      4. Review backup logs
+      5. Notify Privacy Officer and Legal
+      6. Document incident thoroughly
+      
+      **Compliance:** HIPAA Security Rule § 164.316(b)(2) - Documentation Retention
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Audit log deletion detected"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          jsonPayload.action="delete"
+          jsonPayload.resource_type="audit_log"
+        aggregations:
+          - alignment_period: "60s"
+            per_series_aligner: "ALIGN_COUNT"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0
+        duration: "0s"
+  notification_channels:
+    - "security-team-email"
+    - "privacy-officer-email"
+    - "legal-team-email"
+    - "security-slack-channel"
+  alert_strategy:
+    auto_close: "7200s"  # 2 hours
+  severity: "CRITICAL"
+
+# ==================== Performance & Availability ====================
+
+# Alert: High Error Rate
+# Triggers when error rate exceeds 5% of requests
+high_error_rate:
+  display_name: "System - High Error Rate"
+  documentation:
+    content: |
+      **System Alert: High Error Rate**
+      
+      **Severity:** HIGH
+      **Category:** System Reliability
+      
+      **Description:**
+      Error rate has exceeded 5% of total requests. This may impact
+      PHI availability and user experience.
+      
+      **Immediate Actions:**
+      1. Check Cloud Run logs for error patterns
+      2. Review recent deployments
+      3. Check database performance
+      4. Scale resources if needed
+      5. Rollback if recent deployment caused issue
+      
+      **Compliance:** HIPAA Security Rule § 164.308(a)(7)(ii)(A) - Data Backup Plan
+    mime_type: "text/markdown"
+  conditions:
+    - display_name: "Error rate > 5%"
+      condition_threshold:
+        filter: |
+          resource.type="cloud_run_revision"
+          resource.labels.service_name="dentaflow-backend"
+          severity="ERROR"
+        aggregations:
+          - alignment_period: "300s"
+            per_series_aligner: "ALIGN_RATE"
+        comparison: "COMPARISON_GT"
+        threshold_value: 0.05
+        duration: "0s"
+  notification_channels:
+    - "devops-team-email"
+    - "devops-slack-channel"
+  alert_strategy:
+    auto_close: "900s"  # 15 minutes
+  severity: "ERROR"
+
+# ==================== Notification Channels ====================
+
+notification_channels:
+  security_team_email:
+    type: "email"
+    display_name: "Security Team Email"
+    labels:
+      email_address: "security@dentaflow.ai"
+    enabled: true
+  
+  privacy_officer_email:
+    type: "email"
+    display_name: "Privacy Officer Email"
+    labels:
+      email_address: "privacy@dentaflow.ai"
+    enabled: true
+  
+  legal_team_email:
+    type: "email"
+    display_name: "Legal Team Email"
+    labels:
+      email_address: "legal@dentaflow.ai"
+    enabled: true
+  
+  devops_team_email:
+    type: "email"
+    display_name: "DevOps Team Email"
+    labels:
+      email_address: "devops@dentaflow.ai"
+    enabled: true
+  
+  security_slack_channel:
+    type: "slack"
+    display_name: "Security Slack Channel"
+    labels:
+      channel_name: "#security-alerts"
+      url: "https://hooks.slack.com/services/YOUR_WEBHOOK_URL"
+    enabled: true
+  
+  devops_slack_channel:
+    type: "slack"
+    display_name: "DevOps Slack Channel"
+    labels:
+      channel_name: "#devops-alerts"
+      url: "https://hooks.slack.com/services/YOUR_WEBHOOK_URL"
+    enabled: true
+

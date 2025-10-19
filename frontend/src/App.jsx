@@ -24,6 +24,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 import AgenticDashboard from './pages/AgenticDashboard'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
+import BAAManagementPage from './pages/clinic/BAAManagementPage'
 import SecuritySettings from './pages/SecuritySettings'
 
 // Billing Components
@@ -162,6 +163,7 @@ function App() {
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />
           <Route path="analytics" element={<ComingSoon title="Analytics" />} />
           <Route path="subscription" element={<SubscriptionManagement />} />
+<Route path="baa" element={<BAAManagementPage />} />
           <Route path="security" element={<SecuritySettings />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
         </Route>

@@ -25,7 +25,7 @@ from app.api.v1.endpoints import (
     organizations,
     email_verification,
     sms_verification,
-    baa_signature,
+    baa,
     team_invitations,
     patient_portal,
     invoices,
@@ -42,6 +42,7 @@ from app.api.v1.endpoints import (
     demo,
     mfa,
     pilot_applications,
+    data_retention,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -95,7 +96,8 @@ api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["
 
 # Monitoring & Compliance
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
-api_router.include_router(baa_signature.router, tags=["compliance"])
+api_router.include_router(baa.router, prefix="/baa", tags=["compliance", "hipaa"])
+api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
 
 # Financial

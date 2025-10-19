@@ -1,0 +1,72 @@
+# Cloud Scheduler Configuration for Data Retention Jobs
+# HIPAA-compliant automated data lifecycle management
+
+# Daily Retention Check Job
+# Runs every day at 2:00 AM UTC
+# Identifies expired records and sends notifications
+daily_retention_check:
+  name: "dentaflow-daily-retention-check"
+  description: "Daily check for expired patient records and audit logs"
+  schedule: "0 2 * * *"  # Daily at 2 AM UTC
+  time_zone: "UTC"
+  http_target:
+    uri: "https://dentaflow-backend-XXXXX.run.app/api/v1/data-retention/jobs/daily-check"
+    http_method: "POST"
+    headers:
+      Content-Type: "application/json"
+    oidc_token:
+      service_account_email: "cloud-scheduler@dentaflow-prod.iam.gserviceaccount.com"
+      audience: "https://dentaflow-backend-XXXXX.run.app"
+  retry_config:
+    retry_count: 3
+    max_retry_duration: "3600s"
+    min_backoff_duration: "5s"
+    max_backoff_duration: "300s"
+    max_doublings: 5
+
+# Monthly Data Cleanup Job
+# Runs on the 1st of every month at 3:00 AM UTC
+# Archives audit logs and deletes inactive accounts
+monthly_data_cleanup:
+  name: "dentaflow-monthly-data-cleanup"
+  description: "Monthly automated data cleanup and archival"
+  schedule: "0 3 1 * *"  # 1st of month at 3 AM UTC
+  time_zone: "UTC"
+  http_target:
+    uri: "https://dentaflow-backend-XXXXX.run.app/api/v1/data-retention/jobs/monthly-cleanup"
+    http_method: "POST"
+    headers:
+      Content-Type: "application/json"
+    oidc_token:
+      service_account_email: "cloud-scheduler@dentaflow-prod.iam.gserviceaccount.com"
+      audience: "https://dentaflow-backend-XXXXX.run.app"
+  retry_config:
+    retry_count: 3
+    max_retry_duration: "3600s"
+    min_backoff_duration: "5s"
+    max_backoff_duration: "300s"
+    max_doublings: 5
+
+# Quarterly Retention Report Job
+# Runs on the 1st of Jan, Apr, Jul, Oct at 4:00 AM UTC
+# Generates comprehensive retention report for compliance review
+quarterly_retention_report:
+  name: "dentaflow-quarterly-retention-report"
+  description: "Quarterly data retention compliance report"
+  schedule: "0 4 1 1,4,7,10 *"  # Quarterly at 4 AM UTC
+  time_zone: "UTC"
+  http_target:
+    uri: "https://dentaflow-backend-XXXXX.run.app/api/v1/data-retention/report"
+    http_method: "GET"
+    headers:
+      Content-Type: "application/json"
+    oidc_token:
+      service_account_email: "cloud-scheduler@dentaflow-prod.iam.gserviceaccount.com"
+      audience: "https://dentaflow-backend-XXXXX.run.app"
+  retry_config:
+    retry_count: 3
+    max_retry_duration: "3600s"
+    min_backoff_duration: "5s"
+    max_backoff_duration: "300s"
+    max_doublings: 5
+
