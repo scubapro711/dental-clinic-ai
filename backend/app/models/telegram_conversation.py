@@ -8,6 +8,7 @@ import uuid
 from sqlalchemy import Column, BigInteger, ForeignKey, DateTime, Integer, String
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
 
@@ -28,6 +29,9 @@ class TelegramConversation(Base):
     started_at = Column(DateTime(timezone=True), server_default=func.now())
     last_message_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     message_count = Column(Integer, default=0)
+    
+    # Relationships
+    messages = relationship("TelegramMessage", back_populates="conversation", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<TelegramConversation(convo_id={self.conversation_id}, user_id={self.telegram_user_id})>"

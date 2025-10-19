@@ -26,6 +26,7 @@ from app.models.message import Message, MessageRole
 from app.models.telegram_conversation import TelegramConversation
 from app.models.telegram_user import TelegramUser
 from app.models.telegram_invite_code import TelegramInviteCode
+from app.models.telegram_message import TelegramMessage, MessageDirection
 
 # Verification and authentication
 from app.models.email_verification import EmailVerificationToken
