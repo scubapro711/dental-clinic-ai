@@ -43,6 +43,7 @@ from app.api.v1.endpoints import (
     mfa,
     pilot_applications,
     data_retention,
+    security_incidents,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -50,6 +51,7 @@ from app.api.v1.endpoints.super_admin import revenue as super_admin_revenue
 from app.api.v1.endpoints.super_admin import costs as super_admin_costs
 from app.api.v1.endpoints.super_admin import exports as super_admin_exports
 from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
+from app.api.v1.endpoints.super_admin import hipaa as super_admin_hipaa
 from app.api.v1 import appointments
 
 # Create main API router
@@ -98,6 +100,7 @@ api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
 api_router.include_router(baa.router, prefix="/baa", tags=["compliance", "hipaa"])
 api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])
+api_router.include_router(security_incidents.router, prefix="/super-admin", tags=["super-admin", "hipaa"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
 
 # Financial
@@ -116,6 +119,7 @@ api_router.include_router(super_admin_revenue.router, prefix="/super-admin", tag
 api_router.include_router(super_admin_costs.router, prefix="/super-admin/costs", tags=["super-admin"])
 api_router.include_router(super_admin_exports.router, prefix="/super-admin/export", tags=["super-admin"])
 api_router.include_router(super_admin_analytics.router, prefix="/super-admin/analytics", tags=["super-admin"])
+api_router.include_router(super_admin_hipaa.router, prefix="/super-admin", tags=["super-admin", "hipaa"])
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])

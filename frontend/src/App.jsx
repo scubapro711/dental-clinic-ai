@@ -39,6 +39,8 @@ import {
   CostDashboard,
   PilotApplications,
 } from './pages/super-admin'
+import BAAManagementPageSuperAdmin from './pages/super-admin/BAAManagementPage'
+import DataRetentionPage from './pages/super-admin/DataRetentionPage'
 
 // Shared
 import ChatPage from './pages/ChatPage'
@@ -181,6 +183,8 @@ function App() {
                 <Route path="usage" element={<UsageDashboard />} />
                 <Route path="costs" element={<CostDashboard />} />
                 <Route path="pilot-applications" element={<PilotApplications />} />
+                <Route path="hipaa/baa-management" element={<BAAManagementPageSuperAdmin />} />
+                <Route path="hipaa/data-retention" element={<DataRetentionPage />} />
                 <Route path="analytics" element={<ComingSoon title="Analytics & Insights" />} />
                 <Route path="settings" element={<ComingSoon title="Settings" />} />
                 <Route path="*" element={<Navigate to="/super-admin/dashboard" replace />} />

@@ -20,6 +20,7 @@ import {
   Assessment,
   CloudQueue,
 } from '@mui/icons-material';
+import SecurityIncidentsWidget from '../../components/super-admin/SecurityIncidentsWidget';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
@@ -305,6 +306,13 @@ const SuperAdminDashboard = () => {
         </Grid>
       </Grid>
 
+      {/* Security Incidents Widget */}
+      <Grid container spacing={3} mb={3}>
+        <Grid item xs={12}>
+          <SecurityIncidentsWidget />
+        </Grid>
+      </Grid>
+
       {/* Quick Actions */}
       <Grid container spacing={3}>
         <Grid item xs={12} sm={6} md={4}>
@@ -409,6 +417,42 @@ const SuperAdminDashboard = () => {
                 </Box>
                 <Typography variant="body2" color="text.secondary">
                   Cohort analysis and predictions
+                </Typography>
+              </CardContent>
+            </Card>
+          </Link>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Link to="/super-admin/hipaa/baa-management" style={{ textDecoration: 'none' }}>
+            <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="h3" component="span">🔒</Typography>
+                  <Typography variant="h6" ml={2}>
+                    BAA Management
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Manage Business Associate Agreements
+                </Typography>
+              </CardContent>
+            </Card>
+          </Link>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <Link to="/super-admin/hipaa/data-retention" style={{ textDecoration: 'none' }}>
+            <Card sx={{ cursor: 'pointer', '&:hover': { boxShadow: 6 } }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" mb={1}>
+                  <Typography variant="h3" component="span">🗄️</Typography>
+                  <Typography variant="h6" ml={2}>
+                    Data Retention
+                  </Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  Monitor data retention compliance
                 </Typography>
               </CardContent>
             </Card>
