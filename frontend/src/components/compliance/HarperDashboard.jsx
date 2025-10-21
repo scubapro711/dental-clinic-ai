@@ -43,26 +43,144 @@ const HarperDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch compliance score
-      const scoreResponse = await fetch('/api/compliance/score');
-      const scoreData = await scoreResponse.json();
-      setComplianceScore(scoreData);
+      // Fetch metrics summary from new HIPAA API
+      const summaryResponse = await fetch('/api/v1/hipaa/metrics/summary');
+      const summaryData = await summaryResponse.json();
+      
+      // Transform to match existing component structure
+      setComplianceScore({
+        overall: calculateOverallScore(summaryData),
+        phi: calculatePHIScore(summaryData),
+        security: calculateSecurityScore(summaryData),
+        phi_findings: summaryData.phi_access?.unauthorized_count || 0,
+        security_gaps: summaryData.breaches?.total_count || 0
+      });
 
-      // Fetch active alerts
-      const alertsResponse = await fetch('/api/compliance/alerts?status=open');
-      const alertsData = await alertsResponse.json();
-      setAlerts(alertsData);
+      // Transform metrics for alerts
+      const transformedAlerts = transformMetricsToAlerts(summaryData);
+      setAlerts(transformedAlerts);
 
-      // Fetch metrics
-      const metricsResponse = await fetch('/api/compliance/metrics');
-      const metricsData = await metricsResponse.json();
-      setMetrics(metricsData);
+      // Set raw metrics
+      setMetrics(summaryData);
 
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper function to calculate overall compliance score
+  const calculateOverallScore = (data) => {
+    if (!data) return 0;
+    
+    const phiScore = data.phi_access?.authorized_count || 0;
+    const totalPHI = (data.phi_access?.authorized_count || 0) + (data.phi_access?.unauthorized_count || 0);
+    const phiCompliance = totalPHI > 0 ? (phiScore / totalPHI) * 100 : 100;
+    
+    const authSuccess = data.authentication?.successful_logins || 0;
+    const totalAuth = (data.authentication?.successful_logins || 0) + (data.authentication?.failed_attempts || 0);
+    const authCompliance = totalAuth > 0 ? (authSuccess / totalAuth) * 100 : 100;
+    
+    const encSuccess = data.encryption?.successful_operations || 0;
+    const totalEnc = (data.encryption?.successful_operations || 0) + (data.encryption?.failed_operations || 0);
+    const encCompliance = totalEnc > 0 ? (encSuccess / totalEnc) * 100 : 100;
+    
+    const breachPenalty = (data.breaches?.total_count || 0) * 10;
+    
+    const overall = Math.max(0, Math.min(100, 
+      (phiCompliance * 0.4 + authCompliance * 0.3 + encCompliance * 0.3) - breachPenalty
+    ));
+    
+    return Math.round(overall);
+  };
+
+  // Helper function to calculate PHI compliance score
+  const calculatePHIScore = (data) => {
+    if (!data || !data.phi_access) return 100;
+    
+    const authorized = data.phi_access.authorized_count || 0;
+    const unauthorized = data.phi_access.unauthorized_count || 0;
+    const total = authorized + unauthorized;
+    
+    if (total === 0) return 100;
+    
+    return Math.round((authorized / total) * 100);
+  };
+
+  // Helper function to calculate security score
+  const calculateSecurityScore = (data) => {
+    if (!data) return 100;
+    
+    const breaches = data.breaches?.total_count || 0;
+    const encFailures = data.encryption?.failed_operations || 0;
+    const authFailures = data.authentication?.failed_attempts || 0;
+    
+    const securityIssues = breaches * 20 + encFailures * 5 + authFailures * 2;
+    
+    return Math.max(0, Math.min(100, 100 - securityIssues));
+  };
+
+  // Helper function to transform metrics to alerts
+  const transformMetricsToAlerts = (data) => {
+    const alerts = [];
+    
+    // Unauthorized PHI access alerts
+    if (data.phi_access?.unauthorized_count > 0) {
+      alerts.push({
+        id: 'phi-unauthorized',
+        severity: 'critical',
+        title: 'Unauthorized PHI Access Detected',
+        description: `${data.phi_access.unauthorized_count} unauthorized PHI access attempt(s) detected`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Failed login attempts
+    if (data.authentication?.failed_attempts > 5) {
+      alerts.push({
+        id: 'auth-failures',
+        severity: 'high',
+        title: 'Multiple Failed Login Attempts',
+        description: `${data.authentication.failed_attempts} failed login attempts detected`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Encryption failures
+    if (data.encryption?.failed_operations > 0) {
+      alerts.push({
+        id: 'enc-failures',
+        severity: 'high',
+        title: 'Encryption Failures',
+        description: `${data.encryption.failed_operations} encryption operation(s) failed`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Security breaches
+    if (data.breaches?.total_count > 0) {
+      alerts.push({
+        id: 'breaches',
+        severity: 'critical',
+        title: 'Security Breach Incidents',
+        description: `${data.breaches.total_count} security breach incident(s) reported`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    // Expired BAAs
+    if (data.baa_status?.expired > 0) {
+      alerts.push({
+        id: 'baa-expired',
+        severity: 'high',
+        title: 'Expired BAA Agreements',
+        description: `${data.baa_status.expired} BAA agreement(s) have expired`,
+        timestamp: new Date().toISOString()
+      });
+    }
+    
+    return alerts;
   };
 
   const getSeverityColor = (severity) => {
