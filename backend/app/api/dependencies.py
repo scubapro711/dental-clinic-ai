@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.models.user import User, UserRole
+from app.models.organization import Organization
 from app.models.organization_membership import OrganizationMembership
 from app.services.auth_service import AuthService
 
@@ -102,6 +103,35 @@ async def get_current_organization_id(
 ) -> Optional[str]:
     """Get current user's organization ID."""
     return str(current_user.organization_id) if current_user.organization_id else None
+
+
+async def get_current_organization(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Organization:
+    """
+    Get current user's organization.
+    
+    Raises:
+        HTTPException: If user has no organization
+    """
+    if not current_user.organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not associated with any organization"
+        )
+    
+    organization = db.query(Organization).filter(
+        Organization.id == current_user.organization_id
+    ).first()
+    
+    if not organization:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Organization not found"
+        )
+    
+    return organization
 
 
 async def get_current_membership(

@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
-from app.api.dependencies import get_db, get_current_user, get_current_organization_id
+from app.api.dependencies import get_db, get_current_user, get_current_organization_id, get_current_organization
 from app.models.user import User
 from app.models.organization import Organization
 from app.models.baa_signature import BAASignature
