@@ -4,7 +4,7 @@ For תיקון 13 (Amendment 13) compliance
 """
 
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from enum import Enum

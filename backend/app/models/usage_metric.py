@@ -6,7 +6,7 @@ enforce limits, and provide analytics for the Super Admin Dashboard.
 """
 
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, Index, Enum as SQLEnum, DECIMAL
-from sqlalchemy.dialects.postgresql import JSONB
+from app.core.database_types import JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from enum import Enum

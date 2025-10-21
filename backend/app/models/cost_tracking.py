@@ -6,7 +6,7 @@ for cost analysis and billing purposes.
 """
 
 from sqlalchemy import Column, Integer, String, Date, DateTime, ForeignKey, Index, DECIMAL
-from sqlalchemy.dialects.postgresql import JSONB
+from app.core.database_types import JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 

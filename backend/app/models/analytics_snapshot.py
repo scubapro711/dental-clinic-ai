@@ -6,7 +6,7 @@ Daily/weekly/monthly snapshots are calculated in background jobs.
 """
 
 from sqlalchemy import Column, Integer, Date, DateTime, Index, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import JSONB
+from app.core.database_types import JSONB
 from sqlalchemy.sql import func
 from enum import Enum
 

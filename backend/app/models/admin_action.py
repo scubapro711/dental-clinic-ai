@@ -5,7 +5,7 @@ Audit log for all Super Admin actions for security, compliance, and accountabili
 """
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Index, Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import JSONB
+from app.core.database_types import JSONB
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from enum import Enum

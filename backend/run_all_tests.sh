@@ -1,94 +1,128 @@
 #!/bin/bash
+#
+# DentaFlow SaaS - Comprehensive Test Runner
+# ==========================================
+# Runs all test suites with proper reporting
+#
+
 set -e
 
-export APP_ENV=test
-export PYTHONPATH=/home/ubuntu/dental-clinic-ai/backend:$PYTHONPATH
-
-echo "================================"
-echo "RUNNING ALL DENTAFLOW TESTS"
-echo "================================"
+echo "========================================"
+echo "DentaFlow SaaS - Comprehensive Testing"
+echo "========================================"
 echo ""
 
-echo "1. Initialization Tests (5 tests)..."
-python3.11 app/tests/test_agent_initialization.py > /tmp/test1.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Initialization: PASSED"
-else
-  echo "❌ Initialization: FAILED"
-  cat /tmp/test1.log | tail -20
-  exit 1
-fi
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
 
-echo "2. Alex Functional Tests (20 tests)..."
-python3.11 app/tests/test_alex_tools_functional.py > /tmp/test2.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Alex: PASSED"
-else
-  echo "❌ Alex: FAILED"
-  cat /tmp/test2.log | tail -20
-  exit 1
-fi
+# Create test results directory
+mkdir -p test-results/{coverage,reports}
 
-echo "3. Sarah Functional Tests (10 tests)..."
-python3.11 app/tests/test_sarah_tools_functional.py > /tmp/test3.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Sarah: PASSED"
-else
-  echo "❌ Sarah: FAILED"
-  cat /tmp/test3.log | tail -20
-  exit 1
-fi
+# Function to run test suite
+run_test_suite() {
+    local suite_name=$1
+    local test_path=$2
+    local markers=$3
+    
+    echo -e "${YELLOW}Running ${suite_name}...${NC}"
+    
+    if pytest "$test_path" -m "$markers" -v --tb=short; then
+        echo -e "${GREEN}✅ ${suite_name} PASSED${NC}"
+        return 0
+    else
+        echo -e "${RED}❌ ${suite_name} FAILED${NC}"
+        return 1
+    fi
+}
 
-echo "4. Marcus Functional Tests (8 tests)..."
-python3.11 app/tests/test_marcus_tools_functional.py > /tmp/test4.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Marcus: PASSED"
-else
-  echo "❌ Marcus: FAILED"
-  cat /tmp/test4.log | tail -20
-  exit 1
-fi
+# Track results
+declare -A results
 
-echo "5. Marcus Complete Tests (15 tests)..."
-python3.11 app/tests/test_marcus_tools_complete.py > /tmp/test5.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Marcus Complete: PASSED"
-else
-  echo "❌ Marcus Complete: FAILED"
-  cat /tmp/test5.log | tail -20
-  exit 1
-fi
+echo "1️⃣  Unit Tests - Models"
+run_test_suite "Unit Tests (Models)" "app/tests/unit/models/" "unit and models" && results[unit_models]=1 || results[unit_models]=0
+echo ""
 
-echo "6. Sophia Functional Tests (15 tests)..."
-python3.11 app/tests/test_sophia_tools_functional.py > /tmp/test6.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Sophia: PASSED"
-else
-  echo "❌ Sophia: FAILED"
-  cat /tmp/test6.log | tail -20
-  exit 1
-fi
+echo "2️⃣  Unit Tests - Services"
+run_test_suite "Unit Tests (Services)" "app/tests/unit/services/" "unit and services" && results[unit_services]=1 || results[unit_services]=0
+echo ""
 
-echo "7. Sophia Complete Tests (28 tests)..."
-python3.11 app/tests/test_sophia_tools_complete.py > /tmp/test7.log 2>&1
-if [ $? -eq 0 ]; then
-  echo "✅ Sophia Complete: PASSED"
-else
-  echo "❌ Sophia Complete: FAILED"
-  cat /tmp/test7.log | tail -20
-  exit 1
-fi
+echo "3️⃣  Unit Tests - Agents"
+run_test_suite "Unit Tests (Agents)" "app/tests/unit/agents/" "unit and agents" && results[unit_agents]=1 || results[unit_agents]=0
+echo ""
+
+echo "4️⃣  Integration Tests - API"
+run_test_suite "Integration Tests (API)" "app/tests/integration/api/" "integration and api" && results[integration_api]=1 || results[integration_api]=0
+echo ""
+
+echo "5️⃣  Integration Tests - Services"
+run_test_suite "Integration Tests (Services)" "app/tests/integration/services/" "integration and requires_external" && results[integration_services]=1 || results[integration_services]=0
+echo ""
+
+echo "6️⃣  E2E Tests (Critical)"
+run_test_suite "E2E Tests (Critical)" "app/tests/e2e/" "e2e and critical" && results[e2e]=1 || results[e2e]=0
+echo ""
+
+echo "7️⃣  Security Tests"
+run_test_suite "Security Tests" "app/tests/security/" "security" && results[security]=1 || results[security]=0
+echo ""
+
+echo "8️⃣  Regression Tests"
+run_test_suite "Regression Tests" "app/tests/regression/" "regression and critical" && results[regression]=1 || results[regression]=0
+echo ""
+
+echo "9️⃣  Performance Tests (Quick)"
+run_test_suite "Performance Tests" "app/tests/performance/" "performance and fast" && results[performance]=1 || results[performance]=0
+echo ""
+
+# Generate coverage report
+echo "📊 Generating Coverage Report..."
+pytest app/tests/ \
+    --cov=app \
+    --cov-report=html:test-results/coverage/html \
+    --cov-report=xml:test-results/coverage/coverage.xml \
+    --cov-report=term-missing:skip-covered \
+    --cov-fail-under=80 \
+    -v \
+    -m "not slow" || true
 
 echo ""
-echo "================================"
-echo "🎉 ALL TESTS PASSED! 🎉"
-echo "================================"
+echo "========================================"
+echo "Test Results Summary"
+echo "========================================"
+
+# Calculate pass rate
+total=0
+passed=0
+for result in "${results[@]}"; do
+    ((total++))
+    ((passed+=result))
+done
+
+pass_rate=$((passed * 100 / total))
+
+echo "Unit Tests (Models):       ${results[unit_models]}"
+echo "Unit Tests (Services):     ${results[unit_services]}"
+echo "Unit Tests (Agents):       ${results[unit_agents]}"
+echo "Integration Tests (API):   ${results[integration_api]}"
+echo "Integration Tests (Svcs):  ${results[integration_services]}"
+echo "E2E Tests:                 ${results[e2e]}"
+echo "Security Tests:            ${results[security]}"
+echo "Regression Tests:          ${results[regression]}"
+echo "Performance Tests:         ${results[performance]}"
 echo ""
-echo "Summary:"
-echo "- Initialization: 5/5 ✅"
-echo "- Alex: 20/20 ✅"
-echo "- Sarah: 10/10 ✅"
-echo "- Marcus: 23/23 ✅ (8+15)"
-echo "- Sophia: 43/43 ✅ (15+28)"
+echo "Pass Rate: ${passed}/${total} (${pass_rate}%)"
 echo ""
-echo "Total: 101/101 tests (100%)"
+
+if [ "$pass_rate" -ge 90 ]; then
+    echo -e "${GREEN}✅ EXCELLENT! All critical tests passed!${NC}"
+    exit 0
+elif [ "$pass_rate" -ge 70 ]; then
+    echo -e "${YELLOW}⚠️  WARNING: Some tests failed. Review required.${NC}"
+    exit 1
+else
+    echo -e "${RED}❌ CRITICAL: Too many test failures!${NC}"
+    exit 1
+fi

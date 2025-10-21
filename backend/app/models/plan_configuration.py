@@ -7,7 +7,7 @@ Allows Super Admin to create, update, and manage subscription plans.
 
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Boolean, Integer, Numeric, Text, JSON
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 import uuid
 
 from app.core.database import Base

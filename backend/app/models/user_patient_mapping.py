@@ -5,7 +5,7 @@ Maps DentaFlow users to Odoo patients for efficient data retrieval.
 """
 
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, Index
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.sql import func
 from app.core.database import Base
 

@@ -16,7 +16,7 @@ Part of comprehensive dental records management.
 
 from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, Text, Boolean, JSON, Enum as SQLEnum
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from datetime import datetime
 from enum import Enum
 import uuid

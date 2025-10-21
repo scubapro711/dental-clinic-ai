@@ -8,7 +8,7 @@ Integrates with Stripe for payment processing.
 import enum
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Boolean, Enum, ForeignKey, Numeric
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import uuid
 

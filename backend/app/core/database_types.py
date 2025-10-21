@@ -64,3 +64,39 @@ class UUID(TypeDecorator):
                 return uuid.UUID(value)
             else:
                 return value
+
+
+
+class JSONB(TypeDecorator):
+    """
+    Platform-independent JSONB type.
+    
+    Uses PostgreSQL's JSONB type when available, otherwise uses
+    JSON (or TEXT with JSON validation) for other databases.
+    
+    This allows the same models to work with both PostgreSQL (production)
+    and SQLite (testing).
+    """
+    
+    impl = CHAR
+    cache_ok = True
+    
+    def load_dialect_impl(self, dialect):
+        """Load the appropriate type for the dialect."""
+        if dialect.name == 'postgresql':
+            from sqlalchemy.dialects.postgresql import JSONB as PG_JSONB
+            return dialect.type_descriptor(PG_JSONB())
+        else:
+            from sqlalchemy import JSON
+            return dialect.type_descriptor(JSON())
+    
+    def process_bind_param(self, value, dialect):
+        """Process value before binding."""
+        # JSON types handle serialization automatically
+        return value
+    
+    def process_result_value(self, value, dialect):
+        """Process value after fetching from database."""
+        # JSON types handle deserialization automatically
+        return value
+

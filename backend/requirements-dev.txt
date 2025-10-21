@@ -1,42 +1,64 @@
-# Testing
-pytest==8.0.0
-pytest-asyncio==0.23.3
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-pytest-xdist==3.5.0
-httpx==0.26.0
-faker==22.5.1
+# ============================================
+# DentaFlow SaaS - Development & Testing Dependencies
+# ============================================
+# DO NOT add these to requirements.txt (production)
+# These are for development, testing, and CI/CD only
+
+# Core Testing Framework
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+pytest-xdist>=3.5.0  # Parallel test execution
+pytest-timeout>=2.2.0
+pytest-env>=1.1.0
+pytest-html>=4.1.0  # HTML test reports
+pytest-json-report>=1.5.0  # JSON test reports
+
+# Mocking & Test Data
+httpx-mock>=0.15.0  # Mock HTTP requests
+faker>=22.0.0  # Generate realistic test data
+factory-boy>=3.3.0  # Model factories for tests
+freezegun>=1.4.0  # Mock datetime
+responses>=0.24.0  # Mock requests library
+pytest-factoryboy>=2.6.0  # Integration of factory-boy with pytest
+
+# Coverage Tools
+coverage>=7.4.0
+coverage-badge>=1.1.0
+
+# Load & Performance Testing
+locust>=2.20.0
+
+# Security Testing
+bandit>=1.7.0  # Security linter
+safety>=3.0.0  # Dependency vulnerability scanner
 
 # Code Quality
-black==24.1.1
-isort==5.13.2
-flake8==7.0.0
-flake8-docstrings==1.7.0
-mypy==1.8.0
-bandit==1.7.6
+flake8>=7.0.0
+black>=24.0.0  # Code formatter
+isort>=5.13.0  # Import sorter
+mypy>=1.8.0  # Type checking
+pylint>=3.0.0
 
-# Type Stubs
-types-redis==4.6.0.20240106
-types-requests==2.31.0.20240106
-types-python-dateutil==2.8.19.20240106
-types-pytz==2024.1.0.20240203
-
-# Development Tools
-ipython==8.20.0
-ipdb==0.13.13
-watchdog==4.0.0
-
-# Documentation
-mkdocs==1.5.3
-mkdocs-material==9.5.6
-mkdocstrings[python]==0.24.0
-
-# Performance Profiling
-py-spy==0.3.14
-memory-profiler==0.61.0
-
-# Database Tools
-pgcli==4.0.1
+# Database Testing
+pytest-postgresql>=5.0.0  # PostgreSQL fixtures
+sqlalchemy-utils>=0.41.0  # Database utilities for testing
 
 # API Testing
-httpie==3.2.2
+httpx>=0.26.0  # Already in main requirements, but ensure it's available
+
+# Debugging
+ipdb>=0.13.0  # IPython debugger
+pytest-pudb>=0.7.0  # PuDB integration
+
+# Documentation
+sphinx>=7.2.0  # Documentation generator
+sphinx-rtd-theme>=2.0.0  # Read the Docs theme
+
+# Environment Management
+python-dotenv>=1.0.1  # Already in main requirements
+
+# Additional Utilities
+tox>=4.12.0  # Test automation
+pre-commit>=3.6.0  # Git hooks

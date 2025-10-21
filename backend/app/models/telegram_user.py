@@ -6,7 +6,7 @@ Represents a mapping between a Telegram user and a user/patient in the DentaFlow
 
 import uuid
 from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, ForeignKey, UniqueConstraint
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.sql import func
 
 from app.core.database import Base

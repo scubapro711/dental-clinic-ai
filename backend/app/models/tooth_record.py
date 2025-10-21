@@ -11,7 +11,7 @@ Part of the Tooth Chart feature for Sarah agent proactive analysis.
 """
 
 from sqlalchemy import Column, String, Text, DateTime, Boolean, Integer, Enum as SQLEnum, ForeignKey, JSON, Date
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime, date
 import uuid

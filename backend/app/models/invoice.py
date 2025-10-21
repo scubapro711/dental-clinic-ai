@@ -11,7 +11,7 @@ Patient invoices are managed in Odoo.
 import enum
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Numeric, Text
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.orm import relationship
 import uuid
 

@@ -6,7 +6,7 @@ Represents an invite code that can be used to join a specific clinic via Telegra
 
 import uuid
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
+from app.core.database_types import UUID
 from sqlalchemy.sql import func
 
 from app.core.database import Base
