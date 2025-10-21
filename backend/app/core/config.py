@@ -5,7 +5,7 @@ This module uses pydantic-settings to load configuration from environment variab
 or AWS Secrets Manager (in production).
 """
 
-from typing import List, Literal
+from typing import List, Literal, Optional
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -68,18 +68,18 @@ class Settings(BaseSettings):
     # Redis (optional - falls back to in-memory cache)
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
-    # Odoo
-    ODOO_URL: str = Field(default="")
-    ODOO_DB: str = Field(default="")
-    ODOO_USERNAME: str = Field(default="")
-    ODOO_PASSWORD: str = Field(default="")
+    # Odoo (optional - only required if Odoo integration is enabled)
+    ODOO_URL: Optional[str] = Field(default=None)
+    ODOO_DB: Optional[str] = Field(default=None)
+    ODOO_USERNAME: Optional[str] = Field(default=None)
+    ODOO_PASSWORD: Optional[str] = Field(default=None)
 
     # LLM
     OPENAI_API_KEY: str = Field(...)
     ANTHROPIC_API_KEY: str = Field(default="")
 
-    # Telegram Bot
-    TELEGRAM_BOT_TOKEN: str = Field(default="")
+    # Telegram Bot (optional - only required if Telegram integration is enabled)
+    TELEGRAM_BOT_TOKEN: Optional[str] = Field(default=None)
 
     # AWS Cognito
     COGNITO_USER_POOL_ID: str = Field(default="")

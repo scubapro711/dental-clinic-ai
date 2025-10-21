@@ -21,8 +21,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
-from app.api.dependencies import get_db, get_current_user, require_admin
-from app.models.user import User
+from app.api.dependencies import get_db, get_current_user, require_role
+from app.models.user import User, UserRole
 from app.services.hipaa_metrics import HIPAAMetricsService
 
 router = APIRouter()
@@ -111,7 +111,7 @@ class ComplianceTrend(BaseModel):
 
 @router.get("/metrics/summary", response_model=MetricsSummary)
 async def get_metrics_summary(
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> MetricsSummary:
     """
@@ -156,7 +156,7 @@ async def get_phi_access_events(
     end_date: Optional[datetime] = Query(None, description="End date for filtering"),
     authorized_only: bool = Query(False, description="Filter to authorized access only"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of events to return"),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> List[PHIAccessEvent]:
     """
@@ -204,7 +204,7 @@ async def get_authentication_events(
     end_date: Optional[datetime] = Query(None, description="End date for filtering"),
     event_type: Optional[str] = Query(None, description="Filter by event type"),
     limit: int = Query(100, ge=1, le=1000, description="Maximum number of events to return"),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> List[AuthenticationEvent]:
     """
@@ -247,7 +247,7 @@ async def get_authentication_events(
 async def get_breach_incidents(
     status_filter: Optional[str] = Query(None, description="Filter by status"),
     severity: Optional[str] = Query(None, description="Filter by severity"),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> List[BreachIncident]:
     """
@@ -277,7 +277,7 @@ async def get_breach_incidents(
 @router.get("/metrics/baa-status", response_model=List[BAAStatus])
 async def get_baa_status(
     status_filter: Optional[str] = Query(None, description="Filter by status"),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> List[BAAStatus]:
     """
@@ -337,7 +337,7 @@ async def get_baa_status(
 @router.get("/metrics/trends", response_model=List[ComplianceTrend])
 async def get_compliance_trends(
     days: int = Query(30, ge=1, le=365, description="Number of days to retrieve"),
-    current_user: User = Depends(require_admin),
+    current_user: User = Depends(require_role(UserRole.ORG_ADMIN)),
     db: Session = Depends(get_db),
 ) -> List[ComplianceTrend]:
     """

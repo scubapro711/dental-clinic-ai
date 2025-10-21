@@ -78,7 +78,7 @@ class ComplianceAlert(Base):
     deadline_date = Column(DateTime)  # Parsed deadline for sorting/filtering
     
     # Additional data
-    metadata = Column(JSON)  # Additional context (e.g., BAA details, risk scores)
+    alert_metadata = Column('metadata', JSON)  # Additional context - mapped to 'metadata' column in DB (e.g., BAA details, risk scores)
     
     # Resolution tracking
     acknowledged_at = Column(DateTime)
@@ -214,7 +214,7 @@ class ComplianceAlert(Base):
             "action_required": self.action_required,
             "deadline": self.deadline,
             "deadline_date": self.deadline_date.isoformat() if self.deadline_date else None,
-            "metadata": self.metadata,
+            "metadata": self.alert_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
             "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,

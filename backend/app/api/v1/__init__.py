@@ -42,7 +42,7 @@ from app.api.v1.endpoints import (
     demo,
     mfa,
     pilot_applications,
-    data_retention,
+    # data_retention,  # TEMPORARILY DISABLED - missing Patient/Appointment models
     security_incidents,
     compliance,
     hipaa_compliance,
@@ -53,7 +53,7 @@ from app.api.v1.endpoints.super_admin import revenue as super_admin_revenue
 from app.api.v1.endpoints.super_admin import costs as super_admin_costs
 from app.api.v1.endpoints.super_admin import exports as super_admin_exports
 from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
-from app.api.v1.endpoints.super_admin import hipaa as super_admin_hipaa
+# from app.api.v1.endpoints.super_admin import hipaa as super_admin_hipaa  # TEMPORARILY DISABLED - missing Patient/Appointment models
 from app.api.v1 import appointments
 
 # Create main API router
@@ -102,7 +102,7 @@ api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["
 api_router.include_router(hipaa_compliance.router, prefix="/hipaa", tags=["hipaa-compliance"])
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
 api_router.include_router(baa.router, prefix="/baa", tags=["compliance", "hipaa"])
-api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])
+# api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])  # TEMPORARILY DISABLED
 api_router.include_router(security_incidents.router, prefix="/super-admin", tags=["super-admin", "hipaa"])
 api_router.include_router(compliance.router, tags=["compliance", "harper"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["statistics"])
@@ -123,7 +123,7 @@ api_router.include_router(super_admin_revenue.router, prefix="/super-admin", tag
 api_router.include_router(super_admin_costs.router, prefix="/super-admin/costs", tags=["super-admin"])
 api_router.include_router(super_admin_exports.router, prefix="/super-admin/export", tags=["super-admin"])
 api_router.include_router(super_admin_analytics.router, prefix="/super-admin/analytics", tags=["super-admin"])
-api_router.include_router(super_admin_hipaa.router, prefix="/super-admin", tags=["super-admin", "hipaa"])
+# api_router.include_router(super_admin_hipaa.router, prefix="/super-admin", tags=["super-admin", "hipaa"])  # TEMPORARILY DISABLED
 
 # Patient Portal
 api_router.include_router(patient_portal.router, tags=["patient-portal"])
