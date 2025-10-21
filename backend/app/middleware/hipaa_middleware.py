@@ -17,6 +17,7 @@ import re
 from app.core.audit_log import log_audit, AuditAction
 from app.core.database import get_db
 from app.models.user import User
+from app.services.hipaa_metrics import hipaa_metrics
 
 # PHI-sensitive endpoints (regex patterns)
 PHI_ENDPOINTS = [
@@ -223,6 +224,30 @@ class HIPAAMiddleware(BaseHTTPMiddleware):
                 "path": request.url.path,
                 "status_code": response.status_code,
             }
+        )
+        
+        # Export metrics to GCP Cloud Monitoring
+        action_type_map = {
+            AuditAction.READ: "read",
+            AuditAction.CREATE: "write",
+            AuditAction.UPDATE: "write",
+            AuditAction.DELETE: "delete",
+            AuditAction.ACCESS: "read",
+        }
+        
+        hipaa_metrics.record_phi_access(
+            user_id=str(user.id),
+            organization_id=str(user.organization_id),
+            action_type=action_type_map.get(action, "other"),
+            resource_type=resource_type.lower(),
+            authorized=(200 <= response.status_code < 300)
+        )
+        
+        hipaa_metrics.record_audit_log_entry(
+            log_type=action_type_map.get(action, "other"),
+            severity="info" if (200 <= response.status_code < 300) else "error",
+            user_id=str(user.id),
+            organization_id=str(user.organization_id)
         )
     
     def _extract_resource_info(self, path: str) -> tuple[str, Optional[int]]:

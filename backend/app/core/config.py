@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     AWS_REGION: str = Field(default="us-east-1")
     USE_SECRETS_MANAGER: bool = Field(default=False)  # Enable in production
 
+    # GCP (Google Cloud Platform)
+    GCP_PROJECT_ID: str = Field(default="dentaflow-production")
+    GCP_REGION: str = Field(default="us-central1")
+    CLOUD_RUN_REVISION: str = Field(default="")  # Auto-populated in Cloud Run
+    ENABLE_GCP_MONITORING: bool = Field(default=True)  # Enable HIPAA monitoring
+
     # Security
     SECRET_KEY: str = Field(...)
     JWT_SECRET: str = Field(...)
