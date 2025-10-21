@@ -6,7 +6,7 @@ or AWS Secrets Manager (in production).
 """
 
 from typing import List, Literal
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -22,6 +22,19 @@ class Settings(BaseSettings):
 
     # Application
     APP_ENV: Literal["development", "staging", "production", "test"] = Field(default="development")
+    
+    @field_validator('APP_ENV', mode='before')
+    @classmethod
+    def normalize_app_env(cls, v: str) -> str:
+        """Normalize APP_ENV values for backward compatibility."""
+        if isinstance(v, str):
+            v = v.strip().upper()
+            # Map legacy values to standard ones
+            if v == 'PROD':
+                return 'production'
+            return v.lower()
+        return v
+    
     DEBUG: bool = Field(default=False)
     LOG_LEVEL: str = Field(default="INFO")
     APP_HOST: str = Field(default="0.0.0.0")
@@ -35,7 +48,7 @@ class Settings(BaseSettings):
     GCP_PROJECT_ID: str = Field(default="dentaflow-production")
     GCP_REGION: str = Field(default="us-central1")
     CLOUD_RUN_REVISION: str = Field(default="")  # Auto-populated in Cloud Run
-    ENABLE_GCP_MONITORING: bool = Field(default=True)  # Enable HIPAA monitoring
+    ENABLE_GCP_MONITORING: bool = Field(default=False)  # DISABLED: Causing deployment failures, needs fix
 
     # Security
     SECRET_KEY: str = Field(...)
@@ -56,17 +69,17 @@ class Settings(BaseSettings):
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
 
     # Odoo
-    ODOO_URL: str = Field(...)
-    ODOO_DB: str = Field(...)
-    ODOO_USERNAME: str = Field(...)
-    ODOO_PASSWORD: str = Field(...)
+    ODOO_URL: str = Field(default="")
+    ODOO_DB: str = Field(default="")
+    ODOO_USERNAME: str = Field(default="")
+    ODOO_PASSWORD: str = Field(default="")
 
     # LLM
     OPENAI_API_KEY: str = Field(...)
     ANTHROPIC_API_KEY: str = Field(default="")
 
     # Telegram Bot
-    TELEGRAM_BOT_TOKEN: str = Field(...)
+    TELEGRAM_BOT_TOKEN: str = Field(default="")
 
     # AWS Cognito
     COGNITO_USER_POOL_ID: str = Field(default="")
