@@ -450,6 +450,7 @@ class HIPAAMetricsService:
             logger.error(f"Error writing metric {metric_type}: {e}", exc_info=True)
 
 
-# Global singleton instance
-hipaa_metrics = HIPAAMetricsService()
+# Global singleton instance - DO NOT instantiate at import time!
+# Let endpoints create instances on-demand to avoid import failures
+# hipaa_metrics = HIPAAMetricsService()  # REMOVED: causes import-time GCP connection
 
