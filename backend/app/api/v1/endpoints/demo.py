@@ -12,7 +12,7 @@ import logging
 import uuid
 from datetime import datetime, timedelta
 
-from app.agents.agent_graph_v4 import AgentGraphV4
+from app.agents.agent_graph_v5 import AgentGraphV5
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -83,7 +83,7 @@ async def create_demo_session():
         
         # Initialize demo agent graph with in-memory storage (faster, no DB dependency)
         memory_saver = MemorySaver()
-        demo_graph = AgentGraphV4(memory=memory_saver, demo_mode=True)
+        demo_graph = AgentGraphV5(memory=memory_saver, demo_mode=True)
         
         # Store session
         demo_sessions[session_id] = {

@@ -12,7 +12,7 @@ from typing import List, Dict, Any, Optional
 import uuid
 import json
 
-from app.agents.agent_graph_v3 import agent_graph_v3
+from app.agents.agent_graph_v5 import agent_graph_v5
 from app.agents.graph_state import AgentState
 from langchain_core.messages import HumanMessage
 
@@ -81,7 +81,7 @@ async def copilotkit_endpoint(request: dict):
         }
         
         # Invoke the agent graph
-        result = agent_graph_v3.graph.invoke(initial_state, config)
+        result = agent_graph_v5.graph.invoke(initial_state, config)
         
         # Extract the response
         if result and "messages" in result:
@@ -148,7 +148,7 @@ async def copilotkit_stream_endpoint(request: CopilotKitRequest):
             """Generate SSE events for streaming"""
             try:
                 # Stream from the agent graph
-                async for event in agent_graph_v3.graph.astream(
+                async for event in agent_graph_v5.graph.astream(
                     initial_state,
                     config=config
                 ):

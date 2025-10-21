@@ -20,7 +20,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
-from app.agents.agent_graph_v3 import agent_graph_v3
+from app.agents.agent_graph_v5 import agent_graph_v5
 from app.api.dependencies import get_current_user as get_user_obj
 from app.agents.utils.guardrails import validate_input
 from app.middleware.rate_limiter import limiter, get_rate_limit
@@ -202,7 +202,7 @@ async def stream_agent_response(
         # Track the final state to get suggested actions
         final_state = {}
         
-        async for event in agent_graph_v3.graph.astream(
+        async for event in agent_graph_v5.graph.astream(
             initial_state,
             config={"configurable": {"thread_id": conversation_id}},
         ):
@@ -490,7 +490,7 @@ async def chat(
                 raise HTTPException(status_code=400, detail="No user message found")
             
             # Invoke the graph (non-streaming)
-            final_state = await agent_graph_v3.graph.ainvoke(
+            final_state = await agent_graph_v5.graph.ainvoke(
                 {
                     "messages": langchain_messages,
                     "user_id": user_id,
@@ -546,7 +546,7 @@ async def get_conversation(
     try:
         # Get conversation state from LangGraph checkpointer
         # The checkpointer stores state by thread_id
-        state = await agent_graph_v3.graph.aget_state(
+        state = await agent_graph_v5.graph.aget_state(
             config={"configurable": {"thread_id": conversation_id}}
         )
         

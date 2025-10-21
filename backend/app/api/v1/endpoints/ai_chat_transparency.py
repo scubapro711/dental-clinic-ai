@@ -20,7 +20,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
-from app.agents.agent_graph_v3 import agent_graph_v3
+from app.agents.agent_graph_v5 import agent_graph_v5
 from app.api.dependencies import get_current_user as get_user_obj
 from app.agents.utils.guardrails import validate_input
 from app.services.conversation_service import conversation_service
@@ -200,7 +200,7 @@ async def stream_agent_response_with_transparency(
         final_state = {}
         
         # Stream the graph execution
-        async for event in agent_graph_v3.graph.astream(
+        async for event in agent_graph_v5.graph.astream(
             initial_state,
             config={"configurable": {"thread_id": conversation_id}},
         ):

@@ -510,7 +510,7 @@ async def reschedule_appointment(
     - Notify patient
     """
     try:
-        from app.agents.agent_graph_v4 import agent_graph
+        from app.agents.agent_graph_v5 import agent_graph_v5 as agent_graph
         
         # Create message for Sophia
         message = f"""
@@ -568,7 +568,7 @@ async def cancel_appointment(
     - Free up the time slot
     """
     try:
-        from app.agents.agent_graph_v4 import agent_graph
+        from app.agents.agent_graph_v5 import agent_graph_v5 as agent_graph
         
         # Create message for Sophia
         message = f"""

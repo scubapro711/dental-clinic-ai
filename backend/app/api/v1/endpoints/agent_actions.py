@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from typing import Dict, Any, Optional
 import logging
 
-from app.agents.agent_graph_v3 import AgentGraphV3
+from app.agents.agent_graph_v5 import graph as agent_graph
 from app.agents.graph_state import AgentState
 from langchain_core.messages import HumanMessage
 
@@ -21,12 +21,12 @@ router = APIRouter()
 # Initialize agent graph (singleton)
 _agent_graph = None
 
-def get_agent_graph() -> AgentGraphV3:
+def get_agent_graph():
     """Get or create agent graph instance"""
     global _agent_graph
     if _agent_graph is None:
-        _agent_graph = AgentGraphV3()
-        logger.info("Initialized AgentGraphV3")
+        _agent_graph = agent_graph
+        logger.info("Initialized AgentGraphV5 with Harper")
     return _agent_graph
 
 

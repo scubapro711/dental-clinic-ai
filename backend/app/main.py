@@ -22,6 +22,7 @@ tags_metadata = [
         - **Marcus** - Financial analysis and revenue optimization
         - **Sarah** - Clinical decision support and treatment planning
         - **Sophia** - Practice administration and operations
+        - **Harper** - HIPAA compliance specialist and privacy officer
         
         **Features:**
         - Real-time streaming via Server-Sent Events (SSE)

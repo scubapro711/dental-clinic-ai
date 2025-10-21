@@ -13,7 +13,7 @@ from typing import Any, Dict
 from fastapi import APIRouter, Request
 from ag_ui_langgraph import LangGraphAgent
 
-from app.agents.agent_graph_v3 import agent_graph_v3
+from app.agents.agent_graph_v5 import agent_graph_v5
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ router = APIRouter()
 langgraph_agent = LangGraphAgent(
     name="dental_assistant",
     description="AI assistant for dental clinic management with specialized agents for patient care, financial analysis, and operations",
-    graph=agent_graph_v3.graph,
+    graph=agent_graph_v5.graph,
 )
 
 
@@ -34,7 +34,7 @@ langgraph_agent = LangGraphAgent(
 @router.post("/copilotkit/chat")
 async def copilotkit_chat_endpoint(request: Request):
     """
-    Manual chat endpoint that directly uses our agent_graph_v3.
+    Manual chat endpoint that directly uses our agent_graph_v5.
     
     This provides a simpler interface for testing and custom integrations.
     Use this endpoint if you need custom logic for:
@@ -61,7 +61,7 @@ async def copilotkit_chat_endpoint(request: Request):
         logger.info(f"Processing message in thread {thread_id}: {user_message[:100]}")
         
         # Process through agent graph
-        result = await agent_graph_v3.process_message(
+        result = await agent_graph_v5.process_message(
             user_id="copilotkit_user",  # TODO: Extract from auth
             organization_id="default_org",  # TODO: Extract from auth
             conversation_id=thread_id,

@@ -11,7 +11,7 @@ from fastapi import APIRouter, Request, HTTPException, BackgroundTasks
 from uuid import uuid4
 
 from app.integrations.telegram_client import telegram_client
-from app.agents.agent_graph_v4 import AgentGraphV4
+from app.agents.agent_graph_v5 import AgentGraphV5
 from app.agents.telegram_onboarding import TelegramOnboarding
 from app.core.config import settings
 from sqlalchemy.orm import Session
@@ -21,7 +21,7 @@ from app.models.telegram_conversation import TelegramConversation
 from app.services.telegram_buttons import TelegramButtons, ButtonCallbackHandler
 
 # Initialize Multi-Agent Graph (V4 with 4 Agents: Alex, שרה, Marcus, Sophia)
-agent_graph = AgentGraphV4()
+agent_graph = AgentGraphV5()
 
 logger = logging.getLogger(__name__)
 
@@ -265,7 +265,7 @@ async def handle_message(message: Dict[str, Any]):
                 json={"chat_id": chat_id, "action": "typing"}
             )
             
-            # Route to Alex agent via AgentGraphV4
+            # Route to Alex agent via AgentGraphV5
             response = await agent_graph.process_message(
                 user_id=str(telegram_user.patient_id),
                 organization_id=telegram_user.organization_id,

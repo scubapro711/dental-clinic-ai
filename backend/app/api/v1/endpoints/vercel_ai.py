@@ -8,7 +8,7 @@ from typing import List, Dict, Any, Optional
 import json
 from langchain_core.messages import HumanMessage, AIMessage
 
-from app.agents.agent_graph_v3 import agent_graph_v3
+from app.agents.agent_graph_v5 import agent_graph_v5
 
 router = APIRouter()
 
@@ -48,7 +48,7 @@ async def chat(request: ChatRequest):
         
         # Invoke LangGraph agent
         config = {"configurable": {"thread_id": request.thread_id}}
-        result = agent_graph_v3.graph.invoke(
+        result = agent_graph_v5.graph.invoke(
             {"messages": langgraph_messages},
             config=config
         )
@@ -87,7 +87,7 @@ async def chat_stream(request: ChatRequest):
             # Stream from LangGraph
             config = {"configurable": {"thread_id": request.thread_id}}
             
-            async for event in agent_graph_v3.graph.astream(
+            async for event in agent_graph_v5.graph.astream(
                 {"messages": langgraph_messages},
                 config=config
             ):

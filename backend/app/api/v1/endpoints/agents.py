@@ -70,7 +70,7 @@ async def get_all_agents_status(
     try:
         # Import agent graph to check initialization
         # This is a state query, not a full agent call!
-        from app.agents.agent_graph_v3 import AgentGraphV3
+        from app.agents.agent_graph_v5 import graph as agent_graph
         
         # Try to get global instance if exists
         # For now, we'll return mock data since agents are always initialized
