@@ -104,6 +104,30 @@ tags_metadata = [
         "name": "Organizations",
         "description": "Organization and clinic management",
     },
+    {
+        "name": "hipaa-compliance",
+        "description": """
+        HIPAA Compliance Monitoring & Reporting.
+        
+        **Features:**
+        - Real-time compliance metrics
+        - PHI access tracking
+        - Authentication event monitoring
+        - Security breach detection
+        - BAA agreement status
+        - Compliance trends and analytics
+        
+        **Metrics:**
+        - PHI Access Events (authorized & unauthorized)
+        - Authentication Events (login attempts & failures)
+        - Encryption Operations (success & failures)
+        - Audit Log Entries
+        - Breach Incidents
+        - BAA Status (signed, pending, expired)
+        
+        **Access:** Admin-only endpoints
+        """,
+    },
 ]
 
 # Create FastAPI app
@@ -137,6 +161,12 @@ app = FastAPI(
       - Staff scheduling
       - Inventory management
       - Operational efficiency
+    
+    - **Harper** 🛡️ - HIPAA Compliance & Privacy Officer
+      - HIPAA compliance monitoring
+      - PHI access tracking
+      - Security incident management
+      - BAA agreement management
     
     ## 🚀 Key Features
     
