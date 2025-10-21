@@ -45,6 +45,7 @@ from app.api.v1.endpoints import (
     data_retention,
     security_incidents,
     compliance,
+    hipaa_compliance,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -98,6 +99,7 @@ from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
 
 # Monitoring & Compliance
+api_router.include_router(hipaa_compliance.router, prefix="/hipaa", tags=["hipaa-compliance"])
 api_router.include_router(audit_logs.router, prefix="/audit-logs", tags=["audit"])
 api_router.include_router(baa.router, prefix="/baa", tags=["compliance", "hipaa"])
 api_router.include_router(data_retention.router, prefix="/data-retention", tags=["compliance", "hipaa"])
