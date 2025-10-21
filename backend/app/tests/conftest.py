@@ -492,3 +492,9 @@ def capture_logs():
     
     logger.removeHandler(handler)
 
+
+
+# Set TESTING environment variable for all tests
+import os
+os.environ["TESTING"] = "1"
+os.environ["APP_ENV"] = "test"

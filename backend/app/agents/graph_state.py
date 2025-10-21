@@ -24,6 +24,7 @@ class AgentState(TypedDict):
     
     # User and organization context
     user_id: str
+    user_role: str  # User role for RBAC (patient/doctor/owner/clinic_admin)
     organization_id: str
     conversation_id: str
     

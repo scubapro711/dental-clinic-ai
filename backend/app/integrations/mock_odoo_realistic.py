@@ -315,6 +315,40 @@ class RealisticMockOdooClient:
         """Get treatment history for a patient."""
         return self.records_by_patient.get(patient_id, [])
     
+    # Generic Odoo API Methods
+    
+    def search_read(self, model: str, domain: List = None, fields: List[str] = None, limit: int = None) -> List[Dict[str, Any]]:
+        """Generic search_read method compatible with Odoo API."""
+        if model == 'patient.appointment':
+            results = self.appointments
+            
+            # Apply domain filters
+            if domain:
+                for condition in domain:
+                    if len(condition) == 3:
+                        field, operator, value = condition
+                        if operator == '>=':
+                            results = [r for r in results if r.get(field, '') >= value]
+                        elif operator == '<=':
+                            results = [r for r in results if r.get(field, '') <= value]
+                        elif operator == '!=':
+                            results = [r for r in results if r.get(field) != value]
+                        elif operator == '=':
+                            results = [r for r in results if r.get(field) == value]
+            
+            # Apply limit
+            if limit:
+                results = results[:limit]
+            
+            # Filter fields
+            if fields:
+                results = [{k: r.get(k) for k in fields if k in r} for r in results]
+            
+            return results
+        
+        # Add more models as needed
+        return []
+    
     # Statistics
     
     def get_statistics(self) -> Dict[str, Any]:

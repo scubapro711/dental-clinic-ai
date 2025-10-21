@@ -9,21 +9,21 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
+import os
 
 
 logger = logging.getLogger(__name__)
 
 
-def OdooClient() -> OdooClient:
-    """Get Odoo client instance."""
-    return OdooClient(
-        url=settings.ODOO_URL,
-        db=settings.ODOO_DB,
-        username=settings.ODOO_USERNAME,
-        password=settings.ODOO_PASSWORD,
-    )
+def get_odoo_client():
+    """Get Odoo client instance (mock in tests, real in production)."""
+    if os.getenv("TESTING") == "1" or os.getenv("APP_ENV") == "test":
+        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        return RealisticMockOdooClient()
+    else:
+        from app.integrations.odoo_client import OdooClient
+        return OdooClient()
 
 
 @tool
@@ -40,7 +40,7 @@ def get_revenue_overview_tool(days: int = 30) -> Dict[str, Any]:
     logger.info(f"Getting revenue overview for last {days} days")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get date range
         end_date = datetime.now()
@@ -117,7 +117,7 @@ def get_payment_status_tool(days: int = 30) -> Dict[str, Any]:
     logger.info(f"Getting payment status for last {days} days")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get date range
         end_date = datetime.now()
@@ -196,7 +196,7 @@ def get_top_treatments_tool(limit: int = 10, days: int = 30) -> List[Dict[str, A
     logger.info(f"Getting top {limit} treatments for last {days} days")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get date range
         end_date = datetime.now()
@@ -269,7 +269,7 @@ def get_outstanding_invoices_tool(limit: int = 20) -> List[Dict[str, Any]]:
     logger.info(f"Getting top {limit} outstanding invoices")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get unpaid invoices
         outstanding = odoo.search_read(
@@ -322,7 +322,7 @@ def analyze_profitability_tool(days: int = 30) -> Dict[str, Any]:
     logger.info(f"Analyzing profitability for last {days} days")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get date range
         end_date = datetime.now()
@@ -397,7 +397,7 @@ def get_financial_trends_tool(days: int = 90) -> Dict[str, Any]:
     logger.info(f"Analyzing financial trends for last {days} days")
     
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get date range
         end_date = datetime.now()

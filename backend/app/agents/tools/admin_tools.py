@@ -9,21 +9,20 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
-from app.integrations.odoo_client import OdooClient
+import os
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
 
-def OdooClient() -> OdooClient:
-    """Get Odoo client instance."""
-    return OdooClient(
-        url=settings.ODOO_URL,
-        db=settings.ODOO_DB,
-        username=settings.ODOO_USERNAME,
-        password=settings.ODOO_PASSWORD,
-    )
-
+def get_odoo_client():
+    """Get Odoo client instance (mock in tests, real in production)."""
+    if os.getenv("TESTING") == "1" or os.getenv("APP_ENV") == "test":
+        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        return RealisticMockOdooClient()
+    else:
+        from app.integrations.odoo_client import OdooClient
+        return OdooClient()
 
 @tool
 def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> str:
@@ -49,7 +48,7 @@ def get_schedule_conflicts_tool(date: Optional[str] = None, days: int = 7) -> st
         end_date = start_date + timedelta(days=days)
         
         # Get appointments in date range from Odoo
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
@@ -145,7 +144,7 @@ def get_available_slots_tool(date: str, doctor_id: Optional[int] = None, duratio
         logger.info(f"Getting available slots for {date}")
         
         # Get appointments for the date from Odoo
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
@@ -367,7 +366,7 @@ def optimize_schedule_tool(date: str, optimization_goal: str = "minimize_gaps") 
         logger.info(f"Optimizing schedule for {date}")
         
         # Get appointments from Odoo
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         appointments_data = odoo.search_read(
             'patient.appointment',
             domain=[
@@ -458,7 +457,7 @@ def get_operational_metrics_tool(date_range: int = 7) -> str:
         end_date = datetime.now()
         start_date = end_date - timedelta(days=date_range)
         
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[

@@ -11,7 +11,6 @@ from typing import Optional
 from datetime import datetime, timedelta
 import logging
 
-from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.agents.rbac import (
     has_permission,
@@ -20,18 +19,20 @@ from app.agents.rbac import (
     log_access_attempt,
     Permission,
 )
+import os
 
 logger = logging.getLogger(__name__)
 
 
-def OdooClient() -> OdooClient:
-    """Get Odoo client instance."""
-    return OdooClient(
-        url=settings.ODOO_URL,
-        db=settings.ODOO_DB,
-        username=settings.ODOO_USERNAME,
-        password=settings.ODOO_PASSWORD,
-    )
+def get_odoo_client():
+    """Get Odoo client instance (mock in tests, real in production)."""
+    # Use mock in test environment
+    if os.getenv("TESTING") == "1" or os.getenv("APP_ENV") == "test":
+        from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+        return RealisticMockOdooClient()
+    else:
+        from app.integrations.odoo_client import OdooClient
+        return OdooClient()
 
 
 def search_patient_tool(
@@ -88,7 +89,7 @@ def search_patient_tool(
             )
             return get_permission_denied_message(requesting_user_role or "unknown", "search_patients")
         
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Build search domain
         domain = [('is_patient', '=', True)]
@@ -130,7 +131,7 @@ def get_available_slots_tool(days_ahead: int = 7) -> str:
         days_ahead: Number of days to look ahead (default: 7)
     """
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         date_from = datetime.now()
         date_to = date_from + timedelta(days=days_ahead)
@@ -196,7 +197,7 @@ def create_appointment_tool(
         notes: Optional notes about the appointment
     """
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Search for existing patient
         patients = odoo.search_read(
@@ -253,7 +254,7 @@ def get_patient_invoices_tool(patient_name: str, patient_phone: Optional[str] = 
         patient_phone: Patient phone (optional)
     """
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Search for patient
         domain = [('name', 'ilike', patient_name), ('is_patient', '=', True)]
@@ -311,7 +312,7 @@ def get_invoice_details_tool(invoice_id: int) -> str:
         invoice_id: Invoice ID
     """
     try:
-        odoo = OdooClient()
+        odoo = get_odoo_client()
         
         # Get invoice
         invoices = odoo.read(
