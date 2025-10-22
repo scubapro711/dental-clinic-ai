@@ -1,47 +1,44 @@
-"""
-Unit Tests for DataRetentionService Service
-
-Tests for the DataRetentionService service including:
-- Service initialization
-- Core business logic
-- Error handling
-- External dependencies (mocked)
-"""
-
+"""Unit Tests for Data Retention Service"""
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
+from datetime import datetime, timedelta
 
-from app.services.data_retention_service import *
+from app.services.data_retention_service import DataRetentionService
 
+@pytest.fixture
+def mock_db():
+    return Mock()
+
+@pytest.fixture
+def service(mock_db):
+    return DataRetentionService(db=mock_db)
 
 @pytest.mark.unit
 @pytest.mark.services
-@pytest.mark.fast
-class TestDataRetentionService:
-    """Test suite for DataRetentionService service."""
+class TestInit:
+    def test_init(self, mock_db):
+        s = DataRetentionService(db=mock_db)
+        assert s.db == mock_db
+
+@pytest.mark.unit
+@pytest.mark.services
+class TestRetention:
+    def test_cleanup_old_data(self, service):
+        result = service.cleanup_old_data(days=90)
+        assert isinstance(result, dict)
     
-    def test_service_initialization(self):
-        """Test service initialization."""
-        # TODO: Implement test
-        pass
+    def test_archive_conversations(self, service):
+        result = service.archive_conversations(days=180)
+        assert isinstance(result, dict)
     
-    def test_core_functionality(self):
-        """Test core service functionality."""
-        # TODO: Implement test
-        pass
+    def test_delete_expired_data(self, service):
+        result = service.delete_expired_data()
+        assert isinstance(result, dict)
     
-    def test_error_handling(self):
-        """Test error handling in service."""
-        # TODO: Implement test
-        pass
+    def test_get_retention_policy(self, service):
+        policy = service.get_retention_policy()
+        assert isinstance(policy, dict)
     
-    @patch('app.services.data_retention_service.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
-        """Test service with mocked external dependencies."""
-        # TODO: Implement test
-        pass
-    
-    def test_edge_cases(self):
-        """Test edge cases and boundary conditions."""
-        # TODO: Implement test
-        pass
+    def test_apply_retention_policy(self, service):
+        result = service.apply_retention_policy()
+        assert isinstance(result, dict)

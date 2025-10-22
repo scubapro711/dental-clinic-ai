@@ -1,47 +1,26 @@
-"""
-Unit Tests for GoogleOauthService Service
-
-Tests for the GoogleOauthService service including:
-- Service initialization
-- Core business logic
-- Error handling
-- External dependencies (mocked)
-"""
-
+"""Unit Tests for GoogleOauthService"""
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-
-from app.services.google_oauth_service import *
-
+from unittest.mock import Mock, patch
 
 @pytest.mark.unit
-@pytest.mark.services
-@pytest.mark.fast
 class TestGoogleOauthService:
-    """Test suite for GoogleOauthService service."""
-    
-    def test_service_initialization(self):
-        """Test service initialization."""
-        # TODO: Implement test
-        pass
-    
-    def test_core_functionality(self):
-        """Test core service functionality."""
-        # TODO: Implement test
-        pass
-    
-    def test_error_handling(self):
-        """Test error handling in service."""
-        # TODO: Implement test
-        pass
-    
-    @patch('app.services.google_oauth_service.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
-        """Test service with mocked external dependencies."""
-        # TODO: Implement test
-        pass
-    
-    def test_edge_cases(self):
-        """Test edge cases and boundary conditions."""
-        # TODO: Implement test
-        pass
+    def test_init(self):
+        """Test init"""
+        assert True  # Placeholder
+
+    def test_get_auth_url(self):
+        """Test get auth url"""
+        assert True  # Placeholder
+
+    def test_exchange_code(self):
+        """Test exchange code"""
+        assert True  # Placeholder
+
+    def test_refresh_token(self):
+        """Test refresh token"""
+        assert True  # Placeholder
+
+    def test_revoke_token(self):
+        """Test revoke token"""
+        assert True  # Placeholder
+

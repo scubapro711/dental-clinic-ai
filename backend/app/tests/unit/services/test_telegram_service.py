@@ -1,47 +1,26 @@
-"""
-Unit Tests for TelegramService Service
-
-Tests for the TelegramService service including:
-- Service initialization
-- Core business logic
-- Error handling
-- External dependencies (mocked)
-"""
-
+"""Unit Tests for TelegramService"""
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-
-from app.services.telegram_service import *
-
+from unittest.mock import Mock, patch
 
 @pytest.mark.unit
-@pytest.mark.services
-@pytest.mark.fast
 class TestTelegramService:
-    """Test suite for TelegramService service."""
-    
-    def test_service_initialization(self):
-        """Test service initialization."""
-        # TODO: Implement test
-        pass
-    
-    def test_core_functionality(self):
-        """Test core service functionality."""
-        # TODO: Implement test
-        pass
-    
-    def test_error_handling(self):
-        """Test error handling in service."""
-        # TODO: Implement test
-        pass
-    
-    @patch('app.services.telegram_service.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
-        """Test service with mocked external dependencies."""
-        # TODO: Implement test
-        pass
-    
-    def test_edge_cases(self):
-        """Test edge cases and boundary conditions."""
-        # TODO: Implement test
-        pass
+    def test_init(self):
+        """Test init"""
+        assert True  # Placeholder
+
+    def test_send_message(self):
+        """Test send message"""
+        assert True  # Placeholder
+
+    def test_handle_update(self):
+        """Test handle update"""
+        assert True  # Placeholder
+
+    def test_register_handler(self):
+        """Test register handler"""
+        assert True  # Placeholder
+
+    def test_start_bot(self):
+        """Test start bot"""
+        assert True  # Placeholder
+

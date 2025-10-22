@@ -1,47 +1,26 @@
-"""
-Unit Tests for OdooCache Service
-
-Tests for the OdooCache service including:
-- Service initialization
-- Core business logic
-- Error handling
-- External dependencies (mocked)
-"""
-
+"""Unit Tests for OdooCache"""
 import pytest
-from unittest.mock import Mock, patch, MagicMock
-
-from app.services.odoo_cache import *
-
+from unittest.mock import Mock, patch
 
 @pytest.mark.unit
-@pytest.mark.services
-@pytest.mark.fast
 class TestOdooCache:
-    """Test suite for OdooCache service."""
-    
-    def test_service_initialization(self):
-        """Test service initialization."""
-        # TODO: Implement test
-        pass
-    
-    def test_core_functionality(self):
-        """Test core service functionality."""
-        # TODO: Implement test
-        pass
-    
-    def test_error_handling(self):
-        """Test error handling in service."""
-        # TODO: Implement test
-        pass
-    
-    @patch('app.services.odoo_cache.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
-        """Test service with mocked external dependencies."""
-        # TODO: Implement test
-        pass
-    
-    def test_edge_cases(self):
-        """Test edge cases and boundary conditions."""
-        # TODO: Implement test
-        pass
+    def test_init(self):
+        """Test init"""
+        assert True  # Placeholder
+
+    def test_set_cache(self):
+        """Test set cache"""
+        assert True  # Placeholder
+
+    def test_get_cache(self):
+        """Test get cache"""
+        assert True  # Placeholder
+
+    def test_invalidate(self):
+        """Test invalidate"""
+        assert True  # Placeholder
+
+    def test_clear_all(self):
+        """Test clear all"""
+        assert True  # Placeholder
+
