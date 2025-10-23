@@ -17,10 +17,10 @@ import json
 import logging
 
 from sqlalchemy import Column, String, DateTime, Text, Index
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
 import uuid
 
 from app.core.database import Base
+from app.core.database_types import UUID, JSONB
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +38,13 @@ class AuditLog(Base):
     - How the action was performed (API endpoint, method)
     """
     
-    __tablename__ = 'audit_logs'
+    __tablename__ = 'hipaa_audit_logs'
     
     # Primary key
-    id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     
     # Who (user)
-    user_id = Column(PGUUID(as_uuid=True), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     user_email = Column(String(255), nullable=False)
     user_role = Column(String(50))
     
@@ -72,7 +72,7 @@ class AuditLog(Base):
     audit_metadata = Column(JSONB)  # Additional context
     
     # Organization (for multi-tenancy)
-    organization_id = Column(PGUUID(as_uuid=True), index=True)
+    organization_id = Column(UUID(as_uuid=True), index=True)
     
     # Status
     status = Column(String(20), default='success')  # success, failure, error

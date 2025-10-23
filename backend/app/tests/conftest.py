@@ -53,72 +53,16 @@ from sqlalchemy.pool import StaticPool
 import uuid as uuid_lib
 
 # ============================================
-# UUID Support for SQLite (MUST be before model imports)
+# UUID and JSONB Support
 # ============================================
+# NOTE: UUID and JSONB compatibility is handled by app.core.database_types
+# No additional TypeDecorators or monkey-patching needed in tests!
 
-class GUID(TypeDecorator):
-    """Platform-independent GUID type.
-    
-    Uses PostgreSQL's UUID type, otherwise uses CHAR(36), storing as stringified hex values.
-    """
-    impl = CHAR
-    cache_ok = True
-
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'postgresql':
-            return dialect.type_descriptor(PG_UUID())
-        else:
-            return dialect.type_descriptor(CHAR(36))
-
-    def process_bind_param(self, value, dialect):
-        if value is None:
-            return value
-        elif dialect.name == 'postgresql':
-            return str(value)
-        else:
-            if isinstance(value, uuid_lib.UUID):
-                return str(value)
-            else:
-                return str(uuid_lib.UUID(value))
-
-    def process_result_value(self, value, dialect):
-        if value is None:
-            return value
-        else:
-            if isinstance(value, uuid_lib.UUID):
-                return value
-            else:
-                return uuid_lib.UUID(value)
-
-# Monkey-patch UUID in sqlalchemy.dialects.postgresql to use GUID for SQLite
-import sqlalchemy.dialects.postgresql as postgresql_dialects
-original_UUID = postgresql_dialects.UUID
-
-class UUID_Patched(original_UUID):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-    
-    def load_dialect_impl(self, dialect):
-        if dialect.name == 'sqlite':
-            return GUID(self.as_uuid).load_dialect_impl(dialect)
-        return super().load_dialect_impl(dialect)
-
-postgresql_dialects.UUID = UUID_Patched
-
-# Database
-from app.core.database import Base, get_db
-from app.core.config import settings
-
-# Models
-from app.models.user import User, UserRole
-from app.models.organization import Organization
-from app.models.subscription import Subscription, PlanTier
-
-# Services
-from app.services.auth_service import AuthService
-
-# Faker for test data
+# Faker for test data (safe to import early)
 from faker import Faker
+
+# NOTE: All app.* imports are done lazily inside fixtures to ensure
+# environment variables are set BEFORE any app code is loaded
 
 # ============================================
 # Pytest Configuration
@@ -181,14 +125,17 @@ def event_loop():
 @pytest.fixture(scope="function")
 def db_engine():
     """Create a test database engine (SQLite in-memory)."""
+    from app.core.database import Base
+    
     engine = create_engine(
         "sqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
-    Base.metadata.create_all(bind=engine)
+    # Use checkfirst=True to avoid "index already exists" errors
+    Base.metadata.create_all(bind=engine, checkfirst=True)
     yield engine
-    Base.metadata.drop_all(bind=engine)
+    Base.metadata.drop_all(bind=engine, checkfirst=True)
     engine.dispose()
 
 
@@ -235,6 +182,7 @@ async def async_db_session(db_engine) -> AsyncGenerator[Session, None]:
 def app(db_session) -> FastAPI:
     """Create a test FastAPI application."""
     from app.main import app as main_app
+    from app.core.database import get_db
     
     # Override database dependency
     def override_get_db():
@@ -262,8 +210,10 @@ def client(app) -> TestClient:
 # ============================================
 
 @pytest.fixture(scope="function")
-def test_user(db_session) -> User:
+def test_user(db_session):
     """Create a test user."""
+    from app.models.user import User, UserRole
+    
     user = User(
         id=uuid4(),
         email="test@dentaflow.com",
@@ -281,8 +231,10 @@ def test_user(db_session) -> User:
 
 
 @pytest.fixture(scope="function")
-def test_organization(db_session) -> Organization:
+def test_organization(db_session):
     """Create a test organization."""
+    from app.models.organization import Organization
+    
     org = Organization(
         id=uuid4(),
         name="Test Dental Clinic",
@@ -298,8 +250,10 @@ def test_organization(db_session) -> Organization:
 
 
 @pytest.fixture(scope="function")
-def test_subscription(db_session, test_organization) -> Subscription:
+def test_subscription(db_session, test_organization):
     """Create a test subscription."""
+    from app.models.subscription import Subscription, PlanTier, SubscriptionStatus
+    
     subscription = Subscription(
         id=uuid4(),
         organization_id=test_organization.id,

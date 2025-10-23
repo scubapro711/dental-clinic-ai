@@ -29,9 +29,10 @@ async def test_get_patient_profile_linked(client, db_session, test_user):
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -113,9 +114,10 @@ async def test_get_health_score_with_appointments(client, db_session, test_user)
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -167,9 +169,10 @@ async def test_get_health_score_no_appointments(client, db_session, test_user):
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -206,9 +209,10 @@ async def test_get_appointments_upcoming(client, db_session, test_user):
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -268,9 +272,10 @@ async def test_get_appointments_past(client, db_session, test_user):
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
@@ -320,9 +325,10 @@ async def test_get_appointments_pagination(client, db_session, test_user):
     """
     # Setup: Create user-patient mapping
     mapping = UserPatientMapping(
-        id=uuid4(),
         user_id=test_user.id,
         odoo_patient_id=123,
+        email=test_user.email,
+        is_active=True,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
