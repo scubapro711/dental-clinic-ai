@@ -8,8 +8,8 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    from app.services.mfa_service import MfaService
-    return MfaService(db=mock_db) if 'db' in str(MfaService.__init__.__code__.co_varnames) else MfaService()
+    from app.services.mfa_service import MFAService
+    return MFAService(db=mock_db) if 'db' in str(MFAService.__init__.__code__.co_varnames) else MFAService()
 
 @pytest.mark.unit
 @pytest.mark.services

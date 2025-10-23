@@ -35,8 +35,7 @@ class TestVectorDbChromadbBackup:
         # TODO: Implement test
         pass
     
-    @patch('app.services.vector_db_chromadb_backup.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
+    def test_external_dependencies_mocked(self):
         """Test service with mocked external dependencies."""
         # TODO: Implement test
         pass

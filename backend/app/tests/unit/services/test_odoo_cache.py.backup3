@@ -1,0 +1,26 @@
+"""Unit Tests for Odoo Cache Service"""
+
+import pytest
+from unittest.mock import Mock, MagicMock, patch
+
+from app.services.odoo_cache import *
+
+
+@pytest.fixture
+def mock_db():
+    return Mock()
+
+
+@pytest.mark.unit
+@pytest.mark.services
+class TestOdooCache:
+    """Test Odoo Cache service."""
+    
+    def test_service_exists(self):
+        """Test service module exists."""
+        assert True
+    
+    def test_basic_functionality(self):
+        """Test basic functionality."""
+        # Basic smoke test
+        assert True

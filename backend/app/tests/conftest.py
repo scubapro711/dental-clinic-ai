@@ -21,6 +21,20 @@ Usage:
 """
 
 import os
+
+# ============================================
+# Environment Setup (MUST be before any app imports)
+# ============================================
+# Set required environment variables for tests BEFORE importing any app modules
+os.environ["APP_ENV"] = "test"
+os.environ["TESTING"] = "1"
+os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
+os.environ["JWT_SECRET"] = "test-jwt-secret-for-testing-only-not-for-production"
+os.environ["ENCRYPTION_KEY"] = "test-encryption-key-32-bytes-long!!"
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["REDIS_URL"] = "redis://localhost:6379/15"
+os.environ["DISABLE_EXTERNAL_APIS"] = "1"
+
 import pytest
 import asyncio
 from typing import Generator, AsyncGenerator
@@ -60,6 +74,10 @@ def pytest_configure(config):
     # Set test environment
     os.environ["APP_ENV"] = "test"
     os.environ["TESTING"] = "1"
+    
+    # Set required secrets for tests
+    os.environ["SECRET_KEY"] = "test-secret-key-for-testing-only-not-for-production"
+    os.environ["JWT_SECRET"] = "test-jwt-secret-for-testing-only-not-for-production"
     
     # Disable external API calls by default
     os.environ["DISABLE_EXTERNAL_APIS"] = "1"

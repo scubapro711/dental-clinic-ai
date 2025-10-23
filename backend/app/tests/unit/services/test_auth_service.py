@@ -9,7 +9,8 @@ def mock_db():
 @pytest.fixture
 def service(mock_db):
     from app.services.auth_service import AuthService
-    return AuthService(db=mock_db) if 'db' in str(AuthService.__init__.__code__.co_varnames) else AuthService()
+    # AuthService is a class with static methods, no need to instantiate
+    return AuthService
 
 @pytest.mark.unit
 @pytest.mark.services

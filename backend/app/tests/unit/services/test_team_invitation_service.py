@@ -9,7 +9,10 @@ def mock_db():
 @pytest.fixture
 def service(mock_db):
     from app.services.team_invitation_service import TeamInvitationService
-    return TeamInvitationService(db=mock_db) if 'db' in str(TeamInvitationService.__init__.__code__.co_varnames) else TeamInvitationService()
+    try:
+        return TeamInvitationService(db=mock_db)
+    except TypeError:
+        return TeamInvitationService()
 
 @pytest.mark.unit
 @pytest.mark.services

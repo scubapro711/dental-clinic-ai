@@ -43,7 +43,7 @@ from app.core.config import settings
 # Models
 from app.models.user import User, UserRole
 from app.models.organization import Organization
-from app.models.subscription import Subscription, SubscriptionTier
+from app.models.subscription import Subscription, PlanTier
 
 # Services
 from app.services.auth_service import AuthService
@@ -229,7 +229,7 @@ def test_subscription(db_session, test_organization) -> Subscription:
     subscription = Subscription(
         id=uuid4(),
         organization_id=test_organization.id,
-        tier=SubscriptionTier.professional,
+        plan_tier=PlanTier.PROFESSIONAL,
         status="active",
         current_period_start=datetime.utcnow(),
         current_period_end=datetime.utcnow() + timedelta(days=30),

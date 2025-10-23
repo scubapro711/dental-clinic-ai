@@ -35,8 +35,7 @@ class TestVectorDbV2:
         # TODO: Implement test
         pass
     
-    @patch('app.services.vector_db_v2.external_dependency')
-    def test_external_dependencies_mocked(self, mock_dependency):
+    def test_external_dependencies_mocked(self):
         """Test service with mocked external dependencies."""
         # TODO: Implement test
         pass

@@ -8,8 +8,11 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    from app.services.vector_db import VectorDb
-    return VectorDb(db=mock_db) if 'db' in str(VectorDb.__init__.__code__.co_varnames) else VectorDb()
+    from app.services.vector_db import VectorDBService
+    try:
+        return VectorDBService(db=mock_db)
+    except TypeError:
+        return VectorDBService()
 
 @pytest.mark.unit
 @pytest.mark.services

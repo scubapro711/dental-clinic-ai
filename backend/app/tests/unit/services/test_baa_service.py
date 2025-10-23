@@ -8,8 +8,8 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    from app.services.baa_service import BaaService
-    return BaaService(db=mock_db) if 'db' in str(BaaService.__init__.__code__.co_varnames) else BaaService()
+    from app.services.baa_service import BAAService
+    return BAAService(db=mock_db) if 'db' in str(BAAService.__init__.__code__.co_varnames) else BAAService()
 
 @pytest.mark.unit
 @pytest.mark.services

@@ -8,8 +8,8 @@ def mock_db():
 
 @pytest.fixture
 def service(mock_db):
-    from app.services.hipaa_metrics import HipaaMetrics
-    return HipaaMetrics(db=mock_db) if 'db' in str(HipaaMetrics.__init__.__code__.co_varnames) else HipaaMetrics()
+    from app.services.hipaa_metrics import HIPAAMetricsService
+    return HIPAAMetricsService(db=mock_db) if 'db' in str(HIPAAMetricsService.__init__.__code__.co_varnames) else HIPAAMetricsService()
 
 @pytest.mark.unit
 @pytest.mark.services
