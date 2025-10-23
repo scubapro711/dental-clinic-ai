@@ -46,9 +46,64 @@ from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
 # SQLAlchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, TypeDecorator, CHAR
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
+import uuid as uuid_lib
+
+# ============================================
+# UUID Support for SQLite (MUST be before model imports)
+# ============================================
+
+class GUID(TypeDecorator):
+    """Platform-independent GUID type.
+    
+    Uses PostgreSQL's UUID type, otherwise uses CHAR(36), storing as stringified hex values.
+    """
+    impl = CHAR
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            return dialect.type_descriptor(PG_UUID())
+        else:
+            return dialect.type_descriptor(CHAR(36))
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            return value
+        elif dialect.name == 'postgresql':
+            return str(value)
+        else:
+            if isinstance(value, uuid_lib.UUID):
+                return str(value)
+            else:
+                return str(uuid_lib.UUID(value))
+
+    def process_result_value(self, value, dialect):
+        if value is None:
+            return value
+        else:
+            if isinstance(value, uuid_lib.UUID):
+                return value
+            else:
+                return uuid_lib.UUID(value)
+
+# Monkey-patch UUID in sqlalchemy.dialects.postgresql to use GUID for SQLite
+import sqlalchemy.dialects.postgresql as postgresql_dialects
+original_UUID = postgresql_dialects.UUID
+
+class UUID_Patched(original_UUID):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'sqlite':
+            return GUID(self.as_uuid).load_dialect_impl(dialect)
+        return super().load_dialect_impl(dialect)
+
+postgresql_dialects.UUID = UUID_Patched
 
 # Database
 from app.core.database import Base, get_db
