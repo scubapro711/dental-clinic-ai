@@ -2599,12 +2599,33 @@ app.include_router(telegram.router, prefix="/api/v1/telegram", tags=["telegram"]
 
 ---
 
-## 🎭 Track 8: Demo Experience Enhancement (NEW)
+## 🎭 Track 8: Demo Tenant System (REVISED)
 
-**סטטוס:** ⏳ Planned  
-**זמן משוער:** 12-16 שעות  
-**תאריך תכנון:** 21 אוקטובר 2025  
-**עדיפות:** High (conversion optimization)
+**סטטוס:** 🔴 NOT STARTED (0% complete)  
+**זמן משוער:** 2 ימים (REVISED - Professional Stability Approach)  
+**תאריך עדכון:** 23 באוקטובר 2025  
+**עדיפות:** 🟡 P1 - HIGH - חוסם צמיחה אך לא חוסם launch
+
+**עדכון חשוב (23 אוקטובר 2025):**
+
+לאחר חקירת עומק, המצאנו:
+
+**מצב נוכחי:**
+- ✅ demo_data.py קיים (יוצר נתונים)
+- ✅ DemoPortalEnhanced.jsx קיים (UI)
+- 🔴 **אין infrastructure** (אין database schema, service, API, automation)
+- 🔴 **לא ניתן ליצור demo tenant** בפועל
+
+**השפעה על עסק:**
+- ❌ לא ניתן לעשות demo ל-prospects
+- ❌ אין self-service trial
+- ❌ דורש manual demo setup (איטי)
+- ❌ חיכוך ב-sales funnel
+
+**למה P1 ולא P0?**
+> ניתן ל-launch בלי demo tenant (עם manual demos). אבל זה משפיע מאוד על יעילות המכירות וצמיחה. אידיאלי להשלים בשבוע 3 (אחרי Track 7).
+
+**Philosophy:** **Growth Enabler, Not Blocker**
 
 ### 🎯 מטרה
 
@@ -2648,9 +2669,159 @@ Paying Customer
 
 ---
 
-### 📋 Implementation Plan
+### 📋 Professional Implementation Plan (REVISED - 23 Oct 2025)
 
-#### Phase 1: Demo Tenant Infrastructure (4-5 hours)
+**פילוסופיה:** Growth Enabler - משפר מכירות אך לא חוסם launch
+
+#### **יום 1: Core Infrastructure (8 שעות)**
+
+**בוקר: Database & Service (4 שעות)**
+```yaml
+Database Schema:
+  - ALTER organizations טבלה (is_demo, demo_created_at, demo_expires_at)
+  - CREATE demo_data_templates טבלה
+  - Alembic migration
+  זמן: 1 שעה
+
+Demo Tenant Service:
+  - create_demo_tenant() - יוצר organization עם is_demo=True
+  - populate_demo_data() - מאכלס בנתוני דוגמה
+  - reset_demo_tenant() - מאפס נתונים
+  - cleanup_expired_demos() - מוחק demos שפג תוקפם
+  זמן: 3 שעות
+  
+תוצאה: תשתית בסיסית עובדת
+```
+
+**אחר צהריים: API Endpoints (4 שעות)**
+```yaml
+API Endpoints:
+  - POST /api/v1/demo/create - יוצר demo tenant
+  - POST /api/v1/demo/{org_id}/reset - מאפס demo
+  - GET /api/v1/demo/{org_id}/status - מחזיר סטטוס
+  - POST /api/v1/demo/{org_id}/upgrade - משדרג ל-production
+  זמן: 3 שעות
+
+Demo Data Templates:
+  - 5 patients (Sarah, David, Rachel, Michael, Emma)
+  - 12 appointments (past, present, future)
+  - 8 treatments
+  - 15 communications
+  זמן: 1 שעה
+  
+תוצאה: API מלא פונקציונלי
+```
+
+**יום 1 סיכום:**
+- ✅ Database schema מוכן
+- ✅ Demo service עובד
+- ✅ API endpoints פונקציונליים
+- ✅ Demo data templates מוכנים
+
+---
+
+#### **יום 2: Frontend & Automation (8 שעות)**
+
+**בוקר: Frontend Integration (4 שעות)**
+```yaml
+Components:
+  - DemoBanner.tsx - באנר מצב demo בראש המסך
+  - QuickDemoSignup.tsx - טופס הרשמה מהיר
+  - UpgradeModal.tsx - דיאלוג שדרוג
+  זמן: 2 שעות
+
+Landing Page Updates:
+  - "Try Full Demo" CTA
+  - Quick signup flow
+  - Demo features showcase
+  זמן: 1 שעה
+
+Dashboard Integration:
+  - Demo banner בכל העמודים
+  - Reset button
+  - Upgrade button
+  זמן: 1 שעה
+  
+תוצאה: UX מלא פונקציונלי
+```
+
+**אחר צהריים: Automation & Testing (4 שעות)**
+```yaml
+Automation:
+  - Cron job: cleanup_expired_demos (daily 2 AM)
+  - Cron job: send_expiration_reminders (daily 10 AM)
+  - Email templates (expiration, upgrade)
+  זמן: 2 שעות
+
+Testing:
+  - Unit tests (create, reset, upgrade): 10 tests
+  - API tests (endpoints): 4 tests
+  - E2E test (full flow): 1 test
+  זמן: 2 שעות
+  
+תוצאה: מערכת מוכנה ל-production
+```
+
+**יום 2 סיכום:**
+- ✅ Frontend משולב
+- ✅ Automation פועל
+- ✅ 15 בדיקות עוברות
+- ✅ Production-ready demo system
+
+---
+
+### ✅ Production-Ready Criteria
+
+**Track 8 יחשב מושלם כאשר:**
+
+1. **Infrastructure** ✅
+   - [x] Database schema מוגדר
+   - [x] Demo service פונקציונלי
+   - [x] API endpoints עובדים
+   - [x] Demo data templates מוכנים
+
+2. **Frontend** ✅
+   - [x] Demo banner component
+   - [x] Quick signup flow
+   - [x] Upgrade modal
+   - [x] Landing page CTA
+
+3. **Automation** ✅
+   - [x] Cleanup cron job
+   - [x] Expiration reminders
+   - [x] Email templates
+
+4. **Testing** ✅
+   - [x] 15+ tests passing
+   - [x] E2E flow tested
+   - [x] All features validated
+
+5. **Business Logic** ✅
+   - [x] 7-day expiration
+   - [x] Reset functionality
+   - [x] Upgrade path
+   - [x] Data cleanup
+
+---
+
+### 📊 Total Timeline
+
+```yaml
+יום 1: Core Infrastructure
+  זמן: 8 שעות
+  תוצאה: Database + Service + API
+
+יום 2: Frontend & Automation
+  זמן: 8 שעות
+  תוצאה: UX + Automation + Tests
+
+סה"ך: 2 ימים (16 שעות)
+תוצאה: Production-Ready Demo System 🎉
+```
+
+---
+
+#### OLD PLAN (Reference - Not Using)
 
 **1.1 Database Schema Updates**
 ```sql
