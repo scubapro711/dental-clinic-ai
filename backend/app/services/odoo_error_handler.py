@@ -53,8 +53,8 @@ class OdooPermissionError(OdooServiceError):
 class PatientProfileValidation(BaseModel):
     """Validation model for patient profile data."""
     name: str = Field(..., min_length=2, max_length=100)
-    email: Optional[str] = Field(None, regex=r'^[\w\.-]+@[\w\.-]+\.\w+$')
-    phone: Optional[str] = Field(None, regex=r'^\+?[\d\s\-\(\)]+$')
+    email: Optional[str] = Field(None, pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
+    phone: Optional[str] = Field(None, pattern=r'^\+?[\d\s\-\(\)]+$')
     date_of_birth: Optional[date] = None
     
     @validator('date_of_birth')
