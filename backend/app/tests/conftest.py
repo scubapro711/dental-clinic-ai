@@ -206,21 +206,26 @@ def client(app) -> TestClient:
 
 
 @pytest.fixture(scope="function")
-def authenticated_client(app, test_user) -> TestClient:
-    """Create a test client with authentication bypass."""
-    from app.api.dependencies import get_current_user
+def authenticated_client(app, test_user, db_session) -> TestClient:
+    """Create a test client with real JWT authentication."""
+    from app.core.security import create_access_token
     
-    # Override authentication dependency (must be callable, not async)
-    def override_get_current_user():
-        return test_user
+    # Ensure test_user is committed to DB
+    db_session.commit()
     
-    app.dependency_overrides[get_current_user] = override_get_current_user
+    # Create real JWT token with all required fields
+    token_data = {
+        "sub": str(test_user.id),  # user_id as string
+        "email": test_user.email,
+        "role": test_user.role,
+    }
+    token = create_access_token(data=token_data)
     
-    yield TestClient(app)
+    # Create client with authorization header
+    client = TestClient(app)
+    client.headers = {"Authorization": f"Bearer {token}"}
     
-    # Clean up
-    if get_current_user in app.dependency_overrides:
-        del app.dependency_overrides[get_current_user]
+    return client
 
 
 # ============================================
