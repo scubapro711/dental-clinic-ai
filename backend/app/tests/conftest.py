@@ -205,6 +205,24 @@ def client(app) -> TestClient:
     return TestClient(app)
 
 
+@pytest.fixture(scope="function")
+def authenticated_client(app, test_user) -> TestClient:
+    """Create a test client with authentication bypass."""
+    from app.api.dependencies import get_current_user
+    
+    # Override authentication dependency (must be callable, not async)
+    def override_get_current_user():
+        return test_user
+    
+    app.dependency_overrides[get_current_user] = override_get_current_user
+    
+    yield TestClient(app)
+    
+    # Clean up
+    if get_current_user in app.dependency_overrides:
+        del app.dependency_overrides[get_current_user]
+
+
 # ============================================
 # Authentication Fixtures
 # ============================================

@@ -20,7 +20,7 @@ from app.models.user_patient_mapping import UserPatientMapping
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_patient_profile_linked(client, db_session, test_user):
+async def test_get_patient_profile_linked(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient profile when user is linked to Odoo patient
     
@@ -58,9 +58,7 @@ async def test_get_patient_profile_linked(client, db_session, test_user):
         mock_instance.read.return_value = mock_odoo_data
         mock_odoo.return_value = mock_instance
         
-        # Mock authentication
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/patient/profile")
+        response = authenticated_client.get("/api/v1/patient/profile")
     
     # Assertions
     assert response.status_code == 200
@@ -79,7 +77,7 @@ async def test_get_patient_profile_linked(client, db_session, test_user):
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_patient_profile_not_linked(client, db_session, test_user):
+async def test_get_patient_profile_not_linked(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient profile when user is NOT linked to Odoo
     
@@ -89,8 +87,7 @@ async def test_get_patient_profile_not_linked(client, db_session, test_user):
     # No mapping created - user not linked to Odoo
     
     with patch('app.api.v1.endpoints.patient_portal_odoo.OdooClient'):
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/patient/profile")
+        response = authenticated_client.get("/api/v1/patient/profile")
     
     # Assertions
     assert response.status_code == 200
@@ -105,7 +102,7 @@ async def test_get_patient_profile_not_linked(client, db_session, test_user):
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_health_score_with_appointments(client, db_session, test_user):
+async def test_get_health_score_with_appointments(authenticated_client, db_session, test_user):
     """
     CRITICAL: Calculate health score for patient with appointment history
     
@@ -143,8 +140,7 @@ async def test_get_health_score_with_appointments(client, db_session, test_user)
         mock_instance.search_read.return_value = mock_appointments
         mock_odoo.return_value = mock_instance
         
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/patient/health-score")
+        response = authenticated_client.get("/api/v1/patient/health-score")
     
     # Assertions
     assert response.status_code == 200
@@ -160,7 +156,7 @@ async def test_get_health_score_with_appointments(client, db_session, test_user)
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_health_score_no_appointments(client, db_session, test_user):
+async def test_get_health_score_no_appointments(authenticated_client, db_session, test_user):
     """
     CRITICAL: Calculate health score for patient without appointments
     
@@ -185,8 +181,7 @@ async def test_get_health_score_no_appointments(client, db_session, test_user):
         mock_instance.search_read.return_value = []
         mock_odoo.return_value = mock_instance
         
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/patient/health-score")
+        response = authenticated_client.get("/api/v1/patient/health-score")
     
     # Assertions
     assert response.status_code == 200
@@ -200,7 +195,7 @@ async def test_get_health_score_no_appointments(client, db_session, test_user):
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_appointments_upcoming(client, db_session, test_user):
+async def test_get_appointments_upcoming(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient's upcoming appointments
     
@@ -246,8 +241,7 @@ async def test_get_appointments_upcoming(client, db_session, test_user):
         mock_instance.search_read.return_value = mock_appointments
         mock_odoo.return_value = mock_instance
         
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/appointments?status=upcoming")
+        response = authenticated_client.get("/api/v1/appointments?status=upcoming")
     
     # Assertions
     assert response.status_code == 200
@@ -263,7 +257,7 @@ async def test_get_appointments_upcoming(client, db_session, test_user):
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_appointments_past(client, db_session, test_user):
+async def test_get_appointments_past(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient's past appointments
     
@@ -300,8 +294,7 @@ async def test_get_appointments_past(client, db_session, test_user):
         mock_instance.search_read.return_value = mock_appointments
         mock_odoo.return_value = mock_instance
         
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/appointments?status=past")
+        response = authenticated_client.get("/api/v1/appointments?status=past")
     
     # Assertions
     assert response.status_code == 200
@@ -316,7 +309,7 @@ async def test_get_appointments_past(client, db_session, test_user):
 # ============================================================================
 
 @pytest.mark.asyncio
-async def test_get_appointments_pagination(client, db_session, test_user):
+async def test_get_appointments_pagination(authenticated_client, db_session, test_user):
     """
     CRITICAL: Test appointment pagination
     
@@ -354,8 +347,7 @@ async def test_get_appointments_pagination(client, db_session, test_user):
         mock_instance.search_read.return_value = mock_appointments[:3]  # First 3
         mock_odoo.return_value = mock_instance
         
-        with patch('app.api.dependencies.get_current_user', return_value=test_user):
-            response = client.get("/api/v1/patient-portal/appointments?limit=3&offset=0")
+        response = authenticated_client.get("/api/v1/appointments?limit=3&offset=0")
     
     # Assertions
     assert response.status_code == 200
@@ -378,7 +370,7 @@ async def test_patient_endpoints_unauthorized(client):
     Expected: 401 Unauthorized error
     """
     # No authentication mock - should fail
-    response = client.get("/api/v1/patient-portal/patient/profile")
+    response = client.get("/api/v1/patient/profile")
     
     # Assertions
     assert response.status_code in [401, 403]  # Unauthorized or Forbidden
