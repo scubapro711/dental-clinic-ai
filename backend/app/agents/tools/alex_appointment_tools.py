@@ -10,6 +10,8 @@ from datetime import datetime, timedelta
 
 import logging
 
+from app.integrations.odoo_client import OdooClient
+
 logger = logging.getLogger(__name__)
 
 

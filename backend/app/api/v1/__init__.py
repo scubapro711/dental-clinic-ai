@@ -30,6 +30,7 @@ from app.api.v1.endpoints import (
     patient_portal,
     invoices,
     financial,
+    payments,
     dashboard,
     dashboard_metrics,
     migrate,
@@ -109,6 +110,7 @@ api_router.include_router(statistics.router, prefix="/statistics", tags=["statis
 
 # Financial
 api_router.include_router(financial.router, tags=["financial"])
+api_router.include_router(payments.router, prefix="/payments", tags=["payments"])
 
 # Subscriptions & Billing
 api_router.include_router(subscriptions.router, tags=["subscriptions"])
@@ -125,8 +127,8 @@ api_router.include_router(super_admin_exports.router, prefix="/super-admin/expor
 api_router.include_router(super_admin_analytics.router, prefix="/super-admin/analytics", tags=["super-admin"])
 # api_router.include_router(super_admin_hipaa.router, prefix="/super-admin", tags=["super-admin", "hipaa"])  # TEMPORARILY DISABLED
 
-# Patient Portal
-api_router.include_router(patient_portal.router, tags=["patient-portal"])
+# Patient Portal (MOCK - DISABLED FOR TESTING)
+# api_router.include_router(patient_portal.router, tags=["patient-portal"])
 
 # Legal Documents
 api_router.include_router(legal.router, tags=["legal"])

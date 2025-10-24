@@ -2121,5 +2121,224 @@ class OdooClient(object):
 
 
 
+    # ========================================
+    # Appointment Management Methods
+    # ========================================
+
+    def get_available_slots(
+        self,
+        start_date: str,
+        end_date: str,
+        doctor_id: Optional[int] = None,
+        duration_minutes: int = 30
+    ) -> List[Dict[str, Any]]:
+        """
+        Get available appointment slots within a date range.
+        
+        Args:
+            start_date: Start date in ISO format (e.g., "2025-10-23T00:00:00")
+            end_date: End date in ISO format
+            doctor_id: Specific doctor ID (None = all doctors)
+            duration_minutes: Required duration in minutes
+        
+        Returns:
+            List of available slots with doctor info and time
+        """
+        try:
+            logger.info(f"Getting available slots from {start_date} to {end_date}")
+            
+            # Build domain for doctor slots
+            domain = [
+                ('date', '>=', start_date[:10]),  # Extract date part
+                ('date', '<=', end_date[:10]),
+                ('available', '=', True)
+            ]
+            
+            if doctor_id:
+                domain.append(('doctor_id', '=', doctor_id))
+            
+            # Get available doctor slots
+            slots = self.search_read(
+                'doctor.slot',
+                domain,
+                ['doctor_id', 'date', 'start_time', 'end_time', 'duration', 'available']
+            )
+            
+            # Format slots for response
+            available_slots = []
+            for slot in slots:
+                # Check if slot has enough duration
+                slot_duration = slot.get('duration', 30)
+                if slot_duration >= duration_minutes:
+                    available_slots.append({
+                        'slot_id': slot['id'],
+                        'doctor_id': slot.get('doctor_id')[0] if isinstance(slot.get('doctor_id'), tuple) else slot.get('doctor_id'),
+                        'doctor_name': slot.get('doctor_id')[1] if isinstance(slot.get('doctor_id'), tuple) else 'Unknown',
+                        'date': slot['date'],
+                        'start_time': slot['start_time'],
+                        'end_time': slot['end_time'],
+                        'duration': slot_duration,
+                        'datetime': f"{slot['date']}T{slot['start_time']}"
+                    })
+            
+            logger.info(f"Found {len(available_slots)} available slots")
+            return available_slots
+            
+        except Exception as e:
+            logger.error(f"Failed to get available slots: {e}")
+            return []
+
+    def create_appointment(
+        self,
+        patient_id: int,
+        doctor_id: int,
+        appointment_date: str,
+        duration_minutes: int = 30,
+        appointment_type: str = "checkup",
+        notes: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Create a new appointment.
+        
+        Args:
+            patient_id: ID of the patient
+            doctor_id: ID of the doctor
+            appointment_date: Date and time in ISO format
+            duration_minutes: Duration in minutes
+            appointment_type: Type of appointment
+            notes: Additional notes
+        
+        Returns:
+            Created appointment record
+        """
+        try:
+            logger.info(f"Creating appointment for patient {patient_id} with doctor {doctor_id}")
+            
+            # Prepare appointment data
+            appointment_data = {
+                'patient_id': patient_id,
+                'doctor_id': doctor_id,
+                'appointment_date': appointment_date,
+                'duration': duration_minutes,
+                'appointment_type': appointment_type,
+                'state': 'scheduled',
+                'notes': notes or ''
+            }
+            
+            # Create appointment in Odoo
+            appointment_id = self.create('patient.appointment', appointment_data)
+            
+            # Read back the created appointment
+            appointment = self.search_read(
+                'patient.appointment',
+                [('id', '=', appointment_id)],
+                ['patient_id', 'doctor_id', 'appointment_date', 'duration', 'appointment_type', 'state', 'notes']
+            )
+            
+            if appointment:
+                logger.info(f"Appointment created successfully: {appointment_id}")
+                return appointment[0]
+            else:
+                raise Exception("Failed to read created appointment")
+                
+        except Exception as e:
+            logger.error(f"Failed to create appointment: {e}")
+            raise
+
+    def update_appointment(
+        self,
+        appointment_id: int,
+        update_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Update an existing appointment.
+        
+        Args:
+            appointment_id: ID of the appointment to update
+            update_data: Dictionary with fields to update
+        
+        Returns:
+            Updated appointment record
+        """
+        try:
+            logger.info(f"Updating appointment {appointment_id}")
+            
+            # Update appointment in Odoo
+            success = self.write('patient.appointment', appointment_id, update_data)
+            
+            if not success:
+                raise Exception("Failed to update appointment")
+            
+            # Read back the updated appointment
+            appointment = self.search_read(
+                'patient.appointment',
+                [('id', '=', appointment_id)],
+                ['patient_id', 'doctor_id', 'appointment_date', 'duration', 'appointment_type', 'state', 'notes']
+            )
+            
+            if appointment:
+                logger.info(f"Appointment updated successfully: {appointment_id}")
+                return appointment[0]
+            else:
+                raise Exception("Failed to read updated appointment")
+                
+        except Exception as e:
+            logger.error(f"Failed to update appointment: {e}")
+            raise
+
+    def cancel_appointment(
+        self,
+        appointment_id: int,
+        reason: Optional[str] = None,
+        send_notification: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Cancel an appointment.
+        
+        Args:
+            appointment_id: ID of the appointment to cancel
+            reason: Reason for cancellation
+            send_notification: Whether to notify the patient
+        
+        Returns:
+            Cancelled appointment record
+        """
+        try:
+            logger.info(f"Cancelling appointment {appointment_id}")
+            
+            # Update appointment state to cancelled
+            update_data = {
+                'state': 'cancelled',
+                'cancellation_reason': reason or 'No reason provided'
+            }
+            
+            success = self.write('patient.appointment', appointment_id, update_data)
+            
+            if not success:
+                raise Exception("Failed to cancel appointment")
+            
+            # Read back the cancelled appointment
+            appointment = self.search_read(
+                'patient.appointment',
+                [('id', '=', appointment_id)],
+                ['patient_id', 'doctor_id', 'appointment_date', 'duration', 'appointment_type', 'state', 'cancellation_reason']
+            )
+            
+            if appointment:
+                logger.info(f"Appointment cancelled successfully: {appointment_id}")
+                
+                # TODO: Send notification if requested
+                if send_notification:
+                    logger.info(f"Notification would be sent for cancelled appointment {appointment_id}")
+                
+                return appointment[0]
+            else:
+                raise Exception("Failed to read cancelled appointment")
+                
+        except Exception as e:
+            logger.error(f"Failed to cancel appointment: {e}")
+            raise
+
+
 # Global instance
 odoo_client_v3 = OdooClient()

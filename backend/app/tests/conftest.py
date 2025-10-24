@@ -241,7 +241,7 @@ def test_user(db_session):
         id=uuid4(),
         email="test@dentaflow.com",
         full_name="Test User",
-        role=UserRole.clinic_admin,
+        role=UserRole.ORG_ADMIN,
         is_active=True,
         is_verified=True,
         hashed_password="$2b$12$test_hashed_password",  # bcrypt hash
@@ -307,12 +307,6 @@ def auth_headers(test_user) -> dict:
         "Content-Type": "application/json"
     }
 
-
-@pytest.fixture(scope="function")
-def authenticated_client(client, auth_headers) -> TestClient:
-    """Create an authenticated test client."""
-    client.headers.update(auth_headers)
-    return client
 
 
 # ============================================

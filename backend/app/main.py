@@ -236,6 +236,9 @@ app = FastAPI(
 # Security headers middleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
 
+# HIPAA compliance middleware (TODO: needs refactoring)
+# from app.middleware.hipaa_middleware import HIPAAMiddleware
+
 # Rate limiting middleware
 from app.middleware.rate_limiter import (
     limiter,
@@ -252,6 +255,9 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
 # Add SlowAPI middleware
 app.add_middleware(SlowAPIMiddleware)
+
+# TODO: HIPAA compliance middleware needs refactoring (import errors)
+# app.add_middleware(HIPAAMiddleware)
 
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)

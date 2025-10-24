@@ -178,15 +178,10 @@ def app(db_session) -> FastAPI:
     main_app.dependency_overrides.clear()
 
 
-@pytest.fixture(scope="function")
-def client(app) -> TestClient:
-    """Create a test client for the FastAPI application."""
-    return TestClient(app)
-
-
 # ============================================
 # Authentication Fixtures
 # ============================================
+# Note: client fixture is defined in app/tests/conftest.py
 
 @pytest.fixture(scope="function")
 def test_user(db_session) -> User:

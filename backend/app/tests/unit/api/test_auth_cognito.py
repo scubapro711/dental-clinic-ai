@@ -31,7 +31,7 @@ class TestCognitoSignUp:
     """Test Cognito sign up endpoint."""
     
     @patch('app.api.v1.endpoints.auth_cognito.get_cognito_client')
-    def test_signup_success(self, mock_get_cognito):
+    def test_signup_success(self, mock_get_cognito, client):
         """Test successful user sign up."""
         # Mock Cognito client
         mock_cognito = Mock()

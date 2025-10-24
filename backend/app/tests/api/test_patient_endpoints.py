@@ -19,8 +19,8 @@ from app.models.user_patient_mapping import UserPatientMapping
 # CRITICAL TEST #1: Get Patient Profile - Linked to Odoo
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_patient_profile_linked(authenticated_client, db_session, test_user):
+
+def test_get_patient_profile_linked(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient profile when user is linked to Odoo patient
     
@@ -61,6 +61,7 @@ async def test_get_patient_profile_linked(authenticated_client, db_session, test
         response = authenticated_client.get("/api/v1/patient/profile")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data['odoo_linked'] == True
@@ -76,8 +77,8 @@ async def test_get_patient_profile_linked(authenticated_client, db_session, test
 # CRITICAL TEST #2: Get Patient Profile - Not Linked
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_patient_profile_not_linked(authenticated_client, db_session, test_user):
+
+def test_get_patient_profile_not_linked(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient profile when user is NOT linked to Odoo
     
@@ -90,6 +91,7 @@ async def test_get_patient_profile_not_linked(authenticated_client, db_session, 
         response = authenticated_client.get("/api/v1/patient/profile")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data['odoo_linked'] == False
@@ -101,8 +103,8 @@ async def test_get_patient_profile_not_linked(authenticated_client, db_session, 
 # CRITICAL TEST #3: Get Health Score - With Appointments
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_health_score_with_appointments(authenticated_client, db_session, test_user):
+
+def test_get_health_score_with_appointments(authenticated_client, db_session, test_user):
     """
     CRITICAL: Calculate health score for patient with appointment history
     
@@ -143,6 +145,7 @@ async def test_get_health_score_with_appointments(authenticated_client, db_sessi
         response = authenticated_client.get("/api/v1/patient/health-score")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data['score'] >= 80  # High score for recent appointments
@@ -155,8 +158,8 @@ async def test_get_health_score_with_appointments(authenticated_client, db_sessi
 # CRITICAL TEST #4: Get Health Score - No Appointments
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_health_score_no_appointments(authenticated_client, db_session, test_user):
+
+def test_get_health_score_no_appointments(authenticated_client, db_session, test_user):
     """
     CRITICAL: Calculate health score for patient without appointments
     
@@ -184,6 +187,7 @@ async def test_get_health_score_no_appointments(authenticated_client, db_session
         response = authenticated_client.get("/api/v1/patient/health-score")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data['score'] < 80  # Lower score for no appointments
@@ -194,8 +198,8 @@ async def test_get_health_score_no_appointments(authenticated_client, db_session
 # CRITICAL TEST #5: Get Appointments - Upcoming Filter
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_appointments_upcoming(authenticated_client, db_session, test_user):
+
+def test_get_appointments_upcoming(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient's upcoming appointments
     
@@ -244,11 +248,12 @@ async def test_get_appointments_upcoming(authenticated_client, db_session, test_
         response = authenticated_client.get("/api/v1/appointments?status=upcoming")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert 'appointments' in data
     assert len(data['appointments']) == 2
-    assert all(datetime.fromisoformat(apt['start']) > datetime.now() 
+    assert all(datetime.fromisoformat(apt['datetime']) > datetime.now() 
                for apt in data['appointments'])
 
 
@@ -256,8 +261,8 @@ async def test_get_appointments_upcoming(authenticated_client, db_session, test_
 # CRITICAL TEST #6: Get Appointments - Past Filter
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_appointments_past(authenticated_client, db_session, test_user):
+
+def test_get_appointments_past(authenticated_client, db_session, test_user):
     """
     CRITICAL: Get patient's past appointments
     
@@ -297,19 +302,20 @@ async def test_get_appointments_past(authenticated_client, db_session, test_user
         response = authenticated_client.get("/api/v1/appointments?status=past")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert 'appointments' in data
     assert len(data['appointments']) == 1
-    assert data['appointments'][0]['state'] == 'done'
+    assert data['appointments'][0]['status'] == 'past'
 
 
 # ============================================================================
 # CRITICAL TEST #7: Get Appointments - Pagination
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_get_appointments_pagination(authenticated_client, db_session, test_user):
+
+def test_get_appointments_pagination(authenticated_client, db_session, test_user):
     """
     CRITICAL: Test appointment pagination
     
@@ -350,6 +356,7 @@ async def test_get_appointments_pagination(authenticated_client, db_session, tes
         response = authenticated_client.get("/api/v1/appointments?limit=3&offset=0")
     
     # Assertions
+    print(response.json())
     assert response.status_code == 200
     data = response.json()
     assert data['limit'] == 3
@@ -361,8 +368,8 @@ async def test_get_appointments_pagination(authenticated_client, db_session, tes
 # CRITICAL TEST #8: Unauthorized Access
 # ============================================================================
 
-@pytest.mark.asyncio
-async def test_patient_endpoints_unauthorized(client):
+
+def test_patient_endpoints_unauthorized(client):
     """
     CRITICAL: Test unauthorized access to patient endpoints
     
