@@ -89,6 +89,84 @@ def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
 
 # ========== MAIN CLIENT CLASS ==========
 
+
+
+def safe_extract_many2one(field_value: Any, default_name: str = 'Unknown') -> Tuple[Optional[int], str]:
+    """
+    Safely extract ID and name from Odoo many2one field.
+    
+    Odoo many2one fields can return various formats:
+    - (id, name) - tuple with ID and name (normal case)
+    - (id,) - tuple with only ID
+    - () - empty tuple (deleted/missing record)
+    - [id, name] - list with ID and name
+    - [id] - list with only ID
+    - [] - empty list
+    - id - just integer
+    - None - no relation
+    
+    This function handles all cases safely without IndexError.
+    
+    Args:
+        field_value: The many2one field value from Odoo
+        default_name: Default name to use if name is not available
+    
+    Returns:
+        Tuple of (id, name) where:
+        - id is int or None
+        - name is str (never None)
+    
+    Examples:
+        >>> safe_extract_many2one((5, 'Dr. Smith'))
+        (5, 'Dr. Smith')
+        
+        >>> safe_extract_many2one((5,))
+        (5, 'Unknown')
+        
+        >>> safe_extract_many2one(())
+        (None, 'Unknown')
+        
+        >>> safe_extract_many2one([5, 'Dr. Smith'])
+        (5, 'Dr. Smith')
+        
+        >>> safe_extract_many2one(5)
+        (5, 'Unknown')
+        
+        >>> safe_extract_many2one(None)
+        (None, 'Unknown')
+    
+    Fix for Bug #9 and Bug #10:
+    - Prevents IndexError when tuple/list is empty or has only 1 element
+    - Provides consistent interface for all many2one field formats
+    - Returns safe defaults instead of crashing
+    """
+    # Handle None
+    if field_value is None:
+        return None, default_name
+    
+    # Handle tuple or list
+    if isinstance(field_value, (tuple, list)):
+        length = len(field_value)
+        
+        if length >= 2:
+            # Normal case: (id, name) or [id, name]
+            return field_value[0], field_value[1]
+        elif length == 1:
+            # Only ID: (id,) or [id]
+            return field_value[0], default_name
+        else:
+            # Empty: () or []
+            return None, default_name
+    
+    # Handle integer (just ID)
+    if isinstance(field_value, int):
+        return field_value, default_name
+    
+    # Unexpected type - log warning and return safe default
+    logger.warning(f"Unexpected many2one field type: {type(field_value)} = {field_value}")
+    return None, default_name
+
+
 class OdooClient(object):
     """
     Complete Odoo XML-RPC client with full clinical models support.
