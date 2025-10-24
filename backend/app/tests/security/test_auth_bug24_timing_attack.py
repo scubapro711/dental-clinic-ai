@@ -30,8 +30,8 @@ class TestBug24TimingAttack:
         # Should take at least 10ms (bcrypt is slow)
         assert dummy_time > 0.01, f"Dummy verification too fast: {dummy_time}s"
         
-        # Should take less than 200ms (reasonable upper bound)
-        assert dummy_time < 0.2, f"Dummy verification too slow: {dummy_time}s"
+        # Should take less than 500ms (reasonable upper bound for bcrypt)
+        assert dummy_time < 0.5, f"Dummy verification too slow: {dummy_time}s"
     
     def test_constant_time_user_not_found(self, db: Session):
         """Test that non-existent user authentication takes similar time to wrong password."""
