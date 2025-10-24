@@ -65,8 +65,8 @@ def create_access_token(
     
     to_encode = {
         'sub': subject,
-        'exp': expire,
-        'iat': datetime.utcnow(),
+        'exp': int(expire.timestamp()),
+        'iat': int(datetime.utcnow().timestamp()),
         'type': 'access'
     }
     
@@ -113,8 +113,8 @@ def create_refresh_token(
     
     to_encode = {
         'sub': subject,
-        'exp': expire,
-        'iat': datetime.utcnow(),
+        'exp': int(expire.timestamp()),
+        'iat': int(datetime.utcnow().timestamp()),
         'type': 'refresh'
     }
     
@@ -146,7 +146,7 @@ def verify_token(token: str, token_type: str = 'access') -> Optional[TokenData]:
         
         # Verify expiration
         exp = payload.get('exp')
-        if exp and datetime.utcnow().timestamp() > exp:
+        if exp and int(datetime.utcnow().timestamp()) > exp:
             logger.warning("Token has expired")
             return None
         
