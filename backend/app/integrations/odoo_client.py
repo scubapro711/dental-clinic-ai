@@ -682,9 +682,14 @@ class OdooClient(object):
         Raises:
             ValueError: If ids list is empty
         """
-        # Validate IDs
+        # Validate IDs (Bug #6 fix)
         if not ids:
             raise ValueError("ids list cannot be empty. Provide at least one record ID.")
+        
+        # Check for invalid IDs (zero or negative)
+        invalid_ids = [id for id in ids if not isinstance(id, int) or id <= 0]
+        if invalid_ids:
+            raise ValueError(f"All IDs must be positive integers. Invalid IDs: {invalid_ids}")
         
         kwargs = {}
         if fields:
@@ -737,9 +742,13 @@ class OdooClient(object):
         Raises:
             ValueError: If record_id is not positive (<=0)
         """
-        # Validate record_id
-        if record_id <= 0:
+        # Validate record_id (Bug #6 fix)
+        if not isinstance(record_id, int) or record_id <= 0:
             raise ValueError(f"record_id must be a positive integer, got: {record_id}")
+        
+        # Validate values
+        if not values:
+            raise ValueError("values dictionary cannot be empty. Provide at least one field to update.")
         
         try:
             return self._execute(model, 'write', [[record_id], values], {})
