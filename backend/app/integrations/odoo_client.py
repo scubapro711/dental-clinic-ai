@@ -307,6 +307,28 @@ class OdooClient(object):
         
         Returns:
             List of record IDs
+        
+        SECURITY WARNING:
+            If building domain from user input, MUST validate:
+            1. Domain structure (list of tuples with 3 elements each)
+            2. Operators are valid ('=', '!=', '>', '<', '>=', '<=', 'like', 'ilike', 'in', 'not in')
+            3. Field names are whitelisted (prevent access to sensitive fields)
+            4. Complexity is limited (max depth, max conditions to prevent DoS)
+            
+            Example UNSAFE code:
+                # DON'T DO THIS!
+                user_field = request.query_params.get('field')  # User input!
+                user_value = request.query_params.get('value')  # User input!
+                domain = [(user_field, '=', user_value)]  # UNSAFE!
+                
+            Example SAFE code:
+                # DO THIS instead:
+                ALLOWED_FIELDS = ['name', 'email', 'phone']
+                user_field = request.query_params.get('field')
+                if user_field not in ALLOWED_FIELDS:
+                    raise ValueError(f"Field {user_field} not allowed")
+                user_value = request.query_params.get('value')
+                domain = [(user_field, '=', user_value)]  # SAFE!
         """
         if domain is None:
             domain = []
@@ -338,6 +360,10 @@ class OdooClient(object):
         Search and read records in one call (Odoo's search_read method).
         
         This is a convenience method that combines search and read operations.
+        
+        SECURITY WARNING:
+            Same domain validation requirements as search() method.
+            Additionally, if building fields list from user input, MUST whitelist allowed fields.
         More efficient than calling search() then read().
         
         Args:
