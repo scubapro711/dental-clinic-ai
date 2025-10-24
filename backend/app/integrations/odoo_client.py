@@ -622,10 +622,13 @@ class OdooClient(object):
                 ]}
             )
             
+            # Calculate last_updated date (Bug #5 fix: handle empty dates properly)
+            dates = [c.get('last_treatment_date') for c in charts if c.get('last_treatment_date')]
+            
             return {
                 'patient_id': patient_id,
                 'teeth': charts,
-                'last_updated': max([c.get('last_treatment_date') for c in charts if c.get('last_treatment_date')] or [None])
+                'last_updated': max(dates) if dates else None
             }
             
         except Exception as e:
