@@ -29,6 +29,20 @@ from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
+# Security: Prevent password from appearing in logs
+class PasswordFilter(logging.Filter):
+    """Filter to prevent passwords from appearing in logs."""
+    def filter(self, record):
+        # Redact password from log messages
+        if hasattr(record, 'msg'):
+            msg = str(record.msg)
+            # Replace any password-like strings
+            if 'password' in msg.lower():
+                record.msg = msg.replace(settings.ODOO_PASSWORD or '', '***REDACTED***')
+        return True
+
+logger.addFilter(PasswordFilter())
+
 
 # ========== EXCEPTION CLASSES ==========
 
@@ -88,12 +102,30 @@ class OdooClient(object):
     - Compliance & facilities (maintenance, safety, equipment)
     
     Total: 21 Odoo models (44% of 47 available Pragtech Dental models)
+    
+    SECURITY NOTE:
+    - Odoo XML-RPC API requires password authentication for every request
+    - Password is stored in memory and sent with each request
+    - To mitigate security risks:
+      1. ALWAYS use HTTPS (not HTTP) for Odoo connections
+      2. Use strong, unique passwords
+      3. Consider using API keys instead of passwords (if Odoo supports)
+      4. Ensure password is never logged (PasswordFilter is applied)
+      5. Rotate passwords regularly
+    - This is a limitation of Odoo's XML-RPC API, not a bug in this client
     """
     
     # ========== INITIALIZATION & CONNECTION ==========
     
     def __init__(self):
-        """Initialize Odoo client with connection to Odoo server."""
+        """
+        Initialize Odoo client with connection to Odoo server.
+        
+        SECURITY WARNING:
+        - Password is stored in memory for XML-RPC authentication
+        - Ensure ODOO_URL uses HTTPS to encrypt password in transit
+        - Password is filtered from logs via PasswordFilter
+        """
         self.url = settings.ODOO_URL
         self.db = settings.ODOO_DB
         self.username = settings.ODOO_USERNAME
@@ -152,6 +184,14 @@ class OdooClient(object):
                 allow_none=True,
                 transport=transport
             )
+            # Security check: Warn if not using HTTPS
+            if not self.url.startswith('https://'):
+                logger.warning(
+                    "SECURITY WARNING: Odoo connection is not using HTTPS! "
+                    "Password will be sent in plain text over the network. "
+                    "Please use HTTPS for production."
+                )
+            
             logger.info(f"Odoo connection initialized: {self.url} (per-connection timeout: 10s)")
         except socket.timeout:
             logger.error(f"Odoo connection timeout after 10s: {self.url}")
