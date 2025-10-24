@@ -291,7 +291,7 @@ class TestOdooClientWrite:
         client = OdooClient()
         client.authenticate()
         
-        result = client.write('res.partner', [1], {'name': 'Updated'})
+        result = client.write('res.partner', 1, {'name': 'Updated'})
         
         assert result is True
 

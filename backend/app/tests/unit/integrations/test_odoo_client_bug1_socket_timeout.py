@@ -43,20 +43,19 @@ class TestBug1GlobalSocketTimeout:
         assert socket.getdefaulttimeout() is None
         
         # Create OdooClient
-        with pytest.raises(Exception):  # May fail on connection, that's OK
+        try:
             client = OdooClient()
+        except Exception:
+            pass  # Connection may fail, that's OK
         
-        # BUG: Global timeout is now 10.0!
-        # This test will PASS (showing the bug exists)
-        # After fix, this test should FAIL
+        # AFTER FIX: Global timeout should still be None!
         timeout_after = socket.getdefaulttimeout()
         
-        # Document the bug
-        if timeout_after == 10.0:
-            pytest.fail(
-                "BUG CONFIRMED: OdooClient modified global socket timeout to 10.0! "
-                "This affects ALL socket connections in the system."
-            )
+        # Verify the bug is FIXED
+        assert timeout_after is None, (
+            f"BUG STILL EXISTS: OdooClient modified global socket timeout to {timeout_after}! "
+            "This affects ALL socket connections in the system."
+        )
     
     @patch('app.integrations.odoo_client.settings')
     @patch('xmlrpc.client.ServerProxy')

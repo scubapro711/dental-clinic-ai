@@ -448,12 +448,19 @@ class OdooClient(object):
         
         Args:
             model: Odoo model name
-            ids: List of record IDs
+            ids: List of record IDs (must not be empty)
             fields: List of field names to read
         
         Returns:
             List of dictionaries with record data
+        
+        Raises:
+            ValueError: If ids list is empty
         """
+        # Validate IDs
+        if not ids:
+            raise ValueError("ids list cannot be empty. Provide at least one record ID.")
+        
         kwargs = {}
         if fields:
             kwargs['fields'] = fields
@@ -496,12 +503,19 @@ class OdooClient(object):
         
         Args:
             model: Odoo model name
-            record_id: ID of record to update
+            record_id: ID of record to update (must be positive)
             values: Dictionary of field values to update
         
         Returns:
             True if successful
+        
+        Raises:
+            ValueError: If record_id is not positive (<=0)
         """
+        # Validate record_id
+        if record_id <= 0:
+            raise ValueError(f"record_id must be a positive integer, got: {record_id}")
+        
         try:
             return self._execute(model, 'write', [[record_id], values], {})
         except Exception as e:
@@ -518,11 +532,23 @@ class OdooClient(object):
         
         Args:
             model: Odoo model name
-            record_ids: List of record IDs to delete
+            record_ids: List of record IDs to delete (must not be empty, all must be positive)
         
         Returns:
             True if successful
+        
+        Raises:
+            ValueError: If record_ids is empty or contains invalid IDs (<=0)
         """
+        # Validate record_ids
+        if not record_ids:
+            raise ValueError("record_ids list cannot be empty. Provide at least one record ID.")
+        
+        # Check for invalid IDs
+        invalid_ids = [rid for rid in record_ids if rid <= 0]
+        if invalid_ids:
+            raise ValueError(f"All record IDs must be positive integers. Invalid IDs: {invalid_ids}")
+        
         try:
             return self._execute(model, 'unlink', [record_ids], {})
         except Exception as e:
