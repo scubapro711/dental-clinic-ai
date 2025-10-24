@@ -2,7 +2,7 @@
 Authentication service for user management and JWT tokens.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 from uuid import UUID
 
@@ -23,9 +23,9 @@ class AuthService:
         """Create JWT access token."""
         to_encode = data.copy()
         if expires_delta:
-            expire = datetime.utcnow() + expires_delta
+            expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(
+            expire = datetime.now(timezone.utc) + timedelta(
                 minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
             )
         to_encode.update({"exp": expire, "type": "access"})
@@ -38,7 +38,7 @@ class AuthService:
     def create_refresh_token(data: dict) -> str:
         """Create JWT refresh token."""
         to_encode = data.copy()
-        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode.update({"exp": expire, "type": "refresh"})
         encoded_jwt = jwt.encode(
             to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
@@ -119,5 +119,5 @@ class AuthService:
         """Update user's last login timestamp."""
         user = db.query(User).filter(User.id == user_id).first()
         if user:
-            user.last_login_at = datetime.utcnow()
+            user.last_login_at = datetime.now(timezone.utc)
             db.commit()
