@@ -193,12 +193,12 @@ class OdooClient(object):
                 )
             
             logger.info(f"Odoo connection initialized: {self.url} (per-connection timeout: 10s)")
-        except socket.timeout:
+        except socket.timeout as e:
             logger.error(f"Odoo connection timeout after 10s: {self.url}")
-            raise OdooConnectionError(f"Connection timeout: Odoo not responding at {self.url}")
+            raise OdooConnectionError(f"Connection timeout: Odoo not responding at {self.url}") from e
         except Exception as e:
             logger.error(f"Failed to initialize Odoo connection: {e}")
-            raise OdooConnectionError(f"Cannot connect to Odoo: {e}")
+            raise OdooConnectionError(f"Cannot connect to Odoo: {e}") from e
     
     @retry_on_failure(max_retries=3)
     def authenticate(self) -> bool:
@@ -225,7 +225,7 @@ class OdooClient(object):
             return self._authenticated
         except Exception as e:
             logger.error(f"Odoo authentication error: {e}")
-            raise OdooConnectionError(f"Authentication failed: {e}")
+            raise OdooConnectionError(f"Authentication failed: {e}") from e
     
     # ========== CORE EXECUTION ==========
     
