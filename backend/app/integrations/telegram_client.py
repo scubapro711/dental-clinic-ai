@@ -23,8 +23,17 @@ class TelegramClient:
             bot_token: Telegram bot token (defaults to settings)
         """
         self.bot_token = bot_token or settings.TELEGRAM_BOT_TOKEN
-        self.base_url = f"https://api.telegram.org/bot{self.bot_token}"
+        self.base_url = f"https://api.telegram.org/bot{self.bot_token}" if self.bot_token else None
         self.client = httpx.AsyncClient(timeout=30.0)
+    
+    def _validate_token(self):
+        """Validate that bot token is configured.
+        
+        Raises:
+            ValueError: If bot_token is not configured
+        """
+        if not self.bot_token:
+            raise ValueError("Telegram bot token is required. Set TELEGRAM_BOT_TOKEN in settings or pass bot_token parameter.")
     
     async def send_message(
         self,
@@ -44,7 +53,11 @@ class TelegramClient:
             
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         logger.info(f"[TELEGRAM] Attempting to send message to chat {chat_id}")
         logger.info(f"[TELEGRAM] Message length: {len(text)} chars")
         logger.info(f"[TELEGRAM] Parse mode: {parse_mode}")
@@ -112,7 +125,11 @@ class TelegramClient:
             
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/sendPhoto"
         payload = {
             "chat_id": chat_id,
@@ -149,7 +166,11 @@ class TelegramClient:
             
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/sendLocation"
         payload = {
             "chat_id": chat_id,
@@ -176,7 +197,11 @@ class TelegramClient:
             
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/setWebhook"
         payload = {"url": webhook_url}
         
@@ -196,7 +221,11 @@ class TelegramClient:
         
         Returns:
             Webhook information
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/getWebhookInfo"
         
         try:
@@ -214,7 +243,11 @@ class TelegramClient:
         
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/deleteWebhook"
         
         try:
@@ -283,7 +316,11 @@ class TelegramClient:
             
         Returns:
             Response from Telegram API
+            
+        Raises:
+            ValueError: If bot token is not configured
         """
+        self._validate_token()
         url = f"{self.base_url}/answerCallbackQuery"
         payload = {
             "callback_query_id": callback_query_id,
