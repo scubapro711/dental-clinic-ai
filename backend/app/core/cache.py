@@ -11,8 +11,8 @@ Provides caching functionality for:
 
 from typing import Optional, Any
 import json
-import pickle
-from datetime import timedelta
+from datetime import timedelta, datetime, date
+from decimal import Decimal
 from functools import wraps
 import hashlib
 
@@ -25,6 +25,48 @@ except ImportError:
     Redis = None
 
 from app.core.config import settings
+
+
+class SafeJSONEncoder(json.JSONEncoder):
+    """
+    Custom JSON encoder that safely handles Python types.
+    
+    Supports:
+    - datetime → ISO format string
+    - date → ISO format string
+    - Decimal → string (preserves precision)
+    
+    Security: This is safe because it only encodes, never executes code.
+    """
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return {"__type__": "datetime", "value": obj.isoformat()}
+        elif isinstance(obj, date):
+            return {"__type__": "date", "value": obj.isoformat()}
+        elif isinstance(obj, Decimal):
+            return {"__type__": "decimal", "value": str(obj)}
+        return super().default(obj)
+
+
+def safe_json_decoder(dct):
+    """
+    Custom JSON decoder that safely reconstructs Python types.
+    
+    Security: This is safe because it only reconstructs known types,
+    never executes arbitrary code like pickle.loads() does.
+    """
+    if "__type__" in dct:
+        type_name = dct["__type__"]
+        value = dct["value"]
+        
+        if type_name == "datetime":
+            return datetime.fromisoformat(value)
+        elif type_name == "date":
+            return date.fromisoformat(value)
+        elif type_name == "decimal":
+            return Decimal(value)
+    
+    return dct
 
 
 class CacheClient:
@@ -76,14 +118,28 @@ class CacheClient:
             self._connected = False
     
     def _serialize(self, value: Any) -> bytes:
-        """Serialize value for storage"""
-        return pickle.dumps(value)
+        """
+        Serialize value for storage using JSON.
+        
+        Security: Replaced pickle with JSON to prevent deserialization attacks.
+        Custom encoder handles datetime, date, and Decimal types.
+        
+        Bug #18 Fix: Pickle deserialization vulnerability (CWE-502)
+        """
+        return json.dumps(value, cls=SafeJSONEncoder).encode('utf-8')
     
     def _deserialize(self, value: bytes) -> Any:
-        """Deserialize value from storage"""
+        """
+        Deserialize value from storage using JSON.
+        
+        Security: Replaced pickle with JSON to prevent deserialization attacks.
+        Custom decoder handles datetime, date, and Decimal types.
+        
+        Bug #18 Fix: Pickle deserialization vulnerability (CWE-502)
+        """
         if value is None:
             return None
-        return pickle.loads(value)
+        return json.loads(value.decode('utf-8'), object_hook=safe_json_decoder)
     
     def _make_key(self, key: str, namespace: str = "default") -> str:
         """Create namespaced key"""
