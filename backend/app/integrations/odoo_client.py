@@ -292,7 +292,7 @@ class OdooClient(object):
         model: str,
         domain: List = None,
         offset: int = 0,
-        limit: int = None,
+        limit: int = 10000,
         order: str = None
     ) -> List[int]:
         """
@@ -302,11 +302,17 @@ class OdooClient(object):
             model: Odoo model name
             domain: Search domain (list of tuples)
             offset: Number of records to skip
-            limit: Maximum number of records to return
+            limit: Maximum number of records to return (default: 10000)
+                   Use None to disable limit (not recommended for production)
             order: Sort order (e.g., 'name ASC', 'create_date DESC')
         
         Returns:
             List of record IDs
+        
+        MEMORY WARNING:
+            Default limit is 10,000 records to prevent Out of Memory (OOM) errors.
+            For large datasets, use pagination with offset/limit parameters.
+            Setting limit=None will fetch ALL records and may crash the server!
         
         SECURITY WARNING:
             If building domain from user input, MUST validate:
@@ -333,10 +339,17 @@ class OdooClient(object):
         if domain is None:
             domain = []
         
+        # Warning for large limits
+        if limit is not None and limit > 10000:
+            logger.warning(
+                f"Large limit ({limit}) requested for {model}.search(). "
+                f"Consider using pagination to avoid memory issues."
+            )
+        
         kwargs = {}
         if offset:
             kwargs['offset'] = offset
-        if limit:
+        if limit is not None:
             kwargs['limit'] = limit
         if order:
             kwargs['order'] = order
@@ -353,17 +366,13 @@ class OdooClient(object):
         domain: List = None,
         fields: List[str] = None,
         offset: int = 0,
-        limit: int = None,
+        limit: int = 10000,
         order: str = None
     ) -> List[Dict[str, Any]]:
         """
         Search and read records in one call (Odoo's search_read method).
         
         This is a convenience method that combines search and read operations.
-        
-        SECURITY WARNING:
-            Same domain validation requirements as search() method.
-            Additionally, if building fields list from user input, MUST whitelist allowed fields.
         More efficient than calling search() then read().
         
         Args:
@@ -371,11 +380,21 @@ class OdooClient(object):
             domain: Search domain (list of tuples)
             fields: List of field names to read
             offset: Number of records to skip
-            limit: Maximum number of records to return
+            limit: Maximum number of records to return (default: 10000)
+                   Use None to disable limit (not recommended for production)
             order: Sort order (e.g., 'name ASC', 'create_date DESC')
         
         Returns:
             List of dictionaries with record data
+        
+        MEMORY WARNING:
+            Default limit is 10,000 records to prevent Out of Memory (OOM) errors.
+            For large datasets, use pagination with offset/limit parameters.
+            Setting limit=None will fetch ALL records and may crash the server!
+        
+        SECURITY WARNING:
+            Same domain validation requirements as search() method.
+            Additionally, if building fields list from user input, MUST whitelist allowed fields.
         
         Example:
             >>> client.search_read(
@@ -388,12 +407,19 @@ class OdooClient(object):
         if domain is None:
             domain = []
         
+        # Warning for large limits
+        if limit is not None and limit > 10000:
+            logger.warning(
+                f"Large limit ({limit}) requested for {model}.search_read(). "
+                f"Consider using pagination to avoid memory issues."
+            )
+        
         kwargs = {}
         if fields:
             kwargs['fields'] = fields
         if offset:
             kwargs['offset'] = offset
-        if limit:
+        if limit is not None:
             kwargs['limit'] = limit
         if order:
             kwargs['order'] = order
