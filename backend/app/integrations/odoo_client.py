@@ -268,17 +268,39 @@ class OdooClient(object):
             return result
         
         except xmlrpc.client.Fault as e:
-            # Parse Odoo error
-            error_msg = str(e)
+            # Parse Odoo error (Issue #8 fix: improved error detection)
+            error_msg = str(e.faultString if hasattr(e, 'faultString') else e)
+            error_msg_lower = error_msg.lower()
             
-            if 'constraint' in error_msg.lower():
-                logger.error(f"Odoo constraint error: {error_msg}")
+            # Check for specific Odoo exception types (more robust than simple keyword matching)
+            # Priority order: most specific to least specific
+            
+            # 1. IntegrityError / Constraint violations
+            if any(pattern in error_msg_lower for pattern in [
+                'integrityerror',
+                'unique constraint',
+                'foreign key constraint',
+                'check constraint',
+                'unique_violation',
+                'foreign_key_violation'
+            ]):
+                logger.error(f"Odoo constraint error on {model}.{method}: {error_msg}")
                 raise OdooConstraintError(f"Constraint violation: {error_msg}")
-            elif 'required' in error_msg.lower():
-                logger.error(f"Odoo validation error: {error_msg}")
-                raise OdooValidationError(f"Missing required field: {error_msg}")
+            
+            # 2. ValidationError / Required field errors
+            elif any(pattern in error_msg_lower for pattern in [
+                'validationerror',
+                'field is required',
+                'required field',
+                'missing required',
+                'cannot be empty'
+            ]):
+                logger.error(f"Odoo validation error on {model}.{method}: {error_msg}")
+                raise OdooValidationError(f"Validation failed: {error_msg}")
+            
+            # 3. Generic fallback - re-raise original exception
             else:
-                logger.error(f"Odoo error on {model}.{method}: {error_msg}")
+                logger.error(f"Odoo error on {model}.{method} (code: {e.faultCode}): {error_msg}")
                 raise
         
         except Exception as e:
