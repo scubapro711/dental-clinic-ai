@@ -10,7 +10,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.security import verify_password, get_password_hash
+from app.core.security import verify_password, get_password_hash, dummy_verify_password
 from app.models.user import User, UserRole
 from app.schemas.auth import TokenData
 
@@ -73,10 +73,16 @@ class AuthService:
     def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
         """Authenticate user with email and password."""
         user = db.query(User).filter(User.email == email).first()
+        
         if not user:
+            # Constant-time: always verify password even if user doesn't exist
+            # This prevents timing attacks for user enumeration
+            dummy_verify_password()
             return None
+        
         if not verify_password(password, user.hashed_password):
             return None
+        
         return user
 
     @staticmethod
