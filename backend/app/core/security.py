@@ -43,6 +43,30 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password_bytes, hashed_bytes)
 
 
+def dummy_verify_password() -> bool:
+    """
+    Dummy password verification for constant-time comparison.
+    
+    This function performs a real bcrypt hash verification with dummy data
+    to match the timing of real password verification. This prevents timing
+    attacks that could be used to enumerate valid user emails.
+    
+    Returns:
+        Always returns False
+    """
+    # Use a pre-computed dummy hash to avoid generating it every time
+    dummy_password = "dummy_password_for_timing_attack_mitigation"
+    dummy_hash = "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYKKz3QJe3u"  # Hash of "dummy"
+    
+    # Perform actual bcrypt verification (takes ~50ms)
+    import bcrypt
+    password_bytes = dummy_password.encode('utf-8')[:72]
+    hash_bytes = dummy_hash.encode('utf-8')
+    bcrypt.checkpw(password_bytes, hash_bytes)
+    
+    return False
+
+
 def get_password_hash(password: str) -> str:
     """
     Hash a password using bcrypt.
