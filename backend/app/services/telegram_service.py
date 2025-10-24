@@ -226,7 +226,7 @@ class TelegramService:
         # Check usage limit
         if invite.max_uses and invite.used_count >= invite.max_uses:
             logger.warning(f"Invite code reached max uses: {code}")
-            invite.status = InviteCodeStatus.USED
+            invite.status = InviteCodeStatus.EXHAUSTED
             self.db.commit()
             return None
         
@@ -236,7 +236,7 @@ class TelegramService:
         
         # Mark as used if reached max uses
         if invite.max_uses and invite.used_count >= invite.max_uses:
-            invite.status = InviteCodeStatus.USED
+            invite.status = InviteCodeStatus.EXHAUSTED
         
         # Link user to organization via invite
         telegram_user.organization_id = invite.organization_id
@@ -262,29 +262,27 @@ class TelegramService:
         
         Args:
             telegram_user: TelegramUser instance
-            chat_id: Telegram chat ID
+            chat_id: Telegram chat ID (not used in current model, kept for API compatibility)
             
         Returns:
             TelegramConversation instance
         """
-        # Try to find active conversation
+        # Try to find latest conversation for this user
+        # Note: chat_id and is_active are not in the current model schema
         conversation = self.db.query(TelegramConversation).filter(
-            and_(
-                TelegramConversation.telegram_user_id == telegram_user.id,
-                TelegramConversation.chat_id == chat_id,
-                TelegramConversation.is_active == True,
-            )
-        ).first()
+            TelegramConversation.telegram_user_id == telegram_user.id
+        ).order_by(TelegramConversation.last_message_at.desc()).first()
         
         if conversation:
             return conversation
         
         # Create new conversation
+        # Generate a new conversation_id that links to main conversations table
+        from uuid import uuid4
         conversation = TelegramConversation(
             telegram_user_id=telegram_user.id,
             organization_id=telegram_user.organization_id,
-            chat_id=chat_id,
-            is_active=True,
+            conversation_id=uuid4(),  # This links to main conversations table
         )
         self.db.add(conversation)
         self.db.commit()
@@ -292,7 +290,7 @@ class TelegramService:
         
         logger.info(
             f"Created new conversation for Telegram user "
-            f"{telegram_user.telegram_user_id} in chat {chat_id}"
+            f"{telegram_user.telegram_user_id} (conversation_id={conversation.conversation_id})"
         )
         return conversation
     
