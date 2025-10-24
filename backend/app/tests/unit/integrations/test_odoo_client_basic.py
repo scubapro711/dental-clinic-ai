@@ -31,8 +31,7 @@ class TestOdooClientInit:
     """Test OdooClient initialization."""
     
     @patch('app.integrations.odoo_client.xmlrpc.client.ServerProxy')
-    @patch('app.integrations.odoo_client.socket.setdefaulttimeout')
-    def test_init_success(self, mock_timeout, mock_proxy):
+    def test_init_success(self, mock_proxy):
         """Test successful client initialization."""
         mock_common = Mock()
         mock_models = Mock()
@@ -44,7 +43,8 @@ class TestOdooClientInit:
         assert client.models is mock_models
         assert client.uid is None
         assert client._authenticated is False
-        mock_timeout.assert_called_once_with(10.0)
+        # Note: No longer checking setdefaulttimeout - Bug #1 fixed!
+        # Now using per-connection timeout instead of global timeout
     
     @patch('app.integrations.odoo_client.xmlrpc.client.ServerProxy')
     @patch('app.integrations.odoo_client.socket.setdefaulttimeout')

@@ -111,20 +111,48 @@ class OdooClient(object):
         self._init_connection()
     
     def _init_connection(self):
-        """Initialize XML-RPC connection with timeout."""
+        """Initialize XML-RPC connection with per-connection timeout."""
         try:
-            # Set socket timeout to 10 seconds to prevent hanging
-            socket.setdefaulttimeout(10.0)
+            # Create custom transport with timeout (per-connection, not global)
+            # This prevents modifying the global socket timeout
+            import http.client
+            from xmlrpc.client import SafeTransport, Transport
+            
+            class TimeoutTransport(Transport):
+                """Custom XML-RPC transport with per-connection timeout."""
+                def __init__(self, timeout=10.0, *args, **kwargs):
+                    super().__init__(*args, **kwargs)
+                    self.timeout = timeout
+                
+                def make_connection(self, host):
+                    conn = http.client.HTTPConnection(host, timeout=self.timeout)
+                    return conn
+            
+            class TimeoutSafeTransport(SafeTransport):
+                """Custom XML-RPC HTTPS transport with per-connection timeout."""
+                def __init__(self, timeout=10.0, *args, **kwargs):
+                    super().__init__(*args, **kwargs)
+                    self.timeout = timeout
+                
+                def make_connection(self, host):
+                    conn = http.client.HTTPSConnection(host, timeout=self.timeout)
+                    return conn
+            
+            # Determine if HTTPS or HTTP
+            use_https = self.url.startswith('https://')
+            transport = TimeoutSafeTransport(timeout=10.0) if use_https else TimeoutTransport(timeout=10.0)
             
             self.common = xmlrpc.client.ServerProxy(
                 f"{self.url}/xmlrpc/2/common",
-                allow_none=True
+                allow_none=True,
+                transport=transport
             )
             self.models = xmlrpc.client.ServerProxy(
                 f"{self.url}/xmlrpc/2/object",
-                allow_none=True
+                allow_none=True,
+                transport=transport
             )
-            logger.info(f"Odoo connection initialized: {self.url} (timeout: 10s)")
+            logger.info(f"Odoo connection initialized: {self.url} (per-connection timeout: 10s)")
         except socket.timeout:
             logger.error(f"Odoo connection timeout after 10s: {self.url}")
             raise OdooConnectionError(f"Connection timeout: Odoo not responding at {self.url}")
