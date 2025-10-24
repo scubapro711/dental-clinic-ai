@@ -201,7 +201,7 @@ class TestOdooClientSearch:
         client = OdooClient()
         client.authenticate()
         
-        result = client.search('res.partner', [[]], limit=2)
+        result = client.search('res.partner', [], limit=2)
         
         assert result == [1, 2]
 
@@ -339,7 +339,7 @@ class TestOdooClientSearchRead:
         client = OdooClient()
         client.authenticate()
         
-        result = client.search_read('res.partner', [[]])
+        result = client.search_read('res.partner', [])
         
         assert result == [{'id': 1, 'name': 'Test'}]
 
@@ -362,7 +362,7 @@ class TestOdooClientSearchCount:
         client = OdooClient()
         client.authenticate()
         
-        result = client.search_count('res.partner', [[]])
+        result = client.search_count('res.partner', [])
         
         assert result == 42
 

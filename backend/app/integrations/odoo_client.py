@@ -307,6 +307,171 @@ class OdooClient(object):
             logger.error(f"Unexpected error on {model}.{method}: {e}")
             raise
     
+    # ========== DOMAIN VALIDATION (Bug #3 Fix) ==========
+    
+    # Allowed Odoo domain operators
+    ALLOWED_OPERATORS = {
+        # Comparison
+        '=', '!=', '>', '>=', '<', '<=',
+        # String
+        'like', 'ilike', '=like', '=ilike', 'not like', 'not ilike',
+        # List
+        'in', 'not in',
+        # Special
+        '=?', 'child_of', 'parent_of'
+    }
+    
+    # Logical operators
+    LOGICAL_OPERATORS = {'&', '|', '!'}
+    
+    # Compiled regex for field name validation (cached for performance)
+    import re
+    FIELD_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9_.]+$')
+    
+    def _validate_domain(self, domain: List) -> None:
+        """
+        Validate domain structure and content (Bug #3 fix).
+        
+        This provides Defense in Depth security by ensuring:
+        1. Domain structure is correct
+        2. Operators are from allowed list
+        3. Field names contain only safe characters
+        4. Value types match operators
+        
+        Args:
+            domain: Odoo search domain
+        
+        Raises:
+            OdooValidationError: If domain is invalid
+        
+        Note:
+            While Odoo's ORM prevents SQL injection, this validation
+            layer enforces best practices and catches developer errors.
+        
+        Example:
+            Valid: [('name', '=', 'John'), ('age', '>', 18)]
+            Invalid: [('name; DROP TABLE', '=', 'value')]
+        """
+        # 1. Structure validation
+        if not isinstance(domain, list):
+            raise OdooValidationError(
+                f"Domain must be a list, got {type(domain).__name__}"
+            )
+        
+        # 2. Validate each clause
+        for clause in domain:
+            self._validate_domain_clause(clause)
+    
+    def _validate_domain_clause(self, clause: Any) -> None:
+        """
+        Validate individual domain clause.
+        
+        Valid formats:
+        - ('field', 'operator', value) - 3-tuple
+        - '&', '|', '!' - Logical operators (strings)
+        
+        Raises:
+            OdooValidationError: If clause format is invalid
+        """
+        # Logical operators
+        if isinstance(clause, str):
+            if clause not in self.LOGICAL_OPERATORS:
+                raise OdooValidationError(
+                    f"Invalid logical operator: {clause}. "
+                    f"Allowed: {', '.join(sorted(self.LOGICAL_OPERATORS))}"
+                )
+            return
+        
+        # Field clauses
+        if not isinstance(clause, (tuple, list)):
+            raise OdooValidationError(
+                f"Domain clause must be tuple/list or logical operator, "
+                f"got {type(clause).__name__}"
+            )
+        
+        if len(clause) != 3:
+            raise OdooValidationError(
+                f"Domain clause must have 3 elements (field, operator, value), "
+                f"got {len(clause)}"
+            )
+        
+        # Validate field, operator, value
+        field, operator, value = clause
+        self._validate_field_name(field)
+        self._validate_operator(operator)
+        self._validate_value(value, operator)
+    
+    def _validate_field_name(self, field: Any) -> None:
+        """
+        Validate field name is a string and contains only safe characters.
+        
+        Allowed: a-z, A-Z, 0-9, _, . (for related fields)
+        
+        Raises:
+            OdooValidationError: If field name is invalid
+        """
+        if not isinstance(field, str):
+            raise OdooValidationError(
+                f"Field name must be string, got {type(field).__name__}"
+            )
+        
+        if not field:
+            raise OdooValidationError("Field name cannot be empty")
+        
+        # Allow alphanumeric, underscore, and dot (for related fields)
+        if not self.FIELD_NAME_PATTERN.match(field):
+            raise OdooValidationError(
+                f"Field name contains invalid characters: {field}"
+            )
+    
+    def _validate_operator(self, operator: Any) -> None:
+        """
+        Validate operator is in allowed list.
+        
+        Raises:
+            OdooValidationError: If operator is not allowed
+        """
+        if not isinstance(operator, str):
+            raise OdooValidationError(
+                f"Operator must be string, got {type(operator).__name__}"
+            )
+        
+        if operator not in self.ALLOWED_OPERATORS:
+            raise OdooValidationError(
+                f"Invalid operator: {operator}. "
+                f"Allowed: {', '.join(sorted(self.ALLOWED_OPERATORS))}"
+            )
+    
+    def _validate_value(self, value: Any, operator: str) -> None:
+        """
+        Validate value type matches operator.
+        
+        Raises:
+            OdooValidationError: If value type is incompatible with operator
+        """
+        # List operators require list/tuple values
+        if operator in ['in', 'not in']:
+            if not isinstance(value, (list, tuple)):
+                raise OdooValidationError(
+                    f"Operator '{operator}' requires list/tuple value, "
+                    f"got {type(value).__name__}"
+                )
+        
+        # Comparison operators don't accept lists or dicts
+        elif operator in ['>', '>=', '<', '<=']:
+            if isinstance(value, (list, tuple, dict)):
+                raise OdooValidationError(
+                    f"Operator '{operator}' cannot be used with {type(value).__name__}"
+                )
+        
+        # String operators typically require string values (warning only)
+        elif operator in ['like', 'ilike', '=like', '=ilike', 'not like', 'not ilike']:
+            if not isinstance(value, str):
+                logger.warning(
+                    f"Operator '{operator}' typically requires string value, "
+                    f"got {type(value).__name__}"
+                )
+    
     # ========== CRUD OPERATIONS ==========
     
     def search(
@@ -360,6 +525,10 @@ class OdooClient(object):
         """
         if domain is None:
             domain = []
+        
+        # Bug #3 fix: Validate domain structure and content
+        if domain:  # Only validate non-empty domains
+            self._validate_domain(domain)
         
         # Warning for large limits
         if limit is not None and limit > 10000:
@@ -429,6 +598,10 @@ class OdooClient(object):
         if domain is None:
             domain = []
         
+        # Bug #3 fix: Validate domain structure and content
+        if domain:  # Only validate non-empty domains
+            self._validate_domain(domain)
+        
         # Warning for large limits
         if limit is not None and limit > 10000:
             logger.warning(
@@ -478,6 +651,10 @@ class OdooClient(object):
         """
         if domain is None:
             domain = []
+        
+        # Bug #3 fix: Validate domain structure and content
+        if domain:  # Only validate non-empty domains
+            self._validate_domain(domain)
         
         try:
             return self._execute(model, 'search_count', [domain], {})
