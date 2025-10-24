@@ -3,7 +3,7 @@ JWT utilities with organization context.
 
 Provides functions to create and validate JWTs with organization context.
 """
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
 from uuid import UUID
 import os
@@ -59,14 +59,14 @@ def create_access_token(
         Encoded JWT token
     """
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.now(timezone.utc) + timedelta(minutes=JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     
     to_encode = {
         'sub': subject,
         'exp': int(expire.timestamp()),
-        'iat': int(datetime.utcnow().timestamp()),
+        'iat': int(datetime.now(timezone.utc).timestamp()),
         'type': 'access'
     }
     
@@ -107,14 +107,14 @@ def create_refresh_token(
         Encoded JWT refresh token
     """
     if expires_delta:
-        expire = datetime.utcnow() + expires_delta
+        expire = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.utcnow() + timedelta(days=JWT_REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = datetime.now(timezone.utc) + timedelta(days=JWT_REFRESH_TOKEN_EXPIRE_DAYS)
     
     to_encode = {
         'sub': subject,
         'exp': int(expire.timestamp()),
-        'iat': int(datetime.utcnow().timestamp()),
+        'iat': int(datetime.now(timezone.utc).timestamp()),
         'type': 'refresh'
     }
     
@@ -146,7 +146,7 @@ def verify_token(token: str, token_type: str = 'access') -> Optional[TokenData]:
         
         # Verify expiration
         exp = payload.get('exp')
-        if exp and int(datetime.utcnow().timestamp()) > exp:
+        if exp and int(datetime.now(timezone.utc).timestamp()) > exp:
             logger.warning("Token has expired")
             return None
         
