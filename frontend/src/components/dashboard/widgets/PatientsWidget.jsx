@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { User, Phone, Mail, Calendar, MessageSquare, Search } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 
 export function PatientsWidget() {
   const [patients, setPatients] = useState([])

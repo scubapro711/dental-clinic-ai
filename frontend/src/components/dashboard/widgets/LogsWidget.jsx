@@ -15,7 +15,7 @@ import { Widget } from '../Widget'
 import { Badge } from '@/components/ui/badge'
 import { FileText, Sparkles, DollarSign, Calendar, Settings, Server, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { api } from '@/lib/api'
+import api from '@/lib/api'
 
 const SOURCE_CONFIG = {
   alex: {

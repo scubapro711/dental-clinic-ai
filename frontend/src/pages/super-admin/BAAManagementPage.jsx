@@ -26,7 +26,7 @@ import {
   Warning as PendingIcon,
   Error as ExpiredIcon
 } from '@mui/icons-material';
-import { api } from '../../services/api';
+import api from '../../services/api';
 
 const BAAManagementPage = () => {
   const [baaData, setBaaData] = useState([]);

@@ -6,7 +6,7 @@ import { MessageSquare, Send, Phone, Sparkles } from 'lucide-react';
 import TelegramInviteCodesWidget from '@/components/communications/TelegramInviteCodesWidget';
 import TelegramUsersWidget from '@/components/communications/TelegramUsersWidget';
 import TelegramConversationsWidget from '@/components/communications/TelegramConversationsWidget';
-import TelegramHub from '@/components/communications/TelegramHub';
+// import TelegramHub from '@/components/communications/TelegramHub'; // Temporarily disabled
 
 /**
  * Communications Hub - Main Page
@@ -82,7 +82,7 @@ export default function CommunicationsHub() {
           {/* Telegram Tab */}
           <TabsContent value="telegram" className="space-y-6">
             {/* Full Telegram Hub - Chat Interface */}
-            <TelegramHub />
+            {/* <TelegramHub /> */} {/* Temporarily disabled */}
             
             {/* Management Widgets */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">

@@ -31,7 +31,7 @@ import {
   Warning as WarningIcon,
   Error as CriticalIcon
 } from '@mui/icons-material';
-import { api } from '../../services/api';
+import api from '../../services/api';
 
 const DataRetentionPage = () => {
   const [retentionData, setRetentionData] = useState([]);

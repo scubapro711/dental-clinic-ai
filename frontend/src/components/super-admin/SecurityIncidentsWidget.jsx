@@ -27,7 +27,7 @@ import {
   Check as ResolveIcon,
   Refresh as RefreshIcon
 } from '@mui/icons-material';
-import { api } from '../../services/api';
+import api from '../../services/api';
 
 const SecurityIncidentsWidget = () => {
   const [incidents, setIncidents] = useState([]);
