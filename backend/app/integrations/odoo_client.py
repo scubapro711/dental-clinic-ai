@@ -18,11 +18,13 @@ from functools import wraps
 import time
 
 # Security: Protect against XML vulnerabilities
+_DEFUSEDXML_AVAILABLE = False
 try:
     from defusedxml.xmlrpc import monkey_patch
     monkey_patch()
+    _DEFUSEDXML_AVAILABLE = True
 except ImportError:
-    pass  # Will log warning after logger is initialized
+    _DEFUSEDXML_AVAILABLE = False  # Will log warning after logger is initialized
 
 from app.core.config import settings
 
@@ -42,6 +44,13 @@ class PasswordFilter(logging.Filter):
         return True
 
 logger.addFilter(PasswordFilter())
+
+# Log warning if defusedxml is not available
+if not _DEFUSEDXML_AVAILABLE:
+    logger.warning(
+        "defusedxml is not installed. XML-RPC communication is vulnerable to XML attacks. "
+        "Install with: pip install defusedxml"
+    )
 
 
 # ========== EXCEPTION CLASSES ==========
