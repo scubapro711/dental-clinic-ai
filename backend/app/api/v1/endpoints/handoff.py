@@ -180,7 +180,11 @@ async def get_pending_handoffs(
         import logging
         logger = logging.getLogger(__name__)
         logger.error(f"Handoff API error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to load handoff items: {str(e)}")
+        logger.error(f"Failed to load handoff items:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.get("/resolved")
@@ -215,7 +219,11 @@ async def get_resolved_handoffs():
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load resolved items: {str(e)}")
+        logger.error(f"Failed to load resolved items:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.get("/alex/activity")
@@ -300,7 +308,11 @@ async def get_alex_activity(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load Alex activity: {str(e)}")
+        logger.error(f"Failed to load Alex activity:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.get("/alex/performance")
@@ -352,4 +364,8 @@ async def get_alex_performance(
         }
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to load Alex performance: {str(e)}")
+        logger.error(f"Failed to load Alex performance:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )

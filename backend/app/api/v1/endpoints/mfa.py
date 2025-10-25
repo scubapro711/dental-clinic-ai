@@ -4,6 +4,7 @@ MFA (Multi-Factor Authentication) API endpoints
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+import logging
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
@@ -12,6 +13,8 @@ from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.services.mfa_service import get_mfa_service
 from app.core.audit_log import log_audit_event
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -179,9 +182,10 @@ async def setup_mfa(
             backup_codes=backup_codes
         )
     except Exception as e:
+        logger.error(f"Failed to setup MFA: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to setup MFA: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 

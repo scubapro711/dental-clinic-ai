@@ -5,12 +5,15 @@ Admin interface for managing HIPAA-compliant data lifecycle
 
 from typing import List, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, status
+import logging
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
 from app.api.dependencies import get_db, get_current_user, require_super_admin
 from app.models.user import User
 from app.services.data_retention_service import DataRetentionService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -80,9 +83,10 @@ async def get_retention_report(
         return RetentionReportResponse(**report)
         
     except Exception as e:
+        logger.error(f"Error generating retention report: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error generating retention report: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -111,9 +115,10 @@ async def list_expired_patients(
         return [ExpiredRecordResponse(**patient) for patient in expired_patients]
         
     except Exception as e:
+        logger.error(f"Error listing expired patients: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error listing expired patients: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -175,9 +180,10 @@ async def delete_patient_data(
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"Error deleting patient data: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting patient data: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -216,9 +222,10 @@ async def archive_audit_logs(
         }
         
     except Exception as e:
+        logger.error(f"Error archiving audit logs: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error archiving audit logs: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -255,9 +262,10 @@ async def cleanup_inactive_users(
         }
         
     except Exception as e:
+        logger.error(f"Error deleting inactive users: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting inactive users: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -289,9 +297,10 @@ async def count_expired_audit_logs(
         }
         
     except Exception as e:
+        logger.error(f"Error counting expired audit logs: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error counting expired audit logs: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -331,9 +340,10 @@ async def run_daily_check(
         }
         
     except Exception as e:
+        logger.error(f"Error in daily retention check: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error in daily retention check: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -371,8 +381,9 @@ async def run_monthly_cleanup(
         }
         
     except Exception as e:
+        logger.error(f"Error in monthly cleanup: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error in monthly cleanup: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 

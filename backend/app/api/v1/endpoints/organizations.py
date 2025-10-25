@@ -299,9 +299,10 @@ async def register_organization(
         
     except Exception as e:
         db.rollback()
+        logger.error(f"Failed to register organization: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to register organization: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 

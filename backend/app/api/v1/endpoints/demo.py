@@ -105,7 +105,11 @@ async def create_demo_session():
         
     except Exception as e:
         logger.error(f"Error creating demo session: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to create demo session: {str(e)}")
+        logger.error(f"Failed to create demo session:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post("/chat", response_model=DemoChatResponse)
@@ -223,7 +227,11 @@ async def demo_chat(request: DemoChatMessage):
         raise
     except Exception as e:
         logger.error(f"Error in demo chat: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
+        logger.error(f"Error processing message:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.get("/session/{session_id}/status")

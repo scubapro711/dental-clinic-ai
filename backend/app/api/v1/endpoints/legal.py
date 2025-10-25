@@ -117,9 +117,10 @@ async def get_legal_document(
             content = f.read()
     except Exception as e:
         logger.error(f"Error reading legal document {doc_path}: {str(e)}")
+        logger.error(f"Error reading legal document: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Error reading legal document: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
     
     return {

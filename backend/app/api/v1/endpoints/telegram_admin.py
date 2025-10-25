@@ -418,8 +418,9 @@ async def send_telegram_message(
     
     except Exception as e:
         logger.error(f"Error sending Telegram message: {e}")
+        logger.error(f"Failed to send message: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to send message: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 

@@ -4,6 +4,7 @@ Chat API endpoints for AI agent conversations.
 
 from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, status
+import logging
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -20,6 +21,8 @@ from app.schemas.conversation import (
     MessageResponse,
 )
 from app.agents.agent_graph_v5 import AgentGraphV5
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -109,9 +112,10 @@ async def chat(
             requires_human=result.get("escalation_level") in ["EMERGENCY", "DOCTOR_REQUIRED"],
         )
     except Exception as e:
+        logger.error(f"Error processing message: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error processing message: {str(e)}",
+            detail="An error occurred while processing your request. Please try again later.",
         )
 
 

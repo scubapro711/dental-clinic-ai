@@ -195,9 +195,10 @@ async def get_recent_logs(
         
     except Exception as e:
         logger.error(f"Error getting logs: {e}")
+        logger.error(f"Failed to get logs: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get logs: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -244,7 +245,8 @@ async def get_logs_stats(
         
     except Exception as e:
         logger.error(f"Error getting log stats: {e}")
+        logger.error(f"Failed to get log stats: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get log stats: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
