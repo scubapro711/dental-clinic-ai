@@ -7,6 +7,9 @@ from typing import Optional, List
 import subprocess
 import json
 
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
+
 router = APIRouter()
 
 
@@ -63,7 +66,10 @@ def call_stripe_mcp(tool_name: str, input_data: dict) -> dict:
 
 
 @router.post("/create-customer")
-async def create_customer(request: CreateCustomerRequest):
+async def create_customer(
+    request: CreateCustomerRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Create a Stripe customer"""
     input_data = {
         "email": request.email,
@@ -77,14 +83,20 @@ async def create_customer(request: CreateCustomerRequest):
 
 
 @router.get("/customers")
-async def list_customers(limit: int = 10):
+async def list_customers(
+    limit: int = 10,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """List Stripe customers"""
     result = call_stripe_mcp("list_customers", {"limit": limit})
     return result
 
 
 @router.post("/create-payment-link")
-async def create_payment_link(request: PaymentIntentRequest):
+async def create_payment_link(
+    request: PaymentIntentRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Create a Stripe payment link"""
     # First create a price
     price_data = {
@@ -108,7 +120,10 @@ async def create_payment_link(request: PaymentIntentRequest):
 
 
 @router.post("/create-invoice")
-async def create_invoice(request: CreateInvoiceRequest):
+async def create_invoice(
+    request: CreateInvoiceRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Create a Stripe invoice"""
     # First create invoice item
     item_data = {
@@ -138,7 +153,11 @@ async def create_invoice(request: CreateInvoiceRequest):
 
 
 @router.get("/invoices")
-async def list_invoices(customer_id: Optional[str] = None, limit: int = 10):
+async def list_invoices(
+    customer_id: Optional[str] = None,
+    limit: int = 10,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """List Stripe invoices"""
     input_data = {"limit": limit}
     if customer_id:
@@ -149,14 +168,20 @@ async def list_invoices(customer_id: Optional[str] = None, limit: int = 10):
 
 
 @router.get("/balance")
-async def get_balance():
+async def get_balance(
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Get Stripe account balance"""
     result = call_stripe_mcp("retrieve_balance", {})
     return result
 
 
 @router.post("/refund")
-async def create_refund(payment_intent_id: str, amount: Optional[int] = None):
+async def create_refund(
+    payment_intent_id: str,
+    amount: Optional[int] = None,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Create a refund"""
     input_data = {"payment_intent": payment_intent_id}
     if amount:
@@ -167,7 +192,9 @@ async def create_refund(payment_intent_id: str, amount: Optional[int] = None):
 
 
 @router.get("/account")
-async def get_account_info():
+async def get_account_info(
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Get Stripe account info"""
     result = call_stripe_mcp("get_stripe_account_info", {})
     return result

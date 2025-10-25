@@ -176,11 +176,44 @@ def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> Res
         Response: JSON response with error details
     """
     from fastapi.responses import JSONResponse
+    from app.core.audit import AuditLogger
+    from app.core.database import SessionLocal
+    
+    rate_limit_key = get_rate_limit_key(request)
     
     logger.warning(
         f"Rate limit exceeded: {request.url.path} "
-        f"from {get_rate_limit_key(request)}"
+        f"from {rate_limit_key}"
     )
+    
+    # Log rate limit exceeded as security event
+    # Use a separate DB session to avoid transaction issues
+    db = SessionLocal()
+    try:
+        ip_address = request.client.host if request.client else None
+        user_id = None
+        if hasattr(request.state, "user") and request.state.user:
+            user_id = getattr(request.state.user, "id", None)
+        
+        AuditLogger.log_security_event(
+            db=db,
+            event_type="rate_limit_exceeded",
+            severity="medium",
+            description=f"Rate limit exceeded for {request.url.path}",
+            user_id=user_id,
+            ip_address=ip_address,
+            details={
+                "path": str(request.url.path),
+                "method": request.method,
+                "rate_limit_key": rate_limit_key,
+                "user_agent": request.headers.get("user-agent"),
+                "limit": str(exc.limit) if hasattr(exc, "limit") else "unknown"
+            }
+        )
+    except Exception as e:
+        logger.error(f"Failed to log rate limit security event: {e}")
+    finally:
+        db.close()
     
     return JSONResponse(
         content={

@@ -5,11 +5,17 @@ Centralized logging for all auditable actions
 
 import time
 import logging
+import smtplib
+import json
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from typing import Optional, Dict, Any
 from fastapi import Request
 from sqlalchemy.orm import Session
+import requests
 
 from app.models.audit_log import AuditLog, AuditAction, SecurityEvent
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -171,8 +177,11 @@ class AuditLogger:
                 f"Security Event [{severity}]: {event_type} - {description}"
             )
             
-            # TODO: Send alert to security team if severity is high or critical
-            if severity in ["high", "critical"]:
+            # Send alert to security team if severity meets threshold
+            severity_levels = {"low": 1, "medium": 2, "high": 3, "critical": 4}
+            min_severity = settings.SECURITY_ALERT_MIN_SEVERITY
+            
+            if severity_levels.get(severity, 0) >= severity_levels.get(min_severity, 3):
                 AuditLogger._send_security_alert(security_event)
             
             return security_event
@@ -184,13 +193,290 @@ class AuditLogger:
     @staticmethod
     def _send_security_alert(security_event: SecurityEvent):
         """
-        Send security alert to security team.
+        Send security alert to security team via configured channels.
         
-        TODO: Implement email/Telegram/Slack notification
+        Supports:
+        - Email (SMTP)
+        - Slack (Webhook)
+        - Telegram (Bot API)
+        
+        Args:
+            security_event: SecurityEvent object to send alert for
         """
+        # Always log to application logger
         logger.critical(
-            f"SECURITY ALERT: {security_event.event_type} - {security_event.description}"
+            f"SECURITY ALERT [{security_event.severity.upper()}]: {security_event.event_type} - {security_event.description}"
         )
+        
+        # Send email alert
+        if settings.SECURITY_ALERT_EMAIL_ENABLED:
+            try:
+                AuditLogger._send_email_alert(security_event)
+            except Exception as e:
+                logger.error(f"Failed to send email alert: {e}")
+        
+        # Send Slack alert
+        if settings.SECURITY_ALERT_SLACK_ENABLED:
+            try:
+                AuditLogger._send_slack_alert(security_event)
+            except Exception as e:
+                logger.error(f"Failed to send Slack alert: {e}")
+        
+        # Send Telegram alert
+        if settings.SECURITY_ALERT_TELEGRAM_ENABLED:
+            try:
+                AuditLogger._send_telegram_alert(security_event)
+            except Exception as e:
+                logger.error(f"Failed to send Telegram alert: {e}")
+    
+    @staticmethod
+    def _send_email_alert(security_event: SecurityEvent):
+        """
+        Send security alert via email.
+        
+        Args:
+            security_event: SecurityEvent object
+        """
+        recipients = settings.security_alert_email_recipients
+        if not recipients:
+            logger.warning("Email alerts enabled but no recipients configured")
+            return
+        
+        # Create email message
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = f"[SECURITY ALERT - {security_event.severity.upper()}] {security_event.event_type}"
+        msg['From'] = settings.SECURITY_ALERT_EMAIL_FROM
+        msg['To'] = ", ".join(recipients)
+        
+        # Create email body
+        text_body = f"""
+SECURITY ALERT - {security_event.severity.upper()}
+
+Event Type: {security_event.event_type}
+Severity: {security_event.severity}
+Timestamp: {security_event.created_at}
+
+Description:
+{security_event.description}
+
+Details:
+User ID: {security_event.user_id or 'N/A'}
+IP Address: {security_event.ip_address or 'N/A'}
+
+Additional Details:
+{json.dumps(security_event.details, indent=2) if security_event.details else 'None'}
+
+Event ID: {security_event.id}
+
+---
+This is an automated security alert from DentaFlow.
+Please investigate immediately.
+        """
+        
+        html_body = f"""
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; }}
+        .alert-box {{ 
+            border: 3px solid #dc3545; 
+            padding: 20px; 
+            margin: 20px 0;
+            background-color: #f8d7da;
+            border-radius: 5px;
+        }}
+        .severity-critical {{ border-color: #721c24; background-color: #f8d7da; }}
+        .severity-high {{ border-color: #dc3545; background-color: #f8d7da; }}
+        .severity-medium {{ border-color: #ffc107; background-color: #fff3cd; }}
+        .severity-low {{ border-color: #17a2b8; background-color: #d1ecf1; }}
+        .detail-row {{ margin: 10px 0; }}
+        .label {{ font-weight: bold; }}
+        pre {{ background-color: #f5f5f5; padding: 10px; border-radius: 3px; }}
+    </style>
+</head>
+<body>
+    <div class="alert-box severity-{security_event.severity}">
+        <h1>🚨 SECURITY ALERT - {security_event.severity.upper()}</h1>
+        
+        <div class="detail-row">
+            <span class="label">Event Type:</span> {security_event.event_type}
+        </div>
+        
+        <div class="detail-row">
+            <span class="label">Severity:</span> <strong>{security_event.severity.upper()}</strong>
+        </div>
+        
+        <div class="detail-row">
+            <span class="label">Timestamp:</span> {security_event.created_at}
+        </div>
+        
+        <hr>
+        
+        <h3>Description:</h3>
+        <p>{security_event.description}</p>
+        
+        <h3>Details:</h3>
+        <div class="detail-row">
+            <span class="label">User ID:</span> {security_event.user_id or 'N/A'}
+        </div>
+        <div class="detail-row">
+            <span class="label">IP Address:</span> {security_event.ip_address or 'N/A'}
+        </div>
+        
+        {f'<h3>Additional Details:</h3><pre>{json.dumps(security_event.details, indent=2)}</pre>' if security_event.details else ''}
+        
+        <hr>
+        
+        <p><small>Event ID: {security_event.id}</small></p>
+        <p><small>This is an automated security alert from DentaFlow. Please investigate immediately.</small></p>
+    </div>
+</body>
+</html>
+        """
+        
+        # Attach both plain text and HTML versions
+        part1 = MIMEText(text_body, 'plain')
+        part2 = MIMEText(html_body, 'html')
+        msg.attach(part1)
+        msg.attach(part2)
+        
+        # Send email
+        with smtplib.SMTP(settings.SECURITY_ALERT_SMTP_HOST, settings.SECURITY_ALERT_SMTP_PORT) as server:
+            server.starttls()
+            if settings.SECURITY_ALERT_SMTP_USERNAME and settings.SECURITY_ALERT_SMTP_PASSWORD:
+                server.login(settings.SECURITY_ALERT_SMTP_USERNAME, settings.SECURITY_ALERT_SMTP_PASSWORD)
+            server.send_message(msg)
+        
+        logger.info(f"Email alert sent to {len(recipients)} recipients for security event {security_event.id}")
+    
+    @staticmethod
+    def _send_slack_alert(security_event: SecurityEvent):
+        """
+        Send security alert via Slack webhook.
+        
+        Args:
+            security_event: SecurityEvent object
+        """
+        webhook_url = settings.SECURITY_ALERT_SLACK_WEBHOOK_URL
+        if not webhook_url:
+            logger.warning("Slack alerts enabled but no webhook URL configured")
+            return
+        
+        # Determine color based on severity
+        color_map = {
+            "critical": "#721c24",
+            "high": "#dc3545",
+            "medium": "#ffc107",
+            "low": "#17a2b8"
+        }
+        color = color_map.get(security_event.severity, "#dc3545")
+        
+        # Create Slack message
+        message = {
+            "text": f"🚨 SECURITY ALERT - {security_event.severity.upper()}",
+            "attachments": [
+                {
+                    "color": color,
+                    "title": security_event.event_type,
+                    "text": security_event.description,
+                    "fields": [
+                        {
+                            "title": "Severity",
+                            "value": security_event.severity.upper(),
+                            "short": True
+                        },
+                        {
+                            "title": "Timestamp",
+                            "value": str(security_event.created_at),
+                            "short": True
+                        },
+                        {
+                            "title": "User ID",
+                            "value": str(security_event.user_id) if security_event.user_id else "N/A",
+                            "short": True
+                        },
+                        {
+                            "title": "IP Address",
+                            "value": security_event.ip_address or "N/A",
+                            "short": True
+                        }
+                    ],
+                    "footer": f"Event ID: {security_event.id}",
+                    "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png"
+                }
+            ]
+        }
+        
+        # Add additional details if present
+        if security_event.details:
+            message["attachments"][0]["fields"].append({
+                "title": "Additional Details",
+                "value": f"```{json.dumps(security_event.details, indent=2)}```",
+                "short": False
+            })
+        
+        # Send to Slack
+        response = requests.post(webhook_url, json=message, timeout=10)
+        response.raise_for_status()
+        
+        logger.info(f"Slack alert sent for security event {security_event.id}")
+    
+    @staticmethod
+    def _send_telegram_alert(security_event: SecurityEvent):
+        """
+        Send security alert via Telegram bot.
+        
+        Args:
+            security_event: SecurityEvent object
+        """
+        bot_token = settings.TELEGRAM_BOT_TOKEN
+        chat_id = settings.SECURITY_ALERT_TELEGRAM_CHAT_ID
+        
+        if not bot_token or not chat_id:
+            logger.warning("Telegram alerts enabled but bot token or chat ID not configured")
+            return
+        
+        # Create Telegram message with Markdown formatting
+        emoji_map = {
+            "critical": "🔴",
+            "high": "🟠",
+            "medium": "🟡",
+            "low": "🔵"
+        }
+        emoji = emoji_map.get(security_event.severity, "🚨")
+        
+        message = f"""
+{emoji} *SECURITY ALERT - {security_event.severity.upper()}*
+
+*Event Type:* {security_event.event_type}
+*Severity:* {security_event.severity.upper()}
+*Timestamp:* {security_event.created_at}
+
+*Description:*
+{security_event.description}
+
+*Details:*
+• User ID: {security_event.user_id or 'N/A'}
+• IP Address: {security_event.ip_address or 'N/A'}
+"""
+        
+        if security_event.details:
+            message += f"\n*Additional Details:*\n```\n{json.dumps(security_event.details, indent=2)}\n```"
+        
+        message += f"\n\n_Event ID: {security_event.id}_"
+        
+        # Send to Telegram
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "Markdown"
+        }
+        
+        response = requests.post(url, json=payload, timeout=10)
+        response.raise_for_status()
+        
+        logger.info(f"Telegram alert sent for security event {security_event.id}")
 
 
 class AuditMiddleware:
@@ -344,3 +630,4 @@ def audit_log(
         
         return wrapper
     return decorator
+

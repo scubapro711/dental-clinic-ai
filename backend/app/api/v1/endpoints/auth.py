@@ -11,6 +11,7 @@ from app.services.auth_service import AuthService
 from app.api.dependencies import get_current_user
 from app.models.user import User
 from app.middleware.rate_limiter import limiter, get_rate_limit
+from app.core.audit import AuditLogger
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -139,6 +140,20 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
     # Authenticate user
     user = AuthService.authenticate_user(db, credentials.email, credentials.password)
     if not user:
+        # Log failed login attempt as security event
+        ip_address = request.client.host if request.client else None
+        AuditLogger.log_security_event(
+            db=db,
+            event_type="failed_login",
+            severity="medium",
+            description=f"Failed login attempt for email: {credentials.email}",
+            ip_address=ip_address,
+            details={
+                "email": credentials.email,
+                "user_agent": request.headers.get("user-agent"),
+                "path": str(request.url.path)
+            }
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -146,6 +161,20 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
         )
 
     if not user.is_active:
+        # Log inactive account login attempt
+        ip_address = request.client.host if request.client else None
+        AuditLogger.log_security_event(
+            db=db,
+            event_type="inactive_account_login",
+            severity="medium",
+            description=f"Login attempt to inactive account: {credentials.email}",
+            user_id=user.id,
+            ip_address=ip_address,
+            details={
+                "email": credentials.email,
+                "user_agent": request.headers.get("user-agent")
+            }
+        )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User account is inactive",
@@ -179,6 +208,23 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
 
     access_token = AuthService.create_access_token(token_data)
     refresh_token = AuthService.create_refresh_token(token_data)
+
+    # Log successful login as security event (low severity - informational)
+    ip_address = request.client.host if request.client else None
+    AuditLogger.log_security_event(
+        db=db,
+        event_type="successful_login",
+        severity="low",
+        description=f"Successful login for user: {user.email}",
+        user_id=user.id,
+        ip_address=ip_address,
+        details={
+            "email": user.email,
+            "role": user.role.value,
+            "organization_id": organization_id,
+            "user_agent": request.headers.get("user-agent")
+        }
+    )
 
     return Token(access_token=access_token, refresh_token=refresh_token)
 

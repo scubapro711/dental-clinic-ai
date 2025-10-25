@@ -192,5 +192,10 @@ class SecurityEvent(Base):
     # Related audit logs
     related_audit_log_ids = Column(JSON)  # List of related audit log IDs
     
+    @property
+    def created_at(self):
+        """Alias for timestamp for backward compatibility."""
+        return self.timestamp
+    
     def __repr__(self):
         return f"<SecurityEvent {self.id}: {self.event_type} - {self.severity}>"

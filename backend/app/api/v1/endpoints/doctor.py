@@ -6,8 +6,7 @@ Handles doctor escalation, chat links, and notifications.
 
 import logging
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Request
-from app.middleware.rate_limiter import limiter, get_rate_limit
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -16,6 +15,8 @@ import jwt
 import secrets
 
 from app.core.config import settings
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +47,10 @@ class DoctorResponse(BaseModel):
 
 
 @router.post("/create-escalation")
-@limiter.limit(get_rate_limit("default"))
-async def create_escalation(request: Request, escalation_data: EscalationRequest) -> Dict[str, Any]:
+async def create_escalation(
+    request: EscalationRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Create a doctor escalation and generate access link.
     
@@ -64,23 +67,23 @@ async def create_escalation(request: Request, escalation_data: EscalationRequest
         # Create JWT token with expiration
         jwt_payload = {
             "escalation_id": token,
-            "patient_id": escalation_data.patient_id,
-            "conversation_id": escalation_data.conversation_id,
+            "patient_id": request.patient_id,
+            "conversation_id": request.conversation_id,
             "exp": datetime.utcnow() + timedelta(hours=24),
         }
         
         jwt_token = jwt.encode(jwt_payload, settings.SECRET_KEY, algorithm="HS256")
         
         # Store escalation details
-        escalation_record = {
+        escalation_data = {
             "token": token,
             "jwt_token": jwt_token,
-            "patient_name": escalation_data.patient_name,
-            "patient_id": escalation_data.patient_id,
-            "conversation_id": escalation_data.conversation_id,
-            "urgency_level": escalation_data.urgency_level,
-            "issue_summary": escalation_data.issue_summary,
-            "conversation_history": escalation_data.conversation_history,
+            "patient_name": request.patient_name,
+            "patient_id": request.patient_id,
+            "conversation_id": request.conversation_id,
+            "urgency_level": request.urgency_level,
+            "issue_summary": request.issue_summary,
+            "conversation_history": request.conversation_history,
             "created_at": datetime.now().isoformat(),
             "expires_at": (datetime.now() + timedelta(hours=24)).isoformat(),
             "status": "pending",  # pending, active, resolved
@@ -88,19 +91,19 @@ async def create_escalation(request: Request, escalation_data: EscalationRequest
             "doctor_messages": [],
         }
         
-        escalations_store[token] = escalation_record
+        escalations_store[token] = escalation_data
         
         # Generate doctor access link
         doctor_link = f"/api/v1/doctor/chat/{jwt_token}"
         
-        logger.info(f"Created escalation for patient {escalation_data.patient_name} with urgency {escalation_data.urgency_level}")
+        logger.info(f"Created escalation for patient {request.patient_name} with urgency {request.urgency_level}")
         
         return {
             "escalation_id": token,
             "doctor_link": doctor_link,
             "jwt_token": jwt_token,
-            "urgency_level": escalation_data.urgency_level,
-            "expires_at": escalation_record["expires_at"],
+            "urgency_level": request.urgency_level,
+            "expires_at": escalation_data["expires_at"],
             "status": "created",
         }
     
@@ -110,7 +113,6 @@ async def create_escalation(request: Request, escalation_data: EscalationRequest
 
 
 @router.get("/chat/{jwt_token}", response_class=HTMLResponse)
-@limiter.limit(get_rate_limit("default"))
 async def doctor_chat_page(request: Request, jwt_token: str):
     """
     Render doctor chat page.
@@ -142,29 +144,11 @@ async def doctor_chat_page(request: Request, jwt_token: str):
         if escalation["status"] == "pending":
             escalation["status"] = "active"
         
-        # Create response with security headers
-        response = templates.TemplateResponse("doctor_chat.html", {
+        return templates.TemplateResponse("doctor_chat.html", {
             "request": request,
             "escalation": escalation,
             "jwt_token": jwt_token,
         })
-        
-        # Add Content Security Policy to prevent XSS
-        # Note: We use 'unsafe-inline' for styles only (template has inline CSS)
-        # Scripts are now safe (no innerHTML with user data)
-        response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; "
-            "script-src 'self'; "
-            "style-src 'self' 'unsafe-inline'; "
-            "img-src 'self' data:; "
-            "connect-src 'self'; "
-            "font-src 'self' data:; "
-            "frame-ancestors 'none'; "
-            "base-uri 'self'; "
-            "form-action 'self'"
-        )
-        
-        return response
     
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=403, detail="Token has expired")
@@ -176,8 +160,10 @@ async def doctor_chat_page(request: Request, jwt_token: str):
 
 
 @router.get("/escalation/{escalation_id}")
-@limiter.limit(get_rate_limit("default"))
-async def get_escalation(request: Request, escalation_id: str) -> Dict[str, Any]:
+async def get_escalation(
+    escalation_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Get escalation details.
     
@@ -196,8 +182,7 @@ async def get_escalation(request: Request, escalation_id: str) -> Dict[str, Any]
 
 
 @router.post("/respond")
-@limiter.limit(get_rate_limit("default"))
-async def doctor_respond(request: Request, response: DoctorResponse) -> Dict[str, Any]:
+async def doctor_respond(response: DoctorResponse) -> Dict[str, Any]:
     """
     Record doctor response to escalation.
     
@@ -247,8 +232,10 @@ async def doctor_respond(request: Request, response: DoctorResponse) -> Dict[str
 
 
 @router.post("/resolve/{escalation_id}")
-@limiter.limit(get_rate_limit("default"))
-async def resolve_escalation(request: Request, escalation_id: str) -> Dict[str, Any]:
+async def resolve_escalation(
+    escalation_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Mark escalation as resolved.
     
@@ -276,8 +263,9 @@ async def resolve_escalation(request: Request, escalation_id: str) -> Dict[str, 
 
 
 @router.get("/active-escalations")
-@limiter.limit(get_rate_limit("default"))
-async def get_active_escalations(request: Request) -> Dict[str, Any]:
+async def get_active_escalations(
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Get all active escalations.
     
@@ -309,8 +297,12 @@ async def get_active_escalations(request: Request) -> Dict[str, Any]:
 
 
 @router.post("/notify-doctor")
-@limiter.limit(get_rate_limit("default"))
-async def notify_doctor(request: Request, escalation_id: str, doctor_email: str, doctor_phone: Optional[str] = None) -> Dict[str, Any]:
+async def notify_doctor(
+    escalation_id: str,
+    doctor_email: str,
+    doctor_phone: Optional[str] = None,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Send notification to doctor about escalation.
     
