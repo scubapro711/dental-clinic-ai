@@ -6,7 +6,7 @@ Handles doctor escalation, chat links, and notifications.
 
 import logging
 from typing import Dict, Any, Optional
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -15,6 +15,8 @@ import jwt
 import secrets
 
 from app.core.config import settings
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +47,10 @@ class DoctorResponse(BaseModel):
 
 
 @router.post("/create-escalation")
-async def create_escalation(request: EscalationRequest) -> Dict[str, Any]:
+async def create_escalation(
+    request: EscalationRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Create a doctor escalation and generate access link.
     
@@ -155,7 +160,10 @@ async def doctor_chat_page(request: Request, jwt_token: str):
 
 
 @router.get("/escalation/{escalation_id}")
-async def get_escalation(escalation_id: str) -> Dict[str, Any]:
+async def get_escalation(
+    escalation_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Get escalation details.
     
@@ -224,7 +232,10 @@ async def doctor_respond(response: DoctorResponse) -> Dict[str, Any]:
 
 
 @router.post("/resolve/{escalation_id}")
-async def resolve_escalation(escalation_id: str) -> Dict[str, Any]:
+async def resolve_escalation(
+    escalation_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Mark escalation as resolved.
     
@@ -252,7 +263,9 @@ async def resolve_escalation(escalation_id: str) -> Dict[str, Any]:
 
 
 @router.get("/active-escalations")
-async def get_active_escalations() -> Dict[str, Any]:
+async def get_active_escalations(
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Get all active escalations.
     
@@ -284,7 +297,12 @@ async def get_active_escalations() -> Dict[str, Any]:
 
 
 @router.post("/notify-doctor")
-async def notify_doctor(escalation_id: str, doctor_email: str, doctor_phone: Optional[str] = None) -> Dict[str, Any]:
+async def notify_doctor(
+    escalation_id: str,
+    doctor_email: str,
+    doctor_phone: Optional[str] = None,
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
     """
     Send notification to doctor about escalation.
     

@@ -43,6 +43,7 @@ from app.api.v1.endpoints import (
     demo,
     mfa,
     pilot_applications,
+    doctor,
     # data_retention,  # TEMPORARILY DISABLED - missing Patient/Appointment models
     security_incidents,
     compliance,
@@ -91,6 +92,7 @@ api_router.include_router(tooth_chart.router, prefix="/tooth-chart", tags=["toot
 api_router.include_router(medical_questionnaire.router, prefix="/medical-questionnaire", tags=["medical-questionnaire"])
 api_router.include_router(xray.router, prefix="/xray", tags=["xray"])
 api_router.include_router(treatment_categories.router, prefix="/treatment-categories", tags=["treatment-categories"])
+api_router.include_router(doctor.router, prefix="/doctor", tags=["doctor", "escalation"])
 
 # Dashboard & Appointments
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])

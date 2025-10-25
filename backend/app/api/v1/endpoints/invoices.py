@@ -9,6 +9,8 @@ from datetime import datetime
 import logging
 
 from app.integrations.green_invoice import GreenInvoiceAPI, create_invoice_from_appointment
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -50,7 +52,8 @@ def is_sandbox_mode(organization_id: str) -> bool:
 async def list_invoices(
     page: int = 1,
     page_size: int = 25,
-    doc_type: Optional[int] = None
+    doc_type: Optional[int] = None,
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     List invoices for current patient
@@ -60,8 +63,7 @@ async def list_invoices(
         page_size: Items per page (max 100)
         doc_type: Filter by document type (320=invoice, 400=receipt)
     """
-    # TODO: Get current user's organization_id from JWT token
-    organization_id = "mock_org_id"
+    organization_id = str(membership.organization_id)
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -117,10 +119,12 @@ async def list_invoices(
 
 
 @router.get("/invoices/{invoice_id}")
-async def get_invoice(invoice_id: str):
+async def get_invoice(
+    invoice_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Get invoice by ID"""
-    # TODO: Get current user's organization_id from JWT token
-    organization_id = "mock_org_id"
+    organization_id = str(membership.organization_id)
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -168,10 +172,12 @@ async def get_invoice(invoice_id: str):
 
 
 @router.get("/invoices/{invoice_id}/pdf")
-async def download_invoice_pdf(invoice_id: str):
+async def download_invoice_pdf(
+    invoice_id: str,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Download invoice PDF"""
-    # TODO: Get current user's organization_id from JWT token
-    organization_id = "mock_org_id"
+    organization_id = str(membership.organization_id)
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -200,15 +206,17 @@ async def download_invoice_pdf(invoice_id: str):
 
 
 @router.post("/invoices")
-async def create_invoice(request: CreateInvoiceRequest):
+async def create_invoice(
+    request: CreateInvoiceRequest,
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """
     Create a new invoice
     
     This is typically called automatically after an appointment,
     but can also be used manually.
     """
-    # TODO: Get current user's organization_id from JWT token
-    organization_id = "mock_org_id"
+    organization_id = str(membership.organization_id)
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -254,9 +262,11 @@ async def create_invoice(request: CreateInvoiceRequest):
 
 
 @router.get("/invoices/stats/summary")
-async def get_invoice_summary():
+async def get_invoice_summary(
+    membership: OrganizationMembership = Depends(get_current_membership)
+):
     """Get invoice statistics for current patient"""
-    # TODO: Get current user's organization_id from JWT token
+    organization_id = str(membership.organization_id)
     # TODO: Calculate real stats from Green Invoice
     
     return {

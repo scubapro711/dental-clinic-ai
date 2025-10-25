@@ -18,6 +18,8 @@ from app.schemas.clinic_settings import (
     ClinicSettingsUpdate,
     ClinicSettingsResponse
 )
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -33,7 +35,8 @@ logger = logging.getLogger(__name__)
 async def create_clinic_settings(
     org_id: UUID,
     settings_data: ClinicSettingsCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     Create clinic settings for an organization.
@@ -43,6 +46,13 @@ async def create_clinic_settings(
     
     Returns the created settings with all defaults applied.
     """
+    # Verify user has access to this organization
+    if str(membership.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this organization"
+        )
+    
     # Verify organization exists
     org = db.query(Organization).filter(Organization.id == org_id).first()
     if not org:
@@ -161,7 +171,8 @@ async def create_clinic_settings(
 )
 async def get_clinic_settings(
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     Get clinic settings for an organization.
@@ -170,6 +181,13 @@ async def get_clinic_settings(
     
     Returns the settings or 404 if not found.
     """
+    # Verify user has access to this organization
+    if str(membership.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this organization"
+        )
+    
     settings = db.query(ClinicSettings).filter(
         ClinicSettings.organization_id == org_id
     ).first()
@@ -193,7 +211,8 @@ async def get_clinic_settings(
 async def update_clinic_settings(
     org_id: UUID,
     settings_update: ClinicSettingsUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     Update clinic settings for an organization.
@@ -203,6 +222,13 @@ async def update_clinic_settings(
     
     Returns the updated settings.
     """
+    # Verify user has access to this organization
+    if str(membership.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this organization"
+        )
+    
     settings = db.query(ClinicSettings).filter(
         ClinicSettings.organization_id == org_id
     ).first()
@@ -300,7 +326,8 @@ async def update_clinic_settings(
 )
 async def delete_clinic_settings(
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     Delete clinic settings for an organization.
@@ -310,6 +337,13 @@ async def delete_clinic_settings(
     Note: This will reset the organization to default settings.
     Consider using PUT to update instead of DELETE.
     """
+    # Verify user has access to this organization
+    if str(membership.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this organization"
+        )
+    
     settings = db.query(ClinicSettings).filter(
         ClinicSettings.organization_id == org_id
     ).first()
@@ -346,7 +380,8 @@ async def delete_clinic_settings(
 )
 async def reset_clinic_settings(
     org_id: UUID,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    membership: OrganizationMembership = Depends(get_current_membership)
 ):
     """
     Reset clinic settings to Israeli defaults.
@@ -355,6 +390,13 @@ async def reset_clinic_settings(
     
     This will overwrite all existing settings with defaults.
     """
+    # Verify user has access to this organization
+    if str(membership.organization_id) != str(org_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission to access this organization"
+        )
+    
     settings = db.query(ClinicSettings).filter(
         ClinicSettings.organization_id == org_id
     ).first()
