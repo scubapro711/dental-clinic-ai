@@ -615,6 +615,35 @@ makes sure patients get the right help at the right time! 😊
         # Get user context for RBAC
         user_role = state.get("user_role", "patient")
         
+        # BUG #27 FIX: Input sanitization for prompt injection protection
+        from app.core.security import sanitize_input
+        sanitization_result = sanitize_input(
+            last_message,
+            user_role=user_role,
+            context="agent_interaction"
+        )
+        
+        # Block or sanitize malicious input
+        if not sanitization_result["is_safe"]:
+            if sanitization_result["action"] == "block":
+                logger.warning(
+                    f"Prompt injection attack blocked for user {user_id}: "
+                    f"{sanitization_result['threat_type']} (confidence: {sanitization_result['confidence']:.2f})"
+                )
+                return {
+                    **state,
+                    "messages": messages + [AIMessage(
+                        content="I'm sorry, but I detected potentially unsafe content in your message. "
+                        "Please rephrase your request. If you need help, please contact our support team."
+                    )]
+                }
+            elif sanitization_result["action"] == "sanitize":
+                # Use sanitized input instead of original
+                last_message = sanitization_result["sanitized_input"]
+                logger.info(
+                    f"Input sanitized for user {user_id}: {sanitization_result['threat_type']}"
+                )
+        
         # CRITICAL: Check for medical escalation needs
         escalation_level = self._check_escalation(last_message)
         
