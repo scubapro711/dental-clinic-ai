@@ -5,7 +5,8 @@ Provides endpoints for managing dental X-ray images,
 metadata, and Sarah AI analysis.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form, Request
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
@@ -20,7 +21,7 @@ from app.models.xray import (
     XRay,
     XRayType,
     XRayQuality,
-    XRayFindingSeverity,
+    XRayFindingSeverity
 )
 from app.api.v1.endpoints.auth import get_current_user
 
@@ -110,7 +111,9 @@ class XRayResponse(BaseModel):
 # Endpoints
 
 @router.get("/patient/{patient_id}", response_model=List[XRayResponse])
+@limiter.limit(get_rate_limit("default"))
 async def get_patient_xrays(
+    request: Request,
     patient_id: UUID,
     xray_type: Optional[XRayType] = None,
     tooth_number: Optional[str] = None,
@@ -140,7 +143,9 @@ async def get_patient_xrays(
 
 
 @router.get("/{xray_id}", response_model=XRayResponse)
+@limiter.limit(get_rate_limit("default"))
 async def get_xray(
+    request: Request,
     xray_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -169,7 +174,9 @@ async def get_xray(
 
 
 @router.post("/upload", response_model=XRayResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(get_rate_limit("default"))
 async def upload_xray(
+    request: Request,
     file: UploadFile = File(...),
     patient_id: str = Form(...),
     patient_name: Optional[str] = Form(None),
@@ -237,7 +244,9 @@ async def upload_xray(
 
 
 @router.put("/{xray_id}", response_model=XRayResponse)
+@limiter.limit(get_rate_limit("default"))
 async def update_xray(
+    request: Request,
     xray_id: UUID,
     data: XRayUpdate,
     current_user: User = Depends(get_current_user),
@@ -271,7 +280,9 @@ async def update_xray(
 
 
 @router.post("/{xray_id}/review", response_model=XRayResponse)
+@limiter.limit(get_rate_limit("default"))
 async def review_xray(
+    request: Request,
     xray_id: UUID,
     findings: str = Form(...),
     diagnosis: Optional[str] = Form(None),
@@ -312,7 +323,9 @@ async def review_xray(
 
 
 @router.post("/{xray_id}/sarah-analyze")
+@limiter.limit(get_rate_limit("default"))
 async def sarah_analyze_xray(
+    request: Request,
     xray_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -358,7 +371,9 @@ async def sarah_analyze_xray(
 
 
 @router.get("/{xray_id}/compare/{previous_xray_id}")
+@limiter.limit(get_rate_limit("default"))
 async def compare_xrays(
+    request: Request,
     xray_id: UUID,
     previous_xray_id: UUID,
     current_user: User = Depends(get_current_user),
@@ -407,7 +422,9 @@ async def compare_xrays(
 
 
 @router.delete("/{xray_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(get_rate_limit("default"))
 async def delete_xray(
+    request: Request,
     xray_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

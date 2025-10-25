@@ -3,7 +3,7 @@ Patient Portal API Endpoints
 
 Provides patient-facing endpoints for the patient portal
 """
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -11,6 +11,7 @@ import logging
 
 from app.core.database import get_db
 from app.core.auth import get_current_user
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from app.models.user import User
 from app.integrations.odoo_client import OdooClient
 
@@ -20,7 +21,9 @@ router = APIRouter()
 
 
 @router.get("/patient/profile")
+@limiter.limit(get_rate_limit("default"))
 async def get_patient_profile(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -47,7 +50,9 @@ async def get_patient_profile(
 
 
 @router.get("/patient/health-score")
+@limiter.limit(get_rate_limit("default"))
 async def get_health_score(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -78,7 +83,9 @@ async def get_health_score(
 
 
 @router.get("/appointments")
+@limiter.limit(get_rate_limit("default"))
 async def get_appointments(
+    request: Request,
     status: Optional[str] = Query(None, description="Filter by status: upcoming, past, cancelled, all"),
     limit: Optional[int] = Query(10, ge=1, le=100),
     offset: Optional[int] = Query(0, ge=0),
@@ -152,7 +159,9 @@ async def get_appointments(
 
 
 @router.post("/appointments")
+@limiter.limit(get_rate_limit("default"))
 async def create_appointment(
+    request: Request,
     appointment_data: dict,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -178,7 +187,9 @@ async def create_appointment(
 
 
 @router.put("/appointments/{appointment_id}/cancel")
+@limiter.limit(get_rate_limit("default"))
 async def cancel_appointment(
+    request: Request,
     appointment_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -199,7 +210,9 @@ async def cancel_appointment(
 
 
 @router.get("/records")
+@limiter.limit(get_rate_limit("default"))
 async def get_medical_records(
+    request: Request,
     record_type: Optional[str] = Query(None, description="Filter by type: xray, report, treatment, all"),
     limit: Optional[int] = Query(10, ge=1, le=100),
     offset: Optional[int] = Query(0, ge=0),
@@ -270,7 +283,9 @@ async def get_medical_records(
 
 
 @router.get("/records/{record_id}")
+@limiter.limit(get_rate_limit("default"))
 async def get_record_detail(
+    request: Request,
     record_id: int,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -300,7 +315,9 @@ async def get_record_detail(
 
 
 @router.get("/billing/overview")
+@limiter.limit(get_rate_limit("default"))
 async def get_billing_overview(
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
@@ -333,7 +350,9 @@ async def get_billing_overview(
 
 
 @router.get("/billing/invoices")
+@limiter.limit(get_rate_limit("default"))
 async def get_invoices(
+    request: Request,
     status: Optional[str] = Query(None, description="Filter by status: paid, unpaid, overdue, all"),
     limit: Optional[int] = Query(10, ge=1, le=100),
     offset: Optional[int] = Query(0, ge=0),
