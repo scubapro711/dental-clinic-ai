@@ -71,6 +71,13 @@ class Subscription(Base):
         index=True
     )
     
+    plan_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("plan_configurations.id", ondelete="RESTRICT"),
+        nullable=True,  # Nullable for backward compatibility
+        index=True
+    )
+    
     # Stripe integration
     stripe_subscription_id = Column(String(255), unique=True, nullable=False, index=True)
     stripe_customer_id = Column(String(255), nullable=False, index=True)
@@ -101,6 +108,7 @@ class Subscription(Base):
     
     # Relationships
     organization = relationship("Organization", back_populates="subscription")
+    plan = relationship("PlanConfiguration", foreign_keys=[plan_id])
     payments = relationship("Payment", back_populates="subscription", cascade="all, delete-orphan")
     invoices = relationship("Invoice", back_populates="subscription", cascade="all, delete-orphan")
     
