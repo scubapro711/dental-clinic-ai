@@ -81,6 +81,24 @@ class Settings(BaseSettings):
     # Telegram Bot (optional - only required if Telegram integration is enabled)
     TELEGRAM_BOT_TOKEN: Optional[str] = Field(default=None)
 
+    # Security Alerts Configuration
+    SECURITY_ALERT_EMAIL_ENABLED: bool = Field(default=False)
+    SECURITY_ALERT_EMAIL_TO: Optional[str] = Field(default=None)  # Comma-separated list
+    SECURITY_ALERT_EMAIL_FROM: Optional[str] = Field(default="security@dentaflow.ai")
+    SECURITY_ALERT_SMTP_HOST: Optional[str] = Field(default="smtp.gmail.com")
+    SECURITY_ALERT_SMTP_PORT: int = Field(default=587)
+    SECURITY_ALERT_SMTP_USERNAME: Optional[str] = Field(default=None)
+    SECURITY_ALERT_SMTP_PASSWORD: Optional[str] = Field(default=None)
+    
+    SECURITY_ALERT_SLACK_ENABLED: bool = Field(default=False)
+    SECURITY_ALERT_SLACK_WEBHOOK_URL: Optional[str] = Field(default=None)
+    
+    SECURITY_ALERT_TELEGRAM_ENABLED: bool = Field(default=False)
+    SECURITY_ALERT_TELEGRAM_CHAT_ID: Optional[str] = Field(default=None)
+    
+    # Security Alert Thresholds
+    SECURITY_ALERT_MIN_SEVERITY: str = Field(default="high")  # low, medium, high, critical
+
     # AWS Cognito
     COGNITO_USER_POOL_ID: str = Field(default="")
     COGNITO_CLIENT_ID: str = Field(default="")
@@ -101,6 +119,13 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         """Parse CORS_ORIGINS string into a list."""
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+    
+    @property
+    def security_alert_email_recipients(self) -> List[str]:
+        """Parse SECURITY_ALERT_EMAIL_TO string into a list."""
+        if not self.SECURITY_ALERT_EMAIL_TO:
+            return []
+        return [email.strip() for email in self.SECURITY_ALERT_EMAIL_TO.split(",")]
 
     # Feature Flags
     FEATURE_PROACTIVE_SUGGESTIONS: bool = Field(default=True)

@@ -253,6 +253,70 @@ app.state.limiter = limiter
 # Add rate limit exception handler
 app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 
+# Add global exception handlers for security logging
+from fastapi import HTTPException
+from app.core.audit import AuditLogger
+from app.core.database import SessionLocal
+import logging
+
+logger = logging.getLogger(__name__)
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    """
+    Global HTTP exception handler with security event logging.
+    
+    Logs security-relevant HTTP exceptions (401, 403, 500).
+    """
+    # Log security-relevant exceptions
+    if exc.status_code in [401, 403, 500]:
+        db = SessionLocal()
+        try:
+            ip_address = request.client.host if request.client else None
+            user_id = None
+            if hasattr(request.state, "user") and request.state.user:
+                user_id = getattr(request.state.user, "id", None)
+            
+            # Determine severity and event type
+            severity_map = {
+                401: "medium",  # Unauthorized access attempt
+                403: "high",    # Forbidden access attempt (authenticated but not authorized)
+                500: "high"     # Server error (potential security issue)
+            }
+            
+            event_type_map = {
+                401: "unauthorized_access",
+                403: "forbidden_access",
+                500: "server_error"
+            }
+            
+            AuditLogger.log_security_event(
+                db=db,
+                event_type=event_type_map.get(exc.status_code, "http_error"),
+                severity=severity_map.get(exc.status_code, "medium"),
+                description=f"HTTP {exc.status_code} error on {request.url.path}: {exc.detail}",
+                user_id=user_id,
+                ip_address=ip_address,
+                details={
+                    "status_code": exc.status_code,
+                    "path": str(request.url.path),
+                    "method": request.method,
+                    "detail": exc.detail,
+                    "user_agent": request.headers.get("user-agent")
+                }
+            )
+        except Exception as e:
+            logger.error(f"Failed to log HTTP exception security event: {e}")
+        finally:
+            db.close()
+    
+    # Return standard JSON response
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+        headers=exc.headers
+    )
+
 # Add SlowAPI middleware
 app.add_middleware(SlowAPIMiddleware)
 

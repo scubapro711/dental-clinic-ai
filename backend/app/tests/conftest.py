@@ -156,6 +156,12 @@ def db_session(db_engine) -> Generator[Session, None, None]:
 
 
 @pytest.fixture(scope="function")
+def db(db_session) -> Generator[Session, None, None]:
+    """Alias for db_session for backward compatibility."""
+    yield db_session
+
+
+@pytest.fixture(scope="function")
 async def async_db_session(db_engine) -> AsyncGenerator[Session, None]:
     """Create an async test database session."""
     from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
