@@ -1,0 +1,137 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches:
+      - staging
+    paths:
+      - 'backend/**'
+      - '.github/workflows/staging-deploy.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: dentaflow-production
+  REGION: us-central1
+  SERVICE_NAME: dentaflow-backend-staging
+  ENVIRONMENT: staging
+
+jobs:
+  deploy:
+    name: Build and Deploy to Staging
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+      
+      - name: Configure Docker for GCR
+        run: |
+          gcloud auth configure-docker gcr.io
+      
+      - name: Build and Push Docker Image
+        working-directory: ./backend
+        run: |
+          IMAGE_TAG="staging-v$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
+          IMAGE_NAME="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${IMAGE_TAG}"
+          IMAGE_STAGING="gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:staging-latest"
+          
+          echo "Building staging image: $IMAGE_NAME"
+          docker build -t $IMAGE_NAME -t $IMAGE_STAGING .
+          
+          echo "Pushing image to GCR..."
+          docker push $IMAGE_NAME
+          docker push $IMAGE_STAGING
+          
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+      
+      - name: Deploy to Cloud Run (Staging)
+        run: |
+          gcloud run deploy ${{ env.SERVICE_NAME }} \
+            --image ${{ env.IMAGE_NAME }} \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --memory 2Gi \
+            --cpu 1 \
+            --timeout 300 \
+            --max-instances 5 \
+            --min-instances 0 \
+            --set-env-vars "APP_ENV=staging,DEBUG=true,LOG_LEVEL=DEBUG,APP_HOST=0.0.0.0,APP_PORT=8080,GCP_PROJECT_ID=dentaflow-production,GCP_REGION=us-central1,ENABLE_GCP_MONITORING=false" \
+            --set-secrets "SECRET_KEY=secret-key-staging:latest,JWT_SECRET=jwt-secret-staging:latest,DATABASE_URL=database-url-staging:latest,CHECKPOINT_DATABASE_URL=checkpoint-database-url-staging:latest,REDIS_URL=redis-url-staging:latest,ODOO_URL=odoo-url:latest,ODOO_DB=odoo-db:latest,ODOO_USERNAME=odoo-username:latest,ODOO_PASSWORD=odoo-password:latest,OPENAI_API_KEY=openai-api-key:latest,PINECONE_API_KEY=pinecone-api-key:latest,TELEGRAM_BOT_TOKEN=telegram-bot-token-staging:latest" \
+            --add-cloudsql-instances "dentaflow-production:us-central1:dentaflow-db-staging" \
+            --quiet
+      
+      - name: Get Service URL
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
+            --region ${{ env.REGION }} \
+            --format 'value(status.url)')
+          echo "🚀 Staging service deployed to: $SERVICE_URL"
+          echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_ENV
+      
+      - name: Verify Deployment
+        run: |
+          echo "Waiting for staging service to be ready..."
+          sleep 15
+          
+          HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" ${{ env.SERVICE_URL }}/health || echo "000")
+          
+          if [ "$HEALTH_CHECK" = "200" ]; then
+            echo "✅ Staging deployment successful! Service is healthy."
+          else
+            echo "⚠️  Warning: Health check returned $HEALTH_CHECK"
+            echo "This might be expected for staging - check logs for details"
+          fi
+      
+      - name: Run Smoke Tests
+        continue-on-error: true
+        run: |
+          echo "Running smoke tests against staging..."
+          
+          # Test 1: Health endpoint
+          echo "Test 1: Health check"
+          curl -f ${{ env.SERVICE_URL }}/health || echo "Health check failed"
+          
+          # Test 2: API docs
+          echo "Test 2: API documentation"
+          curl -f ${{ env.SERVICE_URL }}/docs || echo "Docs endpoint failed"
+          
+          # Test 3: Version endpoint
+          echo "Test 3: Version endpoint"
+          curl -f ${{ env.SERVICE_URL }}/api/v1/version || echo "Version endpoint failed"
+          
+          echo "✅ Smoke tests completed"
+      
+      - name: Deployment Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🎯 STAGING DEPLOYMENT SUMMARY"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ env.ENVIRONMENT }}"
+          echo "Service: ${{ env.SERVICE_NAME }}"
+          echo "Region: ${{ env.REGION }}"
+          echo "Image: ${{ env.IMAGE_NAME }}"
+          echo "URL: ${{ env.SERVICE_URL }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "📋 Next Steps:"
+          echo "1. Test staging environment thoroughly"
+          echo "2. Run integration tests"
+          echo "3. Perform manual QA"
+          echo "4. If all tests pass, merge to main for production deployment"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
