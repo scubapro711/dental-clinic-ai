@@ -142,11 +142,29 @@ async def doctor_chat_page(request: Request, jwt_token: str):
         if escalation["status"] == "pending":
             escalation["status"] = "active"
         
-        return templates.TemplateResponse("doctor_chat.html", {
+        # Create response with security headers
+        response = templates.TemplateResponse("doctor_chat.html", {
             "request": request,
             "escalation": escalation,
             "jwt_token": jwt_token,
         })
+        
+        # Add Content Security Policy to prevent XSS
+        # Note: We use 'unsafe-inline' for styles only (template has inline CSS)
+        # Scripts are now safe (no innerHTML with user data)
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
+            "connect-src 'self'; "
+            "font-src 'self' data:; "
+            "frame-ancestors 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self'"
+        )
+        
+        return response
     
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=403, detail="Token has expired")
