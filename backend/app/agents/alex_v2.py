@@ -615,6 +615,35 @@ makes sure patients get the right help at the right time! 😊
         # Get user context for RBAC
         user_role = state.get("user_role", "patient")
         
+        # BUG #27 FIX: Input sanitization for prompt injection protection
+        from app.core.security import sanitize_input
+        sanitization_result = sanitize_input(
+            last_message,
+            user_role=user_role,
+            context="agent_interaction"
+        )
+        
+        # Block or sanitize malicious input
+        if not sanitization_result["is_safe"]:
+            if sanitization_result["action"] == "block":
+                logger.warning(
+                    f"Prompt injection attack blocked for user {user_id}: "
+                    f"{sanitization_result['threat_type']} (confidence: {sanitization_result['confidence']:.2f})"
+                )
+                return {
+                    **state,
+                    "messages": messages + [AIMessage(
+                        content="I'm sorry, but I detected potentially unsafe content in your message. "
+                        "Please rephrase your request. If you need help, please contact our support team."
+                    )]
+                }
+            elif sanitization_result["action"] == "sanitize":
+                # Use sanitized input instead of original
+                last_message = sanitization_result["sanitized_input"]
+                logger.info(
+                    f"Input sanitized for user {user_id}: {sanitization_result['threat_type']}"
+                )
+        
         # CRITICAL: Check for medical escalation needs
         escalation_level = self._check_escalation(last_message)
         
@@ -759,6 +788,33 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
             else:
                 fallback_content = "I'm here to help! Please let me know what you need assistance with."
             response = AIMessage(content=fallback_content)
+        
+        # BUG #29 FIX: Output validation for PII/PHI protection
+        from app.core.security import validate_output
+        validation_result = validate_output(
+            response.content,
+            user_role=user_role,
+            patient_id=state.get("patient_id"),
+            context="patient_chat"
+        )
+        
+        # Use sanitized output if needed
+        if not validation_result["is_safe"]:
+            if validation_result["action"] == "sanitize":
+                logger.warning(
+                    f"Output sanitized for user {user_id}: {validation_result['reason']}"
+                )
+                # Replace response content with sanitized version
+                response = AIMessage(content=validation_result["sanitized_output"])
+            elif validation_result["action"] == "block":
+                logger.error(
+                    f"Output blocked for user {user_id}: {validation_result['reason']}"
+                )
+                # Replace with safe generic message
+                response = AIMessage(
+                    content="I apologize, but I cannot provide that information. "
+                    "Please contact your clinic directly for assistance."
+                )
         
         # Update state
         state["messages"] = messages + [response]

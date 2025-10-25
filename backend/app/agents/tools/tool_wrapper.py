@@ -64,10 +64,15 @@ def rbac_protected(
             requesting_user_role = kwargs.get('requesting_user_role')
             
             if not requesting_user_id or not requesting_user_role:
-                logger.warning(f"Tool {func.__name__} called without RBAC context")
-                # For backward compatibility, allow calls without RBAC
-                # In production, this should raise an error
-                return func(*args, **kwargs)
+                # BUG #28 FIX: Enforce strict RBAC - no fallback!
+                error_msg = (
+                    f"RBAC violation: Tool '{func.__name__}' called without required RBAC context. "
+                    f"Missing: {'' if requesting_user_id else 'requesting_user_id'}"
+                    f"{', ' if not requesting_user_id and not requesting_user_role else ''}"
+                    f"{'' if requesting_user_role else 'requesting_user_role'}"
+                )
+                logger.error(error_msg)
+                raise ValueError(error_msg)
             
             # Check permission if required
             if required_permission:
