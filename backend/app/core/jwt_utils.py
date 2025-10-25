@@ -12,16 +12,85 @@ from jose import jwt, JWTError
 from pydantic import BaseModel
 import logging
 
+from app.core.config import Settings
+
 logger = logging.getLogger(__name__)
 
+# Load settings
+settings = Settings()
 
 # JWT Configuration
 # SECURITY: JWT_SECRET_KEY must be set in environment variables
 # No default value is provided to prevent accidental use of weak secrets
 JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
 JWT_ALGORITHM = 'HS256'
-JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 1 hour
-JWT_REFRESH_TOKEN_EXPIRE_DAYS = 30  # 30 days
+
+# FIXED Bug #34: Use settings from config.py instead of hardcoded values
+# This ensures configuration changes take effect
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+JWT_REFRESH_TOKEN_EXPIRE_DAYS = settings.REFRESH_TOKEN_EXPIRE_DAYS
+
+# Minimum secret length for HS256 (32 bytes = 256 bits)
+MIN_SECRET_LENGTH = 32
+
+
+def _validate_jwt_secret():
+    """
+    Validate JWT secret at startup.
+    
+    Ensures that:
+    1. JWT_SECRET_KEY is set
+    2. Secret is strong enough (at least 32 bytes)
+    3. Secret is not a known weak value
+    
+    Raises:
+        RuntimeError: If JWT secret is not properly configured
+    """
+    if not JWT_SECRET_KEY:
+        raise RuntimeError(
+            "SECURITY ERROR: JWT_SECRET_KEY environment variable is not set! "
+            "This is required for production deployment. "
+            "Generate a strong secret with: openssl rand -base64 64"
+        )
+    
+    if len(JWT_SECRET_KEY) < MIN_SECRET_LENGTH:
+        raise RuntimeError(
+            f"SECURITY ERROR: JWT_SECRET_KEY is too short ({len(JWT_SECRET_KEY)} bytes). "
+            f"Must be at least {MIN_SECRET_LENGTH} bytes for HS256 security. "
+            f"Generate a strong secret with: openssl rand -base64 64"
+        )
+    
+    # Check for known weak secrets
+    weak_secrets = [
+        'your-secret-key-change-in-production',
+        'secret',
+        'password',
+        'changeme',
+        '12345678',
+        'test',
+        'development',
+    ]
+    
+    if JWT_SECRET_KEY in weak_secrets:
+        raise RuntimeError(
+            f"SECURITY ERROR: JWT_SECRET_KEY is a known weak value! "
+            f"Never use default or common secrets in production. "
+            f"Generate a strong secret with: openssl rand -base64 64"
+        )
+    
+    logger.info("JWT secret validation passed")
+
+
+# Validate JWT secret at module import (fail fast)
+try:
+    _validate_jwt_secret()
+except RuntimeError as e:
+    logger.critical(str(e))
+    # In production, this should cause the application to fail startup
+    # For now, we log the error and continue (to avoid breaking existing deployments)
+    # TODO: Make this a hard failure in production after migration period
+    if os.getenv('ENVIRONMENT') == 'production':
+        raise
 
 # Minimum secret length for HS256 (32 bytes = 256 bits)
 MIN_SECRET_LENGTH = 32
