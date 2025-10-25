@@ -789,6 +789,33 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
                 fallback_content = "I'm here to help! Please let me know what you need assistance with."
             response = AIMessage(content=fallback_content)
         
+        # BUG #29 FIX: Output validation for PII/PHI protection
+        from app.core.security import validate_output
+        validation_result = validate_output(
+            response.content,
+            user_role=user_role,
+            patient_id=state.get("patient_id"),
+            context="patient_chat"
+        )
+        
+        # Use sanitized output if needed
+        if not validation_result["is_safe"]:
+            if validation_result["action"] == "sanitize":
+                logger.warning(
+                    f"Output sanitized for user {user_id}: {validation_result['reason']}"
+                )
+                # Replace response content with sanitized version
+                response = AIMessage(content=validation_result["sanitized_output"])
+            elif validation_result["action"] == "block":
+                logger.error(
+                    f"Output blocked for user {user_id}: {validation_result['reason']}"
+                )
+                # Replace with safe generic message
+                response = AIMessage(
+                    content="I apologize, but I cannot provide that information. "
+                    "Please contact your clinic directly for assistance."
+                )
+        
         # Update state
         state["messages"] = messages + [response]
         state["current_agent"] = "alex"
