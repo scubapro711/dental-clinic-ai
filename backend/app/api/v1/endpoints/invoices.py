@@ -9,8 +9,10 @@ from datetime import datetime
 import logging
 
 from app.integrations.green_invoice import GreenInvoiceAPI, create_invoice_from_appointment
-from app.api.dependencies import get_current_membership
+from app.api.dependencies import get_current_membership, get_db
 from app.models.organization_membership import OrganizationMembership
+from app.models.user_patient_mapping import UserPatientMapping
+from sqlalchemy.orm import Session
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -48,12 +50,36 @@ def is_sandbox_mode(organization_id: str) -> bool:
     return True  # Default to sandbox for testing
 
 
+def get_patient_name_from_user(user_id, db: Session) -> Optional[str]:
+    """
+    Get patient name from user ID via UserPatientMapping
+    
+    Returns patient's full_name for matching with invoice client_name
+    
+    NOTE: This is a temporary solution. Ideally, we should:
+    1. Store invoice_id -> patient_id mapping in database
+    2. Use Odoo patient ID for filtering
+    3. Not rely on name matching (can have duplicates)
+    """
+    mapping = db.query(UserPatientMapping).filter(
+        UserPatientMapping.user_id == user_id,
+        UserPatientMapping.is_active == True
+    ).first()
+    
+    if not mapping:
+        logger.warning(f"No patient mapping found for user {user_id}")
+        return None
+    
+    return mapping.full_name
+
+
 @router.get("/invoices")
 async def list_invoices(
     page: int = 1,
     page_size: int = 25,
     doc_type: Optional[int] = None,
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    db: Session = Depends(get_db)
 ):
     """
     List invoices for current patient
@@ -65,13 +91,24 @@ async def list_invoices(
     """
     organization_id = str(membership.organization_id)
     
+    # Get current patient name for filtering
+    patient_name = get_patient_name_from_user(membership.user_id, db)
+    if not patient_name:
+        # User has no patient mapping - return empty list
+        return {
+            "items": [],
+            "total": 0,
+            "page": page,
+            "page_size": page_size
+        }
+    
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
     
     if not api_key:
         # Return mock data if Green Invoice not configured
-        return {
-            "items": [
+        # Filter by patient name
+        all_items = [
                 {
                     "id": "INV-001",
                     "type": 320,
@@ -94,8 +131,17 @@ async def list_invoices(
                     "status": "unpaid",
                     "pdf_url": None
                 }
-            ],
-            "total": 2,
+            ]
+        
+        # Filter by patient name
+        filtered_items = [
+            item for item in all_items
+            if item.get("client_name") == patient_name
+        ]
+        
+        return {
+            "items": filtered_items,
+            "total": len(filtered_items),
             "page": page,
             "page_size": page_size
         }
@@ -111,6 +157,15 @@ async def list_invoices(
             page_size=min(page_size, 100)
         )
         
+        # Filter by patient name
+        if "items" in result:
+            filtered_items = [
+                item for item in result["items"]
+                if item.get("client_name") == patient_name
+            ]
+            result["items"] = filtered_items
+            result["total"] = len(filtered_items)
+        
         return result
         
     except Exception as e:
@@ -121,17 +176,23 @@ async def list_invoices(
 @router.get("/invoices/{invoice_id}")
 async def get_invoice(
     invoice_id: str,
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    db: Session = Depends(get_db)
 ):
     """Get invoice by ID"""
     organization_id = str(membership.organization_id)
+    
+    # Get current patient name for ownership verification
+    patient_name = get_patient_name_from_user(membership.user_id, db)
+    if not patient_name:
+        raise HTTPException(status_code=403, detail="Patient not found")
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
     
     if not api_key:
         # Return mock data
-        return {
+        mock_invoice = {
             "id": invoice_id,
             "type": 320,
             "number": "2025001",
@@ -157,6 +218,12 @@ async def get_invoice(
             "status": "paid",
             "pdf_url": None
         }
+        
+        # Verify ownership
+        if mock_invoice.get("client", {}).get("name") != patient_name:
+            raise HTTPException(status_code=403, detail="Access denied: You don't have permission to view this invoice")
+        
+        return mock_invoice
     
     # Use Green Invoice API
     try:
@@ -164,6 +231,12 @@ async def get_invoice(
         client = GreenInvoiceAPI(api_key, sandbox=sandbox)
         
         result = client.get_document(invoice_id)
+        
+        # Verify ownership
+        client_name = result.get("client", {}).get("name") if isinstance(result.get("client"), dict) else result.get("client_name")
+        if client_name != patient_name:
+            raise HTTPException(status_code=403, detail="Access denied: You don't have permission to view this invoice")
+        
         return result
         
     except Exception as e:
@@ -174,10 +247,16 @@ async def get_invoice(
 @router.get("/invoices/{invoice_id}/pdf")
 async def download_invoice_pdf(
     invoice_id: str,
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    db: Session = Depends(get_db)
 ):
     """Download invoice PDF"""
     organization_id = str(membership.organization_id)
+    
+    # Get current patient name for ownership verification
+    patient_name = get_patient_name_from_user(membership.user_id, db)
+    if not patient_name:
+        raise HTTPException(status_code=403, detail="Patient not found")
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -190,6 +269,13 @@ async def download_invoice_pdf(
         sandbox = is_sandbox_mode(organization_id)
         client = GreenInvoiceAPI(api_key, sandbox=sandbox)
         
+        # First, verify ownership by getting the invoice
+        invoice = client.get_document(invoice_id)
+        client_name = invoice.get("client", {}).get("name") if isinstance(invoice.get("client"), dict) else invoice.get("client_name")
+        if client_name != patient_name:
+            raise HTTPException(status_code=403, detail="Access denied: You don't have permission to download this invoice")
+        
+        # Now download the PDF
         pdf_content = client.get_document_pdf(invoice_id)
         
         return Response(
@@ -208,15 +294,30 @@ async def download_invoice_pdf(
 @router.post("/invoices")
 async def create_invoice(
     request: CreateInvoiceRequest,
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    db: Session = Depends(get_db)
 ):
     """
     Create a new invoice
     
     This is typically called automatically after an appointment,
     but can also be used manually.
+    
+    NOTE: Patients can only create invoices for themselves.
     """
     organization_id = str(membership.organization_id)
+    
+    # Get current patient name for validation
+    patient_name = get_patient_name_from_user(membership.user_id, db)
+    if not patient_name:
+        raise HTTPException(status_code=403, detail="Patient not found")
+    
+    # Verify that the invoice is for the current patient
+    if request.patient_name != patient_name:
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied: You can only create invoices for yourself"
+        )
     
     # Get clinic's Green Invoice API key
     api_key = get_clinic_green_invoice_key(organization_id)
@@ -263,11 +364,29 @@ async def create_invoice(
 
 @router.get("/invoices/stats/summary")
 async def get_invoice_summary(
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    db: Session = Depends(get_db)
 ):
     """Get invoice statistics for current patient"""
     organization_id = str(membership.organization_id)
-    # TODO: Calculate real stats from Green Invoice
+    
+    # Get current patient name for filtering
+    patient_name = get_patient_name_from_user(membership.user_id, db)
+    if not patient_name:
+        # User has no patient mapping - return empty stats
+        return {
+            "total_invoices": 0,
+            "paid": 0,
+            "unpaid": 0,
+            "overdue": 0,
+            "total_amount": 0.0,
+            "paid_amount": 0.0,
+            "unpaid_amount": 0.0,
+            "currency": "ILS"
+        }
+    
+    # TODO: Calculate real stats from Green Invoice for this specific patient
+    # For now, return mock data (would need to filter by patient_name)
     
     return {
         "total_invoices": 12,
