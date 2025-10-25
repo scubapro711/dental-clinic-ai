@@ -1,0 +1,257 @@
+./agents/agent_graph_v3.py:180:            # TODO: Add logic for multi-agent queries
+./agents/agent_graph_v4.py:224:            # TODO: Add logic for multi-agent queries
+./agents/agent_graph_v5.py:238:            # TODO: Add logic for multi-agent queries
+./agents/alex_v2.py:23:    get_available_slots_tool,  # TODO: Replace with Odoo when appointment creation works
+./agents/alex_v2.py:24:    create_appointment_tool,   # TODO: Replace with Odoo when appointment creation works
+./agents/alex_v2.py:25:    get_patient_invoices_tool, # TODO: Replace with Odoo billing integration
+./agents/alex_v2.py:26:    get_invoice_details_tool,  # TODO: Replace with Odoo billing integration
+./agents/tools/alex_communications_tools.py:535:            # TODO: Add attachments support
+./agents/tools/alex_patient_tools.py:28:    phone: str = Field(..., description="Patient's phone number (Israeli format: 05X-XXXXXXX)")
+./agents/tools/marcus_subscription_tools.py:192:        # TODO: Implement patient count from Odoo
+./api/v1/agent_actions.py:56:        # TODO: Query from database when agent_actions table is created
+./api/v1/agent_actions.py:153:        # TODO: Update database and execute action
+./api/v1/agent_actions.py:186:        # TODO: Update database
+./api/v1/agent_actions.py:211:        # TODO: Query from database
+./api/v1/agent_actions.py:242:        # TODO: Calculate from database
+./api/v1/appointments.py:93:                'treatment_type': 'General',  # TODO: Add treatment type field
+./api/v1/dashboard.py:52:        # TODO: Query actual revenue from Odoo invoices/payments
+./api/v1/dashboard.py:176:        # TODO: Calculate real success rate and handling time from conversation logs
+./api/v1/endpoints/agents.py:68:    - Returns mock metrics for now (TODO: track real metrics)
+./api/v1/endpoints/agents.py:77:        # TODO: Track real agent metrics in database or in-memory store
+./api/v1/endpoints/agents.py:173:    TODO: Implement actual agent pause mechanism.
+./api/v1/endpoints/agents.py:183:    # TODO: Implement actual pause mechanism
+./api/v1/endpoints/agents.py:214:    # TODO: Implement actual resume mechanism
+./api/v1/endpoints/agents.py:237:    TODO: Implement actual agent restart mechanism.
+./api/v1/endpoints/agents.py:247:    # TODO: Implement actual restart mechanism
+./api/v1/endpoints/agents.py:271:    # TODO: Calculate from real agent status
+./api/v1/endpoints/ai_chat.py:173:        user_role = "owner"  # FIXME: Get from JWT token - current_user["role"]
+./api/v1/endpoints/ai_chat.py:174:        user_permissions = []  # FIXME: Get from RBAC system based on role
+./api/v1/endpoints/ai_chat.py:176:        # TODO: Implement proper authentication
+./api/v1/endpoints/alerts.py:97:        # TODO: Replace with real alert aggregation from database
+./api/v1/endpoints/alerts.py:252:        # TODO: Update alert status in database
+./api/v1/endpoints/alerts.py:282:        # TODO: Update alert status in database
+./api/v1/endpoints/auth_google.py:205:    # TODO: Validate state parameter (CSRF protection)
+./api/v1/endpoints/conversations.py:370:        "avg_response_time_seconds": 2.3,  # TODO: Calculate from actual data
+./api/v1/endpoints/copilotkit.py:65:            user_id="copilotkit_user",  # TODO: Extract from auth
+./api/v1/endpoints/copilotkit.py:66:            organization_id="default_org",  # TODO: Extract from auth
+./api/v1/endpoints/dashboard.py:186:                "insurance_provider": None,  # TODO: Add insurance field
+./api/v1/endpoints/dashboard_metrics.py:118:    # TODO: Implement conversation tracking in database
+./api/v1/endpoints/decision_queue.py:296:    # TODO: Trigger execution asynchronously
+./api/v1/endpoints/decision_queue.py:338:    # TODO: Send feedback to agent for learning
+./api/v1/endpoints/decision_queue.py:376:    # TODO: Send feedback to agent for fine-tuning
+./api/v1/endpoints/doctor.py:304:    # TODO: Implement actual email/SMS sending
+./api/v1/endpoints/handoff.py:161:                'treatment': 'General Checkup',  # TODO: Add treatment type
+./api/v1/endpoints/handoff.py:247:                'treatment': 'appointment',  # TODO: Add treatment type
+./api/v1/endpoints/invoices.py:37:    # TODO: Implement database query
+./api/v1/endpoints/invoices.py:45:    # TODO: Implement database query
+./api/v1/endpoints/invoices.py:63:    # TODO: Get current user's organization_id from JWT token
+./api/v1/endpoints/invoices.py:122:    # TODO: Get current user's organization_id from JWT token
+./api/v1/endpoints/invoices.py:173:    # TODO: Get current user's organization_id from JWT token
+./api/v1/endpoints/invoices.py:210:    # TODO: Get current user's organization_id from JWT token
+./api/v1/endpoints/invoices.py:259:    # TODO: Get current user's organization_id from JWT token
+./api/v1/endpoints/invoices.py:260:    # TODO: Calculate real stats from Green Invoice
+./api/v1/endpoints/logs.py:28:    DEBUG = "debug"
+./api/v1/endpoints/logs.py:84:        # TODO: Replace with real log aggregation from database/logging system
+./api/v1/endpoints/logs.py:220:        # TODO: Calculate from real logs
+./api/v1/endpoints/medical_questionnaire.py:321:    # Trigger Sarah analysis (TODO: implement async task)
+./api/v1/endpoints/medical_questionnaire.py:344:    # TODO: Implement Sarah risk analysis
+./api/v1/endpoints/organizations.py:287:        # 11. TODO: Send verification email (will be implemented in Email Verification component)
+./api/v1/endpoints/patient_portal_odoo.py:289:                "type": "General Checkup",  # TODO: Add appointment type field
+./api/v1/endpoints/patient_portal_odoo.py:290:                "duration": "30 min",  # TODO: Calculate from stop
+./api/v1/endpoints/patient_portal_odoo.py:293:                "location": "Main Clinic"  # TODO: Add location field
+./api/v1/endpoints/patient_portal_odoo.py:336:                "available": True,  # TODO: Check actual availability
+./api/v1/endpoints/patient_portal_odoo.py:337:                "image_url": None  # TODO: Add image support
+./api/v1/endpoints/pilot_applications.py:105:    # TODO: Send email notification to admin
+./api/v1/endpoints/pilot_applications.py:106:    # TODO: Send confirmation email to applicant
+./api/v1/endpoints/pilot_applications.py:191:    # TODO: Send email notification to applicant about status change
+./api/v1/endpoints/privacy.py:390:    # TODO: Implement email/Telegram notification to DPO
+./api/v1/endpoints/privacy.py:406:    # TODO: Implement full data export
+./api/v1/endpoints/statistics.py:165:        # TODO: Add insurance field to res.partner
+./api/v1/endpoints/statistics.py:219:        # TODO: Add treatment_type field or use product.product
+./api/v1/endpoints/statistics.py:263:        # TODO: Add treatment type from invoice lines
+./api/v1/endpoints/super_admin/costs.py:96:    # TODO: Get total users count
+./api/v1/endpoints/super_admin/costs.py:193:    # TODO: Implement weekly and monthly aggregation
+./api/v1/endpoints/super_admin/costs.py:281:    # TODO: Implement actual cost allocation based on GCP resource labels
+./api/v1/endpoints/super_admin/exports.py:277:            "new_mrr": 0,  # TODO: Calculate new MRR
+./api/v1/endpoints/super_admin/exports.py:278:            "churned_mrr": 0,  # TODO: Calculate churned MRR
+./api/v1/endpoints/super_admin/exports.py:279:            "expansion_mrr": 0,  # TODO: Calculate expansion MRR
+./api/v1/endpoints/super_admin/exports.py:280:            "contraction_mrr": 0  # TODO: Calculate contraction MRR
+./api/v1/endpoints/super_admin/usage.py:179:                limit=None,  # TODO: Get from plan limits
+./api/v1/endpoints/super_admin/usage.py:180:                percentage=None  # TODO: Calculate percentage
+./api/v1/endpoints/super_admin/usage.py:245:        "limits": {}  # TODO: Get from plan configuration
+./api/v1/endpoints/telegram_admin.py:321:        "messages_today": 0,  # TODO: Implement message counting
+./api/v1/endpoints/telegram_admin.py:322:        "messages_week": 0,   # TODO: Implement message counting
+./api/v1/endpoints/telegram_admin.py:323:        "messages_month": 0,  # TODO: Implement message counting
+./api/v1/endpoints/telegram_admin.py:324:        "avg_response_time": 0,  # TODO: Implement response time tracking
+./api/v1/endpoints/telegram_admin.py:365:    # TODO: Implement message storage and retrieval
+./api/v1/endpoints/tooth_chart.py:252:    # TODO: Call Sarah agent to analyze this tooth
+./api/v1/endpoints/tooth_chart.py:330:    # TODO: Implement Odoo sync
+./api/v1/endpoints/treatment_categories.py:271:    # TODO: Implement Marcus AI analysis
+./api/v1/endpoints/webhooks.py:46:        # Verify webhook signature (TODO: implement signature verification)
+./api/v1/endpoints/xray.py:199:    # Save file (TODO: implement S3 upload)
+./api/v1/endpoints/xray.py:218:        image_url=file_path,  # TODO: Use S3 URL
+./api/v1/endpoints/xray.py:330:    # TODO: Implement Sarah AI analysis
+./api/v1/endpoints/xray.py:390:    # TODO: Implement Sarah comparison analysis
+./core/audit.py:174:            # TODO: Send alert to security team if severity is high or critical
+./core/audit.py:189:        TODO: Implement email/Telegram/Slack notification
+./core/config.py:38:    DEBUG: bool = Field(default=False)
+./core/database.py:22:        echo=settings.DEBUG,
+./core/database.py:31:        echo=settings.DEBUG,
+./core/feature_flags.py:112:        # TODO: Implement per-organization feature flags
+./core/feature_flags.py:129:        # TODO: Implement per-user feature flags
+./integrations/odoo_client.py:3083:                # TODO: Send notification if requested
+./main.py:239:# HIPAA compliance middleware (TODO: needs refactoring)
+./main.py:259:# TODO: HIPAA compliance middleware needs refactoring (import errors)
+./middleware/security_headers.py:37:            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  # TODO: Remove unsafe-* in production
+./services/baa_service.py:104:                template_version="1.0"  # TODO: Version the template
+./services/bigquery_billing_service.py:32:        self.table_id = os.getenv("GCP_BILLING_TABLE")  # e.g., gcp_billing_export_v1_XXXXXX_XXXXXX_XXXXXX
+./services/conversation_manager.py:364:        # TODO: Use LLM to generate better summary
+./services/data_retention_service.py:202:            # TODO: Export to GCS bucket for long-term archival
+./services/data_retention_service.py:285:        TODO: Implement litigation hold tracking table
+./services/data_retention_service.py:408:        # TODO: Send notification to admin if action required
+./services/gcp_billing_service.py:72:            # TODO: Implement actual BigQuery query when billing export is set up
+./services/gcp_billing_service.py:102:            # TODO: Implement BigQuery query
+./services/gcp_billing_service.py:134:            # TODO: Implement BigQuery query
+./services/gcp_billing_service.py:157:            # TODO: Implement BigQuery query
+./services/harper_monitoring.py:554:    # TODO: Implement database storage
+./services/harper_monitoring.py:574:    # TODO: Implement database storage
+./services/harper_monitoring.py:594:    # TODO: Implement database storage
+./services/proactive_suggestions.py:109:        # TODO: Query Odoo for upcoming appointments
+./services/proactive_suggestions.py:155:        # TODO: Query Odoo for last appointment
+./services/proactive_suggestions.py:197:        # TODO: Query Odoo for pending treatment plans
+./services/proactive_suggestions.py:237:        # TODO: Query Odoo for unpaid invoices
+./services/proactive_suggestions.py:279:        # TODO: Query Odoo for recent treatments requiring follow-up
+./services/proactive_suggestions.py:320:        # TODO: Check if feedback already provided
+./services/proactive_suggestions.py:523:        # TODO: Integrate with appointment scheduling
+./services/proactive_suggestions.py:538:        # TODO: Schedule reminder
+./services/proactive_suggestions.py:552:        # TODO: Fetch treatment plan from Odoo
+./services/proactive_suggestions.py:570:        # TODO: Integrate with payment gateway
+./services/telegram_templates.py:303:        can_cancel = True  # TODO: Calculate based on appointment time
+./tests/conftest.py:530:    handler.setLevel(logging.DEBUG)
+./tests/fixtures/conftest.py:480:    handler.setLevel(logging.DEBUG)
+./tests/regression/test_regression_suite.py:23:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:28:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:33:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:44:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:49:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:54:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:65:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:70:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:75:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:86:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:91:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:96:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:107:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:112:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:117:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:128:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:133:        # TODO: Implement regression test
+./tests/regression/test_regression_suite.py:138:        # TODO: Implement regression test
+./tests/security/test_api_rate_limiting_security.py:22:        # TODO: Implement security test
+./tests/security/test_api_rate_limiting_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_api_rate_limiting_security.py:32:        # TODO: Implement policy test
+./tests/security/test_api_rate_limiting_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_authentication_security.py:22:        # TODO: Implement security test
+./tests/security/test_authentication_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_authentication_security.py:32:        # TODO: Implement policy test
+./tests/security/test_authentication_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_authorization_security.py:22:        # TODO: Implement security test
+./tests/security/test_authorization_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_authorization_security.py:32:        # TODO: Implement policy test
+./tests/security/test_authorization_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_csrf_protection_security.py:22:        # TODO: Implement security test
+./tests/security/test_csrf_protection_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_csrf_protection_security.py:32:        # TODO: Implement policy test
+./tests/security/test_csrf_protection_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_data_encryption_security.py:22:        # TODO: Implement security test
+./tests/security/test_data_encryption_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_data_encryption_security.py:32:        # TODO: Implement policy test
+./tests/security/test_data_encryption_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_hipaa_compliance_security.py:22:        # TODO: Implement security test
+./tests/security/test_hipaa_compliance_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_hipaa_compliance_security.py:32:        # TODO: Implement policy test
+./tests/security/test_hipaa_compliance_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_password_security_security.py:22:        # TODO: Implement security test
+./tests/security/test_password_security_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_password_security_security.py:32:        # TODO: Implement policy test
+./tests/security/test_password_security_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_session_management_security.py:22:        # TODO: Implement security test
+./tests/security/test_session_management_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_session_management_security.py:32:        # TODO: Implement policy test
+./tests/security/test_session_management_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_sql_injection_security.py:22:        # TODO: Implement security test
+./tests/security/test_sql_injection_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_sql_injection_security.py:32:        # TODO: Implement policy test
+./tests/security/test_sql_injection_security.py:37:        # TODO: Implement compliance test
+./tests/security/test_xss_protection_security.py:22:        # TODO: Implement security test
+./tests/security/test_xss_protection_security.py:27:        # TODO: Implement attack prevention test
+./tests/security/test_xss_protection_security.py:32:        # TODO: Implement policy test
+./tests/security/test_xss_protection_security.py:37:        # TODO: Implement compliance test
+./tests/unit/agents/test_rbac.py:26:        # TODO: Implement test
+./tests/unit/agents/test_rbac.py:31:        # TODO: Implement test
+./tests/unit/agents/test_rbac.py:36:        # TODO: Implement test
+./tests/unit/agents/test_rbac.py:41:        # TODO: Implement test
+./tests/unit/agents/test_rbac.py:47:        # TODO: Implement test
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:7:Bug Report: BUG_REPORT_odoo_client.md - Bug #1
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:33:        This is the BUG - it should NOT modify global timeout!
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:56:            f"BUG STILL EXISTS: OdooClient modified global socket timeout to {timeout_after}! "
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:83:            # BUG: Both set the same global timeout
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:86:                    "BUG CONFIRMED: Multiple OdooClient instances all modify "
+./tests/unit/integrations/test_odoo_client_bug1_socket_timeout.py:92:                pytest.fail("BUG CONFIRMED: Global timeout modified!")
+./tests/unit/integrations/test_odoo_client_bug2_password_security.py:7:Bug Report: BUG_REPORT_odoo_client.md - Bug #2
+./tests/unit/integrations/test_odoo_client_bug2_password_security.py:120:        # Enable DEBUG logging
+./tests/unit/integrations/test_odoo_client_bug2_password_security.py:121:        caplog.set_level(logging.DEBUG)
+./tests/unit/integrations/test_odoo_client_bug3_domain_validation.py:14:Bug Report: BUG_REPORT_odoo_client.md - Bug #3
+./tests/unit/integrations/test_odoo_client_bug5_race_condition.py:81:        # BUG: Currently crashes with ValueError or TypeError
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:4:BUG DESCRIPTION:
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:51:        # BUG: This should raise ValueError, but currently doesn't
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:79:        # BUG: This should raise ValueError BEFORE calling Odoo
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:107:        # BUG: This should raise ValueError
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:136:        # BUG: This should raise ValueError, not silently succeed
+./tests/unit/integrations/test_odoo_client_bug6_id_validation.py:164:        # BUG: This should raise ValueError for invalid IDs
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:76:        # BUG: Currently, no default limit is applied
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:105:        # BUG: Currently, no default limit is applied
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:234:        # BUG: Currently no default limit
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:260:        # BUG: Currently no default limit
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:314:        # BUG: Currently no limit, would load all 100k records
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:338:        # BUG: Currently no limit
+./tests/unit/integrations/test_odoo_client_bug7_memory_leak.py:365:        # BUG: Currently no limit
+./tests/unit/services/test_bigquery_billing_service.py:25:        # TODO: Implement test
+./tests/unit/services/test_bigquery_billing_service.py:30:        # TODO: Implement test
+./tests/unit/services/test_bigquery_billing_service.py:35:        # TODO: Implement test
+./tests/unit/services/test_bigquery_billing_service.py:40:        # TODO: Implement test
+./tests/unit/services/test_bigquery_billing_service.py:45:        # TODO: Implement test
+./tests/unit/services/test_cost_sync_service.py:25:        # TODO: Implement test
+./tests/unit/services/test_cost_sync_service.py:30:        # TODO: Implement test
+./tests/unit/services/test_cost_sync_service.py:35:        # TODO: Implement test
+./tests/unit/services/test_cost_sync_service.py:40:        # TODO: Implement test
+./tests/unit/services/test_cost_sync_service.py:45:        # TODO: Implement test
+./tests/unit/services/test_harper_monitoring.py:25:        # TODO: Implement test
+./tests/unit/services/test_harper_monitoring.py:30:        # TODO: Implement test
+./tests/unit/services/test_harper_monitoring.py:35:        # TODO: Implement test
+./tests/unit/services/test_harper_monitoring.py:45:        # TODO: Implement test
+./tests/unit/services/test_knowledge_base.py:25:        # TODO: Implement test
+./tests/unit/services/test_knowledge_base.py:30:        # TODO: Implement test
+./tests/unit/services/test_knowledge_base.py:35:        # TODO: Implement test
+./tests/unit/services/test_knowledge_base.py:40:        # TODO: Implement test
+./tests/unit/services/test_knowledge_base.py:45:        # TODO: Implement test
+./tests/unit/services/test_sms_service.py:25:        # TODO: Implement test
+./tests/unit/services/test_sms_service.py:30:        # TODO: Implement test
+./tests/unit/services/test_sms_service.py:35:        # TODO: Implement test
+./tests/unit/services/test_sms_service.py:40:        # TODO: Implement test
+./tests/unit/services/test_sms_service.py:45:        # TODO: Implement test
+./tests/unit/services/test_user_sync_service.py:25:        # TODO: Implement test
+./tests/unit/services/test_user_sync_service.py:30:        # TODO: Implement test
+./tests/unit/services/test_user_sync_service.py:35:        # TODO: Implement test
+./tests/unit/services/test_user_sync_service.py:40:        # TODO: Implement test
+./tests/unit/services/test_user_sync_service.py:45:        # TODO: Implement test
+./tests/unit/services/test_vector_db_chromadb_backup.py:25:        # TODO: Implement test
+./tests/unit/services/test_vector_db_chromadb_backup.py:30:        # TODO: Implement test
+./tests/unit/services/test_vector_db_chromadb_backup.py:35:        # TODO: Implement test
+./tests/unit/services/test_vector_db_chromadb_backup.py:40:        # TODO: Implement test
+./tests/unit/services/test_vector_db_chromadb_backup.py:45:        # TODO: Implement test
+./tests/unit/services/test_vector_db_v2.py:25:        # TODO: Implement test
+./tests/unit/services/test_vector_db_v2.py:30:        # TODO: Implement test
+./tests/unit/services/test_vector_db_v2.py:35:        # TODO: Implement test
+./tests/unit/services/test_vector_db_v2.py:40:        # TODO: Implement test
+./tests/unit/services/test_vector_db_v2.py:45:        # TODO: Implement test

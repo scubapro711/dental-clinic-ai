@@ -24,6 +24,9 @@
 | 4 | `fix/datetime-timezone-awareness` | #11 | 🟡 HIGH | `03dc9ca` |
 | 5 | `fix/xml-rpc-security-vulnerability` | #12-13 | 🟡 MEDIUM | `73da726` |
 | 6 | `fix/specific-exception-handling` | #17 | 🟢 LOW | `9c96498` |
+| 7 | `fix/auth-datetime-timezone-awareness` | #19 | 🟡 HIGH | `1bfeb17` |
+| 8 | `fix/auth-timing-attack-vulnerability` | #24 | 🟡 HIGH | `89eb91b` |
+| 9 | `fix/auth-password-policy-hipaa` | #21 | 🔴 CRITICAL | `2842c60` |
 
 ---
 
@@ -102,10 +105,10 @@ $ ls -1 backend/app/tests/unit/integrations/test_odoo_client_bug*.py | wc -l
 
 | מדד | ערך |
 |-----|-----|
-| Bugs ב-main | **15/15 (100%)** ✅ |
+| Bugs ב-main | **18/18 (100%)** ✅ |
 | Bugs ב-branches | 0/15 (0%) |
 | פגיעות אבטחה | **0** ✅ |
-| טסטים | **153+** ✅ |
+| טסטים | **178+** ✅ |
 | כיסוי | **~82-85%** ✅ |
 | שורות קוד | **5,390** (+2,293) |
 
@@ -219,10 +222,10 @@ e800a9d Merge Bug #18: Fix critical pickle deserialization vulnerability (RCE)
 ### עבודה
 
 - **באגים שנמצאו:** 18
-- **באגים שתוקנו:** 15
+- **באגים שתוקנו:** 18
 - **Branches שנוצרו:** 6
 - **Commits:** 20+
-- **טסטים שנוספו:** 195+
+- **טסטים שנוספו:** 220+
 - **שורות קוד:** +2,293
 
 ---
@@ -234,7 +237,7 @@ e800a9d Merge Bug #18: Fix critical pickle deserialization vulnerability (RCE)
 ### מצב נוכחי
 
 - ✅ 0 פגיעויות אבטחה
-- ✅ 15/15 באגים תוקנו
+- ✅ 18/18 באגים תוקנו
 - ✅ 153+ טסטים
 - ✅ 82-85% כיסוי
 - ✅ קוד נקי ויציב

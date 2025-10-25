@@ -5,7 +5,7 @@ Provides comprehensive billing and subscription analytics for Super Admin.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func, and_, or_
 from typing import List, Optional, Dict, Any
 from datetime import datetime, timedelta
@@ -145,20 +145,24 @@ async def get_billing_stats(
         if active_start_of_month > 0:
             churn_rate = round((canceled_this_month / active_start_of_month) * 100, 2)
         
-        # Plans with subscriber counts
+        # Plans with subscriber counts (optimized to avoid N+1 queries)
+        # Use a single query with GROUP BY to get subscriber counts
+        plan_subscriber_counts = dict(
+            db.query(
+                Subscription.plan_id,
+                func.count(Subscription.id)
+            ).filter(
+                Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING])
+            ).group_by(Subscription.plan_id).all()
+        )
+        
         plans = db.query(PlanConfiguration).order_by(PlanConfiguration.sort_order).all()
         plans_data = []
         for plan in plans:
-            sub_count = db.query(Subscription).filter(
-                and_(
-                    Subscription.plan_id == plan.id,
-                    Subscription.status.in_([SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING])
-                )
-            ).count()
             plans_data.append({
                 "id": plan.id,
                 "name": plan.name,
-                "subscribers": sub_count
+                "subscribers": plan_subscriber_counts.get(plan.id, 0)
             })
         
         return {
@@ -225,25 +229,25 @@ async def get_all_subscriptions(
         # Get total count
         total = query.count()
         
-        # Get paginated results
-        subscriptions = query.order_by(
+        # Get paginated results with eager loading to avoid N+1 queries
+        subscriptions = query.options(
+            joinedload(Subscription.organization),
+            joinedload(Subscription.plan)
+        ).order_by(
             Subscription.created_at.desc()
         ).limit(limit).offset(offset).all()
         
-        # Format results
+        # Format results (organization and plan are already loaded)
         results = []
         for sub in subscriptions:
-            org = db.query(Organization).filter(Organization.id == sub.organization_id).first()
-            plan = db.query(PlanConfiguration).filter(PlanConfiguration.id == sub.plan_id).first()
-            
             results.append({
                 "id": sub.id,
                 "organization_id": sub.organization_id,
-                "organization_name": org.name if org else "Unknown",
+                "organization_name": sub.organization.name if sub.organization else "Unknown",
                 "plan_id": sub.plan_id,
-                "plan_name": plan.name if plan else "Unknown",
+                "plan_name": sub.plan.name if sub.plan else "Unknown",
                 "status": sub.status.value,
-                "monthly_price": float(plan.amount) if plan else 0,
+                "monthly_price": float(sub.plan.amount) if sub.plan else 0,
                 "discount_percentage": sub.discount_percentage or 0,
                 "start_date": sub.start_date.isoformat() if sub.start_date else None,
                 "trial_end": sub.trial_end.isoformat() if sub.trial_end else None,
