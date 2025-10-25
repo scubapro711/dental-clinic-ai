@@ -18,12 +18,15 @@ Best Practices:
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+import logging
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
 from app.api.dependencies import get_db, get_current_user, require_role
 from app.models.user import User, UserRole
 from app.services.hipaa_metrics import HIPAAMetricsService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -144,9 +147,10 @@ async def get_metrics_summary(
         )
         
     except Exception as e:
+        logger.error(f"Failed to retrieve metrics summary: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve metrics summary: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -192,9 +196,10 @@ async def get_phi_access_events(
         ]
         
     except Exception as e:
+        logger.error(f"Failed to retrieve PHI access events: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve PHI access events: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -237,9 +242,10 @@ async def get_authentication_events(
         ]
         
     except Exception as e:
+        logger.error(f"Failed to retrieve authentication events: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve authentication events: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -268,9 +274,10 @@ async def get_breach_incidents(
         return []
         
     except Exception as e:
+        logger.error(f"Failed to retrieve breach incidents: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve breach incidents: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -328,9 +335,10 @@ async def get_baa_status(
         ]
         
     except Exception as e:
+        logger.error(f"Failed to retrieve BAA status: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve BAA status: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -367,8 +375,9 @@ async def get_compliance_trends(
         ]
         
     except Exception as e:
+        logger.error(f"Failed to retrieve compliance trends: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve compliance trends: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 

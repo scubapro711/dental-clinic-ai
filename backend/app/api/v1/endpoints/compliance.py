@@ -8,6 +8,7 @@ Only accessible to clinic_admin and super_admin roles.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+import logging
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
@@ -25,6 +26,8 @@ from app.models.compliance_alert import (
 from app.agents.harper_hipaa import HarperAgent
 from app.services.harper_monitoring import HarperMonitoringService
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/compliance", tags=["Harper Compliance"])
 
@@ -124,7 +127,11 @@ async def chat_with_harper(
         )
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error processing message: {str(e)}")
+        logger.error(f"Error processing message:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 # ==================== Compliance Score ====================
@@ -148,7 +155,11 @@ async def get_compliance_score(
         return ComplianceScoreResponse(**score)
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching compliance score: {str(e)}")
+        logger.error(f"Error fetching compliance score:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 # ==================== Compliance Alerts ====================
@@ -185,7 +196,11 @@ async def get_compliance_alerts(
         return [alert.to_dict() for alert in alerts]
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching alerts: {str(e)}")
+        logger.error(f"Error fetching alerts:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post(
@@ -219,7 +234,11 @@ async def acknowledge_alert(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error acknowledging alert: {str(e)}")
+        logger.error(f"Error acknowledging alert:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post(
@@ -253,7 +272,11 @@ async def start_alert_progress(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error updating alert: {str(e)}")
+        logger.error(f"Error updating alert:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post(
@@ -287,7 +310,11 @@ async def resolve_alert(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error resolving alert: {str(e)}")
+        logger.error(f"Error resolving alert:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post(
@@ -321,7 +348,11 @@ async def dismiss_alert(
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error dismissing alert: {str(e)}")
+        logger.error(f"Error dismissing alert:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 # ==================== Compliance Metrics ====================
@@ -345,7 +376,11 @@ async def get_compliance_metrics(
         return ComplianceMetricsResponse(**metrics)
         
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching metrics: {str(e)}")
+        logger.error(f"Error fetching metrics:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 # ==================== Proactive Monitoring ====================
@@ -382,5 +417,9 @@ async def run_compliance_checks(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error running checks: {str(e)}")
+        logger.error(f"Error running checks:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 

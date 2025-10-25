@@ -153,9 +153,10 @@ async def create_plan(
     except Exception as e:
         logger.error(f"Failed to create plan: {str(e)}")
         db.rollback()
+        logger.error(f"Failed to create plan: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create plan: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -293,9 +294,10 @@ async def update_plan(
     except Exception as e:
         logger.error(f"Failed to update plan: {str(e)}")
         db.rollback()
+        logger.error(f"Failed to update plan: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update plan: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -352,9 +354,10 @@ async def delete_plan(
     except Exception as e:
         logger.error(f"Failed to delete plan: {str(e)}")
         db.rollback()
+        logger.error(f"Failed to delete plan: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to delete plan: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -401,9 +404,10 @@ async def activate_plan(
     except Exception as e:
         logger.error(f"Failed to activate plan: {str(e)}")
         db.rollback()
+        logger.error(f"Failed to activate plan: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to activate plan: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -452,8 +456,9 @@ async def deactivate_plan(
     except Exception as e:
         logger.error(f"Failed to deactivate plan: {str(e)}")
         db.rollback()
+        logger.error(f"Failed to deactivate plan: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to deactivate plan: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 

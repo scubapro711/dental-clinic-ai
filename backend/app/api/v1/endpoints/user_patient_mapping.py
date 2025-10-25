@@ -303,7 +303,11 @@ async def search_patients(
         logger.error(f"Error searching patients: {e}")
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"Failed to search patients: {str(e)}")
+        logger.error(f"Failed to search patients:: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while processing your request. Please try again later."
+        )
 
 
 @router.post("/mappings/me", response_model=MappingResponse)

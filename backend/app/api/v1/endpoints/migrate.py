@@ -77,8 +77,9 @@ async def run_telegram_user_migration(db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"❌ Migration failed: {str(e)}")
         db.rollback()
+        logger.error(f"Migration failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Migration failed: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 

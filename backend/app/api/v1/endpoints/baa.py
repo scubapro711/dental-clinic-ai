@@ -5,6 +5,7 @@ Handles BAA document retrieval, signing, and verification.
 
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+import logging
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
@@ -13,6 +14,8 @@ from app.models.user import User
 from app.models.organization import Organization
 from app.models.baa_signature import BAASignature
 from app.services.baa_service import BAAService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -69,9 +72,10 @@ async def get_baa_template(
         template = service.get_clinic_baa_template(current_organization)
         return template
     except Exception as e:
+        logger.error(f"Error retrieving BAA template: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving BAA template: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 @router.post(
@@ -138,9 +142,10 @@ async def sign_baa(
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"Error signing BAA: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error signing BAA: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 @router.get(

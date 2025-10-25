@@ -416,9 +416,10 @@ async def bulk_create_treatments(
     except Exception as e:
         db.rollback()
         logger.error(f"Error in bulk create: {e}")
+        logger.error(f"Bulk create failed: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Bulk create failed: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -485,7 +486,8 @@ async def initialize_default_treatments(
     except Exception as e:
         db.rollback()
         logger.error(f"Error initializing defaults: {e}")
+        logger.error(f"Failed to initialize defaults: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to initialize defaults: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )

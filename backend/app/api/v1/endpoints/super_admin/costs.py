@@ -5,6 +5,7 @@ Endpoints for managing and viewing infrastructure costs.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+import logging
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
@@ -16,6 +17,8 @@ from app.api.dependencies import require_super_admin
 from app.models import CostTracking, Organization, User
 from app.services.bigquery_billing_service import get_bigquery_billing_service
 from app.services.cost_sync_service import CostSyncService, sync_yesterday_costs, backfill_costs
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -225,9 +228,10 @@ def sync_costs(
         return result
         
     except Exception as e:
+        logger.error(f"Error syncing costs: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Error syncing costs: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 

@@ -203,9 +203,10 @@ async def create_subscription(
         raise
     except Exception as e:
         logger.error(f"Failed to create subscription: {str(e)}")
+        logger.error(f"Failed to create subscription: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to create subscription: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -313,9 +314,10 @@ async def cancel_my_subscription(
         raise
     except Exception as e:
         logger.error(f"Failed to cancel subscription: {str(e)}")
+        logger.error(f"Failed to cancel subscription: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to cancel subscription: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 

@@ -207,9 +207,10 @@ async def get_active_alerts(
         
     except Exception as e:
         logger.error(f"Error getting active alerts: {e}")
+        logger.error(f"Failed to get alerts: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get alerts: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -261,9 +262,10 @@ async def dismiss_alert(
         
     except Exception as e:
         logger.error(f"Error dismissing alert: {e}")
+        logger.error(f"Failed to dismiss alert: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to dismiss alert: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -291,9 +293,10 @@ async def resolve_alert(
         
     except Exception as e:
         logger.error(f"Error resolving alert: {e}")
+        logger.error(f"Failed to resolve alert: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to resolve alert: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
@@ -330,7 +333,8 @@ async def get_alerts_summary(
         
     except Exception as e:
         logger.error(f"Error getting alerts summary: {e}")
+        logger.error(f"Failed to get alerts summary: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get alerts summary: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )

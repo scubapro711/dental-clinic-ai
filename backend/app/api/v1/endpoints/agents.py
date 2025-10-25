@@ -120,9 +120,10 @@ async def get_all_agents_status(
         
     except Exception as e:
         logger.error(f"Error getting agent status: {e}")
+        logger.error(f"Failed to get agent status: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to get agent status: {str(e)}"
+            detail="An error occurred while processing your request. Please try again later."
         )
 
 
