@@ -14,6 +14,7 @@ import ProtectedWidget from '../components/rbac/ProtectedWidget';
 import useAgentActivity from '../hooks/useAgentActivity';
 import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelLeftOpen, Sparkles, History, Shield } from 'lucide-react';
+import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
 import DashboardStatsBar from '../components/dashboard/DashboardStatsBar';
 import { getUserInfo, formatRoleName, getRoleBadgeColor } from '../utils/rbac';
@@ -167,6 +168,11 @@ export default function AgenticDashboard() {
             {/* Enhanced Fine-Tuning - Admin only */}
             <ProtectedWidget widgetId="fine-tuning">
               <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
+            </ProtectedWidget>
+            
+            {/* HIPAA Compliance Alerts - Admin only */}
+            <ProtectedWidget widgetId="compliance-alerts">
+              <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
             </ProtectedWidget>
             
             {/* Clinical System - Staff and Admin */}

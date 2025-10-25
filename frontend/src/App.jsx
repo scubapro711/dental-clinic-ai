@@ -42,6 +42,7 @@ import {
 import ComplianceDashboard from './pages/super-admin/ComplianceDashboard'
 import BAAManagementPageSuperAdmin from './pages/super-admin/BAAManagementPage'
 import DataRetentionPage from './pages/super-admin/DataRetentionPage'
+import HarperDashboard from './components/compliance/HarperDashboard'
 
 // Shared
 import ChatPage from './pages/ChatPage'
@@ -186,6 +187,7 @@ function App() {
                 <Route path="costs" element={<CostDashboard />} />
                 <Route path="compliance" element={<ComplianceDashboard />} />
                 <Route path="pilot-applications" element={<PilotApplications />} />
+                <Route path="hipaa/dashboard" element={<HarperDashboard />} />
                 <Route path="hipaa/baa-management" element={<BAAManagementPageSuperAdmin />} />
                 <Route path="hipaa/data-retention" element={<DataRetentionPage />} />
                 <Route path="analytics" element={<ComingSoon title="Analytics & Insights" />} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MetricCard from './MetricCard';
-import { Users, Calendar, DollarSign, Activity } from 'lucide-react';
+import { Users, Calendar, DollarSign, Activity, Shield } from 'lucide-react';
 import './DashboardStatsBar.css';
 
 /**
@@ -14,7 +14,8 @@ const DashboardStatsBar = () => {
     activePatients: { value: 0, trend: null },
     todayAppointments: { value: 0, trend: null },
     monthlyRevenue: { value: 0, trend: null },
-    systemHealth: { value: 0, trend: null }
+    systemHealth: { value: 0, trend: null },
+    hipaaCompliance: { value: 0, trend: null }
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -50,6 +51,10 @@ const DashboardStatsBar = () => {
           systemHealth: {
             value: data.system_health || 98,
             trend: data.system_health_trend || null
+          },
+          hipaaCompliance: {
+            value: data.hipaa_compliance_score || 0,
+            trend: data.hipaa_compliance_trend || null
           }
         });
       } else {
@@ -81,6 +86,10 @@ const DashboardStatsBar = () => {
       systemHealth: {
         value: '98%',
         trend: { direction: 'up', value: '+2%', label: 'uptime' }
+      },
+      hipaaCompliance: {
+        value: '96%',
+        trend: { direction: 'up', value: '+3%', label: 'compliance score' }
       }
     });
   };
@@ -89,7 +98,7 @@ const DashboardStatsBar = () => {
     return (
       <div className="dashboard-stats-bar loading">
         <div className="stats-skeleton">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4, 5].map(i => (
             <div key={i} className="skeleton-card"></div>
           ))}
         </div>
@@ -127,6 +136,13 @@ const DashboardStatsBar = () => {
           icon={<Activity className="w-6 h-6" />}
           trend={stats.systemHealth.trend}
           subtitle="All agents operational"
+        />
+        <MetricCard
+          title="HIPAA Compliance"
+          value={stats.hipaaCompliance.value}
+          icon={<Shield className="w-6 h-6" />}
+          trend={stats.hipaaCompliance.trend}
+          agent={{ name: 'Harper', color: '#8b5cf6' }}
         />
       </div>
     </div>
