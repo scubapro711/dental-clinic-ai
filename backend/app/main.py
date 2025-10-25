@@ -247,6 +247,9 @@ from app.middleware.rate_limiter import (
 )
 from slowapi.errors import RateLimitExceeded
 
+# CSRF protection middleware
+from app.middleware.csrf_middleware import CSRFMiddleware
+
 # Add rate limiter to app state
 app.state.limiter = limiter
 
@@ -258,6 +261,9 @@ app.add_middleware(SlowAPIMiddleware)
 
 # TODO: HIPAA compliance middleware needs refactoring (import errors)
 # app.add_middleware(HIPAAMiddleware)
+
+# Add CSRF protection middleware (before security headers)
+app.add_middleware(CSRFMiddleware)
 
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
