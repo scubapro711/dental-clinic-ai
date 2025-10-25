@@ -339,13 +339,25 @@
                 
                 if (response.ok) {
                     // Add message to chat
+                    // Create message elements safely (prevent XSS)
                     const messageDiv = document.createElement('div');
                     messageDiv.className = 'message doctor';
-                    messageDiv.innerHTML = `
-                        <div class="message-header">👨‍⚕️ Dr. Smith</div>
-                        <div class="message-bubble">${message}</div>
-                        <div class="message-time">Just now</div>
-                    `;
+                    
+                    const header = document.createElement('div');
+                    header.className = 'message-header';
+                    header.textContent = '👨‍⚕️ Dr. Smith';
+                    
+                    const bubble = document.createElement('div');
+                    bubble.className = 'message-bubble';
+                    bubble.textContent = message;  // textContent auto-escapes HTML
+                    
+                    const time = document.createElement('div');
+                    time.className = 'message-time';
+                    time.textContent = 'Just now';
+                    
+                    messageDiv.appendChild(header);
+                    messageDiv.appendChild(bubble);
+                    messageDiv.appendChild(time);
                     chatContainer.appendChild(messageDiv);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                     
