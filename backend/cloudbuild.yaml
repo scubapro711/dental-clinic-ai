@@ -1,12 +1,25 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-backend:$SHORT_SHA', '.']
-  
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:${SHORT_SHA}'
+      - '-t'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:latest'
+      - '.'
+
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-backend:$SHORT_SHA']
-  
+    args:
+      - 'push'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:${SHORT_SHA}'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:latest'
+
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -15,14 +28,16 @@ steps:
       - 'deploy'
       - 'dentaflow-backend'
       - '--image'
-      - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-backend:$SHORT_SHA'
+      - 'gcr.io/dentaflow-production/dentaflow-backend:${SHORT_SHA}'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
 
 images:
-  - 'us-central1-docker.pkg.dev/dentaflow-production/cloud-run-source-deploy/dentaflow-backend:$SHORT_SHA'
+  - 'gcr.io/dentaflow-production/dentaflow-backend:${SHORT_SHA}'
+  - 'gcr.io/dentaflow-production/dentaflow-backend:latest'
 
-# Increase timeout for large dependencies (PyTorch, LangChain, etc.)
-timeout: 3600s  # 60 minutes
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
