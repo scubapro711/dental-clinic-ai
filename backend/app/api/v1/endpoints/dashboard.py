@@ -6,7 +6,8 @@ Provides data for dashboard widgets including conversations, patients, and appoi
 
 import logging
 from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, HTTPException, Query, Depends, Request
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from datetime import datetime, timedelta
 import random
 
@@ -14,7 +15,6 @@ from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.api.dependencies import get_current_membership
 from app.models.organization_membership import OrganizationMembership
-
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
@@ -26,7 +26,9 @@ def OdooClient() -> OdooClient:
 
 
 @router.get("/conversations/active")
+@limiter.limit(get_rate_limit("default"))
 async def get_active_conversations(
+    request: Request,
     membership: OrganizationMembership = Depends(get_current_membership),
     odoo: OdooClient = Depends(OdooClient)
 ) -> List[Dict[str, Any]]:
@@ -98,7 +100,9 @@ async def get_active_conversations(
 
 
 @router.get("/patients")
+@limiter.limit(get_rate_limit("default"))
 async def get_patients(
+    request: Request,
     membership: OrganizationMembership = Depends(get_current_membership),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
@@ -200,7 +204,9 @@ async def get_patients(
 
 
 @router.get("/patients/{patient_id}")
+@limiter.limit(get_rate_limit("default"))
 async def get_patient_details(
+    request: Request,
     patient_id: int,
     membership: OrganizationMembership = Depends(get_current_membership),
     odoo: OdooClient = Depends(OdooClient),
@@ -272,7 +278,9 @@ async def get_patient_details(
 
 
 @router.get("/appointments")
+@limiter.limit(get_rate_limit("default"))
 async def get_appointments(
+    request: Request,
     membership: OrganizationMembership = Depends(get_current_membership),
     start_date: str = Query(None),
     end_date: str = Query(None),
@@ -351,7 +359,9 @@ async def get_appointments(
 
 
 @router.get("/appointments/today")
+@limiter.limit(get_rate_limit("default"))
 async def get_today_appointments(
+    request: Request,
     odoo: OdooClient = Depends(OdooClient),
 ) -> Dict[str, Any]:
     """
@@ -406,7 +416,9 @@ async def get_today_appointments(
 
 
 @router.get("/appointments/upcoming")
+@limiter.limit(get_rate_limit("default"))
 async def get_upcoming_appointments(
+    request: Request,
     days: int = Query(7, ge=1, le=30),
     odoo: OdooClient = Depends(OdooClient),
 ) -> Dict[str, Any]:
@@ -494,9 +506,11 @@ class AppointmentActionResponse(PydanticBaseModel):
 
 
 @router.post("/appointments/{appointment_id}/reschedule")
+@limiter.limit(get_rate_limit("default"))
 async def reschedule_appointment(
+    request: Request,
     appointment_id: int,
-    request: RescheduleRequest,
+    reschedule_data: RescheduleRequest,
 ) -> AppointmentActionResponse:
     """
     Reschedule an appointment via Sophia (Admin) Agent.
@@ -514,8 +528,8 @@ async def reschedule_appointment(
         
         # Create message for Sophia
         message = f"""
-        Reschedule appointment #{appointment_id} to {request.new_date} at {request.new_time}.
-        Reason: {request.reason or 'Patient request'}
+        Reschedule appointment #{appointment_id} to {reschedule_data.new_date} at {reschedule_data.new_time}.
+        Reason: {reschedule_data.reason or 'Patient request'}
         
         Please:
         1. Check for scheduling conflicts
@@ -551,9 +565,11 @@ async def reschedule_appointment(
 
 
 @router.post("/appointments/{appointment_id}/cancel")
+@limiter.limit(get_rate_limit("default"))
 async def cancel_appointment(
+    request: Request,
     appointment_id: int,
-    request: CancelRequest,
+    cancel_data: CancelRequest,
 ) -> AppointmentActionResponse:
     """
     Cancel an appointment via Sophia (Admin) Agent.
@@ -573,7 +589,7 @@ async def cancel_appointment(
         # Create message for Sophia
         message = f"""
         Cancel appointment #{appointment_id}.
-        Reason: {request.reason or 'Patient request'}
+        Reason: {cancel_data.reason or 'Patient request'}
         
         Please:
         1. Validate the cancellation
@@ -609,7 +625,9 @@ async def cancel_appointment(
 
 
 @router.get("/revenue")
+@limiter.limit(get_rate_limit("default"))
 async def get_revenue_overview(
+    request: Request,
     days: int = Query(30, description="Number of days to analyze"),
     odoo: OdooClient = Depends(OdooClient),
 ) -> Dict[str, Any]:

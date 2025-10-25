@@ -7,7 +7,8 @@ Handles clinic onboarding:
 - Default settings initialization
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from uuid import uuid4
@@ -159,8 +160,10 @@ def create_default_treatment_prices(db: Session, organization_id: str):
 # ========== API Endpoints ==========
 
 @router.post("/register", response_model=OrganizationResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(get_rate_limit("default"))
 async def register_organization(
-    request: OrganizationRegisterRequest,
+    request: Request,
+    org_data: OrganizationRegisterRequest,
     db: Session = Depends(get_db)
 ):
     """
@@ -179,7 +182,7 @@ async def register_organization(
     """
     
     # 1. Validate owner email not already registered
-    existing_user = db.query(User).filter(User.email == request.owner_email).first()
+    existing_user = db.query(User).filter(User.email == org_data.owner_email).first()
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -187,7 +190,7 @@ async def register_organization(
         )
     
     # 2. Generate unique slug for organization
-    slug = generate_slug(request.clinic_name)
+    slug = generate_slug(org_data.clinic_name)
     existing_org = db.query(Organization).filter(Organization.slug == slug).first()
     if existing_org:
         # Add random suffix if slug already exists
@@ -197,11 +200,11 @@ async def register_organization(
         # 3. Create organization
         organization = Organization(
             id=uuid4(),
-            name=request.clinic_name,
+            name=org_data.clinic_name,
             slug=slug,
-            email=request.clinic_email,
-            phone=request.clinic_phone,
-            address=request.clinic_address,
+            email=org_data.clinic_email,
+            phone=org_data.clinic_phone,
+            address=org_data.clinic_address,
             subscription_tier=SubscriptionTier.BASIC,
             subscription_status="trial",
             subscription_start_date=datetime.utcnow(),
@@ -213,13 +216,13 @@ async def register_organization(
         
         # 4. Create owner user
         from app.core.security import get_password_hash
-        hashed_password = get_password_hash(request.owner_password)
+        hashed_password = get_password_hash(org_data.owner_password)
         owner = User(
             id=uuid4(),
-            email=request.owner_email,
+            email=org_data.owner_email,
             hashed_password=hashed_password,
-            full_name=request.owner_full_name,
-            phone=request.owner_phone,
+            full_name=org_data.owner_full_name,
+            phone=org_data.owner_phone,
             is_active=True,
             is_verified=False,  # Will be verified via email
             phone_verified=False,  # Required field
@@ -306,7 +309,9 @@ async def register_organization(
 
 
 @router.get("/{organization_id}", response_model=dict)
+@limiter.limit(get_rate_limit("default"))
 async def get_organization(
+    request: Request,
     organization_id: str,
     db: Session = Depends(get_db)
 ):

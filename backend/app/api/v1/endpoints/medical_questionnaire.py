@@ -5,7 +5,8 @@ Provides endpoints for managing patient medical questionnaires
 and Sarah AI risk analysis.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from uuid import UUID
@@ -20,7 +21,7 @@ from app.models.medical_questionnaire import (
     RiskLevel,
     COMMON_MEDICAL_CONDITIONS,
     COMMON_MEDICATIONS,
-    COMMON_ALLERGIES,
+    COMMON_ALLERGIES
 )
 from app.api.v1.endpoints.auth import get_current_user
 
@@ -173,7 +174,8 @@ class ReferenceDataResponse(BaseModel):
 # Endpoints
 
 @router.get("/reference-data", response_model=ReferenceDataResponse)
-async def get_reference_data():
+@limiter.limit(get_rate_limit("default"))
+async def get_reference_data(request: Request):
     """Get reference data for medical questionnaire (common conditions, medications, allergies)."""
     return ReferenceDataResponse(
         common_conditions=COMMON_MEDICAL_CONDITIONS,
@@ -183,7 +185,9 @@ async def get_reference_data():
 
 
 @router.get("/{patient_id}", response_model=Optional[QuestionnaireResponse])
+@limiter.limit(get_rate_limit("default"))
 async def get_questionnaire(
+    request: Request,
     patient_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -202,7 +206,9 @@ async def get_questionnaire(
 
 
 @router.post("/{patient_id}", response_model=QuestionnaireResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(get_rate_limit("default"))
 async def create_questionnaire(
+    request: Request,
     patient_id: UUID,
     data: QuestionnaireCreate,
     current_user: User = Depends(get_current_user),
@@ -255,7 +261,9 @@ async def create_questionnaire(
 
 
 @router.put("/{questionnaire_id}", response_model=QuestionnaireResponse)
+@limiter.limit(get_rate_limit("default"))
 async def update_questionnaire(
+    request: Request,
     questionnaire_id: UUID,
     data: QuestionnaireUpdate,
     current_user: User = Depends(get_current_user),
@@ -297,7 +305,9 @@ async def update_questionnaire(
 
 
 @router.post("/{questionnaire_id}/complete", response_model=QuestionnaireResponse)
+@limiter.limit(get_rate_limit("default"))
 async def complete_questionnaire(
+    request: Request,
     questionnaire_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -326,7 +336,9 @@ async def complete_questionnaire(
 
 
 @router.get("/{patient_id}/sarah-analysis")
+@limiter.limit(get_rate_limit("default"))
 async def get_sarah_risk_analysis(
+    request: Request,
     patient_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -362,7 +374,9 @@ async def get_sarah_risk_analysis(
 
 
 @router.delete("/{questionnaire_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(get_rate_limit("default"))
 async def delete_questionnaire(
+    request: Request,
     questionnaire_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)

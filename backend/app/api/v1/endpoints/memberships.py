@@ -3,7 +3,8 @@ Organization Membership API endpoints.
 """
 from typing import List
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from app.middleware.rate_limiter import limiter, get_rate_limit
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 
@@ -40,7 +41,9 @@ class MembershipResponse(BaseModel):
 
 
 @router.get("/organizations/{org_id}/memberships", response_model=List[MembershipResponse])
+@limiter.limit(get_rate_limit("default"))
 async def list_memberships(
+    request: Request,
     org_id: UUID,
     db: Session = Depends(get_db)
 ):
@@ -58,7 +61,9 @@ async def list_memberships(
 
 
 @router.post("/organizations/{org_id}/memberships", response_model=MembershipResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(get_rate_limit("default"))
 async def add_member(
+    request: Request,
     org_id: UUID,
     membership_data: MembershipCreate,
     db: Session = Depends(get_db)
@@ -107,7 +112,9 @@ async def add_member(
 
 
 @router.get("/users/{user_id}/memberships", response_model=List[MembershipResponse])
+@limiter.limit(get_rate_limit("default"))
 async def list_user_memberships(
+    request: Request,
     user_id: UUID,
     db: Session = Depends(get_db)
 ):
@@ -125,7 +132,9 @@ async def list_user_memberships(
 
 
 @router.delete("/organizations/{org_id}/memberships/{membership_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(get_rate_limit("default"))
 async def remove_member(
+    request: Request,
     org_id: UUID,
     membership_id: UUID,
     db: Session = Depends(get_db)
@@ -151,7 +160,9 @@ async def remove_member(
 
 
 @router.patch("/organizations/{org_id}/memberships/{membership_id}", response_model=MembershipResponse)
+@limiter.limit(get_rate_limit("default"))
 async def update_member_role(
+    request: Request,
     org_id: UUID,
     membership_id: UUID,
     organization_role: str | None = None,
