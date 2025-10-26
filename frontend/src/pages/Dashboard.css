@@ -251,7 +251,7 @@
 .dashboard-widget-header {
   display: flex;
   align-items: center;
-  justify-content: between;
+  justify-content: space-between;
   margin-bottom: 1rem;
   position: relative;
   z-index: 1;
