@@ -1,8 +1,26 @@
-# Production stage - use pre-built dist
+# Build stage
+FROM node:18-alpine AS build
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY . .
+
+# Build the app
+RUN npm run build
+
+# Production stage
 FROM nginx:alpine
 
-# Copy pre-built files
-COPY dist/ /usr/share/nginx/html/
+# Copy built files from build stage
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration  
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -10,8 +28,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Remove default config
 RUN rm -f /etc/nginx/conf.d/default.conf.default
 
-# Expose port 8080
-EXPOSE 8080
+# Expose port 80
+EXPOSE 80
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
