@@ -64,6 +64,7 @@ export default function AIChat({ user }) {
           if (line.startsWith('data: ')) {
             try {
               const data = JSON.parse(line.slice(6));
+                if (onStreamEvent) onStreamEvent(data);
               
               if (data.type === 'text') {
                 // Skip duplicate content from different agents (e.g., alex + supervisor)
@@ -521,3 +522,11 @@ export default function AIChat({ user }) {
     </Card>
   );
 }
+
+
+
+AIChat.propTypes = {
+  user: PropTypes.object,
+  onStreamEvent: PropTypes.func,
+};
+
