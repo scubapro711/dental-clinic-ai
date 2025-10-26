@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import './Dashboard.css';
+// import './Dashboard.css'; // Removed - using styles/dashboard.css instead
 import '../styles/dashboard.css';
 import '../styles/transparency.css';
 import '../styles/widgets.css';
