@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Sentry from '@sentry/react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,8 +36,14 @@ class ErrorBoundary extends React.Component {
       errorCount: prevState.errorCount + 1
     }));
 
-    // In production, you would send this to an error tracking service
-    // Example: Sentry.captureException(error, { extra: errorInfo });
+    // Send error to Sentry in production
+    if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
+      Sentry.withScope((scope) => {
+        scope.setExtras(errorInfo);
+        scope.setTag('error_boundary', 'true');
+        Sentry.captureException(error);
+      });
+    }
   }
 
   handleReset = () => {
