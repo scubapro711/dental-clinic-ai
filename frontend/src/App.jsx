@@ -55,6 +55,7 @@ import ClinicOnboarding from './pages/onboarding/ClinicOnboarding'
 
 // Demo Portal
 import { DemoProvider } from './contexts/DemoContext'
+import { ErrorBoundary } from './components/error-handling'
 import DemoPortal from './pages/DemoPortal'
 import DemoPortalEnhanced from './pages/DemoPortalEnhanced'
 
@@ -96,8 +97,9 @@ function ComingSoon({ title }) {
 
 function App() {
   return (
-    <Router>
-      <DemoProvider>
+    <ErrorBoundary>
+      <Router>
+        <DemoProvider>
         <Routes>
         {/* Landing Page (Public) */}
         <Route path="/" element={<LandingPage />} />
@@ -212,6 +214,7 @@ function App() {
       </Routes>
       </DemoProvider>
     </Router>
+    </ErrorBoundary>
   )
 }
 
