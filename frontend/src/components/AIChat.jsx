@@ -19,6 +19,8 @@ import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
  * - Conversation memory
  * - Feedback collection for fine-tuning
  * - Beautiful UI with animations
+ * 
+ * Last updated: 2025-10-26 - Hotfix deployment trigger
  */
 export default function AIChat({ user, onStreamEvent }) {
   const [messages, setMessages] = useState([]);
