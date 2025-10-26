@@ -1,490 +1,219 @@
-# 🧪 Testing Guide - DentalAI
+# DentaFlow Testing Guide
 
-**תאריך:** 3 באוקטובר 2025  
-**גרסה:** 1.0  
-**מטרה:** חבילת בדיקות מקיפה לפני deployment
+**Last Updated:** October 26, 2025
+
+This guide provides a comprehensive overview of the testing strategy for the DentaFlow project, including how to run tests, add new tests, and understand the CI/CD pipeline.
+
+For a broader strategic overview, see [Phase 4 Comprehensive Guide](PHASE_4_COMPREHENSIVE_GUIDE.md).
+
+## Table of Contents
+
+1. [Testing Philosophy](#testing-philosophy)
+2. [Testing Frameworks](#testing-frameworks)
+3. [How to Run Tests](#how-to-run-tests)
+   - [Frontend Unit Tests (Vitest)](#frontend-unit-tests-vitest)
+   - [Frontend End-to-End (E2E) Tests (Playwright)](#frontend-end-to-end-e2e-tests-playwright)
+   - [Backend Tests (Pytest)](#backend-tests-pytest)
+4. [CI/CD Integration](#cicd-integration)
+5. [How to Add New Tests](#how-to-add-new-tests)
+6. [Test Coverage](#test-coverage)
 
 ---
 
-## 📋 סקירה כללית
+## Testing Philosophy
 
-המערכת כוללת חבילת בדיקות אגרסיבית ומקיפה שבודקת:
-- ✅ Unit Tests - בדיקת כל קומפוננטה
-- ✅ Integration Tests - בדיקת אינטגרציה בין מערכות
-- ✅ Security Tests - סריקת vulnerabilities
-- ✅ Code Quality - בדיקת איכות קוד
-- ✅ Load Tests - בדיקת ביצועים
-- ✅ API Tests - בדיקת כל ה-endpoints
+Our testing philosophy is based on the **Testing Pyramid**:
 
----
+- **Unit Tests (Fast & Cheap):** The foundation of our testing strategy. These tests are fast, isolated, and verify the smallest units of code (components, functions).
+- **Integration Tests (Medium):** Verify that multiple units work together as expected.
+- **End-to-End (E2E) Tests (Slow & Expensive):** Simulate real user workflows from start to finish. These tests are critical for catching bugs that unit tests miss.
 
-## 🚀 הרצה מהירה
+We aim for high coverage at the unit test level, with targeted integration and E2E tests for critical paths.
 
-### אופציה 1: הרץ הכל (מומלץ לפני deployment)
+## Testing Frameworks
+
+### Frontend
+
+| Type | Framework | Location | Naming Convention |
+|---|---|---|---|
+| Unit | Vitest | `frontend/src/**/*.test.jsx` | `*.test.jsx` |
+| E2E | Playwright | `frontend/e2e/**/*.spec.js` | `*.spec.js` |
+
+### Backend
+
+| Type | Framework | Location | Naming Convention |
+|---|---|---|---|
+| Unit/Integration | Pytest | `backend/tests/**/*.py` | `test_*.py` |
+| Security | Bandit | `backend/app` | N/A |
+| Load | Locust | `backend/tests/load_test.py` | N/A |
+
+## How to Run Tests
+
+### Frontend Unit Tests (Vitest)
+
+To run unit tests, navigate to the `frontend` directory:
 
 ```bash
-cd /path/to/dental-clinic-ai-repo
-./scripts/pre_deployment_tests.sh
+cd frontend
 ```
 
-**זמן ריצה:** ~5-10 דקות  
-**פלט:** דוח מפורט עם כל הבדיקות
+**Run all unit tests:**
+```bash
+pnpm test:run
+```
 
----
+**Run a specific test file:**
+```bash
+pnpm test:run <path-to-file>
+# Example:
+pnpm test:run src/components/AIChat.test.jsx
+```
 
-### אופציה 2: הרץ רק טסטים ספציפיים
+**Run tests in watch mode:**
+```bash
+pnpm test
+```
+
+**Run tests with UI:**
+```bash
+pnpm test:ui
+```
+
+### Frontend End-to-End (E2E) Tests (Playwright)
+
+To run E2E tests, navigate to the `frontend` directory:
 
 ```bash
-# רק unit tests
-cd backend
-pytest tests/ -v
-
-# רק integration tests
-pytest tests/test_e2e_mvp.py -v
-
-# רק security tests
-bandit -r app/ -ll
-
-# רק API tests
-./scripts/api_tests.sh
+cd frontend
 ```
 
----
-
-## 📊 חבילת הבדיקות המלאה
-
-### 1. Unit Tests (pytest)
-
-**מה זה בודק:**
-- כל agent (Alex)
-- כל tool (Odoo, Telegram)
-- כל API endpoint
-- Error handling
-
-**איך להריץ:**
+**Run all E2E tests:**
 ```bash
-cd backend
-pytest tests/ -v --tb=short
+pnpm test:e2e
 ```
 
-**טסטים:**
-- `test_agents.py` - בדיקת agents
-- `test_telegram_integration.py` - בדיקת Telegram
-- `test_e2e_mvp.py` - בדיקות end-to-end
-
-**יעד:** 90%+ passing
-
----
-
-### 2. Integration Tests
-
-**מה זה בודק:**
-- Backend + Database
-- Backend + Redis
-- Backend + Mock Odoo
-- Agent + Tools
-- Telegram + Backend
-
-**איך להריץ:**
+**Run tests for a specific portal:**
 ```bash
-cd backend
-pytest tests/test_e2e_mvp.py -v
+# Patient Portal
+pnpm test:e2e:patient
+
+# Clinic Portal
+pnpm test:e2e:clinic
 ```
 
-**תרחישים:**
-1. שיחה פשוטה
-2. שאלה רפואית
-3. בירור חשבונית
-4. קביעת תור
-5. בירור מחירים
-6. בדיקת זמינות
-7. שיחה רב-תורית
-8. זיכרון causal
-
-**יעד:** כל התרחישים עוברים
-
----
-
-### 3. Code Coverage
-
-**מה זה בודק:**
-- כמה אחוז מהקוד מכוסה בטסטים
-
-**איך להריץ:**
+**Run tests in headed mode (shows browser):**
 ```bash
-cd backend
-pytest tests/ --cov=app --cov-report=html --cov-report=term
+pnpm test:e2e:headed
 ```
 
-**פלט:**
-- Terminal: סיכום מהיר
-- HTML: `htmlcov/index.html` - דוח מפורט
+**Run tests with UI:**
+```bash
+pnpm test:e2e:ui
+```
 
-**יעד:** 70%+ coverage
+### Backend Tests (Pytest)
 
----
+To run backend tests, navigate to the `backend` directory:
 
-### 4. Security Scanning
-
-#### 4a. Bandit - Code Vulnerabilities
-
-**מה זה בודק:**
-- SQL injection
-- Hardcoded passwords
-- Insecure functions
-- Weak cryptography
-
-**איך להריץ:**
 ```bash
 cd backend
-bandit -r app/ -ll -f txt
 ```
 
-**רמות חומרה:**
-- `HIGH` - 🚨 קריטי, תקן מיד!
-- `MEDIUM` - ⚠️ חשוב, תקן בהקדם
-- `LOW` - ℹ️ לידיעה
-
-**יעד:** 0 HIGH, 0 MEDIUM
-
----
-
-#### 4b. Safety - Dependency Vulnerabilities
-
-**מה זה בודק:**
-- חבילות Python עם vulnerabilities ידועות
-
-**איך להריץ:**
+**Run all backend tests:**
 ```bash
-cd backend
-safety check
+pytest tests/
 ```
 
-**יעד:** 0 vulnerabilities
-
----
-
-### 5. Code Quality
-
-#### 5a. Pylint
-
-**מה זה בודק:**
-- Code style
-- Best practices
-- Potential bugs
-- Code complexity
-
-**איך להריץ:**
+**Run a specific test file:**
 ```bash
-cd backend
-pylint app/ --output-format=text
+pytest tests/test_agents.py
 ```
 
-**ציון:** 0-10 (יעד: 8+)
+## CI/CD Integration
 
----
+All tests are automatically run in our Cloud Build CI/CD pipelines before any deployment.
 
-#### 5b. Flake8
+- **Staging (`develop` branch):** `frontend/cloudbuild-staging.yaml` runs `pnpm test:run` before building the Docker image. If tests fail, the deployment is blocked.
+- **Production (`main` branch):** `frontend/cloudbuild.yaml` runs `pnpm test:run` before building the Docker image. If tests fail, the deployment is blocked.
 
-**מה זה בודק:**
-- PEP 8 compliance
-- Syntax errors
-- Undefined names
+This ensures that no code with failing tests reaches production.
 
-**איך להריץ:**
-```bash
-cd backend
-flake8 app/ --count --statistics
+## How to Add New Tests
+
+### Adding a New Frontend Unit Test
+
+1. Create a new file with the `.test.jsx` extension next to the component you want to test.
+2. Import `describe`, `it`, `expect` from `vitest`.
+3. Import the component you want to test.
+4. Write your tests!
+
+**Example: `MyComponent.test.jsx`**
+```jsx
+import { describe, it, expect } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import MyComponent from './MyComponent';
+
+describe('MyComponent', () => {
+  it('should render correctly', () => {
+    render(<MyComponent />);
+    expect(screen.getByText('Hello World')).toBeInTheDocument();
+  });
+});
 ```
 
-**יעד:** 0 errors
+### Adding a New Frontend E2E Test
 
----
+1. Create a new file with the `.spec.js` extension in the appropriate `frontend/e2e` subdirectory.
+2. Import `test`, `expect` from `@playwright/test`.
+3. Write your tests!
 
-#### 5c. MyPy - Type Checking
+**Example: `frontend/e2e/my-feature.spec.js`**
+```javascript
+import { test, expect } from '@playwright/test';
 
-**מה זה בודק:**
-- Type hints נכונים
-- Type consistency
-
-**איך להריץ:**
-```bash
-cd backend
-mypy app/ --ignore-missing-imports
+test('My Feature', async ({ page }) => {
+  await page.goto('/my-feature');
+  await expect(page.locator('h1')).toHaveText('My Feature');
+});
 ```
 
-**יעד:** 0 type errors
+### Adding a New Backend Test
 
----
+1. Create a new file with the `test_` prefix in the `backend/tests` directory.
+2. Import `pytest`.
+3. Write your test functions!
 
-### 6. Load Testing (Locust)
-
-**מה זה בודק:**
-- ביצועים תחת עומס
-- 100+ concurrent users
-- Response times
-- Error rates
-
-**איך להריץ:**
-
-```bash
-# 1. הרץ את השרת
-cd backend
-uvicorn app.main:app --reload
-
-# 2. בטרמינל אחר, הרץ locust
-cd backend
-locust -f tests/load_test.py --host=http://localhost:8000
-
-# 3. פתח דפדפן
-# http://localhost:8089
-
-# 4. הגדר:
-# - Number of users: 100
-# - Spawn rate: 10/sec
-# - Host: http://localhost:8000
-
-# 5. לחץ "Start Swarming"
-```
-
-**מדדים:**
-- **Response Time:** < 500ms (average)
-- **Error Rate:** < 1%
-- **Requests/sec:** > 100
-- **Concurrent Users:** 100+
-
-**תרחישי בדיקה:**
-- Health checks
-- Chat greetings
-- Appointment inquiries
-- Price inquiries
-- Medical questions
-- Patient search
-- Multilingual support
-
----
-
-### 7. API Integration Tests
-
-**מה זה בודק:**
-- כל endpoint עם HTTP requests אמיתיים
-- Status codes נכונים
-- Error handling
-- Request/Response validation
-
-**איך להריץ:**
-
-```bash
-# 1. הרץ את השרת
-cd backend
-uvicorn app.main:app --reload
-
-# 2. בטרמינל אחר, הרץ API tests
-./scripts/api_tests.sh
-```
-
-**Endpoints שנבדקים:**
-- `GET /health` - Health check
-- `GET /` - Root
-- `POST /api/v1/chat` - Chat (multiple scenarios)
-- `POST /api/v1/telegram/webhook` - Telegram
-- `POST /api/v1/auth/*` - Authentication (if implemented)
-- Error cases (404, 405, 422)
-
-**יעד:** 100% passing
-
----
-
-### 8. Framework Compliance
-
-**מה זה בודק:**
-- ADR System קיים
-- Git hooks מותקנים
-- Feature Inventory מעודכן
-- Work Plan מסונכרן
-- Documentation מלא
-
-**איך להריץ:**
-```bash
-python scripts/check_framework_compliance.py
-```
-
-**יעד:** 100% compliance
-
----
-
-### 9. Work Plan Synchronization
-
-**מה זה בודק:**
-- Agents בקוד = Agents בתוכנית
-- אין agents שתוכננו אבל לא נבנו
-- אין agents שנבנו אבל לא בתוכנית
-
-**איך להריץ:**
-```bash
-python scripts/check_work_plan_sync.py
-```
-
-**יעד:** 100% sync
-
----
-
-## 📈 CI/CD Integration
-
-### GitHub Actions (עתידי)
-
-```yaml
-# .github/workflows/tests.yml
-name: Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.11
-      - name: Install dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
-          pip install pytest pytest-cov bandit safety
-      - name: Run tests
-        run: |
-          ./scripts/pre_deployment_tests.sh
-```
-
----
-
-## 🎯 Pre-Deployment Checklist
-
-לפני deployment ל-production, ודא ש:
-
-### בדיקות חובה:
-- [ ] `./scripts/pre_deployment_tests.sh` עובר (90%+)
-- [ ] `./scripts/api_tests.sh` עובר (100%)
-- [ ] `bandit -r app/ -ll` - 0 HIGH/MEDIUM
-- [ ] `safety check` - 0 vulnerabilities
-- [ ] `pytest --cov` - 70%+ coverage
-
-### תיעוד:
-- [ ] Feature Inventory מעודכן
-- [ ] Work Plan מסונכרן
-- [ ] ADR נוצר (אם יש החלטה חשובה)
-- [ ] README מעודכן
-
-### קונפיגורציה:
-- [ ] `.env.example` מעודכן
-- [ ] אין secrets בקוד
-- [ ] Environment variables מוגדרות ב-production
-
-### ביצועים:
-- [ ] Load test עובר (100 users, <500ms)
-- [ ] אין memory leaks
-- [ ] אין N+1 queries
-
----
-
-## 🐛 Troubleshooting
-
-### בעיה: טסטים נכשלים
-
-```bash
-# הרץ טסט ספציפי עם debug
-pytest tests/test_agents.py::test_alex_greeting -v -s
-
-# הצג traceback מלא
-pytest tests/ --tb=long
-
-# הרץ רק טסטים שנכשלו
-pytest tests/ --lf
-```
-
----
-
-### בעיה: Load test איטי
-
-```bash
-# בדוק bottlenecks
-# 1. Profile הקוד
-python -m cProfile -o profile.stats app/main.py
-
-# 2. נתח
-python -m pstats profile.stats
-
-# 3. חפש slow queries
-# הוסף logging ל-database queries
-```
-
----
-
-### בעיה: Security vulnerabilities
-
-```bash
-# עדכן dependencies
-pip install --upgrade -r requirements.txt
-
-# בדוק שוב
-safety check
-
-# אם עדיין יש בעיות, חפש alternatives
-pip search <package-name>
-```
-
----
-
-## 📚 משאבים נוספים
-
-### כלים:
-- **pytest:** https://docs.pytest.org/
-- **Locust:** https://docs.locust.io/
-- **Bandit:** https://bandit.readthedocs.io/
-- **Safety:** https://pyup.io/safety/
-- **Pylint:** https://pylint.pycqa.org/
-
-### Best Practices:
-- **Testing Best Practices:** https://testdriven.io/
-- **Python Testing:** https://realpython.com/python-testing/
-- **Security Testing:** https://owasp.org/
-
----
-
-## 🎓 הוספת טסטים חדשים
-
-### Template לטסט חדש:
-
+**Example: `backend/tests/test_new_feature.py`**
 ```python
-# tests/test_new_feature.py
 import pytest
-from app.agents.alex import alex_agent
 
 def test_new_feature():
-    """Test description"""
-    # Arrange
-    input_data = {"message": "test"}
-    
-    # Act
-    result = alex_agent.process(input_data)
-    
-    # Assert
-    assert result["status"] == "success"
-    assert "response" in result
+    assert 1 + 1 == 2
 ```
 
-### הוסף ל-`pre_deployment_tests.sh`:
+## Test Coverage
+
+We aim for high test coverage, especially for critical components.
+
+### Frontend Coverage
+
+To check frontend test coverage locally, run:
 
 ```bash
-run_test "New Feature Test" \
-    "pytest tests/test_new_feature.py -v"
+cd frontend
+pnpm test:coverage
 ```
 
----
+This will generate a coverage report in the `frontend/coverage` directory.
 
-**מסמך זה:** docs/TESTING_GUIDE.md  
-**גרסה:** 1.0  
-**תאריך:** 3 באוקטובר 2025  
-**סטטוס:** מוכן לשימוש
+### Backend Coverage
+
+To check backend test coverage locally, run:
+
+```bash
+cd backend
+pytest --cov=app
+```
+
+This will generate a coverage report in the console.
+
