@@ -80,7 +80,7 @@
   background: var(--gradient-primary);
   display: flex;
   align-items: center;
-  justify-center;
+  justify-content: center;
   box-shadow: 0 4px 12px oklch(from var(--primary) l c h / 0.3);
   animation: logo-pulse 3s ease-in-out infinite;
 }
@@ -353,7 +353,7 @@
 .dashboard-loading {
   display: flex;
   align-items: center;
-  justify-center;
+  justify-content: center;
   padding: 2rem;
 }
 
@@ -371,7 +371,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-center;
+  justify-content: center;
   padding: 3rem;
   text-align: center;
   color: var(--foreground-secondary);
