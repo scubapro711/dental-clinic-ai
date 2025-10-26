@@ -3,7 +3,32 @@
 # Deploys to: dentaflow-frontend-staging
 
 steps:
+  # Step 0: Run tests (fail-fast if tests fail)
+  - name: 'node:22'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Installing pnpm..."
+        npm install -g pnpm@latest
+        
+        echo "Installing dependencies..."
+        pnpm install --frozen-lockfile
+        
+        echo "Running unit tests..."
+        pnpm test:run
+        
+        if [ $? -ne 0 ]; then
+          echo "❌ Tests failed! Stopping deployment."
+          exit 1
+        fi
+        
+        echo "✅ All tests passed! Proceeding with deployment."
+    dir: 'frontend'
+    id: 'run-tests'
+
   # Step 1: Build Docker image
+  waitFor: ['run-tests']  # Only build if tests pass
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'

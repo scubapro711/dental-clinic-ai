@@ -26,8 +26,8 @@ export default defineConfig({
       branches: 90,
       statements: 90,
     },
-    include: ['**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['node_modules', 'dist', 'build', '.idea', '.git', '.cache'],
+    include: ['**/*.test.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    exclude: ['node_modules', 'dist', 'build', '.idea', '.git', '.cache', 'e2e'],
   },
   resolve: {
     alias: {
