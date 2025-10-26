@@ -1011,3 +1011,185 @@ a:focus {
   overflow: hidden;
 }
 
+
+
+
+/* ========================================
+   AI Agents Grid Section
+   ======================================== */
+
+.agents-grid-container {
+  background: oklch(from var(--card) l c h / 0.4);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.agents-grid-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.agents-grid-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #4F46E5, #8B5CF6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.agents-grid-subtitle {
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-weight: 500;
+}
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.agents-grid-active-info {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
+.agents-grid-active-label {
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.agents-grid-active-agent {
+  color: #4F46E5;
+  font-weight: 700;
+}
+
+/* Agent Info within Card */
+.agent-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.agent-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.agent-role {
+  font-size: 0.875rem;
+  color: #6B7280;
+  margin: 0;
+}
+
+/* Agent Status Active Indicator */
+.agent-status-active {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #10B981;
+  margin-top: 0.75rem;
+}
+
+.agent-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.agent-status-text {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Agent Tooltip */
+.agent-tooltip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-8px);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  min-width: 250px;
+  max-width: 300px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+}
+
+.agent-card:hover .agent-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-12px);
+}
+
+.agent-tooltip-description {
+  font-size: 0.875rem;
+  color: #374151;
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.agent-tooltip-capabilities {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+  color: #6B7280;
+}
+
+.agent-tooltip-capabilities li {
+  padding: 0.25rem 0;
+}
+
+/* Active Card State */
+.agent-card-active {
+  border-color: var(--agent-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .agents-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+  
+  .agent-tooltip {
+    display: none; /* Hide tooltips on touch devices */
+  }
+}
+
+@media (max-width: 768px) {
+  .agents-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .agents-grid-title {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .agents-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

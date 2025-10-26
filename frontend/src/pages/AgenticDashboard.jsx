@@ -23,6 +23,7 @@ import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
 import DashboardStatsBar from '../components/dashboard/DashboardStatsBar';
 import { getUserInfo, formatRoleName, getRoleBadgeColor } from '../utils/rbac';
+import { AgentsGrid } from '../components/agents';
 
 /**
  * Agentic Dashboard - Main Page
@@ -149,6 +150,13 @@ export default function AgenticDashboard() {
 
       {/* Dashboard Stats Bar */}
       <DashboardStatsBar />
+
+      {/* AI Agents Grid */}
+      <AgentsGrid 
+        activeAgentId={activeAgent}
+        onAgentClick={(agent) => handleChatWithAgent(`I need help with ${agent.role.toLowerCase()}`)}
+        className="px-4 py-6"
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
