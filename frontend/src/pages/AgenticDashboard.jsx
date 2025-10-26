@@ -1,4 +1,9 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import './Dashboard.css';
+import '../styles/dashboard.css';
+import '../styles/transparency.css';
+import '../styles/widgets.css';
+import '../styles/coordination.css';
 import AIChat from '../components/AIChat';
 import AgentActivityPanel from '../components/transparency/AgentActivityPanel';
 import FullTransparencyPanel from '../components/transparency/FullTransparencyPanel';
@@ -77,27 +82,27 @@ export default function AgenticDashboard() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="h-screen flex flex-col dentaflow-dashboard-background">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm px-6 py-3">
+      <div className="dentaflow-header">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full dentaflow-header-logo flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-base md:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-base md:text-xl dentaflow-header-title">
                 DentalAI<span className="hidden sm:inline"> Mission Control</span>
               </h1>
-              <p className="text-xs text-gray-500 hidden md:block">מערכת ניהול אגנטית חכמה</p>
+              <p className="text-xs dentaflow-header-subtitle hidden md:block">מערכת ניהול אגנטית חכמה</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {/* User Role Badge */}
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-lg">
-              <Shield className="w-4 h-4 text-gray-600" />
+            <div className="flex items-center gap-2 px-3 py-1.5 dentaflow-user-badge">
+              <Shield className="w-4 h-4 dentaflow-user-badge-icon" />
               <div className="text-xs">
-                <div className="font-semibold text-gray-700">
+                <div className="font-semibold dentaflow-user-badge-email">
                   {getUserInfo().email}
                 </div>
                 <div className={`text-xs px-2 py-0.5 rounded ${getRoleBadgeColor(getUserInfo().role)} text-white inline-block`}>
@@ -151,7 +156,7 @@ export default function AgenticDashboard() {
         {showLeftWidgets && (
           <div 
             id="left-widgets-panel"
-            className="hidden lg:block w-80 border-r bg-white/50 backdrop-blur-sm overflow-y-auto p-4 space-y-4"
+            className="dentaflow-sidebar dentaflow-sidebar-left"
             role="complementary"
             aria-label="Dashboard widgets"
           >
@@ -180,7 +185,7 @@ export default function AgenticDashboard() {
               <div className="widget-card">
                 <div className="widget-header">
                   <h3>🩺 Clinical System</h3>
-                  <p className="text-sm text-gray-600">AI-powered clinical analysis</p>
+                  <p className="text-sm dentaflow-user-badge-icon">AI-powered clinical analysis</p>
                 </div>
                 <ClinicalDashboard patient={{ id: 1, name: 'David Cohen', age: 45, lastVisit: '2025-09-15' }} />
               </div>
@@ -189,7 +194,7 @@ export default function AgenticDashboard() {
         )}
 
         {/* Center - Chat */}
-        <div className="flex-1 flex flex-col bg-white/70 backdrop-blur-sm">
+        <div className="dentaflow-main-content">
           <AIChat
             ref={chatInputRef}
             conversationId={currentConversationId}
@@ -203,7 +208,7 @@ export default function AgenticDashboard() {
         {showRightPanels && (
           <div 
             id="right-panels"
-            className="hidden lg:block w-96 border-l bg-white/50 backdrop-blur-sm overflow-y-auto"
+            className="dentaflow-sidebar dentaflow-sidebar-right"
             role="complementary"
             aria-label="Agent activity and transparency panels"
           >
