@@ -491,3 +491,4 @@ Proprietary - All rights reserved. See [LICENSE](LICENSE) for details.
 
 **DentaFlow** - Transforming dental practice management with AI 🦷✨
 
+# Test trigger
