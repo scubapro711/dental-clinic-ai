@@ -323,3 +323,4 @@ alembic/versions/*.pyc
 docs/INTEGRATION_CREDENTIALS.md
 .secrets/
 gcp-credentials.json
+google-cloud-sdk/
