@@ -59,3 +59,12 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
 };
 
+
+
+// Mock scrollIntoView (not available in JSDOM)
+Element.prototype.scrollIntoView = vi.fn();
+
+// Mock HTMLElement.prototype.scrollTo (not available in JSDOM)
+HTMLElement.prototype.scrollTo = vi.fn();
+window.scrollTo = vi.fn();
+
