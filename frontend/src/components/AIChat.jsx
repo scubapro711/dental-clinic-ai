@@ -20,7 +20,7 @@ import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
  * - Feedback collection for fine-tuning
  * - Beautiful UI with animations
  */
-export default function AIChat({ user }) {
+export default function AIChat({ user, onStreamEvent }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
