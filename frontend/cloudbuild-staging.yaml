@@ -28,8 +28,8 @@ steps:
     id: 'run-tests'
 
   # Step 1: Build Docker image
-  waitFor: ['run-tests']  # Only build if tests pass
   - name: 'gcr.io/cloud-builders/docker'
+    waitFor: ['run-tests']  # Only build if tests pass
     args:
       - 'build'
       - '-t'
