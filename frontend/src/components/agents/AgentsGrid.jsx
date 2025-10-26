@@ -7,7 +7,6 @@
  * @component
  */
 
-import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { AGENTS } from '../../data/agents';
 import AgentCard from './AgentCard';
