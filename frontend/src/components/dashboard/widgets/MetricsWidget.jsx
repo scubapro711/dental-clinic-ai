@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { MessageSquare, Calendar, Clock, Heart, TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useDashboardStore } from '@/stores/dashboardStore'
-import api from '@/lib/api'
+import api from '@/services/api'
 
 const metricConfigs = [
   {

@@ -19,7 +19,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DollarSign, TrendingUp, TrendingDown, AlertCircle, MessageSquare } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import api from '@/lib/api'
+import api from '@/services/api'
 import {
   Dialog,
   DialogContent,

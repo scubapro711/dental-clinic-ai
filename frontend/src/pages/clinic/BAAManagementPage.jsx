@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Card, Button, Checkbox, Input, Typography, Spin, Alert } from "antd";
-import api from "../../lib/api";
+import api from "../../services/api";
 
 const { Title, Paragraph, Text } = Typography;
 

@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { AlertCircle, Sparkles, DollarSign, Calendar, X, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import api from '@/lib/api'
+import api from '@/services/api'
 
 const AGENT_CONFIG = {
   alex: {
