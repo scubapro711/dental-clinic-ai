@@ -1,203 +1,153 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { logger } from '../utils/logger';
-import AgentsGrid from '../components/agents/AgentsGrid';
+import { useState, useRef } from 'react';
+import '../styles/dashboard.css';
+import '../styles/transparency.css';
+import '../styles/widgets.css';
+import '../styles/coordination.css';
 import FloatingChatButton from '../components/chat/FloatingChatButton';
-import TodaysPatientsWidget from '../components/widgets/TodaysPatientsWidget';
-import DecisionQueueWidget from '../components/widgets/DecisionQueueWidget';
-import RevenueWidget from '../components/widgets/RevenueWidget';
-import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
-import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
 import AgentActivityPanel from '../components/transparency/AgentActivityPanel';
 import EnhancedTransparencyPanel from '../components/transparency/EnhancedTransparencyPanel';
+import TodaysPatientsWidget from '../components/widgets/TodaysPatientsWidget';
+import RevenueWidget from '../components/widgets/RevenueWidget';
+import DecisionQueueWidget from '../components/widgets/DecisionQueueWidget';
+import ClinicalDashboard from '../components/clinical/ClinicalDashboard';
 import EnhancedFineTuningWidget from '../components/fine-tuning/EnhancedFineTuningWidget';
 import ConversationHistorySidebar from '../components/ConversationHistorySidebar';
 import ProtectedWidget from '../components/rbac/ProtectedWidget';
-import '../styles/dashboard.css';
+import useAgentActivity from '../hooks/useAgentActivity';
+import { Sparkles, History } from 'lucide-react';
+import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
+import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
+import { getUserInfo } from '../utils/rbac';
+import { AgentsGrid } from '../components/agents';
 
 /**
  * AgenticDashboard Component
  * 
  * Main dashboard with 2-column grid layout and floating chat button.
- * Follows healthcare UX best practices:
- * - Clear visual hierarchy
- * - Role-specific content
- * - Calm visual language
- * - Simplified navigation
- * - Reduced cognitive load
- * 
- * @component
+ * Follows healthcare UX best practices.
  */
 export default function AgenticDashboard() {
-  const { user } = useAuth();
-  const chatInputRef = useRef(null);
+  const {
+    activeAgent,
+    currentTask,
+    toolsInUse,
+    summary,
+    reasoningSteps,
+    handleStreamEvent,
+    clearActivity
+  } = useAgentActivity();
 
-  // Conversation state
+  const [showHistorySidebar, setShowHistorySidebar] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversationMessages, setConversationMessages] = useState([]);
-  const [showHistorySidebar, setShowHistorySidebar] = useState(false);
+  const chatInputRef = useRef(null);
+  const userInfo = getUserInfo();
 
-  // Agent activity state
-  const [activeAgent, setActiveAgent] = useState(null);
-  const [currentTask, setCurrentTask] = useState('');
-  const [toolsInUse, setToolsInUse] = useState([]);
-  const [reasoningSteps, setReasoningSteps] = useState([]);
-  const [summary, setSummary] = useState('');
-
-  /**
-   * Handle stream events from AI chat
-   */
-  const handleStreamEvent = useCallback((event) => {
-    logger.debug('Stream event received:', event);
-
-    if (event.type === 'agent_start') {
-      setActiveAgent(event.agent);
-      setCurrentTask(event.task || 'Processing...');
-      setToolsInUse([]);
-      setReasoningSteps([]);
-      setSummary('');
-    } else if (event.type === 'tool_use') {
-      setToolsInUse(prev => [...prev, event.tool]);
-    } else if (event.type === 'reasoning') {
-      setReasoningSteps(prev => [...prev, event.step]);
-    } else if (event.type === 'agent_end') {
-      setSummary(event.summary || 'Task completed');
-      setCurrentTask('');
-    }
-  }, []);
-
-  /**
-   * Clear agent activity
-   */
-  const clearActivity = useCallback(() => {
-    setActiveAgent(null);
-    setCurrentTask('');
-    setToolsInUse([]);
-    setReasoningSteps([]);
-    setSummary('');
-  }, []);
-
-  /**
-   * Export reasoning log
-   */
-  const exportReasoningLog = useCallback(() => {
-    const log = {
-      timestamp: new Date().toISOString(),
-      agent: activeAgent,
-      task: currentTask,
-      tools: toolsInUse,
-      reasoning: reasoningSteps,
-      summary
-    };
-    
-    const blob = new Blob([JSON.stringify(log, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `reasoning-log-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    logger.info('Reasoning log exported');
-  }, [activeAgent, currentTask, toolsInUse, reasoningSteps, summary]);
-
-  /**
-   * Handle chat with agent
-   */
-  const handleChatWithAgent = useCallback((message) => {
+  // Handler to send message to chat from widgets
+  const handleChatWithAgent = (message) => {
     if (chatInputRef.current) {
-      chatInputRef.current.focus();
-      // Optionally pre-fill the message
-      logger.info('Chat with agent:', message);
+      chatInputRef.current.sendMessage(message);
     }
-  }, []);
+  };
 
-  /**
-   * Handle conversation selection
-   */
-  const handleSelectConversation = useCallback((conversation) => {
-    setCurrentConversationId(conversation.id);
-    setConversationMessages(conversation.messages || []);
-    setShowHistorySidebar(false);
-    logger.info('Conversation selected:', conversation.id);
-  }, []);
+  // Load conversation history
+  const handleSelectConversation = async (conversationId) => {
+    try {
+      const response = await fetch(`/api/v1/ai/conversations/${conversationId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentConversationId(conversationId);
+        setConversationMessages(data.messages || []);
+        clearActivity();
+      }
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
+  };
 
-  /**
-   * Handle new conversation
-   */
-  const handleNewConversation = useCallback(() => {
+  // Start new conversation
+  const handleNewConversation = () => {
     setCurrentConversationId(null);
     setConversationMessages([]);
     clearActivity();
-    setShowHistorySidebar(false);
-    logger.info('New conversation started');
-  }, [clearActivity]);
+  };
 
   return (
     <div className="h-full flex flex-col dentaflow-dashboard-background">
       {/* Header */}
-      <div className="dentaflow-dashboard-header">
-        <div className="flex items-center gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              DentaFlow
-              <span className="text-indigo-600 ml-2">Mission Control</span>
-            </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Welcome back, {user?.name || 'User'}
-            </p>
+      <div className="dentaflow-header">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full dentaflow-header-logo flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-base md:text-xl dentaflow-header-title">
+                DentaFlow<span className="hidden sm:inline"> Mission Control</span>
+              </h1>
+              <p className="text-xs dentaflow-header-subtitle hidden md:block">
+                Welcome back, {userInfo?.name || 'User'}
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowHistorySidebar(true)}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            aria-label="View conversation history"
-          >
-            History
-          </button>
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowHistorySidebar(true)}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+              aria-label="View conversation history"
+            >
+              <History className="w-4 h-4" />
+              <span className="hidden sm:inline">History</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* AI Agents Grid */}
-      <AgentsGrid 
-        activeAgentId={activeAgent}
-        onAgentClick={(agent) => handleChatWithAgent(`I need help with ${agent.role.toLowerCase()}`)}
-        className="px-4 py-6"
-      />
+      <div className="px-4 py-6">
+        <AgentsGrid 
+          activeAgentId={activeAgent}
+          onAgentClick={(agent) => handleChatWithAgent(`I need help with ${agent.role.toLowerCase()}`)}
+        />
+      </div>
 
       {/* Dashboard Widgets Grid (2-column layout) */}
       <div className="dashboard-widgets-grid">
-        {/* Priority 1: Today's Patients - Immediate action items */}
+        {/* Priority 1: Today's Patients */}
         <ProtectedWidget widgetId="todays-patients">
           <div className="dashboard-widget-card">
             <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
           </div>
         </ProtectedWidget>
 
-        {/* Priority 2: Decision Queue - Requires admin attention */}
+        {/* Priority 2: Decision Queue */}
         <ProtectedWidget widgetId="decision-queue">
           <div className="dashboard-widget-card">
             <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
           </div>
         </ProtectedWidget>
 
-        {/* Priority 3: Revenue Widget - Financial overview (Admin) */}
+        {/* Priority 3: Revenue Widget */}
         <ProtectedWidget widgetId="revenue">
           <div className="dashboard-widget-card">
             <RevenueWidget onChatWithAgent={handleChatWithAgent} />
           </div>
         </ProtectedWidget>
 
-        {/* Priority 4: HIPAA Compliance Alerts - Critical compliance issues */}
+        {/* Priority 4: Compliance Alerts */}
         <ProtectedWidget widgetId="compliance-alerts">
           <div className="dashboard-widget-card">
             <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
           </div>
         </ProtectedWidget>
 
-        {/* Priority 5: Clinical Dashboard - Full-width for detailed analysis */}
+        {/* Priority 5: Clinical Dashboard (Full-width) */}
         <ProtectedWidget widgetId="clinical-system">
           <div className="dashboard-widget-card dashboard-widget-full">
             <div className="dashboard-widget-header">
@@ -219,14 +169,14 @@ export default function AgenticDashboard() {
           </div>
         </ProtectedWidget>
 
-        {/* Priority 6: Enhanced Fine-Tuning - System optimization (Admin) */}
+        {/* Priority 6: Enhanced Fine-Tuning */}
         <ProtectedWidget widgetId="fine-tuning">
           <div className="dashboard-widget-card">
             <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
           </div>
         </ProtectedWidget>
 
-        {/* Priority 7: Agent Activity Panel - Real-time agent status */}
+        {/* Priority 7: Agent Activity Panel */}
         <ProtectedWidget widgetId="agent-activity">
           <div className="dashboard-widget-card">
             <AgentActivityPanel
@@ -238,14 +188,14 @@ export default function AgenticDashboard() {
           </div>
         </ProtectedWidget>
 
-        {/* Priority 8: Enhanced Transparency Panel - AI reasoning (Full-width) */}
+        {/* Priority 8: Enhanced Transparency Panel (Full-width) */}
         <ProtectedWidget widgetId="transparency-panel">
           <div className="dashboard-widget-card dashboard-widget-full">
             <EnhancedTransparencyPanel 
               reasoningSteps={reasoningSteps}
               isActive={!!activeAgent}
               onClear={clearActivity}
-              onExport={exportReasoningLog}
+              onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
             />
           </div>
         </ProtectedWidget>

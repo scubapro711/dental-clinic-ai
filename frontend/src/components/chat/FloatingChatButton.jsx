@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
-import AIChat from './AIChat';
+import AIChat from '../AIChat';
 
 /**
  * FloatingChatButton Component
