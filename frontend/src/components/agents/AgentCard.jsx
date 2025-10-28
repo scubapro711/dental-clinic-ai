@@ -1,7 +1,7 @@
 /**
  * AgentCard Component
  * 
- * Displays an individual AI agent with visual identity, status, and interaction.
+ * Displays an individual AI agent with visual identity, status, metrics, and interaction.
  * 
  * @component
  * @example
@@ -9,10 +9,11 @@
  *   agent={alexAgent} 
  *   isActive={true} 
  *   onClick={handleAgentClick}
+ *   metrics={{ value: 247, trend: { direction: 'up', value: '+12%' } }}
  * />
  */
 
-import { Sparkles, Stethoscope, DollarSign, Calendar, Shield } from 'lucide-react';
+import { Sparkles, Stethoscope, DollarSign, Calendar, Shield, TrendingUp, TrendingDown } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 // Icon mapping for agent types
@@ -36,12 +37,17 @@ const AGENT_ICONS = {
  * @param {string} props.agent.description - Agent description
  * @param {boolean} [props.isActive=false] - Whether agent is currently active
  * @param {Function} [props.onClick] - Click handler
+ * @param {Object} [props.metrics] - Metrics to display on the card
+ * @param {string|number} props.metrics.value - Primary metric value
+ * @param {string} [props.metrics.label] - Metric label
+ * @param {Object} [props.metrics.trend] - Trend information
  * @param {string} [props.className] - Additional CSS classes
  */
 export function AgentCard({ 
   agent, 
   isActive = false, 
   onClick,
+  metrics,
   className = ''
 }) {
   // Get icon component
@@ -86,6 +92,26 @@ export function AgentCard({
         <p className="agent-role">{agent.role}</p>
       </div>
       
+      {/* Metrics Display */}
+      {metrics && (
+        <div className="agent-metrics">
+          <div className="agent-metric-value">{metrics.value}</div>
+          {metrics.label && (
+            <div className="agent-metric-label">{metrics.label}</div>
+          )}
+          {metrics.trend && (
+            <div className={`agent-metric-trend agent-metric-trend-${metrics.trend.direction}`}>
+              {metrics.trend.direction === 'up' ? (
+                <TrendingUp className="w-3 h-3" aria-hidden="true" />
+              ) : (
+                <TrendingDown className="w-3 h-3" aria-hidden="true" />
+              )}
+              <span>{metrics.trend.value}</span>
+            </div>
+          )}
+        </div>
+      )}
+      
       {/* Active Status Indicator */}
       {isActive && (
         <div className="agent-status-active" aria-live="polite">
@@ -120,6 +146,14 @@ AgentCard.propTypes = {
   }).isRequired,
   isActive: PropTypes.bool,
   onClick: PropTypes.func,
+  metrics: PropTypes.shape({
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    label: PropTypes.string,
+    trend: PropTypes.shape({
+      direction: PropTypes.oneOf(['up', 'down']),
+      value: PropTypes.string
+    })
+  }),
   className: PropTypes.string
 };
 

@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button';
 import { PanelLeftClose, PanelLeftOpen, Sparkles, History, Shield } from 'lucide-react';
 import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
-import DashboardStatsBar from '../components/dashboard/DashboardStatsBar';
+
 import { getUserInfo, formatRoleName, getRoleBadgeColor } from '../utils/rbac';
 import { AgentsGrid } from '../components/agents';
 
@@ -147,9 +147,6 @@ export default function AgenticDashboard() {
           </div>
         </div>
       </div>
-
-      {/* Dashboard Stats Bar */}
-      <DashboardStatsBar />
 
       {/* AI Agents Grid */}
       <AgentsGrid 
