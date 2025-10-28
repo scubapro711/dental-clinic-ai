@@ -1341,3 +1341,286 @@ a:focus {
   }
 }
 
+
+
+/* ============================================
+   FLOATING CHAT BUTTON & PANEL
+   Material Design 3 FAB + Healthcare UX
+   ============================================ */
+
+/* Floating Action Button */
+.floating-chat-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3),
+              0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+.floating-chat-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4),
+              0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+.floating-chat-button:active {
+  transform: scale(0.95);
+}
+
+.floating-chat-button:focus-visible {
+  outline: 2px solid #4F46E5;
+  outline-offset: 2px;
+}
+
+.floating-chat-icon {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.3s ease;
+}
+
+.floating-chat-button:hover .floating-chat-icon {
+  transform: rotate(5deg);
+}
+
+/* Mobile FAB */
+@media (max-width: 640px) {
+  .floating-chat-button {
+    width: 56px;
+    height: 56px;
+    bottom: 16px;
+    right: 16px;
+  }
+  
+  .floating-chat-icon {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* Backdrop */
+.floating-chat-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 1001;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Chat Panel */
+.floating-chat-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 1002;
+  display: flex;
+  flex-direction: column;
+  animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile Chat Panel */
+@media (max-width: 640px) {
+  .floating-chat-panel {
+    width: 100vw;
+    left: 0;
+  }
+}
+
+/* Panel Header */
+.floating-chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #E5E7EB;
+  background: white;
+  flex-shrink: 0;
+}
+
+/* Close Button */
+.floating-chat-close {
+  padding: 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.floating-chat-close:hover {
+  background: #F3F4F6;
+  color: #111827;
+}
+
+.floating-chat-close:active {
+  transform: scale(0.95);
+}
+
+/* Chat Content */
+.floating-chat-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Override AIChat styles when in panel */
+.floating-chat-content .dentaflow-main-content {
+  height: 100%;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Accessibility: Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .floating-chat-button,
+  .floating-chat-icon,
+  .floating-chat-backdrop,
+  .floating-chat-panel {
+    animation: none;
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .floating-chat-button {
+    border: 2px solid currentColor;
+  }
+  
+  .floating-chat-panel {
+    border-left: 2px solid currentColor;
+  }
+}
+
+/* ============================================
+   DASHBOARD GRID LAYOUT (2-COLUMN)
+   Healthcare UX Best Practices
+   ============================================ */
+
+.dashboard-widgets-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-6);
+  padding: var(--space-6);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Full-width widgets */
+.dashboard-widget-full {
+  grid-column: 1 / -1;
+}
+
+/* Mobile: Single column */
+@media (max-width: 768px) {
+  .dashboard-widgets-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding: var(--space-4);
+  }
+  
+  .dashboard-widget-full {
+    grid-column: 1;
+  }
+}
+
+/* Widget card base styles */
+.dashboard-widget-card {
+  background: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-agent-card);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+.dashboard-widget-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+/* Widget header */
+.dashboard-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.dashboard-widget-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dashboard-widget-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dashboard-widget-badge-urgent {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.dashboard-widget-badge-info {
+  background: #DBEAFE;
+  color: #2563EB;
+}
+
+.dashboard-widget-badge-success {
+  background: #D1FAE5;
+  color: #059669;
+}
+
