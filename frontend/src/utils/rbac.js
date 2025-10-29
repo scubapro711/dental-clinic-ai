@@ -57,6 +57,14 @@ export const WIDGET_PERMISSIONS = {
     view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
     interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
   },
+  'compliance-alerts': {
+    view: [ROLES.ORG_ADMIN],
+    interact: [ROLES.ORG_ADMIN],
+  },
+  'clinical-system': {
+    view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
+    interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
+  },
   
   // Patient Portal Widgets
   'patient-dashboard': {
