@@ -14,10 +14,14 @@ import EnhancedFineTuningWidget from '../components/fine-tuning/EnhancedFineTuni
 import ConversationHistorySidebar from '../components/ConversationHistorySidebar';
 import ProtectedWidget from '../components/rbac/ProtectedWidget';
 import useAgentActivity from '../hooks/useAgentActivity';
-import { Sparkles, History } from 'lucide-react';
+import { Sparkles, History, Users, CheckCircle, DollarSign, AlertTriangle, Activity, Stethoscope, Zap, Eye } from 'lucide-react';
 import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
 import { getUserInfo } from '../utils/rbac';
+import { DashboardProvider } from '../contexts/DashboardContext';
+import { WidgetContainer } from '../components/dashboard/WidgetContainer';
+import { DashboardHeader } from '../components/dashboard/DashboardHeader';
+import { isFeatureEnabled } from '../config/features';
 
 /**
  * AgenticDashboard Component
@@ -41,6 +45,9 @@ export default function AgenticDashboard() {
   const [conversationMessages, setConversationMessages] = useState([]);
   const chatInputRef = useRef(null);
   const userInfo = getUserInfo();
+  
+  // Feature flag: Dashboard customization
+  const enableCustomization = isFeatureEnabled('ENABLE_DASHBOARD_CUSTOMIZATION');
 
   // Handler to send message to chat from widgets
   const handleChatWithAgent = (message) => {
@@ -77,7 +84,8 @@ export default function AgenticDashboard() {
   };
 
   return (
-    <div className="h-full flex flex-col dentaflow-dashboard-background">
+    <DashboardProvider>
+      <div className="h-full flex flex-col dentaflow-dashboard-background">
       {/* Header */}
       <div className="dentaflow-header">
         <div className="flex items-center justify-between">
@@ -108,87 +116,130 @@ export default function AgenticDashboard() {
         </div>
       </div>
 
+      {/* Dashboard Customization Header */}
+      {enableCustomization && <DashboardHeader />}
+
       {/* Dashboard Widgets Grid (2-column layout) */}
       <div className="dashboard-widgets-grid">
         {/* Priority 1: Today's Patients */}
         <ProtectedWidget widgetId="todays-patients">
-          <div className="dashboard-widget-card">
-            <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
-          </div>
+          <WidgetContainer
+            widgetId="todays-patients"
+            title="Today's Patients"
+            icon={<Users size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 2: Decision Queue */}
         <ProtectedWidget widgetId="decision-queue">
-          <div className="dashboard-widget-card">
-            <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
-          </div>
+          <WidgetContainer
+            widgetId="decision-queue"
+            title="Decision Queue"
+            icon={<CheckCircle size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 3: Revenue Widget */}
         <ProtectedWidget widgetId="revenue">
-          <div className="dashboard-widget-card">
-            <RevenueWidget onChatWithAgent={handleChatWithAgent} />
-          </div>
+          <WidgetContainer
+            widgetId="revenue"
+            title="Revenue Analytics"
+            icon={<DollarSign size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <RevenueWidget onChatWithAgent={handleChatWithAgent} />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 4: Compliance Alerts */}
         <ProtectedWidget widgetId="compliance-alerts">
-          <div className="dashboard-widget-card">
-            <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
-          </div>
+          <WidgetContainer
+            widgetId="compliance-alerts"
+            title="Compliance Alerts"
+            icon={<AlertTriangle size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 5: Clinical Dashboard (Full-width) */}
         <ProtectedWidget widgetId="clinical-system">
-          <div className="dashboard-widget-card dashboard-widget-full">
-            <div className="dashboard-widget-header">
-              <h3 className="dashboard-widget-title">
-                🩺 Clinical System
-              </h3>
-              <span className="dashboard-widget-badge dashboard-widget-badge-info">
-                AI-Powered
-              </span>
+          <WidgetContainer
+            widgetId="clinical-system"
+            title="Clinical System"
+            icon={<Stethoscope size={20} />}
+          >
+            <div className="dashboard-widget-card dashboard-widget-full">
+              <ClinicalDashboard 
+                patient={{ 
+                  id: 1, 
+                  name: 'David Cohen', 
+                  age: 45, 
+                  lastVisit: '2025-09-15' 
+                }} 
+              />
             </div>
-            <ClinicalDashboard 
-              patient={{ 
-                id: 1, 
-                name: 'David Cohen', 
-                age: 45, 
-                lastVisit: '2025-09-15' 
-              }} 
-            />
-          </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 6: Enhanced Fine-Tuning */}
         <ProtectedWidget widgetId="fine-tuning">
-          <div className="dashboard-widget-card">
-            <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
-          </div>
+          <WidgetContainer
+            widgetId="fine-tuning"
+            title="AI Fine-Tuning"
+            icon={<Zap size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 7: Agent Activity Panel */}
         <ProtectedWidget widgetId="agent-activity">
-          <div className="dashboard-widget-card">
-            <AgentActivityPanel
-              activeAgent={activeAgent}
-              currentTask={currentTask}
-              toolsInUse={toolsInUse}
-              summary={summary}
-            />
-          </div>
+          <WidgetContainer
+            widgetId="agent-activity"
+            title="Agent Activity"
+            icon={<Activity size={20} />}
+          >
+            <div className="dashboard-widget-card">
+              <AgentActivityPanel
+                activeAgent={activeAgent}
+                currentTask={currentTask}
+                toolsInUse={toolsInUse}
+                summary={summary}
+              />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
 
         {/* Priority 8: Enhanced Transparency Panel (Full-width) */}
         <ProtectedWidget widgetId="transparency-panel">
-          <div className="dashboard-widget-card dashboard-widget-full">
-            <EnhancedTransparencyPanel 
-              reasoningSteps={reasoningSteps}
-              isActive={!!activeAgent}
-              onClear={clearActivity}
-              onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
-            />
-          </div>
+          <WidgetContainer
+            widgetId="transparency-panel"
+            title="Transparency Panel"
+            icon={<Eye size={20} />}
+          >
+            <div className="dashboard-widget-card dashboard-widget-full">
+              <EnhancedTransparencyPanel 
+                reasoningSteps={reasoningSteps}
+                isActive={!!activeAgent}
+                onClear={clearActivity}
+                onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
+              />
+            </div>
+          </WidgetContainer>
         </ProtectedWidget>
       </div>
 
@@ -209,7 +260,8 @@ export default function AgenticDashboard() {
         onNewConversation={handleNewConversation}
         currentConversationId={currentConversationId}
       />
-    </div>
+      </div>
+    </DashboardProvider>
   );
 }
 
