@@ -23,12 +23,12 @@ import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
  * 
  * Last updated: 2025-10-26 - Hotfix deployment trigger
  */
-export default function AIChat({ user, onStreamEvent }) {
-  const [messages, setMessages] = useState([]);
+export default function AIChat({ user, onStreamEvent, initialMessages = [], conversationId: propConversationId, onClearChat }) {
+  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(null);
-  const [conversationId] = useState(() => `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [conversationId] = useState(() => propConversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [error, setError] = useState(null);
   const [toolCalls, setToolCalls] = useState([]);
   const [isThinking, setIsThinking] = useState(false);
