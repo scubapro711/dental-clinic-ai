@@ -1,20 +1,23 @@
 # Build stage
 FROM node:20-alpine AS build
 
+# Install pnpm
+RUN npm install -g pnpm@latest
+
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy package files (pnpm uses pnpm-lock.yaml)
+COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install dependencies with pnpm
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
 
-# Build the app
-RUN npm run build
+# Build the app with pnpm
+RUN pnpm build
 
 # Production stage
 FROM nginx:alpine
