@@ -204,7 +204,7 @@ export default function AgenticDashboard() {
       {/* Floating Chat Button */}
       <FloatingChatButton
         conversationId={currentConversationId}
-        initialMessages={conversationMessages}
+        initialMessages={conversationMessages || []}
         onStreamEvent={handleStreamEvent}
         onClearChat={clearActivity}
         chatInputRef={chatInputRef}
