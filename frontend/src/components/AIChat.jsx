@@ -190,7 +190,7 @@ export default function AIChat({ user, onStreamEvent, initialMessages = [], conv
         },
         body: JSON.stringify({
           messages: [
-            ...messages.filter(m => !m.isStreaming).map(m => ({ role: m.role, content: m.content })),
+            ...(messages || []).filter(m => !m.isStreaming).map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: userMessage.content }
           ],
           conversation_id: conversationId,
@@ -442,7 +442,7 @@ export default function AIChat({ user, onStreamEvent, initialMessages = [], conv
             </div>
           )}
 
-          {messages.map((message, index) => (
+          {(messages || []).map((message, index) => (
             <Message 
               key={index} 
               message={message} 
