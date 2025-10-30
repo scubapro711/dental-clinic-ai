@@ -91,14 +91,14 @@ export default function ClinicLayout() {
         </header>
 
         {/* Main Content */}
-        <main id="main-content" className="flex-1 lg:pr-64" role="main">
+        <main id="main-content" className="flex-1 lg:pl-64" role="main">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
             <Outlet />
           </div>
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-auto lg:pr-64" role="contentinfo">
+        <footer className="bg-white border-t border-gray-200 mt-auto lg:pl-64" role="contentinfo">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
               <p>© 2025 DentaFlow Mission Control. AI-Powered Dental Management.</p>
@@ -108,9 +108,9 @@ export default function ClinicLayout() {
         </footer>
       </div>
 
-      {/* Fixed Right Sidebar (Desktop) */}
+      {/* Fixed Left Sidebar (Desktop) */}
       <aside 
-        className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:right-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl"
+        className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl"
         role="navigation"
         aria-label="Main navigation"
       >
@@ -186,12 +186,12 @@ export default function ClinicLayout() {
         />
       )}
 
-      {/* Mobile Sidebar (Slides from Right) */}
+      {/* Mobile Sidebar (Slides from Left) */}
       <aside 
         className={`
-          lg:hidden fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl z-50
+          lg:hidden fixed top-0 left-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl z-50
           transform transition-transform duration-300 ease-in-out
-          ${mobileSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+          ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
         `}
         role="navigation"
         aria-label="Mobile navigation"
