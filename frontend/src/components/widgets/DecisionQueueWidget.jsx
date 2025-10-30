@@ -211,7 +211,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       title="החלטות ממתינות"
       agent="system"
       icon="⚡"
-      badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${decisions.length} פריטים`}
+      badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${(decisions || []).length} פריטים`}
       isLoading={isLoading}
     >
       {/* ARIA Live Region for status announcements */}
@@ -225,14 +225,14 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       </div>
       
       <div className="space-y-3">
-        {decisions.length === 0 ? (
+        {(decisions || []).length === 0 ? (
           <div className="text-center text-sm text-gray-500 py-8">
             <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-green-500" />
             <div>אין החלטות ממתינות</div>
             <div className="text-xs mt-1">כל המשימות טופלו! 🎉</div>
           </div>
         ) : (
-          decisions.map((decision) => {
+          (decisions || []).map((decision) => {
             const priorityConfig = getPriorityConfig(decision.priority);
             const agentConfig = getAgentConfig(decision.agent);
             

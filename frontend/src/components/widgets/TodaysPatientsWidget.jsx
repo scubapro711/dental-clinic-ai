@@ -149,16 +149,16 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
       title="מטופלים היום"
       agent="alex"
       icon="👥"
-      badge={`${patients.length} תורים`}
+      badge={`${(patients || []).length} תורים`}
       isLoading={isLoading}
     >
       <div className="space-y-3">
-        {patients.length === 0 ? (
+        {(patients || []).length === 0 ? (
           <div className="text-center text-sm text-gray-500 py-4">
             אין תורים להיום
           </div>
         ) : (
-          patients.map((patient) => {
+          (patients || []).map((patient) => {
             const statusConfig = getStatusConfig(patient.status);
             
             return (

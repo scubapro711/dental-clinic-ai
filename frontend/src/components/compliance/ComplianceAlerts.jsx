@@ -235,24 +235,24 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
           <Tabs defaultValue="open" className="w-full">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="open">
-                Open ({openAlerts.length})
+                Open ({(openAlerts || []).length})
               </TabsTrigger>
               <TabsTrigger value="acknowledged">
-                Acknowledged ({acknowledgedAlerts.length})
+                Acknowledged ({(acknowledgedAlerts || []).length})
               </TabsTrigger>
               <TabsTrigger value="in_progress">
-                In Progress ({inProgressAlerts.length})
+                In Progress ({(inProgressAlerts || []).length})
               </TabsTrigger>
               <TabsTrigger value="resolved">
-                Resolved ({resolvedAlerts.length})
+                Resolved ({(resolvedAlerts || []).length})
               </TabsTrigger>
               <TabsTrigger value="all">
-                All ({alerts.length})
+                All ({(alerts || []).length})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="open" className="mt-4">
-              {openAlerts.length === 0 ? (
+              {(openAlerts || []).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <CheckCircle className="w-12 h-12 mx-auto mb-2 text-green-500" />
                   <p>No open alerts. Great job!</p>
@@ -263,7 +263,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
             </TabsContent>
 
             <TabsContent value="acknowledged" className="mt-4">
-              {acknowledgedAlerts.length === 0 ? (
+              {(acknowledgedAlerts || []).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p>No acknowledged alerts</p>
                 </div>
@@ -273,7 +273,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
             </TabsContent>
 
             <TabsContent value="in_progress" className="mt-4">
-              {inProgressAlerts.length === 0 ? (
+              {(inProgressAlerts || []).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p>No alerts in progress</p>
                 </div>
@@ -283,7 +283,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
             </TabsContent>
 
             <TabsContent value="resolved" className="mt-4">
-              {resolvedAlerts.length === 0 ? (
+              {(resolvedAlerts || []).length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <p>No resolved alerts</p>
                 </div>
