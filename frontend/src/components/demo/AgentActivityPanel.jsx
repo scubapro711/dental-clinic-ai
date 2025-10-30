@@ -30,7 +30,7 @@ const AgentActivityPanel = ({
   
   const filteredActivities = selectedAgent === 'all' 
     ? activities 
-    : activities.filter(a => a.agent === selectedAgent);
+    : (activities || []).filter(a => a.agent === selectedAgent);
     
   const visibleActivities = expanded 
     ? filteredActivities 

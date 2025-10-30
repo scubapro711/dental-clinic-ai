@@ -80,7 +80,7 @@ export default function TelegramConversationsWidget() {
             שיחות פעילות
           </CardTitle>
           <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-            {conversations.filter(c => c.is_active).length} פעילות
+            {(conversations || []).filter(c => c.is_active).length} פעילות
           </Badge>
         </div>
       </CardHeader>
@@ -89,7 +89,7 @@ export default function TelegramConversationsWidget() {
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
           </div>
-        ) : conversations.length === 0 ? (
+        ) : (conversations || []).length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <MessageSquare className="w-12 h-12 mx-auto mb-3 text-gray-400" />
             <p>אין שיחות פעילות</p>
@@ -97,7 +97,7 @@ export default function TelegramConversationsWidget() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {conversations.map((conv) => (
+            {(conversations || []).map((conv) => (
               <div
                 key={conv.id}
                 className={cn(

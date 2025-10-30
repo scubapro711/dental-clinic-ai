@@ -33,7 +33,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
         const data = await response.json();
         
         // Transform Odoo data to widget format
-        const transformedPatients = data.map(apt => ({
+        const transformedPatients = (data || []).map(apt => ({
           id: apt.id,
           name: apt.patient_name || 'Unknown',
           time: new Date(apt.appointment_start).toLocaleTimeString('en-US', { 
@@ -232,7 +232,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
       </div>
 
       {/* Footer Action */}
-      {patients.length > 0 && (
+      {(patients || []).length > 0 && (
         <div className="mt-4 pt-3 border-t">
           <Button
             variant="ghost"

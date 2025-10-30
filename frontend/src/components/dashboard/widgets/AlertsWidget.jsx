@@ -101,7 +101,7 @@ export function AlertsWidget() {
       setAlerts(data)
       setError(null)
       
-      console.log('[AlertsWidget] Loaded', data.length, 'alerts')
+      console.log('[AlertsWidget] Loaded', (data || []).length, 'alerts')
     } catch (err) {
       console.error('Error loading alerts:', err)
       setError(err.message)
@@ -162,7 +162,7 @@ export function AlertsWidget() {
     return `${diffDays}d ago`
   }
 
-  const urgentCount = alerts.filter(a => a.priority === 'urgent').length
+  const urgentCount = (alerts || []).filter(a => a.priority === 'urgent').length
 
   return (
     <Widget
@@ -171,7 +171,7 @@ export function AlertsWidget() {
       icon={AlertCircle}
       loading={loading}
       error={error}
-      empty={alerts.length === 0}
+      empty={(alerts || []).length === 0}
       emptyMessage="No active alerts"
       onRefresh={loadAlerts}
       badge={urgentCount > 0 ? urgentCount : null}
@@ -198,7 +198,7 @@ export function AlertsWidget() {
 
         {/* Alerts List */}
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
-          {alerts.map((alert) => {
+          {(alerts || []).map((alert) => {
             const agentConfig = AGENT_CONFIG[alert.source] || AGENT_CONFIG.system
             const priorityConfig = PRIORITY_CONFIG[alert.priority] || PRIORITY_CONFIG.normal
             const Icon = agentConfig.icon

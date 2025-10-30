@@ -258,7 +258,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
                   <p>No open alerts. Great job!</p>
                 </div>
               ) : (
-                openAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)
+                (openAlerts || []).map(alert => <AlertCard key={alert.id} alert={alert} />)
               )}
             </TabsContent>
 
@@ -268,7 +268,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
                   <p>No acknowledged alerts</p>
                 </div>
               ) : (
-                acknowledgedAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)
+                (acknowledgedAlerts || []).map(alert => <AlertCard key={alert.id} alert={alert} />)
               )}
             </TabsContent>
 
@@ -278,7 +278,7 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
                   <p>No alerts in progress</p>
                 </div>
               ) : (
-                inProgressAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)
+                (inProgressAlerts || []).map(alert => <AlertCard key={alert.id} alert={alert} />)
               )}
             </TabsContent>
 
@@ -288,12 +288,12 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
                   <p>No resolved alerts</p>
                 </div>
               ) : (
-                resolvedAlerts.map(alert => <AlertCard key={alert.id} alert={alert} />)
+                (resolvedAlerts || []).map(alert => <AlertCard key={alert.id} alert={alert} />)
               )}
             </TabsContent>
 
             <TabsContent value="all" className="mt-4">
-              {alerts.map(alert => <AlertCard key={alert.id} alert={alert} />)}
+              {(alerts || []).map(alert => <AlertCard key={alert.id} alert={alert} />)}
             </TabsContent>
           </Tabs>
         </CardContent>

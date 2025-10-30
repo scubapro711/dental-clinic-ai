@@ -51,7 +51,7 @@ export function AgentStatusWidget() {
       setAgents(data)
       setError(null)
       
-      console.log('[AgentStatusWidget] Loaded status for', data.length, 'agents')
+      console.log('[AgentStatusWidget] Loaded status for', (data || []).length, 'agents')
     } catch (err) {
       console.error('Error loading agents status:', err)
       setError(err.message)

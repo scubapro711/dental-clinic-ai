@@ -111,8 +111,8 @@ export default function PatientBilling() {
     );
   };
 
-  const totalBalance = invoices.reduce((sum, inv) => sum + (inv.amount - inv.paid), 0);
-  const totalPaid = invoices.reduce((sum, inv) => sum + inv.paid, 0);
+  const totalBalance = (invoices || []).reduce((sum, inv) => sum + (inv.amount - inv.paid), 0);
+  const totalPaid = (invoices || []).reduce((sum, inv) => sum + inv.paid, 0);
   const overdueAmount = invoices
     .filter(inv => inv.status === 'overdue')
     .reduce((sum, inv) => sum + (inv.amount - inv.paid), 0);
@@ -205,7 +205,7 @@ export default function PatientBilling() {
               <FileText className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{invoices.length}</div>
+              <div className="text-2xl font-bold">{(invoices || []).length}</div>
               <p className="text-xs text-gray-500">סה"כ</p>
             </CardContent>
           </Card>
@@ -259,7 +259,7 @@ export default function PatientBilling() {
 
           {/* Invoices Tab */}
           <TabsContent value="invoices" className="space-y-4">
-            {invoices.map((invoice) => (
+            {(invoices || []).map((invoice) => (
               <Card key={invoice.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">

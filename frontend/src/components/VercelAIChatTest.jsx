@@ -71,7 +71,7 @@ export function VercelAIChatTest() {
       
       {/* Messages */}
       <Card className="flex-1 overflow-y-auto p-4 mb-4 space-y-4">
-        {messages.length === 0 && !streamingMessage && (
+        {(messages || []).length === 0 && !streamingMessage && (
           <div className="text-center text-gray-500 mt-8">
             <p className="text-lg mb-2">👋 Hello!</p>
             <p>Try asking:</p>
@@ -83,7 +83,7 @@ export function VercelAIChatTest() {
           </div>
         )}
         
-        {messages.map((message, index) => (
+        {(messages || []).map((message, index) => (
           <div
             key={index}
             className={`flex ${

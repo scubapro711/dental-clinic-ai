@@ -37,7 +37,7 @@ export const AgentChatModal = ({
 
   // Add initial context message if provided
   useEffect(() => {
-    if (isOpen && initialContext && messages.length === 0) {
+    if (isOpen && initialContext && (messages || []).length === 0) {
       const contextMessage = generateContextMessage(initialContext);
       if (contextMessage) {
         setMessages([{
@@ -173,7 +173,7 @@ export const AgentChatModal = ({
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-          {messages.length === 0 && (
+          {(messages || []).length === 0 && (
             <div className="text-center py-12">
               <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-600 font-medium">
@@ -185,7 +185,7 @@ export const AgentChatModal = ({
             </div>
           )}
 
-          {messages.map((message, index) => (
+          {(messages || []).map((message, index) => (
             <div
               key={index}
               className={cn(

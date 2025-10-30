@@ -56,7 +56,7 @@ const AIInsightCard = ({
         
         {insight.metrics && (
           <div className="ai-insight-card__metrics">
-            {insight.metrics.map((metric, idx) => (
+            {insight.(metrics || []).map((metric, idx) => (
               <div key={idx} className="metric-item">
                 <span className="metric-label">{metric.label}:</span>
                 <span className="metric-value">{metric.value}</span>

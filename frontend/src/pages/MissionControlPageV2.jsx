@@ -195,7 +195,7 @@ const MissionControlPageV2 = () => {
             onClick={() => setActiveTab('alerts')}
           >
             <AlertTriangle className="w-4 h-4" />
-            Alerts ({alerts.length})
+            Alerts ({(alerts || []).length})
           </Button>
           <Button
             variant={activeTab === 'patients' ? 'primary' : 'ghost'}
@@ -253,7 +253,7 @@ const MissionControlPageV2 = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                {logs.map((log) => (
+                {(logs || []).map((log) => (
                   <div 
                     key={log.id}
                     className="flex items-start gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -294,7 +294,7 @@ const MissionControlPageV2 = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {alerts.map((alert) => (
+                {(alerts || []).map((alert) => (
                   <div 
                     key={alert.id}
                     className={`p-4 border-l-4 rounded-lg ${
@@ -373,12 +373,12 @@ const MissionControlPageV2 = () => {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>Today's Appointments</CardTitle>
-              <Badge variant="info">{appointments.length}</Badge>
+              <Badge variant="info">{(appointments || []).length}</Badge>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-3 max-h-[600px] overflow-y-auto">
-              {appointments.map((apt, idx) => (
+              {(appointments || []).map((apt, idx) => (
                 <div 
                   key={idx}
                   className="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"

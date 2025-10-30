@@ -198,7 +198,7 @@ const MissionControlPageV3 = () => {
       case 'logs':
         return (
           <div className="space-y-2">
-            {logs.map((log, index) => (
+            {(logs || []).map((log, index) => (
               <Card key={index} className="p-3">
                 <div className="flex items-start gap-3">
                   <Badge 
@@ -302,8 +302,8 @@ const MissionControlPageV3 = () => {
                 {[
                   { id: 'suggestions', label: 'Smart Suggestions', icon: Sparkles, count: 5 },
                   { id: 'conversations', label: 'Priority Queue', icon: MessageCircle, count: 3 },
-                  { id: 'patients', label: 'Patients', icon: Users, count: patients.length },
-                  { id: 'logs', label: 'System Logs', icon: Clock, count: logs.length },
+                  { id: 'patients', label: 'Patients', icon: Users, count: (patients || []).length },
+                  { id: 'logs', label: 'System Logs', icon: Clock, count: (logs || []).length },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   return (
@@ -348,7 +348,7 @@ const MissionControlPageV3 = () => {
                 Today's Appointments
               </h3>
               <div className="space-y-2">
-                {appointments.map((apt, index) => (
+                {(appointments || []).map((apt, index) => (
                   <div key={index} className="p-2 bg-gray-50 rounded-lg">
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium text-gray-900">
@@ -397,7 +397,7 @@ const MissionControlPageV3 = () => {
             </Card>
 
             {/* Alerts */}
-            {alerts.length > 0 && (
+            {(alerts || []).length > 0 && (
               <Card className="p-4">
                 <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
                   <AlertCircle className="w-4 h-4" />

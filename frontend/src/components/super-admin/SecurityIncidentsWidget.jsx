@@ -142,7 +142,7 @@ const SecurityIncidentsWidget = () => {
     return `${diffDays} days ago`;
   };
 
-  const activeIncidents = incidents.filter(i => i.status === 'active');
+  const activeIncidents = (incidents || []).filter(i => i.status === 'active');
   const criticalCount = activeIncidents.filter(i => i.severity === 'critical').length;
   const highCount = activeIncidents.filter(i => i.severity === 'high').length;
 
@@ -187,7 +187,7 @@ const SecurityIncidentsWidget = () => {
       )}
 
       {/* Loading */}
-      {loading && incidents.length === 0 ? (
+      {loading && (incidents || []).length === 0 ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
           <CircularProgress />
         </Box>

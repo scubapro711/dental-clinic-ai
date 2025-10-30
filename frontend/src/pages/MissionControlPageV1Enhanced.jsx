@@ -117,7 +117,7 @@ export default function MissionControlPageV1Enhanced() {
             </div>
 
             <div className="space-y-3">
-              {conversations.map((conv) => (
+              {(conversations || []).map((conv) => (
                 <div
                   key={conv.id}
                   className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"
@@ -166,7 +166,7 @@ export default function MissionControlPageV1Enhanced() {
             </div>
 
             <div className="space-y-2">
-              {appointments.map((appt, idx) => (
+              {(appointments || []).map((appt, idx) => (
                 <div
                   key={idx}
                   className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 transition-colors"

@@ -34,7 +34,7 @@ export function PatientsWidget() {
     // Filter patients based on search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      const filtered = patients.filter(patient =>
+      const filtered = (patients || []).filter(patient =>
         patient.name.toLowerCase().includes(query) ||
         patient.phone?.toLowerCase().includes(query) ||
         patient.email?.toLowerCase().includes(query)

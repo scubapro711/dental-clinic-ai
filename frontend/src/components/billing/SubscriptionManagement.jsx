@@ -430,9 +430,9 @@ export default function SubscriptionManagement() {
             <CardDescription>כל החשבוניות שלך במקום אחד</CardDescription>
           </CardHeader>
           <CardContent>
-            {invoices.length > 0 ? (
+            {(invoices || []).length > 0 ? (
               <div className="space-y-3">
-                {invoices.map((invoice) => (
+                {(invoices || []).map((invoice) => (
                   <div 
                     key={invoice.id}
                     className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"

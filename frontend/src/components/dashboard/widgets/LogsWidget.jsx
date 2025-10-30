@@ -108,7 +108,7 @@ export function LogsWidget() {
       setLogs(data)
       setError(null)
       
-      console.log('[LogsWidget] Loaded', data.length, 'logs')
+      console.log('[LogsWidget] Loaded', (data || []).length, 'logs')
     } catch (err) {
       console.error('Error loading logs:', err)
       setError(err.message)
@@ -132,7 +132,7 @@ export function LogsWidget() {
     }))
   }
 
-  const errorCount = logs.filter(log => log.level === 'error' || log.level === 'critical').length
+  const errorCount = (logs || []).filter(log => log.level === 'error' || log.level === 'critical').length
 
   return (
     <Widget
@@ -141,7 +141,7 @@ export function LogsWidget() {
       icon={FileText}
       loading={loading}
       error={error}
-      empty={logs.length === 0}
+      empty={(logs || []).length === 0}
       emptyMessage="No logs available"
       onRefresh={loadLogs}
       badge={errorCount > 0 ? errorCount : null}
@@ -193,7 +193,7 @@ export function LogsWidget() {
 
         {/* Logs List */}
         <div className="space-y-1 max-h-[400px] overflow-y-auto font-mono text-xs">
-          {logs.map((log) => {
+          {(logs || []).map((log) => {
             const sourceConfig = SOURCE_CONFIG[log.source] || SOURCE_CONFIG.system
             const levelConfig = LEVEL_CONFIG[log.level] || LEVEL_CONFIG.info
             const SourceIcon = sourceConfig.icon

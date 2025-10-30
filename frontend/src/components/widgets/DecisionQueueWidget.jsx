@@ -308,7 +308,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       </div>
 
       {/* Footer */}
-      {decisions.length > 0 && (
+      {(decisions || []).length > 0 && (
         <div className="mt-4 pt-3 border-t">
           <div className="text-xs text-gray-600 text-center">
             💡 הסוכנים מארגנים עבורך את המשימות החשובות ביותר
