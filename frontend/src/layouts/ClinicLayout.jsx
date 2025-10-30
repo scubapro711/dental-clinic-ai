@@ -1,16 +1,15 @@
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Menu, X, LogOut } from 'lucide-react';
 
 export default function ClinicLayout() {
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [user] = useState(() => {
     const stored = localStorage.getItem('user_profile');
     return stored ? JSON.parse(stored) : null;
   });
-  const mobileMenuRef = useRef(null);
-  const menuButtonRef = useRef(null);
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -22,7 +21,8 @@ export default function ClinicLayout() {
   };
 
   const navLinks = [
-    { to: '/clinic/dashboard', label: 'Dashboard', icon: '🎯' },
+    { to: '/clinic/dashboard', label: 'Mission Control', icon: '🎯' },
+    { to: '/clinic/dashboard', label: 'Dashboard', icon: '🏠' },
     { to: '/clinic/patients', label: 'Patients', icon: '👥' },
     { to: '/clinic/communications', label: 'Communications', icon: '📱' },
     { to: '/clinic/appointments', label: 'Appointments', icon: '📅' },
@@ -32,190 +32,244 @@ export default function ClinicLayout() {
     { to: '/clinic/settings', label: 'Settings', icon: '⚙️' },
   ];
 
-  // Focus trap for mobile menu
+  // Close mobile sidebar on route change
   useEffect(() => {
-    if (mobileMenuOpen && mobileMenuRef.current) {
-      const menuElement = mobileMenuRef.current;
-      const focusableElements = menuElement.querySelectorAll(
-        'a[href], button:not([disabled])'
-      );
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
+    setMobileSidebarOpen(false);
+  }, [location.pathname]);
 
-      const handleTabKey = (e) => {
-        if (e.key === 'Tab') {
-          if (e.shiftKey && document.activeElement === firstElement) {
-            e.preventDefault();
-            lastElement.focus();
-          } else if (!e.shiftKey && document.activeElement === lastElement) {
-            e.preventDefault();
-            firstElement.focus();
-          }
-        }
-      };
-
-      menuElement.addEventListener('keydown', handleTabKey);
-      firstElement?.focus();
-
-      return () => {
-        menuElement.removeEventListener('keydown', handleTabKey);
-      };
-    }
-  }, [mobileMenuOpen]);
-
-  // Escape key to close mobile menu
+  // Escape key to close mobile sidebar
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && mobileMenuOpen) {
-        setMobileMenuOpen(false);
-        // Restore focus to menu button
-        menuButtonRef.current?.focus();
+      if (e.key === 'Escape' && mobileSidebarOpen) {
+        setMobileSidebarOpen(false);
       }
     };
 
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [mobileMenuOpen]);
+  }, [mobileSidebarOpen]);
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col" lang="en">
+    <div className="min-h-screen bg-gray-50 flex" lang="en" dir="ltr">
       {/* Skip Navigation */}
       <a href="#main-content" className="skip-navigation">
         Skip to main content
       </a>
-      
-      {/* Clinic Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg" role="banner">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header (Mobile Only) */}
+        <header className="lg:hidden bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg sticky top-0 z-40" role="banner">
+          <div className="px-4 h-16 flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center">
-              <Link to="/clinic/dashboard" className="flex items-center space-x-2">
-                <span className="text-2xl" aria-hidden="true">🦷</span>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-                  <span className="text-lg sm:text-xl font-bold text-white">DentaFlow</span>
-                  <span className="text-xs sm:text-sm text-white">Mission Control</span>
-                </div>
-              </Link>
-            </div>
-
-            {/* Desktop Navigation */}
-            <nav className="hidden md:flex space-x-6" aria-label="Main navigation">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  <span aria-hidden="true">{link.icon}</span> {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Desktop User Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              {user && (
-                <div className="text-sm text-white">
-                  <span className="font-medium">{user.full_name || user.email}</span>
-                  <span className="text-blue-100 ml-2">({user.role})</span>
-                </div>
-              )}
-              <Link
-                to="/clinic/security"
-                className="text-white hover:text-blue-100 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                aria-label="Security settings"
-              >
-                🔒 Security
-              </Link>
-              <button
-                onClick={handleLogout}
-                className="text-white hover:text-red-300 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                aria-label="Logout from clinic portal"
-              >
-                Logout
-              </button>
-            </div>
+            <Link to="/clinic/dashboard" className="flex items-center space-x-2">
+              <span className="text-2xl" aria-hidden="true">🦷</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-bold text-white">DentaFlow</span>
+                <span className="text-xs text-white opacity-90">Mission Control</span>
+              </div>
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
-              ref={menuButtonRef}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-white hover:bg-blue-700 transition-colors"
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="p-2 rounded-md text-white hover:bg-blue-700 transition-colors"
               aria-label="Toggle navigation menu"
-              aria-expanded={mobileMenuOpen}
-              aria-controls="mobile-menu"
+              aria-expanded={mobileSidebarOpen}
             >
-              {mobileMenuOpen ? (
+              {mobileSidebarOpen ? (
                 <X className="w-6 h-6" aria-hidden="true" />
               ) : (
                 <Menu className="w-6 h-6" aria-hidden="true" />
               )}
             </button>
           </div>
+        </header>
+
+        {/* Main Content */}
+        <main id="main-content" className="flex-1 lg:pr-64" role="main">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+            <Outlet />
+          </div>
+        </main>
+
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 mt-auto lg:pr-64" role="contentinfo">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
+              <p>© 2025 DentaFlow Mission Control. AI-Powered Dental Management.</p>
+              <p>Version 20.5.0</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* Fixed Right Sidebar (Desktop) */}
+      <aside 
+        className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:right-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl"
+        role="navigation"
+        aria-label="Main navigation"
+      >
+        {/* Logo */}
+        <div className="p-6 border-b border-blue-500">
+          <Link to="/clinic/dashboard" className="flex items-center space-x-3">
+            <span className="text-3xl" aria-hidden="true">🦷</span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-white">DentaFlow</span>
+              <span className="text-sm text-blue-100">Mission Control</span>
+            </div>
+          </Link>
         </div>
 
-        {/* Mobile Navigation Menu */}
-        {mobileMenuOpen && (
-          <div 
-            ref={mobileMenuRef}
-            id="mobile-menu" 
-            className="md:hidden border-t border-blue-700 bg-blue-700"
-          >
-            <nav className="px-4 py-4 space-y-2" aria-label="Mobile navigation">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                >
-                  <span aria-hidden="true">{link.icon}</span> {link.label}
-                </Link>
-              ))}
-              <div className="border-t border-blue-600 pt-2 mt-2">
-                {user && (
-                  <div className="px-3 py-2 text-sm text-white">
-                    <span className="font-medium">{user.full_name || user.email}</span>
-                    <span className="text-blue-100 ml-2">({user.role})</span>
-                  </div>
-                )}
-                <Link
-                  to="/clinic/security"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-white hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                >
-                  🔒 Security
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  className="block w-full text-left text-red-300 hover:bg-blue-600 px-3 py-2 rounded-md text-base font-medium transition-colors"
-                  aria-label="Logout from clinic portal"
-                >
-                  Logout
-                </button>
+        {/* Navigation Links */}
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`
+                flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                ${isActive(link.to)
+                  ? 'bg-white text-blue-700 shadow-lg'
+                  : 'text-white hover:bg-blue-700 hover:shadow-md'
+                }
+              `}
+            >
+              <span className="text-xl" aria-hidden="true">{link.icon}</span>
+              <span>{link.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* User Section */}
+        <div className="border-t border-blue-500 p-4 space-y-3">
+          {user && (
+            <div className="px-4 py-3 bg-blue-700 rounded-lg">
+              <div className="text-sm font-medium text-white">
+                {user.full_name || user.email}
               </div>
-            </nav>
-          </div>
-        )}
-      </header>
+              <div className="text-xs text-blue-200 mt-1">
+                {user.role}
+              </div>
+            </div>
+          )}
 
-      {/* Main Content */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8" role="main">
-        <Outlet />
-      </main>
+          <Link
+            to="/clinic/security"
+            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            <span aria-hidden="true">🔒</span>
+            <span>Security</span>
+          </Link>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-auto" role="contentinfo">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
-            <p>© 2025 DentaFlow Mission Control. AI-Powered Dental Management.</p>
-            <p>Version 20.5.0</p>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center space-x-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-200 hover:bg-red-600 hover:text-white transition-colors"
+            aria-label="Logout from clinic portal"
+          >
+            <LogOut className="w-5 h-5" aria-hidden="true" />
+            <span>Logout</span>
+          </button>
         </div>
-      </footer>
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {mobileSidebarOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setMobileSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Sidebar (Slides from Right) */}
+      <aside 
+        className={`
+          lg:hidden fixed top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl z-50
+          transform transition-transform duration-300 ease-in-out
+          ${mobileSidebarOpen ? 'translate-x-0' : 'translate-x-full'}
+        `}
+        role="navigation"
+        aria-label="Mobile navigation"
+      >
+        {/* Mobile Sidebar Header */}
+        <div className="p-6 border-b border-blue-500 flex items-center justify-between">
+          <Link to="/clinic/dashboard" className="flex items-center space-x-3" onClick={() => setMobileSidebarOpen(false)}>
+            <span className="text-3xl" aria-hidden="true">🦷</span>
+            <div className="flex flex-col">
+              <span className="text-xl font-bold text-white">DentaFlow</span>
+              <span className="text-sm text-blue-100">Mission Control</span>
+            </div>
+          </Link>
+          <button
+            onClick={() => setMobileSidebarOpen(false)}
+            className="p-2 rounded-md text-white hover:bg-blue-700 transition-colors"
+            aria-label="Close navigation menu"
+          >
+            <X className="w-6 h-6" aria-hidden="true" />
+          </button>
+        </div>
+
+        {/* Mobile Navigation Links */}
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
+          {navLinks.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMobileSidebarOpen(false)}
+              className={`
+                flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                ${isActive(link.to)
+                  ? 'bg-white text-blue-700 shadow-lg'
+                  : 'text-white hover:bg-blue-700 hover:shadow-md'
+                }
+              `}
+            >
+              <span className="text-xl" aria-hidden="true">{link.icon}</span>
+              <span>{link.label}</span>
+            </Link>
+          ))}
+        </nav>
+
+        {/* Mobile User Section */}
+        <div className="border-t border-blue-500 p-4 space-y-3">
+          {user && (
+            <div className="px-4 py-3 bg-blue-700 rounded-lg">
+              <div className="text-sm font-medium text-white">
+                {user.full_name || user.email}
+              </div>
+              <div className="text-xs text-blue-200 mt-1">
+                {user.role}
+              </div>
+            </div>
+          )}
+
+          <Link
+            to="/clinic/security"
+            onClick={() => setMobileSidebarOpen(false)}
+            className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            <span aria-hidden="true">🔒</span>
+            <span>Security</span>
+          </Link>
+
+          <button
+            onClick={() => {
+              handleLogout();
+              setMobileSidebarOpen(false);
+            }}
+            className="flex items-center space-x-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-red-200 hover:bg-red-600 hover:text-white transition-colors"
+            aria-label="Logout from clinic portal"
+          >
+            <LogOut className="w-5 h-5" aria-hidden="true" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }
