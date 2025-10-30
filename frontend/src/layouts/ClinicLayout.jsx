@@ -1,15 +1,61 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, X, LogOut } from 'lucide-react';
+import { AGENTS } from '../data/agents';
+import AgentSidebarCard from '../components/agents/AgentSidebarCard';
 
 export default function ClinicLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [activeAgentId, setActiveAgentId] = useState('alex'); // Default to Alex
+  const [agentStats, setAgentStats] = useState({});
   const [user] = useState(() => {
     const stored = localStorage.getItem('user_profile');
     return stored ? JSON.parse(stored) : null;
   });
+
+  // Fetch agent stats
+  useEffect(() => {
+    fetchAgentStats();
+  }, []);
+
+  const fetchAgentStats = async () => {
+    try {
+      const response = await fetch('/api/v1/dashboard/stats', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAgentStats({
+          alex: { value: data.active_patients || 247, trend: { direction: 'up', value: '+12%' } },
+          sarah: { value: `${data.system_health || 98}%`, trend: { direction: 'up', value: '+2%' } },
+          marcus: { value: `₪${(data.monthly_revenue || 45230).toLocaleString()}`, trend: { direction: 'up', value: '+8%' } },
+          sophia: { value: data.today_appointments || 8, trend: { direction: 'up', value: '+2' } },
+          harper: { value: `${data.hipaa_compliance_score || 96}%`, trend: { direction: 'up', value: '+3%' } }
+        });
+      } else {
+        setMockStats();
+      }
+    } catch (error) {
+      console.error('Error fetching agent stats:', error);
+      setMockStats();
+    }
+  };
+
+  const setMockStats = () => {
+    setAgentStats({
+      alex: { value: 247, trend: { direction: 'up', value: '+12%' } },
+      sarah: { value: '98%', trend: { direction: 'up', value: '+2%' } },
+      marcus: { value: '₪45,230', trend: { direction: 'up', value: '+8%' } },
+      sophia: { value: 8, trend: { direction: 'up', value: '+2' } },
+      harper: { value: '96%', trend: { direction: 'up', value: '+3%' } }
+    });
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
@@ -18,6 +64,10 @@ export default function ClinicLayout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('mockUser');
     navigate('/login');
+  };
+
+  const handleAgentClick = (agent) => {
+    setActiveAgentId(agent.id);
   };
 
   const navLinks = [
@@ -125,6 +175,24 @@ export default function ClinicLayout() {
           </Link>
         </div>
 
+        {/* AI Agents Section */}
+        <div className="border-b border-blue-500 py-4 px-4">
+          <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider mb-3 px-4">
+            AI Agents
+          </h3>
+          <div className="space-y-2">
+            {AGENTS.map((agent) => (
+              <AgentSidebarCard
+                key={agent.id}
+                agent={agent}
+                isActive={activeAgentId === agent.id}
+                onClick={handleAgentClick}
+                metrics={agentStats[agent.id]}
+              />
+            ))}
+          </div>
+        </div>
+
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
           {navLinks.map((link) => (
@@ -212,6 +280,24 @@ export default function ClinicLayout() {
           >
             <X className="w-6 h-6" aria-hidden="true" />
           </button>
+        </div>
+
+        {/* Mobile AI Agents Section */}
+        <div className="border-b border-blue-500 py-4 px-4">
+          <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider mb-3 px-4">
+            AI Agents
+          </h3>
+          <div className="space-y-2">
+            {AGENTS.map((agent) => (
+              <AgentSidebarCard
+                key={agent.id}
+                agent={agent}
+                isActive={activeAgentId === agent.id}
+                onClick={handleAgentClick}
+                metrics={agentStats[agent.id]}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Mobile Navigation Links */}

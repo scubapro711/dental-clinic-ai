@@ -18,7 +18,6 @@ import { Sparkles, History } from 'lucide-react';
 import ComplianceAlerts from '../components/compliance/ComplianceAlerts';
 import { exportReasoningLog } from '../components/transparency/EnhancedTransparencyPanel';
 import { getUserInfo } from '../utils/rbac';
-import { AgentsGrid } from '../components/agents';
 
 /**
  * AgenticDashboard Component
@@ -107,14 +106,6 @@ export default function AgenticDashboard() {
             </button>
           </div>
         </div>
-      </div>
-
-      {/* AI Agents Grid */}
-      <div className="px-4 py-6">
-        <AgentsGrid 
-          activeAgentId={activeAgent}
-          onAgentClick={(agent) => handleChatWithAgent(`I need help with ${agent.role.toLowerCase()}`)}
-        />
       </div>
 
       {/* Dashboard Widgets Grid (2-column layout) */}
