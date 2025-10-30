@@ -299,9 +299,10 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     <XCircle className="w-3 h-3" aria-hidden="true" />
                   </Button>
                 </div>
-              </div>
+              </li>
             );
-          })
+          })}
+          </ul>
         )}
       </div>
 
