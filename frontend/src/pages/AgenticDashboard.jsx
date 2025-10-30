@@ -85,7 +85,7 @@ export default function AgenticDashboard() {
 
   return (
     <DashboardProvider>
-      <div className="h-full flex flex-col dentaflow-dashboard-background">
+      <div className="h-full flex flex-col dentaflow-dashboard-background" dir="rtl">
       {/* Header */}
       <div className="dentaflow-header">
         <div className="flex items-center justify-between">
@@ -128,9 +128,7 @@ export default function AgenticDashboard() {
             title="Today's Patients"
             icon={<Users size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
-            </div>
+            <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -141,9 +139,7 @@ export default function AgenticDashboard() {
             title="Decision Queue"
             icon={<CheckCircle size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
-            </div>
+            <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -154,9 +150,7 @@ export default function AgenticDashboard() {
             title="Revenue Analytics"
             icon={<DollarSign size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <RevenueWidget onChatWithAgent={handleChatWithAgent} />
-            </div>
+            <RevenueWidget onChatWithAgent={handleChatWithAgent} />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -167,9 +161,7 @@ export default function AgenticDashboard() {
             title="Compliance Alerts"
             icon={<AlertTriangle size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
-            </div>
+            <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -180,16 +172,14 @@ export default function AgenticDashboard() {
             title="Clinical System"
             icon={<Stethoscope size={20} />}
           >
-            <div className="dashboard-widget-card dashboard-widget-full">
-              <ClinicalDashboard 
-                patient={{ 
-                  id: 1, 
-                  name: 'David Cohen', 
-                  age: 45, 
-                  lastVisit: '2025-09-15' 
-                }} 
-              />
-            </div>
+            <ClinicalDashboard 
+              patient={{ 
+                id: 1, 
+                name: 'David Cohen', 
+                age: 45, 
+                lastVisit: '2025-09-15' 
+              }} 
+            />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -200,9 +190,7 @@ export default function AgenticDashboard() {
             title="AI Fine-Tuning"
             icon={<Zap size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
-            </div>
+            <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -213,14 +201,12 @@ export default function AgenticDashboard() {
             title="Agent Activity"
             icon={<Activity size={20} />}
           >
-            <div className="dashboard-widget-card">
-              <AgentActivityPanel
-                activeAgent={activeAgent}
-                currentTask={currentTask}
-                toolsInUse={toolsInUse}
-                summary={summary}
-              />
-            </div>
+            <AgentActivityPanel
+              activeAgent={activeAgent}
+              currentTask={currentTask}
+              toolsInUse={toolsInUse}
+              summary={summary}
+            />
           </WidgetContainer>
         </ProtectedWidget>
 
@@ -231,14 +217,12 @@ export default function AgenticDashboard() {
             title="Transparency Panel"
             icon={<Eye size={20} />}
           >
-            <div className="dashboard-widget-card dashboard-widget-full">
-              <EnhancedTransparencyPanel 
-                reasoningSteps={reasoningSteps}
-                isActive={!!activeAgent}
-                onClear={clearActivity}
-                onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
-              />
-            </div>
+            <EnhancedTransparencyPanel 
+              reasoningSteps={reasoningSteps}
+              isActive={!!activeAgent}
+              onClear={clearActivity}
+              onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
+            />
           </WidgetContainer>
         </ProtectedWidget>
       </div>
