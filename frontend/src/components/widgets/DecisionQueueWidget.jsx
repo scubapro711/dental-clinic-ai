@@ -224,27 +224,25 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
         {statusMessage}
       </div>
       
-      <div className="space-y-3">
+      <div className="widget-content">
         {(decisions || []).length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-8">
-            <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-green-500" />
-            <div>אין החלטות ממתינות</div>
+          <div className="widget-empty-state">
+            <CheckCircle2 className="widget-empty-icon text-green-500" />
+            <div className="widget-empty-text">אין החלטות ממתינות</div>
             <div className="text-xs mt-1">כל המשימות טופלו! 🎉</div>
           </div>
         ) : (
-          (decisions || []).map((decision) => {
-            const priorityConfig = getPriorityConfig(decision.priority);
-            const agentConfig = getAgentConfig(decision.agent);
-            
-            return (
-              <div
-                key={decision.id}
-                className={cn(
-                  'rounded-lg border-2 p-3 transition-all duration-200',
-                  'hover:shadow-md',
-                  priorityConfig.color
-                )}
-              >
+          <ul className="widget-list">
+            {(decisions || []).map((decision) => {
+              const priorityConfig = getPriorityConfig(decision.priority);
+              const agentConfig = getAgentConfig(decision.agent);
+              
+              return (
+                <li
+                  key={decision.id}
+                  className="widget-list-item"
+                  style={{ borderLeft: `4px solid ${priorityConfig.borderColor || 'transparent'}` }}
+                >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">

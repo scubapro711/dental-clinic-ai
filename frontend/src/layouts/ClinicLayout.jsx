@@ -194,23 +194,28 @@ export default function ClinicLayout() {
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`
-                flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                ${isActive(link.to)
-                  ? 'bg-white text-blue-700 shadow-lg'
-                  : 'text-white hover:bg-blue-700 hover:shadow-md'
-                }
-              `}
-            >
-              <span className="text-xl" aria-hidden="true">{link.icon}</span>
-              <span>{link.label}</span>
-            </Link>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-4 px-4">
+          <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider mb-3 px-4">
+            Navigation
+          </h3>
+          <div className="space-y-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`
+                  flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                  ${isActive(link.to)
+                    ? 'bg-white text-blue-700 shadow-lg'
+                    : 'text-white hover:bg-blue-700 hover:shadow-md'
+                  }
+                `}
+              >
+                <span className="text-xl" aria-hidden="true">{link.icon}</span>
+                <span>{link.label}</span>
+              </Link>
+            ))}
+          </div>
         </nav>
 
         {/* User Section */}
@@ -301,24 +306,29 @@ export default function ClinicLayout() {
         </div>
 
         {/* Mobile Navigation Links */}
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              onClick={() => setMobileSidebarOpen(false)}
-              className={`
-                flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
-                ${isActive(link.to)
-                  ? 'bg-white text-blue-700 shadow-lg'
-                  : 'text-white hover:bg-blue-700 hover:shadow-md'
-                }
-              `}
-            >
-              <span className="text-xl" aria-hidden="true">{link.icon}</span>
-              <span>{link.label}</span>
-            </Link>
-          ))}
+        <nav className="flex-1 overflow-y-auto py-4 px-4">
+          <h3 className="text-xs font-semibold text-blue-200 uppercase tracking-wider mb-3 px-4">
+            Navigation
+          </h3>
+          <div className="space-y-2">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setMobileSidebarOpen(false)}
+                className={`
+                  flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                  ${isActive(link.to)
+                    ? 'bg-white text-blue-700 shadow-lg'
+                    : 'text-white hover:bg-blue-700 hover:shadow-md'
+                  }
+                `}
+              >
+                <span className="text-xl" aria-hidden="true">{link.icon}</span>
+                <span>{link.label}</span>
+              </Link>
+            ))}
+          </div>
         </nav>
 
         {/* Mobile User Section */}

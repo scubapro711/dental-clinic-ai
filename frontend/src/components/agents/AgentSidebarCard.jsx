@@ -53,35 +53,39 @@ export function AgentSidebarCard({
     }
   };
 
-  // Get emoji for agent
-  const getAgentEmoji = (agentId) => {
-    const emojiMap = {
-      'alex': '👤',
-      'sarah': '🏥',
-      'marcus': '💰',
-      'sophia': '📅',
-      'harper': '🛡️'
+  // Get color for agent
+  const getAgentColor = (agentId) => {
+    const colorMap = {
+      'alex': '#4F46E5',     // Indigo
+      'sarah': '#10B981',    // Emerald
+      'marcus': '#F59E0B',   // Amber
+      'sophia': '#8B5CF6',   // Violet
+      'harper': '#EF4444'    // Red
     };
-    return emojiMap[agentId] || '🤖';
+    return colorMap[agentId] || '#6B7280';
   };
   
   if (isActive) {
     // Expanded state - shows full details
     return (
       <div 
-        className="agent-sidebar-card agent-sidebar-card-expanded bg-white text-blue-700 rounded-lg px-4 py-3 cursor-pointer transition-all duration-200 shadow-lg"
+        className="agent-sidebar-card agent-sidebar-card-expanded bg-white text-blue-700 rounded-lg px-4 py-3 cursor-pointer transition-all duration-200 shadow-lg ring-2 ring-blue-400"
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         role="button"
         tabIndex={0}
         aria-label={`${agent.name} - ${agent.role} (Active)`}
         aria-pressed={true}
+        style={{ '--agent-color': getAgentColor(agent.id) }}
       >
         <div className="flex items-start space-x-3">
-          {/* Agent Emoji */}
-          <span className="text-2xl flex-shrink-0" aria-hidden="true">
-            {getAgentEmoji(agent.id)}
-          </span>
+          {/* Agent Icon */}
+          <div 
+            className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ backgroundColor: getAgentColor(agent.id) }}
+          >
+            <IconComponent className="w-5 h-5 text-white" aria-hidden="true" />
+          </div>
           
           {/* Agent Info */}
           <div className="flex-1 min-w-0">
@@ -128,13 +132,12 @@ export function AgentSidebarCard({
       tabIndex={0}
       aria-label={`${agent.name} - ${agent.role}`}
       aria-pressed={false}
+      style={{ '--agent-color': getAgentColor(agent.id) }}
     >
       <div className="flex items-center justify-between">
-        {/* Agent Emoji + Name */}
-        <div className="flex items-center space-x-2 flex-1 min-w-0">
-          <span className="text-lg flex-shrink-0" aria-hidden="true">
-            {getAgentEmoji(agent.id)}
-          </span>
+        {/* Agent Icon + Name */}
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <IconComponent className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
           <span className="text-sm font-medium truncate">
             {agent.name}
           </span>
