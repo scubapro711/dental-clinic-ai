@@ -204,7 +204,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
     }
   };
 
-  const highPriorityCount = decisions.filter(d => d.priority === 'high').length;
+  const highPriorityCount = (decisions || []).filter(d => d.priority === 'high').length;
 
   return (
     <BaseWidget

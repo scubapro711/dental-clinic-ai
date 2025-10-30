@@ -109,8 +109,8 @@ const ComplianceAlerts = ({ alerts, onRefresh }) => {
   };
 
   const filterAlertsByStatus = (status) => {
-    if (status === 'all') return alerts;
-    return alerts.filter(a => a.status === status);
+    if (status === 'all') return alerts || [];
+    return (alerts || []).filter(a => a.status === status);
   };
 
   const openAlerts = filterAlertsByStatus('open');
