@@ -28,7 +28,6 @@ const DemoChatButton = () => {
         <Draggable
           position={position}
           onStop={handleDrag}
-          bounds="parent"
           handle=".demo-chat-fab"
         >
           <button
