@@ -368,19 +368,37 @@
 
   /* Interactive States */
   .interactive {
-    @apply transition-smooth cursor-pointer;
-    @apply hover:scale-[1.02] active:scale-[0.98];
+    transition: all var(--transition-base);
+    cursor: pointer;
+  }
+
+  .interactive:hover {
+    transform: scale(1.02);
+  }
+
+  .interactive:active {
+    transform: scale(0.98);
   }
 
   .interactive-lift {
-    @apply transition-smooth cursor-pointer;
-    @apply hover:-translate-y-1 hover:shadow-lg;
-    @apply active:translate-y-0 active:shadow-md;
+    transition: all var(--transition-base);
+    cursor: pointer;
+  }
+
+  .interactive-lift:hover {
+    transform: translateY(-0.25rem);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .interactive-lift:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-md);
   }
 
   /* Focus Visible */
-  .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  .focus-ring:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ring), 0 0 0 4px var(--background);
   }
 
   /* Scrollbar Styling */
