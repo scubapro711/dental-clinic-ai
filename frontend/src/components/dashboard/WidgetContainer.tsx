@@ -9,12 +9,7 @@
  * - RTL support
  * - Accessibility (ARIA labels, keyboard navigation)
  * 
- * Design System v2.0:
- * - Clean card design with soft shadows
- * - Icon badges with colored backgrounds
- * - Smooth transitions and hover effects
- * - Consistent spacing (24px padding)
- * - Professional color palette
+ * Uses existing design-system.css variables
  */
 
 import { ReactNode } from 'react'
@@ -52,13 +47,13 @@ export function WidgetContainer({
   
   const collapsed = isCollapsed(widgetId)
   
-  // Icon background colors based on design system
+  // Icon background colors using existing design system
   const iconColorMap = {
-    blue: { background: 'var(--primary-blue-light)', color: 'var(--primary-blue)' },
-    purple: { background: '#F3E8FF', color: 'var(--secondary-purple)' },
-    cyan: { background: '#E0F7FA', color: 'var(--secondary-cyan)' },
-    green: { background: '#E8F5E9', color: 'var(--secondary-green)' },
-    orange: { background: '#FFF3E0', color: 'var(--secondary-orange)' }
+    blue: { background: 'oklch(0.95 0.05 240)', color: 'var(--primary)' },
+    purple: { background: 'oklch(0.95 0.05 300)', color: 'var(--accent)' },
+    cyan: { background: 'oklch(0.95 0.05 200)', color: 'var(--secondary)' },
+    green: { background: 'oklch(0.95 0.05 145)', color: 'var(--success)' },
+    orange: { background: 'oklch(0.95 0.05 60)', color: 'var(--warning)' }
   }
   
   return (
@@ -67,10 +62,10 @@ export function WidgetContainer({
       data-testid={`widget-${widgetId}`}
       data-collapsed={collapsed}
       style={{
-        background: 'var(--bg-card)',
+        background: 'var(--background)',
         borderRadius: 'var(--radius-lg)',
-        padding: collapsed ? 'var(--spacing-md)' : 'var(--card-padding)',
-        boxShadow: 'var(--shadow-card)',
+        padding: collapsed ? 'var(--spacing-md)' : 'var(--spacing-lg)',
+        boxShadow: 'var(--shadow-md)',
         transition: 'all var(--transition-slow)',
         overflow: 'hidden'
       }}
@@ -101,13 +96,13 @@ export function WidgetContainer({
             <div 
               className="widget-icon"
               style={{
-                width: '40px',
-                height: '40px',
+                width: '2.5rem',
+                height: '2.5rem',
                 borderRadius: 'var(--radius-md)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '20px',
+                fontSize: '1.25rem',
                 flexShrink: '0',
                 transition: 'all var(--transition-base)',
                 ...iconColorMap[iconColor]
@@ -119,9 +114,9 @@ export function WidgetContainer({
           <h3 
             className="widget-title"
             style={{
-              fontSize: 'var(--text-xl)',
-              fontWeight: 'var(--font-semibold)',
-              color: 'var(--gray-900)',
+              fontSize: 'var(--font-size-xl)',
+              fontWeight: 'var(--font-weight-semibold)',
+              color: 'var(--foreground)',
               margin: '0',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
@@ -149,12 +144,12 @@ export function WidgetContainer({
             aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
             data-testid={`collapse-${widgetId}`}
             style={{
-              width: '32px',
-              height: '32px',
+              width: '2rem',
+              height: '2rem',
               borderRadius: 'var(--radius-sm)',
               background: 'transparent',
               border: 'none',
-              color: 'var(--gray-400)',
+              color: 'var(--foreground-tertiary)',
               cursor: 'pointer',
               transition: 'all var(--transition-base)',
               display: 'flex',
@@ -162,12 +157,12 @@ export function WidgetContainer({
               justifyContent: 'center'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--gray-100)'
-              e.currentTarget.style.color = 'var(--primary-blue)'
+              e.currentTarget.style.background = 'var(--muted)'
+              e.currentTarget.style.color = 'var(--primary)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'transparent'
-              e.currentTarget.style.color = 'var(--gray-400)'
+              e.currentTarget.style.color = 'var(--foreground-tertiary)'
             }}
           >
             {collapsed ? (
@@ -184,12 +179,12 @@ export function WidgetContainer({
               aria-label={`More options for ${title}`}
               data-testid={`more-${widgetId}`}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '2rem',
+                height: '2rem',
                 borderRadius: 'var(--radius-sm)',
                 background: 'transparent',
                 border: 'none',
-                color: 'var(--gray-400)',
+                color: 'var(--foreground-tertiary)',
                 cursor: 'pointer',
                 transition: 'all var(--transition-base)',
                 display: 'flex',
@@ -197,12 +192,12 @@ export function WidgetContainer({
                 justifyContent: 'center'
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--gray-100)'
-                e.currentTarget.style.color = 'var(--primary-blue)'
+                e.currentTarget.style.background = 'var(--muted)'
+                e.currentTarget.style.color = 'var(--primary)'
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'var(--gray-400)'
+                e.currentTarget.style.color = 'var(--foreground-tertiary)'
               }}
             >
               <MoreVertical size={18} />
@@ -214,11 +209,8 @@ export function WidgetContainer({
       {/* Content */}
       {!collapsed && (
         <div 
-          className="widget-content fade-in"
+          className="widget-content animate-fade-in-up"
           data-testid={`${widgetId}-content`}
-          style={{
-            animation: 'fadeIn var(--transition-slow)'
-          }}
         >
           {children}
         </div>

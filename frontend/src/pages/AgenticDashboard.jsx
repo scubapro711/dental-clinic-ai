@@ -97,19 +97,19 @@ export default function AgenticDashboard() {
         dir="rtl"
         style={{
           minHeight: '100vh',
-          background: 'var(--bg-page)',
-          padding: 'var(--page-padding)'
+          background: 'var(--background-secondary)',
+          padding: 'var(--spacing-xl)'
         }}
       >
         {/* Original Header (keeping for navigation) */}
         <div 
           className="dentaflow-header"
           style={{
-            marginBottom: 'var(--spacing-lg)',
-            background: 'var(--bg-card)',
+            marginBottom: 'var(--spacing-xl)',
+            background: 'var(--background)',
             borderRadius: 'var(--radius-lg)',
-            padding: 'var(--spacing-md)',
-            boxShadow: 'var(--shadow-card)'
+            padding: 'var(--spacing-lg)',
+            boxShadow: 'var(--shadow-md)'
           }}
         >
           <div className="flex items-center justify-between">
@@ -117,7 +117,7 @@ export default function AgenticDashboard() {
               <div 
                 className="w-10 h-10 rounded-full flex items-center justify-center"
                 style={{
-                  background: 'linear-gradient(135deg, var(--primary-blue), var(--secondary-purple))',
+                  background: 'var(--gradient-primary)',
                   borderRadius: 'var(--radius-full)'
                 }}
               >
@@ -127,9 +127,9 @@ export default function AgenticDashboard() {
                 <h1 
                   className="text-base md:text-xl"
                   style={{
-                    fontSize: 'var(--text-xl)',
-                    fontWeight: 'var(--font-bold)',
-                    color: 'var(--gray-900)',
+                    fontSize: 'var(--font-size-xl)',
+                    fontWeight: 'var(--font-weight-bold)',
+                    color: 'var(--foreground)',
                     margin: '0'
                   }}
                 >
@@ -138,8 +138,8 @@ export default function AgenticDashboard() {
                 <p 
                   className="text-xs hidden md:block"
                   style={{
-                    fontSize: 'var(--text-xs)',
-                    color: 'var(--gray-400)',
+                    fontSize: 'var(--font-size-xs)',
+                    color: 'var(--foreground-tertiary)',
                     margin: '0'
                   }}
                 >
@@ -159,13 +159,13 @@ export default function AgenticDashboard() {
                   gap: 'var(--spacing-xs)',
                   padding: '12px 24px',
                   borderRadius: 'var(--radius-md)',
-                  fontWeight: 'var(--font-semibold)',
-                  fontSize: 'var(--text-base)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  fontSize: 'var(--font-size-base)',
                   border: 'none',
                   cursor: 'pointer',
                   transition: 'all var(--transition-base)',
-                  background: 'var(--gray-100)',
-                  color: 'var(--gray-700)'
+                  background: 'var(--muted)',
+                  color: 'var(--foreground)'
                 }}
               >
                 <History className="w-4 h-4" />
@@ -184,7 +184,7 @@ export default function AgenticDashboard() {
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: 'var(--card-gap)'
+            gap: 'var(--spacing-lg)'
           }}
         >
           {/* Priority 1: Today's Patients */}

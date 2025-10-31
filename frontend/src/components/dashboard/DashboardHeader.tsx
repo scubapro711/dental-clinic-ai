@@ -6,14 +6,8 @@
  * - Reset to defaults button (only in edit mode)
  * - User greeting with role display
  * - Responsive design
- * - Modern styling with design system v2.0
+ * - Uses existing design-system.css variables
  * - RTL support
- * 
- * Design System v2.0:
- * - Clean card design with shadow
- * - Primary blue buttons
- * - Smooth transitions
- * - Professional typography
  */
 
 import { Settings, RotateCcw } from 'lucide-react'
@@ -37,11 +31,11 @@ export function DashboardHeader() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 'var(--spacing-lg)',
-        padding: 'var(--spacing-md)',
-        background: 'var(--bg-card)',
+        marginBottom: 'var(--spacing-xl)',
+        padding: 'var(--spacing-lg)',
+        background: 'var(--background)',
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-card)',
+        boxShadow: 'var(--shadow-md)',
         gap: 'var(--spacing-md)',
         flexWrap: 'wrap'
       }}
@@ -51,9 +45,9 @@ export function DashboardHeader() {
         <h1 
           className="dashboard-title"
           style={{
-            fontSize: 'var(--text-3xl)',
-            fontWeight: 'var(--font-bold)',
-            color: 'var(--gray-900)',
+            fontSize: 'var(--font-size-3xl)',
+            fontWeight: 'var(--font-weight-bold)',
+            color: 'var(--foreground)',
             margin: '0 0 var(--spacing-xs) 0'
           }}
         >
@@ -61,12 +55,12 @@ export function DashboardHeader() {
         </h1>
         <p 
           style={{
-            fontSize: 'var(--text-sm)',
-            color: 'var(--gray-400)',
+            fontSize: 'var(--font-size-sm)',
+            color: 'var(--foreground-tertiary)',
             margin: '0'
           }}
         >
-          Welcome back, <span style={{ fontWeight: 'var(--font-medium)', color: 'var(--gray-600)' }}>
+          Welcome back, <span style={{ fontWeight: 'var(--font-weight-medium)', color: 'var(--foreground-secondary)' }}>
             {userInfo?.name || 'User'}
           </span>
           {userInfo?.role && (
@@ -97,33 +91,35 @@ export function DashboardHeader() {
             alignItems: 'center',
             justifyContent: 'center',
             gap: 'var(--spacing-xs)',
-            padding: '12px 24px',
+            padding: '0.75rem 1.5rem',
             borderRadius: 'var(--radius-md)',
-            fontWeight: 'var(--font-semibold)',
-            fontSize: 'var(--text-base)',
+            fontWeight: 'var(--font-weight-semibold)',
+            fontSize: 'var(--font-size-base)',
             border: 'none',
             cursor: 'pointer',
             transition: 'all var(--transition-base)',
-            background: isEditMode ? 'var(--primary-blue)' : 'var(--gray-100)',
-            color: isEditMode ? 'var(--white)' : 'var(--gray-700)',
+            background: isEditMode ? 'var(--primary)' : 'var(--muted)',
+            color: isEditMode ? 'var(--primary-foreground)' : 'var(--foreground)',
             boxShadow: isEditMode ? 'var(--shadow-md)' : 'none'
           }}
           onMouseEnter={(e) => {
             if (isEditMode) {
-              e.currentTarget.style.background = 'var(--primary-blue-hover)'
+              e.currentTarget.style.background = 'var(--primary-hover)'
               e.currentTarget.style.transform = 'translateY(-1px)'
               e.currentTarget.style.boxShadow = 'var(--shadow-lg)'
             } else {
-              e.currentTarget.style.background = 'var(--gray-200)'
+              e.currentTarget.style.background = 'var(--muted-foreground)'
+              e.currentTarget.style.color = 'var(--background)'
             }
           }}
           onMouseLeave={(e) => {
             if (isEditMode) {
-              e.currentTarget.style.background = 'var(--primary-blue)'
+              e.currentTarget.style.background = 'var(--primary)'
               e.currentTarget.style.transform = 'translateY(0)'
               e.currentTarget.style.boxShadow = 'var(--shadow-md)'
             } else {
-              e.currentTarget.style.background = 'var(--gray-100)'
+              e.currentTarget.style.background = 'var(--muted)'
+              e.currentTarget.style.color = 'var(--foreground)'
             }
           }}
         >
@@ -145,21 +141,23 @@ export function DashboardHeader() {
               alignItems: 'center',
               justifyContent: 'center',
               gap: 'var(--spacing-xs)',
-              padding: '12px 24px',
+              padding: '0.75rem 1.5rem',
               borderRadius: 'var(--radius-md)',
-              fontWeight: 'var(--font-semibold)',
-              fontSize: 'var(--text-base)',
+              fontWeight: 'var(--font-weight-semibold)',
+              fontSize: 'var(--font-size-base)',
               border: 'none',
               cursor: 'pointer',
               transition: 'all var(--transition-base)',
-              background: 'var(--gray-100)',
-              color: 'var(--gray-700)'
+              background: 'var(--muted)',
+              color: 'var(--foreground)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--gray-200)'
+              e.currentTarget.style.background = 'var(--muted-foreground)'
+              e.currentTarget.style.color = 'var(--background)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--gray-100)'
+              e.currentTarget.style.background = 'var(--muted)'
+              e.currentTarget.style.color = 'var(--foreground)'
             }}
           >
             <RotateCcw size={16} />
