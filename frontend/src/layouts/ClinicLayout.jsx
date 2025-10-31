@@ -141,7 +141,9 @@ export default function ClinicLayout() {
         </header>
 
         {/* Main Content */}
-        <main id="main-content" className="flex-1 lg:pl-64" role="main">
+        <main id="main-content" className={`flex-1 ${
+          location.pathname === '/clinic/dashboard' ? '' : 'lg:pl-64'
+        }`} role="main">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
             <Outlet />
           </div>
@@ -158,9 +160,11 @@ export default function ClinicLayout() {
         </footer>
       </div>
 
-      {/* Fixed Left Sidebar (Desktop) */}
+      {/* Fixed Left Sidebar (Desktop) - Hidden on Dashboard */}
       <aside 
-        className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl"
+        className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl ${
+          location.pathname === '/clinic/dashboard' ? 'lg:hidden' : ''
+        }`}
         role="navigation"
         aria-label="Main navigation"
       >
