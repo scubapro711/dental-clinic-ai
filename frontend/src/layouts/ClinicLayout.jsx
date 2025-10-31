@@ -160,11 +160,10 @@ export default function ClinicLayout() {
         </footer>
       </div>
 
-      {/* Fixed Left Sidebar (Desktop) - Hidden on Dashboard */}
+      {/* Fixed Left Sidebar (Desktop) - Removed for Dashboard, kept for other pages */}
+      {location.pathname !== '/clinic/dashboard' && (
       <aside 
-        className={`hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl ${
-          location.pathname === '/clinic/dashboard' ? 'lg:hidden' : ''
-        }`}
+        className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:left-0 lg:top-0 lg:bottom-0 bg-gradient-to-b from-blue-600 to-blue-800 shadow-2xl"
         role="navigation"
         aria-label="Main navigation"
       >
@@ -253,6 +252,7 @@ export default function ClinicLayout() {
           </button>
         </div>
       </aside>
+      )}
 
       {/* Mobile Sidebar Overlay */}
       {mobileSidebarOpen && (
