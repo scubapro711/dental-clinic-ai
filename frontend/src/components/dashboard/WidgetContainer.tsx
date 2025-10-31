@@ -1,19 +1,20 @@
 /**
- * WidgetContainer - Wrapper component for dashboard widgets
+ * WidgetContainer v2.0 - Modern Dashboard Widget Wrapper
  * 
  * Features:
- * - Collapse/expand functionality
+ * - Collapse/expand functionality with smooth animations
  * - RBAC integration (hides if no permission)
  * - Edit mode support
- * - Smooth animations
+ * - Modern card design with hover effects
+ * - RTL support
  * - Accessibility (ARIA labels, keyboard navigation)
  * 
- * Best Practices:
- * - Keep existing CSS classes for backward compatibility
- * - Add new classes alongside (not replace)
- * - Use semantic HTML
- * - Add proper ARIA labels
- * - Handle null/undefined children gracefully
+ * Design System v2.0:
+ * - Clean card design with soft shadows
+ * - Icon badges with colored backgrounds
+ * - Smooth transitions and hover effects
+ * - Consistent spacing (24px padding)
+ * - Professional color palette
  */
 
 import { ReactNode } from 'react'
@@ -24,6 +25,7 @@ interface WidgetContainerProps {
   widgetId: string
   title: string
   icon?: ReactNode
+  iconColor?: 'blue' | 'purple' | 'cyan' | 'green' | 'orange'
   defaultCollapsed?: boolean
   children: ReactNode
 }
@@ -32,6 +34,7 @@ export function WidgetContainer({
   widgetId,
   title,
   icon,
+  iconColor = 'blue',
   defaultCollapsed = false,
   children
 }: WidgetContainerProps) {
@@ -49,58 +52,177 @@ export function WidgetContainer({
   
   const collapsed = isCollapsed(widgetId)
   
+  // Icon background colors based on design system
+  const iconColorMap = {
+    blue: { background: 'var(--primary-blue-light)', color: 'var(--primary-blue)' },
+    purple: { background: '#F3E8FF', color: 'var(--secondary-purple)' },
+    cyan: { background: '#E0F7FA', color: 'var(--secondary-cyan)' },
+    green: { background: '#E8F5E9', color: 'var(--secondary-green)' },
+    orange: { background: '#FFF3E0', color: 'var(--secondary-orange)' }
+  }
+  
   return (
     <div 
-      className="dashboard-widget-card widget-container"
+      className={`widget-container ${collapsed ? 'widget-collapsed' : ''}`}
       data-testid={`widget-${widgetId}`}
       data-collapsed={collapsed}
+      style={{
+        background: 'var(--bg-card)',
+        borderRadius: 'var(--radius-lg)',
+        padding: collapsed ? 'var(--spacing-md)' : 'var(--card-padding)',
+        boxShadow: 'var(--shadow-card)',
+        transition: 'all var(--transition-slow)',
+        overflow: 'hidden'
+      }}
     >
       {/* Header */}
-      <div className="dashboard-widget-header widget-header flex items-center justify-between p-4 border-b">
-        <div className="flex items-center gap-2">
-          {icon && <span className="widget-icon">{icon}</span>}
-          <h3 className="dashboard-widget-title text-lg font-semibold">
+      <div 
+        className="widget-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: collapsed ? '0' : 'var(--spacing-md)',
+          gap: 'var(--spacing-md)'
+        }}
+      >
+        {/* Title with Icon */}
+        <div 
+          className="widget-title-wrapper"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-sm)',
+            flex: '1',
+            minWidth: '0'
+          }}
+        >
+          {icon && (
+            <div 
+              className="widget-icon"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: 'var(--radius-md)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '20px',
+                flexShrink: '0',
+                transition: 'all var(--transition-base)',
+                ...iconColorMap[iconColor]
+              }}
+            >
+              {icon}
+            </div>
+          )}
+          <h3 
+            className="widget-title"
+            style={{
+              fontSize: 'var(--text-xl)',
+              fontWeight: 'var(--font-semibold)',
+              color: 'var(--gray-900)',
+              margin: '0',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}
+          >
             {title}
           </h3>
         </div>
         
-        <div className="flex items-center gap-2">
+        {/* Actions */}
+        <div 
+          className="widget-actions"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 'var(--spacing-xs)',
+            flexShrink: '0'
+          }}
+        >
           {/* Collapse button */}
           <button
             onClick={() => toggleCollapse(widgetId)}
-            className="p-2 hover:bg-gray-100 rounded transition-colors"
+            className="widget-action-button"
             aria-label={collapsed ? `Expand ${title}` : `Collapse ${title}`}
             data-testid={`collapse-${widgetId}`}
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-sm)',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--gray-400)',
+              cursor: 'pointer',
+              transition: 'all var(--transition-base)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--gray-100)'
+              e.currentTarget.style.color = 'var(--primary-blue)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent'
+              e.currentTarget.style.color = 'var(--gray-400)'
+            }}
           >
             {collapsed ? (
-              <ChevronDown size={20} className="text-gray-600" />
+              <ChevronDown size={18} />
             ) : (
-              <ChevronUp size={20} className="text-gray-600" />
+              <ChevronUp size={18} />
             )}
           </button>
           
-          {/* More menu (future: hide, resize) */}
+          {/* More menu (edit mode only) */}
           {isEditMode && (
             <button 
-              className="p-2 hover:bg-gray-100 rounded transition-colors"
+              className="widget-action-button"
               aria-label={`More options for ${title}`}
               data-testid={`more-${widgetId}`}
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: 'var(--radius-sm)',
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--gray-400)',
+                cursor: 'pointer',
+                transition: 'all var(--transition-base)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--gray-100)'
+                e.currentTarget.style.color = 'var(--primary-blue)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.color = 'var(--gray-400)'
+              }}
             >
-              <MoreVertical size={20} className="text-gray-600" />
+              <MoreVertical size={18} />
             </button>
           )}
         </div>
       </div>
       
       {/* Content */}
-      <div 
-        className={`widget-content transition-all duration-300 ease-in-out ${
-          collapsed ? 'max-h-0 opacity-0 overflow-hidden' : 'max-h-[2000px] opacity-100'
-        }`}
-        data-testid={`${widgetId}-content`}
-      >
-        {children}
-      </div>
+      {!collapsed && (
+        <div 
+          className="widget-content fade-in"
+          data-testid={`${widgetId}-content`}
+          style={{
+            animation: 'fadeIn var(--transition-slow)'
+          }}
+        >
+          {children}
+        </div>
+      )}
     </div>
   )
 }

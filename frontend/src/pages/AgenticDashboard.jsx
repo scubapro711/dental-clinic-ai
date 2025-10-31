@@ -3,6 +3,7 @@ import '../styles/dashboard.css';
 import '../styles/transparency.css';
 import '../styles/widgets.css';
 import '../styles/coordination.css';
+import '../styles/design-system.css';  // Import new design system
 import FloatingChatButton from '../components/chat/FloatingChatButton';
 import AgentActivityPanel from '../components/transparency/AgentActivityPanel';
 import EnhancedTransparencyPanel from '../components/transparency/EnhancedTransparencyPanel';
@@ -24,10 +25,16 @@ import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { isFeatureEnabled } from '../config/features';
 
 /**
- * AgenticDashboard Component
+ * AgenticDashboard v2.0 - Modern Dashboard with Design System
  * 
- * Main dashboard with 2-column grid layout and floating chat button.
- * Follows healthcare UX best practices.
+ * Features:
+ * - Clean, modern card-based layout
+ * - Responsive grid (2-4 columns based on screen size)
+ * - Widget customization (collapse/expand)
+ * - RBAC integration
+ * - RTL support
+ * - Professional color palette
+ * - Smooth animations
  */
 export default function AgenticDashboard() {
   const {
@@ -85,165 +92,232 @@ export default function AgenticDashboard() {
 
   return (
     <DashboardProvider>
-      <div className="h-full flex flex-col dentaflow-dashboard-background" dir="rtl">
-      {/* Header */}
-      <div className="dentaflow-header">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full dentaflow-header-logo flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+      <div 
+        className="dashboard-container" 
+        dir="rtl"
+        style={{
+          minHeight: '100vh',
+          background: 'var(--bg-page)',
+          padding: 'var(--page-padding)'
+        }}
+      >
+        {/* Original Header (keeping for navigation) */}
+        <div 
+          className="dentaflow-header"
+          style={{
+            marginBottom: 'var(--spacing-lg)',
+            background: 'var(--bg-card)',
+            borderRadius: 'var(--radius-lg)',
+            padding: 'var(--spacing-md)',
+            boxShadow: 'var(--shadow-card)'
+          }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div 
+                className="w-10 h-10 rounded-full flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(135deg, var(--primary-blue), var(--secondary-purple))',
+                  borderRadius: 'var(--radius-full)'
+                }}
+              >
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 
+                  className="text-base md:text-xl"
+                  style={{
+                    fontSize: 'var(--text-xl)',
+                    fontWeight: 'var(--font-bold)',
+                    color: 'var(--gray-900)',
+                    margin: '0'
+                  }}
+                >
+                  DentaFlow<span className="hidden sm:inline"> Mission Control</span>
+                </h1>
+                <p 
+                  className="text-xs hidden md:block"
+                  style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--gray-400)',
+                    margin: '0'
+                  }}
+                >
+                  Welcome back, {userInfo?.name || 'User'}
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-base md:text-xl dentaflow-header-title">
-                DentaFlow<span className="hidden sm:inline"> Mission Control</span>
-              </h1>
-              <p className="text-xs dentaflow-header-subtitle hidden md:block">
-                Welcome back, {userInfo?.name || 'User'}
-              </p>
+            
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowHistorySidebar(true)}
+                className="btn-secondary"
+                aria-label="View conversation history"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 'var(--spacing-xs)',
+                  padding: '12px 24px',
+                  borderRadius: 'var(--radius-md)',
+                  fontWeight: 'var(--font-semibold)',
+                  fontSize: 'var(--text-base)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'all var(--transition-base)',
+                  background: 'var(--gray-100)',
+                  color: 'var(--gray-700)'
+                }}
+              >
+                <History className="w-4 h-4" />
+                <span className="hidden sm:inline">History</span>
+              </button>
             </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowHistorySidebar(true)}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-              aria-label="View conversation history"
-            >
-              <History className="w-4 h-4" />
-              <span className="hidden sm:inline">History</span>
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* Dashboard Customization Header */}
-      {enableCustomization && <DashboardHeader />}
+        {/* Dashboard Customization Header */}
+        {enableCustomization && <DashboardHeader />}
 
-      {/* Dashboard Widgets Grid (2-column layout) */}
-      <div className="dashboard-widgets-grid">
-        {/* Priority 1: Today's Patients */}
-        <ProtectedWidget widgetId="todays-patients">
-          <WidgetContainer
-            widgetId="todays-patients"
-            title="Today's Patients"
-            icon={<Users size={20} />}
-          >
-            <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
-          </WidgetContainer>
-        </ProtectedWidget>
+        {/* Dashboard Widgets Grid (Responsive: 2-4 columns) */}
+        <div 
+          className="dashboard-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: 'var(--card-gap)'
+          }}
+        >
+          {/* Priority 1: Today's Patients */}
+          <ProtectedWidget widgetId="todays-patients">
+            <WidgetContainer
+              widgetId="todays-patients"
+              title="Today's Patients"
+              icon={<Users size={20} />}
+              iconColor="blue"
+            >
+              <TodaysPatientsWidget onChatWithPatient={handleChatWithAgent} />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 2: Decision Queue */}
-        <ProtectedWidget widgetId="decision-queue">
-          <WidgetContainer
-            widgetId="decision-queue"
-            title="Decision Queue"
-            icon={<CheckCircle size={20} />}
-          >
-            <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 2: Decision Queue */}
+          <ProtectedWidget widgetId="decision-queue">
+            <WidgetContainer
+              widgetId="decision-queue"
+              title="Decision Queue"
+              icon={<CheckCircle size={20} />}
+              iconColor="green"
+            >
+              <DecisionQueueWidget onChatWithAgent={handleChatWithAgent} />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 3: Revenue Widget */}
-        <ProtectedWidget widgetId="revenue">
-          <WidgetContainer
-            widgetId="revenue"
-            title="Revenue Analytics"
-            icon={<DollarSign size={20} />}
-          >
-            <RevenueWidget onChatWithAgent={handleChatWithAgent} />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 3: Revenue Widget */}
+          <ProtectedWidget widgetId="revenue">
+            <WidgetContainer
+              widgetId="revenue"
+              title="Revenue Analytics"
+              icon={<DollarSign size={20} />}
+              iconColor="cyan"
+            >
+              <RevenueWidget onChatWithAgent={handleChatWithAgent} />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 4: Compliance Alerts */}
-        <ProtectedWidget widgetId="compliance-alerts">
-          <WidgetContainer
-            widgetId="compliance-alerts"
-            title="Compliance Alerts"
-            icon={<AlertTriangle size={20} />}
-          >
-            <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 4: Compliance Alerts */}
+          <ProtectedWidget widgetId="compliance-alerts">
+            <WidgetContainer
+              widgetId="compliance-alerts"
+              title="Compliance Alerts"
+              icon={<AlertTriangle size={20} />}
+              iconColor="orange"
+            >
+              <ComplianceAlerts onChatWithAgent={handleChatWithAgent} />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 5: Clinical Dashboard (Full-width) */}
-        <ProtectedWidget widgetId="clinical-system">
-          <WidgetContainer
-            widgetId="clinical-system"
-            title="Clinical System"
-            icon={<Stethoscope size={20} />}
-          >
-            <ClinicalDashboard 
-              patient={{ 
-                id: 1, 
-                name: 'David Cohen', 
-                age: 45, 
-                lastVisit: '2025-09-15' 
-              }} 
-            />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 5: Clinical Dashboard */}
+          <ProtectedWidget widgetId="clinical-system">
+            <WidgetContainer
+              widgetId="clinical-system"
+              title="Clinical System"
+              icon={<Stethoscope size={20} />}
+              iconColor="purple"
+            >
+              <ClinicalDashboard 
+                patient={{ 
+                  id: 1, 
+                  name: 'David Cohen', 
+                  age: 45, 
+                  lastVisit: '2025-09-15' 
+                }} 
+              />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 6: Enhanced Fine-Tuning */}
-        <ProtectedWidget widgetId="fine-tuning">
-          <WidgetContainer
-            widgetId="fine-tuning"
-            title="AI Fine-Tuning"
-            icon={<Zap size={20} />}
-          >
-            <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 6: Enhanced Fine-Tuning */}
+          <ProtectedWidget widgetId="fine-tuning">
+            <WidgetContainer
+              widgetId="fine-tuning"
+              title="AI Fine-Tuning"
+              icon={<Zap size={20} />}
+              iconColor="orange"
+            >
+              <EnhancedFineTuningWidget onChatWithAgent={handleChatWithAgent} />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 7: Agent Activity Panel */}
-        <ProtectedWidget widgetId="agent-activity">
-          <WidgetContainer
-            widgetId="agent-activity"
-            title="Agent Activity"
-            icon={<Activity size={20} />}
-          >
-            <AgentActivityPanel
-              activeAgent={activeAgent}
-              currentTask={currentTask}
-              toolsInUse={toolsInUse}
-              summary={summary}
-            />
-          </WidgetContainer>
-        </ProtectedWidget>
+          {/* Priority 7: Agent Activity Panel */}
+          <ProtectedWidget widgetId="agent-activity">
+            <WidgetContainer
+              widgetId="agent-activity"
+              title="Agent Activity"
+              icon={<Activity size={20} />}
+              iconColor="cyan"
+            >
+              <AgentActivityPanel
+                activeAgent={activeAgent}
+                currentTask={currentTask}
+                toolsInUse={toolsInUse}
+                summary={summary}
+              />
+            </WidgetContainer>
+          </ProtectedWidget>
 
-        {/* Priority 8: Enhanced Transparency Panel (Full-width) */}
-        <ProtectedWidget widgetId="transparency-panel">
-          <WidgetContainer
-            widgetId="transparency-panel"
-            title="Transparency Panel"
-            icon={<Eye size={20} />}
-          >
-            <EnhancedTransparencyPanel 
-              reasoningSteps={reasoningSteps}
-              isActive={!!activeAgent}
-              onClear={clearActivity}
-              onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
-            />
-          </WidgetContainer>
-        </ProtectedWidget>
-      </div>
+          {/* Priority 8: Enhanced Transparency Panel */}
+          <ProtectedWidget widgetId="transparency-panel">
+            <WidgetContainer
+              widgetId="transparency-panel"
+              title="Transparency Panel"
+              icon={<Eye size={20} />}
+              iconColor="purple"
+            >
+              <EnhancedTransparencyPanel 
+                reasoningSteps={reasoningSteps}
+                isActive={!!activeAgent}
+                onClear={clearActivity}
+                onExport={() => exportReasoningLog(reasoningSteps, activeAgent, currentTask, toolsInUse, summary)}
+              />
+            </WidgetContainer>
+          </ProtectedWidget>
+        </div>
 
-      {/* Floating Chat Button */}
-      <FloatingChatButton
-        conversationId={currentConversationId}
-        initialMessages={conversationMessages || []}
-        onStreamEvent={handleStreamEvent}
-        onClearChat={clearActivity}
-        chatInputRef={chatInputRef}
-      />
+        {/* Floating Chat Button */}
+        <FloatingChatButton
+          conversationId={currentConversationId}
+          initialMessages={conversationMessages || []}
+          onStreamEvent={handleStreamEvent}
+          onClearChat={clearActivity}
+          chatInputRef={chatInputRef}
+        />
 
-      {/* Conversation History Sidebar */}
-      <ConversationHistorySidebar
-        isOpen={showHistorySidebar}
-        onClose={() => setShowHistorySidebar(false)}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewConversation}
-        currentConversationId={currentConversationId}
-      />
+        {/* Conversation History Sidebar */}
+        <ConversationHistorySidebar
+          isOpen={showHistorySidebar}
+          onClose={() => setShowHistorySidebar(false)}
+          onSelectConversation={handleSelectConversation}
+          onNewConversation={handleNewConversation}
+          currentConversationId={currentConversationId}
+        />
       </div>
     </DashboardProvider>
   );
