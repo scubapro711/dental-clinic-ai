@@ -3,6 +3,9 @@
  * 
  * Features:
  * - Widget collapse/expand state
+ * - Grid layout management (react-grid-layout)
+ * - Active widgets management
+ * - Sidebar state
  * - Multi-tenant isolation (scoped per org + user)
  * - RBAC integration
  * - localStorage persistence
@@ -15,7 +18,8 @@
  * - Clear state on organization switch
  */
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode, useMemo } from 'react'
+import { Layout } from 'react-grid-layout'
 import { useAuthStore } from '../store/useAuthStore'
 import { canViewWidget, canInteractWithWidget } from '../utils/rbac'
 
@@ -35,6 +39,16 @@ interface DashboardState {
   organizationId: string
   userId: string
   lastModified: string
+  // NEW: Grid layout state
+  layouts: {
+    lg: Layout[]
+    md: Layout[]
+    sm: Layout[]
+    xs: Layout[]
+    xxs: Layout[]
+  }
+  activeWidgets: string[]
+  isSidebarOpen: boolean
 }
 
 interface DashboardContextValue {
@@ -51,6 +65,25 @@ interface DashboardContextValue {
   isCollapsed: (widgetId: string) => boolean
   canViewWidget: (widgetId: string) => boolean
   canInteractWithWidget: (widgetId: string) => boolean
+  
+  // NEW: Grid Layout
+  layout: Layout[]
+  setLayout: (layout: Layout[]) => void
+  layouts: Record<string, Layout[]>
+  setLayouts: (layouts: Record<string, Layout[]>) => void
+  
+  // NEW: Widget Management
+  activeWidgets: string[]
+  addWidget: (widgetId: string, layoutItem?: Partial<Layout>) => void
+  removeWidget: (widgetId: string) => void
+  
+  // NEW: Sidebar
+  isSidebarOpen: boolean
+  toggleSidebar: () => void
+  
+  // NEW: Persistence
+  saveLayout: () => void
+  isSaving: boolean
 }
 
 // ========== Default State ==========
@@ -59,12 +92,67 @@ const DEFAULT_WIDGETS: { [key: string]: WidgetState } = {
   'todays-patients': { collapsed: false, visible: true, position: 0 },
   'decision-queue': { collapsed: false, visible: true, position: 1 },
   'revenue': { collapsed: false, visible: true, position: 2 },
-  'compliance-alerts': { collapsed: false, visible: true, position: 3 },
-  'clinical-system': { collapsed: false, visible: true, position: 4 },
+  'compliance': { collapsed: false, visible: true, position: 3 },
+  'clinical': { collapsed: false, visible: true, position: 4 },
   'fine-tuning': { collapsed: false, visible: true, position: 5 },
   'agent-activity': { collapsed: false, visible: true, position: 6 },
-  'transparency-panel': { collapsed: false, visible: true, position: 7 }
+  'transparency': { collapsed: false, visible: true, position: 7 }
 }
+
+const DEFAULT_LAYOUT_LG: Layout[] = [
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
+  { i: 'decision-queue', x: 4, y: 0, w: 4, h: 2 },
+  { i: 'revenue', x: 8, y: 0, w: 4, h: 2 },
+  { i: 'compliance', x: 0, y: 2, w: 4, h: 2 },
+  { i: 'clinical', x: 4, y: 2, w: 4, h: 2 },
+  { i: 'fine-tuning', x: 8, y: 2, w: 4, h: 2 },
+  { i: 'agent-activity', x: 0, y: 4, w: 6, h: 2 },
+  { i: 'transparency', x: 6, y: 4, w: 6, h: 2 }
+]
+
+const DEFAULT_LAYOUT_MD: Layout[] = [
+  { i: 'todays-patients', x: 0, y: 0, w: 5, h: 2 },
+  { i: 'decision-queue', x: 5, y: 0, w: 5, h: 2 },
+  { i: 'revenue', x: 0, y: 2, w: 5, h: 2 },
+  { i: 'compliance', x: 5, y: 2, w: 5, h: 2 },
+  { i: 'clinical', x: 0, y: 4, w: 5, h: 2 },
+  { i: 'fine-tuning', x: 5, y: 4, w: 5, h: 2 },
+  { i: 'agent-activity', x: 0, y: 6, w: 10, h: 2 },
+  { i: 'transparency', x: 0, y: 8, w: 10, h: 2 }
+]
+
+const DEFAULT_LAYOUT_SM: Layout[] = [
+  { i: 'todays-patients', x: 0, y: 0, w: 6, h: 2 },
+  { i: 'decision-queue', x: 0, y: 2, w: 6, h: 2 },
+  { i: 'revenue', x: 0, y: 4, w: 6, h: 2 },
+  { i: 'compliance', x: 0, y: 6, w: 6, h: 2 },
+  { i: 'clinical', x: 0, y: 8, w: 6, h: 2 },
+  { i: 'fine-tuning', x: 0, y: 10, w: 6, h: 2 },
+  { i: 'agent-activity', x: 0, y: 12, w: 6, h: 2 },
+  { i: 'transparency', x: 0, y: 14, w: 6, h: 2 }
+]
+
+const DEFAULT_LAYOUT_XS: Layout[] = [
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
+  { i: 'decision-queue', x: 0, y: 2, w: 4, h: 2 },
+  { i: 'revenue', x: 0, y: 4, w: 4, h: 2 },
+  { i: 'compliance', x: 0, y: 6, w: 4, h: 2 },
+  { i: 'clinical', x: 0, y: 8, w: 4, h: 2 },
+  { i: 'fine-tuning', x: 0, y: 10, w: 4, h: 2 },
+  { i: 'agent-activity', x: 0, y: 12, w: 4, h: 2 },
+  { i: 'transparency', x: 0, y: 14, w: 4, h: 2 }
+]
+
+const DEFAULT_LAYOUT_XXS: Layout[] = [
+  { i: 'todays-patients', x: 0, y: 0, w: 2, h: 2 },
+  { i: 'decision-queue', x: 0, y: 2, w: 2, h: 2 },
+  { i: 'revenue', x: 0, y: 4, w: 2, h: 2 },
+  { i: 'compliance', x: 0, y: 6, w: 2, h: 2 },
+  { i: 'clinical', x: 0, y: 8, w: 2, h: 2 },
+  { i: 'fine-tuning', x: 0, y: 10, w: 2, h: 2 },
+  { i: 'agent-activity', x: 0, y: 12, w: 2, h: 2 },
+  { i: 'transparency', x: 0, y: 14, w: 2, h: 2 }
+]
 
 function getDefaultState(organizationId: string, userId: string): DashboardState {
   return {
@@ -72,7 +160,16 @@ function getDefaultState(organizationId: string, userId: string): DashboardState
     editMode: false,
     organizationId,
     userId,
-    lastModified: new Date().toISOString()
+    lastModified: new Date().toISOString(),
+    layouts: {
+      lg: [...DEFAULT_LAYOUT_LG],
+      md: [...DEFAULT_LAYOUT_MD],
+      sm: [...DEFAULT_LAYOUT_SM],
+      xs: [...DEFAULT_LAYOUT_XS],
+      xxs: [...DEFAULT_LAYOUT_XXS]
+    },
+    activeWidgets: Object.keys(DEFAULT_WIDGETS),
+    isSidebarOpen: true
   }
 }
 
@@ -106,12 +203,16 @@ function loadDashboardState(organizationId: string, userId: string): DashboardSt
     }
     
     // Merge with defaults (in case new widgets added)
+    const defaultState = getDefaultState(organizationId, userId)
     return {
       ...parsed,
       widgets: {
-        ...DEFAULT_WIDGETS,
+        ...defaultState.widgets,
         ...parsed.widgets
-      }
+      },
+      layouts: parsed.layouts || defaultState.layouts,
+      activeWidgets: parsed.activeWidgets || defaultState.activeWidgets,
+      isSidebarOpen: parsed.isSidebarOpen !== undefined ? parsed.isSidebarOpen : true
     }
   } catch (error) {
     console.error('Failed to load dashboard state:', error)
@@ -157,6 +258,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     loadDashboardState(organizationId, userId)
   )
   
+  const [isSaving, setIsSaving] = useState(false)
+  
   // Handle organization switch
   useEffect(() => {
     if (organizationId && userId) {
@@ -171,10 +274,15 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }, [organizationId, userId])
   
-  // Save state on change
+  // Save state on change (debounced)
   useEffect(() => {
     if (state.organizationId && state.userId) {
-      saveDashboardState(state)
+      const timeoutId = setTimeout(() => {
+        saveDashboardState(state)
+        setIsSaving(false)
+      }, 1000)
+      
+      return () => clearTimeout(timeoutId)
     }
   }, [state])
   
@@ -205,6 +313,104 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     setState(defaultState)
   }, [organizationId, userId])
   
+  // NEW: Grid Layout Actions
+  
+  const setLayout = useCallback((layout: Layout[]) => {
+    setState(prev => ({
+      ...prev,
+      layouts: {
+        ...prev.layouts,
+        lg: layout
+      }
+    }))
+    setIsSaving(true)
+  }, [])
+  
+  const setLayouts = useCallback((layouts: Record<string, Layout[]>) => {
+    setState(prev => ({
+      ...prev,
+      layouts: {
+        lg: layouts.lg || prev.layouts.lg,
+        md: layouts.md || prev.layouts.md,
+        sm: layouts.sm || prev.layouts.sm,
+        xs: layouts.xs || prev.layouts.xs,
+        xxs: layouts.xxs || prev.layouts.xxs
+      }
+    }))
+    setIsSaving(true)
+  }, [])
+  
+  const addWidget = useCallback((widgetId: string, layoutItem?: Partial<Layout>) => {
+    setState(prev => {
+      // Don't add if already active
+      if (prev.activeWidgets.includes(widgetId)) {
+        return prev
+      }
+      
+      // Find next available position
+      const maxY = Math.max(...prev.layouts.lg.map(item => item.y + item.h), 0)
+      
+      const newLayoutItem: Layout = {
+        i: widgetId,
+        x: layoutItem?.x ?? 0,
+        y: layoutItem?.y ?? maxY,
+        w: layoutItem?.w ?? 4,
+        h: layoutItem?.h ?? 2,
+        minW: layoutItem?.minW,
+        maxW: layoutItem?.maxW,
+        minH: layoutItem?.minH,
+        maxH: layoutItem?.maxH
+      }
+      
+      return {
+        ...prev,
+        activeWidgets: [...prev.activeWidgets, widgetId],
+        layouts: {
+          lg: [...prev.layouts.lg, newLayoutItem],
+          md: [...prev.layouts.md, { ...newLayoutItem, w: 5 }],
+          sm: [...prev.layouts.sm, { ...newLayoutItem, w: 6, x: 0 }],
+          xs: [...prev.layouts.xs, { ...newLayoutItem, w: 4, x: 0 }],
+          xxs: [...prev.layouts.xxs, { ...newLayoutItem, w: 2, x: 0 }]
+        },
+        widgets: {
+          ...prev.widgets,
+          [widgetId]: {
+            collapsed: false,
+            visible: true,
+            position: prev.activeWidgets.length
+          }
+        }
+      }
+    })
+    setIsSaving(true)
+  }, [])
+  
+  const removeWidget = useCallback((widgetId: string) => {
+    setState(prev => ({
+      ...prev,
+      activeWidgets: prev.activeWidgets.filter(id => id !== widgetId),
+      layouts: {
+        lg: prev.layouts.lg.filter(item => item.i !== widgetId),
+        md: prev.layouts.md.filter(item => item.i !== widgetId),
+        sm: prev.layouts.sm.filter(item => item.i !== widgetId),
+        xs: prev.layouts.xs.filter(item => item.i !== widgetId),
+        xxs: prev.layouts.xxs.filter(item => item.i !== widgetId)
+      }
+    }))
+    setIsSaving(true)
+  }, [])
+  
+  const toggleSidebar = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      isSidebarOpen: !prev.isSidebarOpen
+    }))
+  }, [])
+  
+  const saveLayout = useCallback(() => {
+    saveDashboardState(state)
+  }, [state])
+  
   // ========== Helpers ==========
   
   const isCollapsed = useCallback((widgetId: string): boolean => {
@@ -223,6 +429,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     return canInteractWithWidget(userRole, widgetId)
   }, [user?.role])
   
+  // Memoize layout for current breakpoint (lg)
+  const currentLayout = useMemo(() => state.layouts.lg, [state.layouts.lg])
+  
   const value: DashboardContextValue = {
     state,
     isEditMode: state.editMode,
@@ -231,7 +440,19 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     resetToDefaults,
     isCollapsed,
     canViewWidget: canView,
-    canInteractWithWidget: canInteract
+    canInteractWithWidget: canInteract,
+    // NEW
+    layout: currentLayout,
+    setLayout,
+    layouts: state.layouts,
+    setLayouts,
+    activeWidgets: state.activeWidgets,
+    addWidget,
+    removeWidget,
+    isSidebarOpen: state.isSidebarOpen,
+    toggleSidebar,
+    saveLayout,
+    isSaving
   }
   
   return (
