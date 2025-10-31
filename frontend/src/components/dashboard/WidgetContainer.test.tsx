@@ -105,8 +105,7 @@ describe('WidgetContainer', () => {
     )
     
     const content = screen.getByTestId('test-widget-content')
-    expect(content).toHaveClass('max-h-0')
-    expect(content).toHaveClass('opacity-0')
+    expect(content).toHaveStyle({ display: 'none' })
   })
   
   it('renders icon when provided', () => {
