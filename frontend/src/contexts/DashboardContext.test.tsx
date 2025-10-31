@@ -22,7 +22,18 @@ vi.mock('../utils/rbac', () => ({
 }))
 
 describe('DashboardContext', () => {
+  const originalSetItem = localStorage.setItem
+  const originalGetItem = localStorage.getItem
+  const originalRemoveItem = localStorage.removeItem
+  const originalClear = localStorage.clear
+  
   beforeEach(() => {
+    // Restore original localStorage methods
+    localStorage.setItem = originalSetItem
+    localStorage.getItem = originalGetItem
+    localStorage.removeItem = originalRemoveItem
+    localStorage.clear = originalClear
+    
     localStorage.clear()
     vi.clearAllMocks()
     
@@ -33,6 +44,14 @@ describe('DashboardContext', () => {
     })
     
     localStorage.setItem('current_organization_id', 'org-1')
+  })
+  
+  afterEach(() => {
+    // Restore original localStorage methods after each test
+    localStorage.setItem = originalSetItem
+    localStorage.getItem = originalGetItem
+    localStorage.removeItem = originalRemoveItem
+    localStorage.clear = originalClear
   })
   
   it('provides initial state', () => {
@@ -59,7 +78,7 @@ describe('DashboardContext', () => {
     expect(result.current.isCollapsed('todays-patients')).toBe(true)
   })
   
-  it('persists state to localStorage', () => {
+  it('persists state to localStorage', async () => {
     const { result } = renderHook(() => useDashboard(), {
       wrapper: DashboardProvider
     })
@@ -67,6 +86,9 @@ describe('DashboardContext', () => {
     act(() => {
       result.current.toggleCollapse('revenue')
     })
+    
+    // Wait for debounced save (1000ms)
+    await new Promise(resolve => setTimeout(resolve, 1100))
     
     const stored = localStorage.getItem('dashboard_state_org-1_user-1')
     expect(stored).toBeDefined()
@@ -172,18 +194,21 @@ describe('DashboardContext', () => {
     expect(result.current.isCollapsed('compliance')).toBe(false)
   })
   
-  it('handles localStorage quota exceeded', () => {
+  it('handles localStorage quota exceeded', async () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     
-    // Mock localStorage.setItem to throw QuotaExceededError
+    // Save original
     const originalSetItem = localStorage.setItem
-    localStorage.setItem = vi.fn(() => {
+    
+    // Mock localStorage.setItem to throw QuotaExceededError
+    const mockSetItem = vi.fn(() => {
       const error = new Error('QuotaExceededError')
       error.name = 'QuotaExceededError'
       throw error
     })
+    localStorage.setItem = mockSetItem
     
-    const { result } = renderHook(() => useDashboard(), {
+    const { result, unmount } = renderHook(() => useDashboard(), {
       wrapper: DashboardProvider
     })
     
@@ -191,11 +216,17 @@ describe('DashboardContext', () => {
       result.current.toggleCollapse('revenue')
     })
     
+    // Wait for debounced save (1000ms)
+    await new Promise(resolve => setTimeout(resolve, 1100))
+    
     expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('quota exceeded'))
     
-    // Restore
+    // Restore BEFORE unmount
     localStorage.setItem = originalSetItem
     consoleError.mockRestore()
+    
+    // Clean unmount
+    unmount()
   })
   
   it('toggles edit mode', () => {
