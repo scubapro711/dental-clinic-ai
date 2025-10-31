@@ -29,7 +29,7 @@ import {
   LogOut
 } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
-import { getUserInfo } from '../../utils/rbac'
+import { getUserInfo, canViewWidget } from '../../utils/rbac'
 
 // Widget definitions
 export const WIDGET_LIBRARY = [
