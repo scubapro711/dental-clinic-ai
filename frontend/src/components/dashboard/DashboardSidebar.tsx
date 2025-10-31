@@ -29,6 +29,7 @@ import {
   LogOut
 } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
+import { getUserInfo } from '../../utils/rbac'
 
 // Widget definitions
 export const WIDGET_LIBRARY = [
@@ -123,9 +124,10 @@ const NAVIGATION_ITEMS = [
 ]
 
 export function DashboardSidebar() {
-  const { isSidebarOpen, toggleSidebar, activeWidgets, canViewWidget } = useDashboard()
+  const { activeWidgets, isSidebarOpen, toggleSidebar } = useDashboard()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const userInfo = getUserInfo()
   
   // Filter widgets
   const filteredWidgets = WIDGET_LIBRARY.filter(widget => {
