@@ -103,55 +103,35 @@ const DEFAULT_LAYOUT_LG: Layout[] = [
   { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
   { i: 'decision-queue', x: 4, y: 0, w: 4, h: 2 },
   { i: 'revenue', x: 8, y: 0, w: 4, h: 2 },
-  { i: 'compliance', x: 0, y: 2, w: 4, h: 2 },
-  { i: 'clinical', x: 4, y: 2, w: 4, h: 2 },
-  { i: 'fine-tuning', x: 8, y: 2, w: 4, h: 2 },
-  { i: 'agent-activity', x: 0, y: 4, w: 6, h: 2 },
-  { i: 'transparency', x: 6, y: 4, w: 6, h: 2 }
+  { i: 'compliance', x: 0, y: 2, w: 4, h: 2 }
 ]
 
 const DEFAULT_LAYOUT_MD: Layout[] = [
   { i: 'todays-patients', x: 0, y: 0, w: 5, h: 2 },
   { i: 'decision-queue', x: 5, y: 0, w: 5, h: 2 },
   { i: 'revenue', x: 0, y: 2, w: 5, h: 2 },
-  { i: 'compliance', x: 5, y: 2, w: 5, h: 2 },
-  { i: 'clinical', x: 0, y: 4, w: 5, h: 2 },
-  { i: 'fine-tuning', x: 5, y: 4, w: 5, h: 2 },
-  { i: 'agent-activity', x: 0, y: 6, w: 10, h: 2 },
-  { i: 'transparency', x: 0, y: 8, w: 10, h: 2 }
+  { i: 'compliance', x: 5, y: 2, w: 5, h: 2 }
 ]
 
 const DEFAULT_LAYOUT_SM: Layout[] = [
   { i: 'todays-patients', x: 0, y: 0, w: 6, h: 2 },
   { i: 'decision-queue', x: 0, y: 2, w: 6, h: 2 },
   { i: 'revenue', x: 0, y: 4, w: 6, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 6, h: 2 },
-  { i: 'clinical', x: 0, y: 8, w: 6, h: 2 },
-  { i: 'fine-tuning', x: 0, y: 10, w: 6, h: 2 },
-  { i: 'agent-activity', x: 0, y: 12, w: 6, h: 2 },
-  { i: 'transparency', x: 0, y: 14, w: 6, h: 2 }
+  { i: 'compliance', x: 0, y: 6, w: 6, h: 2 }
 ]
 
 const DEFAULT_LAYOUT_XS: Layout[] = [
   { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
   { i: 'decision-queue', x: 0, y: 2, w: 4, h: 2 },
   { i: 'revenue', x: 0, y: 4, w: 4, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 4, h: 2 },
-  { i: 'clinical', x: 0, y: 8, w: 4, h: 2 },
-  { i: 'fine-tuning', x: 0, y: 10, w: 4, h: 2 },
-  { i: 'agent-activity', x: 0, y: 12, w: 4, h: 2 },
-  { i: 'transparency', x: 0, y: 14, w: 4, h: 2 }
+  { i: 'compliance', x: 0, y: 6, w: 4, h: 2 }
 ]
 
 const DEFAULT_LAYOUT_XXS: Layout[] = [
   { i: 'todays-patients', x: 0, y: 0, w: 2, h: 2 },
   { i: 'decision-queue', x: 0, y: 2, w: 2, h: 2 },
   { i: 'revenue', x: 0, y: 4, w: 2, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 2, h: 2 },
-  { i: 'clinical', x: 0, y: 8, w: 2, h: 2 },
-  { i: 'fine-tuning', x: 0, y: 10, w: 2, h: 2 },
-  { i: 'agent-activity', x: 0, y: 12, w: 2, h: 2 },
-  { i: 'transparency', x: 0, y: 14, w: 2, h: 2 }
+  { i: 'compliance', x: 0, y: 6, w: 2, h: 2 }
 ]
 
 function getDefaultState(organizationId: string, userId: string): DashboardState {
@@ -168,7 +148,7 @@ function getDefaultState(organizationId: string, userId: string): DashboardState
       xs: [...DEFAULT_LAYOUT_XS],
       xxs: [...DEFAULT_LAYOUT_XXS]
     },
-    activeWidgets: Object.keys(DEFAULT_WIDGETS),
+    activeWidgets: ['todays-patients', 'decision-queue', 'revenue', 'compliance'],
     isSidebarOpen: true
   }
 }
