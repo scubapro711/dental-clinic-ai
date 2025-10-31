@@ -207,14 +207,15 @@ export function WidgetContainer({
       </div>
       
       {/* Content */}
-      {!collapsed && (
-        <div 
-          className="widget-content animate-fade-in-up"
-          data-testid={`${widgetId}-content`}
-        >
-          {children}
-        </div>
-      )}
+      <div 
+        className="widget-content animate-fade-in-up"
+        data-testid={`${widgetId}-content`}
+        style={{
+          display: collapsed ? 'none' : 'block'
+        }}
+      >
+        {children}
+      </div>
     </div>
   )
 }
