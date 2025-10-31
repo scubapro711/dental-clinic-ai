@@ -16,10 +16,91 @@ import { Responsive as ResponsiveGridLayout, WidthProvider, Layout } from 'react
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
 import { WIDGET_LIBRARY } from './DashboardSidebar'
+import ProtectedWidget from '../rbac/ProtectedWidget'
+import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
+import RevenueWidget from '../widgets/RevenueWidget'
+import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
+import ComplianceAlerts from '../compliance/ComplianceAlerts'
+import ClinicalDashboard from '../clinical/ClinicalDashboard'
+import EnhancedFineTuningWidget from '../fine-tuning/EnhancedFineTuningWidget'
+import AgentActivityPanel from '../transparency/AgentActivityPanel'
+import EnhancedTransparencyPanel from '../transparency/EnhancedTransparencyPanel'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 
 const ResponsiveGrid = WidthProvider(ResponsiveGridLayout)
+
+// Widget Content Renderer
+function renderWidgetContent(widgetId: string) {
+  switch (widgetId) {
+    case 'todays-patients':
+      return (
+        <ProtectedWidget widgetId="todays-patients">
+          <TodaysPatientsWidget />
+        </ProtectedWidget>
+      )
+    
+    case 'revenue':
+      return (
+        <ProtectedWidget widgetId="revenue">
+          <RevenueWidget />
+        </ProtectedWidget>
+      )
+    
+    case 'decision-queue':
+      return (
+        <ProtectedWidget widgetId="decision-queue">
+          <DecisionQueueWidget />
+        </ProtectedWidget>
+      )
+    
+    case 'compliance':
+      return (
+        <ProtectedWidget widgetId="compliance">
+          <ComplianceAlerts />
+        </ProtectedWidget>
+      )
+    
+    case 'clinical':
+      return (
+        <ProtectedWidget widgetId="clinical">
+          <ClinicalDashboard />
+        </ProtectedWidget>
+      )
+    
+    case 'fine-tuning':
+      return (
+        <ProtectedWidget widgetId="fine-tuning">
+          <EnhancedFineTuningWidget />
+        </ProtectedWidget>
+      )
+    
+    case 'agent-activity':
+      return (
+        <ProtectedWidget widgetId="agent-activity">
+          <AgentActivityPanel />
+        </ProtectedWidget>
+      )
+    
+    case 'transparency':
+      return (
+        <ProtectedWidget widgetId="transparency">
+          <EnhancedTransparencyPanel />
+        </ProtectedWidget>
+      )
+    
+    default:
+      return (
+        <div style={{ 
+          padding: 'var(--spacing-md)', 
+          textAlign: 'center',
+          color: 'var(--foreground-tertiary)'
+        }}>
+          <p>Widget "{widgetId}" not found</p>
+        </div>
+      )
+  }
+}
 
 // Breakpoints configuration
 const BREAKPOINTS = {
@@ -276,23 +357,10 @@ export function DashboardGrid({ children }: DashboardGridProps) {
             className="widget-content"
             style={{
               flex: '1',
-              padding: 'var(--spacing-md)',
-              overflow: 'auto',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--foreground-tertiary)',
-              fontSize: 'var(--font-size-sm)'
+              overflow: 'auto'
             }}
           >
-            {/* Placeholder - will be replaced with actual widget components */}
-            <div style={{ textAlign: 'center' }}>
-              <Icon size={48} style={{ marginBottom: 'var(--spacing-sm)', opacity: 0.3 }} />
-              <p style={{ margin: '0' }}>{widgetDef.description}</p>
-              <p style={{ margin: 'var(--spacing-sm) 0 0 0', fontSize: 'var(--font-size-xs)' }}>
-                Widget data will be loaded here
-              </p>
-            </div>
+            {renderWidgetContent(widgetId)}
           </div>
         </div>
       )
