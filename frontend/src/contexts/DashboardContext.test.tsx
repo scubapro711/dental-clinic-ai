@@ -82,16 +82,25 @@ describe('DashboardContext', () => {
         'todays-patients': { collapsed: true, visible: true, position: 0 },
         'decision-queue': { collapsed: false, visible: true, position: 1 },
         'revenue': { collapsed: false, visible: true, position: 2 },
-        'compliance-alerts': { collapsed: false, visible: true, position: 3 },
-        'clinical-system': { collapsed: false, visible: true, position: 4 },
+        'compliance': { collapsed: false, visible: true, position: 3 },
+        'clinical': { collapsed: false, visible: true, position: 4 },
         'fine-tuning': { collapsed: false, visible: true, position: 5 },
         'agent-activity': { collapsed: false, visible: true, position: 6 },
-        'transparency-panel': { collapsed: false, visible: true, position: 7 }
+        'transparency': { collapsed: false, visible: true, position: 7 }
       },
       editMode: false,
       organizationId: 'org-1',
       userId: 'user-1',
-      lastModified: new Date().toISOString()
+      lastModified: new Date().toISOString(),
+      layouts: {
+        lg: [],
+        md: [],
+        sm: [],
+        xs: [],
+        xxs: []
+      },
+      activeWidgets: [],
+      isSidebarOpen: true
     }
     localStorage.setItem('dashboard_state_org-1_user-1', JSON.stringify(savedState))
     
@@ -148,11 +157,11 @@ describe('DashboardContext', () => {
     // Collapse some widgets
     act(() => {
       result.current.toggleCollapse('revenue')
-      result.current.toggleCollapse('compliance-alerts')
+      result.current.toggleCollapse('compliance')
     })
     
     expect(result.current.isCollapsed('revenue')).toBe(true)
-    expect(result.current.isCollapsed('compliance-alerts')).toBe(true)
+    expect(result.current.isCollapsed('compliance')).toBe(true)
     
     // Reset
     act(() => {
@@ -160,7 +169,7 @@ describe('DashboardContext', () => {
     })
     
     expect(result.current.isCollapsed('revenue')).toBe(false)
-    expect(result.current.isCollapsed('compliance-alerts')).toBe(false)
+    expect(result.current.isCollapsed('compliance')).toBe(false)
   })
   
   it('handles localStorage quota exceeded', () => {
