@@ -112,7 +112,8 @@ export default function ClinicLayout() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {/* Top Header (Mobile Only) */}
+        {/* Top Header (Mobile Only) - Hidden on Dashboard */}
+        {location.pathname !== '/clinic/dashboard' && (
         <header className="lg:hidden bg-gradient-to-r from-blue-600 to-blue-800 shadow-lg sticky top-0 z-40" role="banner">
           <div className="px-4 h-16 flex items-center justify-between">
             {/* Logo */}
@@ -139,6 +140,7 @@ export default function ClinicLayout() {
             </button>
           </div>
         </header>
+        )}
 
         {/* Main Content */}
         <main id="main-content" className={`flex-1 ${
