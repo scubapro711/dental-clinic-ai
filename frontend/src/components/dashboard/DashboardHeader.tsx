@@ -44,7 +44,6 @@ export function DashboardHeader() {
         padding: 'var(--spacing-lg)',
         background: 'var(--background)',
         borderRadius: 'var(--radius-lg)',
-        boxShadow: 'var(--shadow-md)',
         gap: 'var(--spacing-lg)',
         marginBottom: 'var(--spacing-xl)',
         flexWrap: 'wrap'
@@ -89,7 +88,7 @@ export function DashboardHeader() {
           flex: 1,
           overflowX: 'auto',
           maxWidth: '600px',
-          padding: '4px 0'
+          padding: '4px 8px'
         }}
       >
         {AI_AGENTS.map(agent => (
