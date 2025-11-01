@@ -101,7 +101,7 @@ export default function AgenticDashboard() {
         dir="rtl"
         style={{
           minHeight: '100vh',
-          background: 'var(--background-secondary)',
+          background: 'var(--background)',
           position: 'relative'
         }}
       >
