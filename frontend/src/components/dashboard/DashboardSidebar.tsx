@@ -475,69 +475,7 @@ export function DashboardSidebar() {
             )}
           </div>
           
-          {/* AI Agents Section */}
-          <div
-            className="sidebar-agents"
-            style={{
-              borderTop: '1px solid var(--border)',
-              paddingTop: 'var(--spacing-md)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 'var(--spacing-xs)'
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 'var(--font-size-sm)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--foreground-secondary)',
-                margin: '0 0 var(--spacing-xs) 0',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}
-            >
-              AI Agents
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              {[
-                { id: 'alex', name: 'Alex', role: 'Patient Experience', value: '247' },
-                { id: 'sarah', name: 'Sarah', role: 'Clinical Support', value: '98%' },
-                { id: 'marcus', name: 'Marcus', role: 'Financial', value: '₪45,230' },
-                { id: 'sophia', name: 'Sophia', role: 'Scheduling', value: '8' },
-                { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%' }
-              ].map(agent => (
-                <div
-                  key={agent.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '8px 12px',
-                    borderRadius: 'var(--radius-md)',
-                    background: 'var(--muted)',
-                    fontSize: 'var(--font-size-xs)',
-                    transition: 'all var(--transition-base)'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--primary)'
-                    e.currentTarget.style.color = 'var(--primary-foreground)'
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'var(--muted)'
-                    e.currentTarget.style.color = 'var(--foreground)'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 'var(--font-weight-semibold)' }}>{agent.name}</div>
-                    <div style={{ fontSize: '10px', opacity: 0.7 }}>{agent.role}</div>
-                  </div>
-                  <div style={{ fontWeight: 'var(--font-weight-bold)' }}>{agent.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
+
           {/* Navigation */}
           <div
             className="sidebar-navigation"
