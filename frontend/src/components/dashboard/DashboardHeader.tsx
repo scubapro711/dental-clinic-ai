@@ -43,6 +43,7 @@ export function DashboardHeader() {
         justifyContent: 'space-between',
         padding: 'var(--spacing-lg)',
         background: 'var(--background)',
+        border: 'none',
         borderRadius: 'var(--radius-lg)',
         gap: 'var(--spacing-lg)',
         marginBottom: 'var(--spacing-xl)',
