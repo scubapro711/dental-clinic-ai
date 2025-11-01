@@ -185,7 +185,9 @@ export function DashboardGrid({ children }: DashboardGridProps) {
   }, [addWidget])
   
   // Handle remove widget
-  const handleRemoveWidget = useCallback((widgetId: string) => {
+  const handleRemoveWidget = useCallback((e: React.MouseEvent, widgetId: string) => {
+    e.stopPropagation()
+    e.preventDefault()
     if (confirm(`Remove ${widgetId} widget from dashboard?`)) {
       removeWidget(widgetId)
     }
@@ -321,7 +323,7 @@ export function DashboardGrid({ children }: DashboardGridProps) {
             {/* Remove button (edit mode only) */}
             {isEditMode && (
               <button
-                onClick={() => handleRemoveWidget(widgetId)}
+                onClick={(e) => handleRemoveWidget(e, widgetId)}
                 className="widget-remove-button"
                 aria-label={`Remove ${widgetDef.title}`}
                 style={{
@@ -393,6 +395,7 @@ export function DashboardGrid({ children }: DashboardGridProps) {
         preventCollision={false}
         useCSSTransforms={true}
         isDroppable={isEditMode}
+        draggableCancel=".widget-remove-button"
         onLayoutChange={handleLayoutChange}
         onBreakpointChange={handleBreakpointChange}
         onDrop={handleDrop}
