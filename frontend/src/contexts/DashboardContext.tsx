@@ -242,18 +242,17 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   
   // Handle organization switch and auth state initialization
   useEffect(() => {
-    if (organizationId && userId) {
-      const currentOrgId = state.organizationId
-      const currentUserId = state.userId
-      
-      // If org/user changed or not set yet, load/reload state
-      if (currentOrgId !== organizationId || currentUserId !== userId) {
-        console.log('Auth state changed, loading dashboard state', { organizationId, userId })
-        const newState = loadDashboardState(organizationId, userId)
-        setState(newState)
-      }
+    const currentOrgId = state.organizationId
+    const currentUserId = state.userId
+    
+    // If org/user changed or not set yet, load/reload state
+    // This handles both initial load and organization switching
+    if (organizationId && userId && (currentOrgId !== organizationId || currentUserId !== userId)) {
+      console.log('🔄 Auth state changed, loading dashboard state', { organizationId, userId })
+      const newState = loadDashboardState(organizationId, userId)
+      setState(newState)
     }
-  }, [organizationId, userId])
+  }, [organizationId, userId, state.organizationId, state.userId])
   
   // Save state on change (debounced)
   useEffect(() => {
