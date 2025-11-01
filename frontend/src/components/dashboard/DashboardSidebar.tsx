@@ -169,7 +169,7 @@ export function DashboardSidebar() {
         right: '0',
         top: '0',
         height: '100vh',
-        width: isSidebarOpen ? '320px' : '60px',
+        width: isSidebarOpen ? '320px' : '0px',
         background: 'var(--background)',
         borderLeft: '1px solid var(--border)',
         boxShadow: 'var(--shadow-lg)',

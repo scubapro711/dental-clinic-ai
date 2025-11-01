@@ -62,11 +62,11 @@ const DemoChatButton = () => {
             <button
               className="demo-chat-fab"
               onClick={toggleChat}
-              aria-label="Try Interactive Demo (Draggable)"
+              aria-label="Chat with AI Assistant (Draggable)"
             >
               <div className="demo-chat-fab-content">
                 <span className="demo-chat-fab-icon">💬</span>
-                <span className="demo-chat-fab-text">Try Demo</span>
+                <span className="demo-chat-fab-text">AI Chat</span>
               </div>
               <div className="demo-chat-fab-pulse"></div>
             </button>
