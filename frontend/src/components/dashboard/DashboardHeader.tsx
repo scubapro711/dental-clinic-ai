@@ -45,6 +45,7 @@ export function DashboardHeader() {
         background: 'var(--background)',
         border: 'none',
         borderRadius: 'var(--radius-lg)',
+        boxShadow: 'none',
         gap: 'var(--spacing-lg)',
         marginBottom: 'var(--spacing-xl)',
         flexWrap: 'wrap'
