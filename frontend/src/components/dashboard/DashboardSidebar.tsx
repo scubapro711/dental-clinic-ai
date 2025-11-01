@@ -186,8 +186,8 @@ export function DashboardSidebar() {
         className="sidebar-toggle"
         aria-label={isSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
         style={{
-          position: 'absolute',
-          left: '-16px',
+          position: 'fixed',
+          right: isSidebarOpen ? '304px' : '0px',
           top: '50%',
           transform: 'translateY(-50%)',
           width: '32px',
