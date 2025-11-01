@@ -201,13 +201,11 @@ function loadDashboardState(organizationId: string, userId: string): DashboardSt
 }
 
 function saveDashboardState(state: DashboardState): void {
-  if (!state.organizationId || !state.userId) {
-    console.error('Cannot save state without organizationId and userId')
-    return
-  }
-  
   try {
-    const key = getStorageKey(state.organizationId, state.userId)
+    // Use fallback key if auth not available
+    const key = (state.organizationId && state.userId)
+      ? getStorageKey(state.organizationId, state.userId)
+      : 'dashboard_state_fallback'
     const updated = {
       ...state,
       lastModified: new Date().toISOString()
