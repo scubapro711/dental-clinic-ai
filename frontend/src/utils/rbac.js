@@ -58,8 +58,8 @@ export const WIDGET_PERMISSIONS = {
     interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
   },
   'compliance-alerts': {
-    view: [ROLES.ORG_ADMIN],
-    interact: [ROLES.ORG_ADMIN],
+    view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
+    interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   },
   'clinical-system': {
     view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],

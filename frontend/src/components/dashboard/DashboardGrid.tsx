@@ -54,16 +54,16 @@ function renderWidgetContent(widgetId: string) {
         </ProtectedWidget>
       )
     
-    case 'compliance':
+    case 'compliance-alerts':
       return (
-        <ProtectedWidget widgetId="compliance">
+        <ProtectedWidget widgetId="compliance-alerts">
           <ComplianceAlerts />
         </ProtectedWidget>
       )
     
-    case 'clinical':
+    case 'clinical-system':
       return (
-        <ProtectedWidget widgetId="clinical">
+        <ProtectedWidget widgetId="clinical-system">
           <ClinicalDashboard />
         </ProtectedWidget>
       )
@@ -82,9 +82,9 @@ function renderWidgetContent(widgetId: string) {
         </ProtectedWidget>
       )
     
-    case 'transparency':
+    case 'transparency-panel':
       return (
-        <ProtectedWidget widgetId="transparency">
+        <ProtectedWidget widgetId="transparency-panel">
           <EnhancedTransparencyPanel />
         </ProtectedWidget>
       )

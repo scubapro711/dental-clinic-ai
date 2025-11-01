@@ -52,7 +52,7 @@ export const WIDGET_LIBRARY = [
     color: 'cyan'
   },
   {
-    id: 'compliance',
+    id: 'compliance-alerts',
     title: 'Compliance',
     icon: CheckCircle,
     category: 'admin',
@@ -70,7 +70,7 @@ export const WIDGET_LIBRARY = [
     color: 'green'
   },
   {
-    id: 'clinical',
+    id: 'clinical-system',
     title: 'Clinical Insights',
     icon: Activity,
     category: 'clinical',
@@ -97,7 +97,7 @@ export const WIDGET_LIBRARY = [
     color: 'cyan'
   },
   {
-    id: 'transparency',
+    id: 'transparency-panel',
     title: 'Transparency',
     icon: Eye,
     category: 'admin',
