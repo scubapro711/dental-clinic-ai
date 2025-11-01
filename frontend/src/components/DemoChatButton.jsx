@@ -23,10 +23,11 @@ const DemoChatButton = () => {
     if (saved) {
       return JSON.parse(saved);
     }
-    // Default: bottom-right corner
+    // Default: bottom-right corner with safe margins
+    // Position is relative to top-left (0,0), not using window size
     return { 
-      x: window.innerWidth - 170, 
-      y: window.innerHeight - 90 
+      x: 20,  // 20px from left (will appear on left side)
+      y: 20   // 20px from top
     };
   };
 
