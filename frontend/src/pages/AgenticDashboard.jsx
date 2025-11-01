@@ -5,7 +5,7 @@ import '../styles/widgets.css';
 import '../styles/coordination.css';
 import '../styles/design-system.css';
 import '../styles/dashboard-grid.css';  // NEW: Grid styles
-import FloatingChatButton from '../components/chat/FloatingChatButton';
+// Removed FloatingChatButton - using DemoChatButton instead
 import AgentActivityPanel from '../components/transparency/AgentActivityPanel';
 import EnhancedTransparencyPanel from '../components/transparency/EnhancedTransparencyPanel';
 import TodaysPatientsWidget from '../components/widgets/TodaysPatientsWidget';
@@ -128,14 +128,7 @@ export default function AgenticDashboard() {
           />
         )}
 
-        {/* Floating Chat Button */}
-        <FloatingChatButton
-          ref={chatInputRef}
-          onStreamEvent={handleStreamEvent}
-          conversationId={currentConversationId}
-          initialMessages={conversationMessages}
-          onNewConversation={handleNewConversation}
-        />
+        {/* Floating Chat Button removed - DemoChatButton is used in App.jsx */}
 
         {/* Agent Activity Indicator */}
         {activeAgent && (
