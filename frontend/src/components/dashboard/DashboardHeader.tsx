@@ -103,7 +103,6 @@ export function DashboardHeader() {
               padding: 'var(--spacing-xs) var(--spacing-sm)',
               borderRadius: 'var(--radius-md)',
               background: 'var(--muted)',
-              border: '1px solid var(--border)',
               transition: 'all var(--transition-base)',
               cursor: 'pointer',
               minWidth: 'fit-content',
@@ -111,13 +110,11 @@ export function DashboardHeader() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--background-secondary)'
-              e.currentTarget.style.borderColor = agent.color
               e.currentTarget.style.transform = 'translateY(-2px)'
               e.currentTarget.style.boxShadow = 'var(--shadow-md)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'var(--muted)'
-              e.currentTarget.style.borderColor = 'var(--border)'
               e.currentTarget.style.transform = 'translateY(0)'
               e.currentTarget.style.boxShadow = 'none'
             }}
