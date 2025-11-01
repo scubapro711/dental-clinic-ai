@@ -132,7 +132,7 @@ export function DashboardSidebar() {
   // Filter widgets
   const filteredWidgets = WIDGET_LIBRARY.filter(widget => {
     // Check permissions
-    if (!canViewWidget(widget.id)) return false
+    if (!canViewWidget(userInfo?.role, widget.id)) return false
     
     // Check category
     if (selectedCategory !== 'all' && widget.category !== selectedCategory) return false
