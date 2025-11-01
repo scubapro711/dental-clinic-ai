@@ -8,7 +8,11 @@ const DemoChatButton = () => {
   const [position, setPosition] = useState(() => {
     // Load saved position from localStorage
     const saved = localStorage.getItem('chatButtonPosition');
-    return saved ? JSON.parse(saved) : { x: 0, y: 0 };
+    // Default position: bottom-right corner
+    return saved ? JSON.parse(saved) : { 
+      x: window.innerWidth - 170, 
+      y: window.innerHeight - 90 
+    };
   });
 
   const toggleChat = () => {
@@ -27,30 +31,29 @@ const DemoChatButton = () => {
       {!isChatOpen && (
         <Draggable
           position={position}
+          onDrag={handleDrag}
           onStop={handleDrag}
-          handle=".demo-chat-fab"
         >
-          <button
-            className="demo-chat-fab"
-            onClick={toggleChat}
-            aria-label="Try Interactive Demo (Draggable)"
+          <div
+            className="demo-chat-fab-wrapper"
             style={{
+              position: 'fixed',
               cursor: 'grab',
-              position: 'fixed'
-            }}
-            onMouseDown={(e) => {
-              e.currentTarget.style.cursor = 'grabbing';
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.cursor = 'grab';
+              zIndex: 999,
             }}
           >
-            <div className="demo-chat-fab-content">
-              <span className="demo-chat-fab-icon">💬</span>
-              <span className="demo-chat-fab-text">Try Demo</span>
-            </div>
-            <div className="demo-chat-fab-pulse"></div>
-          </button>
+            <button
+              className="demo-chat-fab"
+              onClick={toggleChat}
+              aria-label="Try Interactive Demo (Draggable)"
+            >
+              <div className="demo-chat-fab-content">
+                <span className="demo-chat-fab-icon">💬</span>
+                <span className="demo-chat-fab-text">Try Demo</span>
+              </div>
+              <div className="demo-chat-fab-pulse"></div>
+            </button>
+          </div>
         </Draggable>
       )}
 
