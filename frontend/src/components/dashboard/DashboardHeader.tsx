@@ -90,7 +90,8 @@ export function DashboardHeader() {
           flex: 1,
           overflowX: 'auto',
           maxWidth: '600px',
-          padding: '4px 8px'
+          padding: '4px 8px',
+          background: 'transparent'
         }}
       >
         {AI_AGENTS.map(agent => (
