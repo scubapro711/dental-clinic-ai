@@ -1,38 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Draggable from 'react-draggable';
 import InteractiveDemoChat from './InteractiveDemoChat';
 import './DemoChatButton.css';
 
 const DemoChatButton = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [position, setPosition] = useState(() => {
-    // Load saved position from localStorage
-    const saved = localStorage.getItem('chatButtonPosition');
-    // Default position: bottom-right corner
-    return saved ? JSON.parse(saved) : { 
-      x: window.innerWidth - 170, 
-      y: window.innerHeight - 90 
-    };
-  });
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
   };
 
-  const handleDrag = (e, data) => {
-    const newPosition = { x: data.x, y: data.y };
-    setPosition(newPosition);
-    // Save position to localStorage
-    localStorage.setItem('chatButtonPosition', JSON.stringify(newPosition));
+  const handleStop = (e, data) => {
+    // Save position to localStorage when drag stops
+    const position = { x: data.x, y: data.y };
+    localStorage.setItem('chatButtonPosition', JSON.stringify(position));
+  };
+
+  // Load saved position or use default
+  const getSavedPosition = () => {
+    const saved = localStorage.getItem('chatButtonPosition');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Default: bottom-right corner
+    return { 
+      x: window.innerWidth - 170, 
+      y: window.innerHeight - 90 
+    };
   };
 
   return (
     <>
       {!isChatOpen && (
         <Draggable
-          position={position}
-          onDrag={handleDrag}
-          onStop={handleDrag}
+          defaultPosition={getSavedPosition()}
+          onStop={handleStop}
         >
           <div
             className="demo-chat-fab-wrapper"
