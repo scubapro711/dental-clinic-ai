@@ -91,8 +91,12 @@ export function DashboardHeader() {
           overflowX: 'auto',
           maxWidth: '600px',
           padding: '0 8px',
-          background: 'transparent'
+          background: 'transparent',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
         }}
+        className="ai-agents-container"
       >
         {AI_AGENTS.map(agent => (
           <div
