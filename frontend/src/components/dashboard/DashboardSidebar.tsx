@@ -10,7 +10,7 @@
  * - RTL support
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -128,6 +128,11 @@ export function DashboardSidebar() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const userInfo = getUserInfo()
+  
+  // Debug: Log activeWidgets changes
+  useEffect(() => {
+    console.log('📋 Sidebar - Active widgets updated:', activeWidgets)
+  }, [activeWidgets])
   
   // Filter widgets
   const filteredWidgets = WIDGET_LIBRARY.filter(widget => {

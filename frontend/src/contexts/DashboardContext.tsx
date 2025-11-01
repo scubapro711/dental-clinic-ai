@@ -366,17 +366,23 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [])
   
   const removeWidget = useCallback((widgetId: string) => {
-    setState(prev => ({
-      ...prev,
-      activeWidgets: prev.activeWidgets.filter(id => id !== widgetId),
-      layouts: {
-        lg: prev.layouts.lg.filter(item => item.i !== widgetId),
-        md: prev.layouts.md.filter(item => item.i !== widgetId),
-        sm: prev.layouts.sm.filter(item => item.i !== widgetId),
-        xs: prev.layouts.xs.filter(item => item.i !== widgetId),
-        xxs: prev.layouts.xxs.filter(item => item.i !== widgetId)
+    console.log('🗑️ Removing widget:', widgetId)
+    setState(prev => {
+      const newActiveWidgets = prev.activeWidgets.filter(id => id !== widgetId)
+      console.log('📊 Active widgets before:', prev.activeWidgets)
+      console.log('📊 Active widgets after:', newActiveWidgets)
+      return {
+        ...prev,
+        activeWidgets: newActiveWidgets,
+        layouts: {
+          lg: prev.layouts.lg.filter(item => item.i !== widgetId),
+          md: prev.layouts.md.filter(item => item.i !== widgetId),
+          sm: prev.layouts.sm.filter(item => item.i !== widgetId),
+          xs: prev.layouts.xs.filter(item => item.i !== widgetId),
+          xxs: prev.layouts.xxs.filter(item => item.i !== widgetId)
+        }
       }
-    }))
+    })
     setIsSaving(true)
   }, [])
   
