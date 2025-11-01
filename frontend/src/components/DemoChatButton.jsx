@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Draggable from 'react-draggable';
 import InteractiveDemoChat from './InteractiveDemoChat';
 import './DemoChatButton.css';
 
 const DemoChatButton = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const nodeRef = useRef(null);  // React 18 compatibility
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -33,10 +34,12 @@ const DemoChatButton = () => {
     <>
       {!isChatOpen && (
         <Draggable
+          nodeRef={nodeRef}
           defaultPosition={getSavedPosition()}
           onStop={handleStop}
         >
           <div
+            ref={nodeRef}
             className="demo-chat-fab-wrapper"
             style={{
               position: 'fixed',
