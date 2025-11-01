@@ -391,7 +391,7 @@ export function DashboardGrid({ children }: DashboardGridProps) {
         isDraggable={isEditMode}
         isResizable={isEditMode}
         isBounded={false}
-        compactType="vertical"
+        compactType={null}
         preventCollision={false}
         useCSSTransforms={true}
         isDroppable={isEditMode}
