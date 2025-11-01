@@ -21,13 +21,21 @@ const DemoChatButton = () => {
   const getSavedPosition = () => {
     const saved = localStorage.getItem('chatButtonPosition');
     if (saved) {
-      return JSON.parse(saved);
+      try {
+        const pos = JSON.parse(saved);
+        // Validate position is on screen
+        if (pos.x >= 0 && pos.x <= window.innerWidth - 200 &&
+            pos.y >= 0 && pos.y <= window.innerHeight - 100) {
+          return pos;
+        }
+      } catch (e) {
+        // Invalid saved position, use default
+      }
     }
     // Default: bottom-right corner with safe margins
-    // Position is relative to top-left (0,0), not using window size
     return { 
-      x: 20,  // 20px from left (will appear on left side)
-      y: 20   // 20px from top
+      x: window.innerWidth - 180,
+      y: window.innerHeight - 100
     };
   };
 
@@ -37,6 +45,7 @@ const DemoChatButton = () => {
         <Draggable
           nodeRef={nodeRef}
           defaultPosition={getSavedPosition()}
+          positionOffset={{x: 0, y: 0}}
           onStop={handleStop}
         >
           <div
@@ -44,6 +53,8 @@ const DemoChatButton = () => {
             className="demo-chat-fab-wrapper"
             style={{
               position: 'fixed',
+              top: 0,
+              left: 0,
               cursor: 'grab',
               zIndex: 999,
             }}
