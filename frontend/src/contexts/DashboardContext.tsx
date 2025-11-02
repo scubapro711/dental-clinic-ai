@@ -125,31 +125,57 @@ const DEFAULT_LAYOUT_LG: Layout[] = [
 ]
 
 const DEFAULT_LAYOUT_MD: Layout[] = [
-  { i: 'todays-patients', x: 0, y: 0, w: 5, h: 2 },
-  { i: 'decision-queue', x: 5, y: 0, w: 5, h: 2 },
-  { i: 'revenue', x: 0, y: 2, w: 5, h: 2 },
-  { i: 'compliance', x: 5, y: 2, w: 5, h: 2 }
+  // Row 1 - Critical Operations
+  { i: 'todays-patients', x: 0, y: 0, w: 5, h: 4 },
+  { i: 'decision-queue', x: 5, y: 0, w: 5, h: 4 },
+  
+  // Row 2 - Revenue & Clinical
+  { i: 'revenue', x: 0, y: 4, w: 5, h: 4 },
+  { i: 'clinical-system', x: 5, y: 4, w: 5, h: 4 },
+  
+  // Row 3 - Monitoring
+  { i: 'compliance-alerts', x: 0, y: 8, w: 5, h: 4 },
+  { i: 'agent-activity', x: 5, y: 8, w: 5, h: 4 },
+  
+  // Row 4 - Management
+  { i: 'fine-tuning', x: 0, y: 12, w: 5, h: 4 },
+  { i: 'transparency-panel', x: 5, y: 12, w: 5, h: 4 }
 ]
 
 const DEFAULT_LAYOUT_SM: Layout[] = [
-  { i: 'todays-patients', x: 0, y: 0, w: 6, h: 2 },
-  { i: 'decision-queue', x: 0, y: 2, w: 6, h: 2 },
-  { i: 'revenue', x: 0, y: 4, w: 6, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 6, h: 2 }
+  // Vertical stack - mobile friendly
+  { i: 'todays-patients', x: 0, y: 0, w: 6, h: 3 },
+  { i: 'decision-queue', x: 0, y: 3, w: 6, h: 3 },
+  { i: 'revenue', x: 0, y: 6, w: 6, h: 3 },
+  { i: 'clinical-system', x: 0, y: 9, w: 6, h: 4 },
+  { i: 'compliance-alerts', x: 0, y: 13, w: 6, h: 3 },
+  { i: 'agent-activity', x: 0, y: 16, w: 6, h: 3 },
+  { i: 'fine-tuning', x: 0, y: 19, w: 6, h: 3 },
+  { i: 'transparency-panel', x: 0, y: 22, w: 6, h: 3 }
 ]
 
 const DEFAULT_LAYOUT_XS: Layout[] = [
-  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
-  { i: 'decision-queue', x: 0, y: 2, w: 4, h: 2 },
-  { i: 'revenue', x: 0, y: 4, w: 4, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 4, h: 2 }
+  // Vertical stack - extra small screens
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 3 },
+  { i: 'decision-queue', x: 0, y: 3, w: 4, h: 3 },
+  { i: 'revenue', x: 0, y: 6, w: 4, h: 3 },
+  { i: 'clinical-system', x: 0, y: 9, w: 4, h: 4 },
+  { i: 'compliance-alerts', x: 0, y: 13, w: 4, h: 3 },
+  { i: 'agent-activity', x: 0, y: 16, w: 4, h: 3 },
+  { i: 'fine-tuning', x: 0, y: 19, w: 4, h: 3 },
+  { i: 'transparency-panel', x: 0, y: 22, w: 4, h: 3 }
 ]
 
 const DEFAULT_LAYOUT_XXS: Layout[] = [
-  { i: 'todays-patients', x: 0, y: 0, w: 2, h: 2 },
-  { i: 'decision-queue', x: 0, y: 2, w: 2, h: 2 },
-  { i: 'revenue', x: 0, y: 4, w: 2, h: 2 },
-  { i: 'compliance', x: 0, y: 6, w: 2, h: 2 }
+  // Vertical stack - minimal screens
+  { i: 'todays-patients', x: 0, y: 0, w: 2, h: 3 },
+  { i: 'decision-queue', x: 0, y: 3, w: 2, h: 3 },
+  { i: 'revenue', x: 0, y: 6, w: 2, h: 3 },
+  { i: 'clinical-system', x: 0, y: 9, w: 2, h: 4 },
+  { i: 'compliance-alerts', x: 0, y: 13, w: 2, h: 3 },
+  { i: 'agent-activity', x: 0, y: 16, w: 2, h: 3 },
+  { i: 'fine-tuning', x: 0, y: 19, w: 2, h: 3 },
+  { i: 'transparency-panel', x: 0, y: 22, w: 2, h: 3 }
 ]
 
 function getDefaultState(organizationId: string, userId: string): DashboardState {
