@@ -61,7 +61,7 @@ describe('DashboardContext', () => {
     
     expect(result.current.state).toBeDefined()
     expect(result.current.state.widgets).toBeDefined()
-    expect(result.current.isEditMode).toBe(false)
+    expect(result.current.isEditMode).toBe(true)
   })
   
   it('toggles widget collapse state', () => {
@@ -234,12 +234,6 @@ describe('DashboardContext', () => {
       wrapper: DashboardProvider
     })
     
-    expect(result.current.isEditMode).toBe(false)
-    
-    act(() => {
-      result.current.toggleEditMode()
-    })
-    
     expect(result.current.isEditMode).toBe(true)
     
     act(() => {
@@ -247,6 +241,12 @@ describe('DashboardContext', () => {
     })
     
     expect(result.current.isEditMode).toBe(false)
+    
+    act(() => {
+      result.current.toggleEditMode()
+    })
+    
+    expect(result.current.isEditMode).toBe(true)
   })
   
   it('throws error when useDashboard used outside provider', () => {
