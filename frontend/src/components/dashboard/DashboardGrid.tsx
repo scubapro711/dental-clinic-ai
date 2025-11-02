@@ -119,6 +119,14 @@ export function DashboardGrid() {
     setLayouts
   } = useDashboard()
   
+  // DEBUG: Log layouts and activeWidgets
+  console.log('🔍 DashboardGrid Debug:', {
+    activeWidgets,
+    layouts,
+    layoutsLg: layouts?.lg,
+    layoutsLgLength: layouts?.lg?.length
+  })
+  
   // Handle layout change
   const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
     // Update all layouts in context
