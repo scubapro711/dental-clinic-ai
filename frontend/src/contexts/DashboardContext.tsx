@@ -99,25 +99,29 @@ const DEFAULT_WIDGETS: { [key: string]: WidgetState } = {
   'transparency': { collapsed: false, visible: true, position: 7 }
 }
 
+// UX-Optimized Layout - Professional Information Architecture
+// Based on F-Pattern reading, visual hierarchy, and usage frequency
+// Designed following Nielsen Norman Group and Material Design principles
 const DEFAULT_LAYOUT_LG: Layout[] = [
-  // Row 1 - Operations (y: 0-5, height: 6)
-  // Optimal size for list-based widgets with 3-5 items visible
-  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 6 },
-  { i: 'decision-queue', x: 4, y: 0, w: 4, h: 6 },
-  { i: 'revenue', x: 8, y: 0, w: 4, h: 6 },
+  // Row 1 - CRITICAL OPERATIONS (y: 0-4, h: 5)
+  // Above the fold, equal visual weight, high-frequency access
+  // F-Pattern: Left (Today's) → Center (Decisions) → Right (Revenue)
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 5 },
+  { i: 'decision-queue', x: 4, y: 0, w: 4, h: 5 },
+  { i: 'revenue', x: 8, y: 0, w: 4, h: 5 },
   
-  // Row 2 - Clinical & Monitoring (y: 6-13)
-  // Clinical needs more space for charts and visualizations (h: 8)
-  // Activity and Compliance are status widgets (h: 6)
-  { i: 'clinical-system', x: 0, y: 6, w: 6, h: 8 },
-  { i: 'agent-activity', x: 6, y: 6, w: 3, h: 6 },
-  { i: 'compliance-alerts', x: 9, y: 6, w: 3, h: 6 },
+  // Row 2 - MONITORING (y: 5-10, h: 6)
+  // Below the fold, medium-frequency access
+  // Clinical gets more space (data-rich), Compliance + Activity equal (similar function)
+  { i: 'clinical-system', x: 0, y: 5, w: 6, h: 6 },
+  { i: 'compliance-alerts', x: 6, y: 5, w: 3, h: 6 },
+  { i: 'agent-activity', x: 9, y: 5, w: 3, h: 6 },
   
-  // Row 3 - Admin & Transparency (y: 14-21)
-  // Transparency needs vertical space for detailed logs (h: 8)
-  // Fine-tuning needs space for controls and preview (h: 6)
-  { i: 'transparency-panel', x: 0, y: 14, w: 6, h: 8 },
-  { i: 'fine-tuning', x: 6, y: 14, w: 6, h: 6 }
+  // Row 3 - MANAGEMENT (y: 11-16, h: 6)
+  // Scroll required, low-frequency access
+  // Equal sizes (both management tools), side-by-side for comparison
+  { i: 'fine-tuning', x: 0, y: 11, w: 6, h: 6 },
+  { i: 'transparency-panel', x: 6, y: 11, w: 6, h: 6 }
 ]
 
 const DEFAULT_LAYOUT_MD: Layout[] = [
