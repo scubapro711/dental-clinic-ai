@@ -211,13 +211,20 @@ function loadDashboardState(organizationId: string, userId: string): DashboardSt
     
     // Merge with defaults (in case new widgets added)
     const defaultState = getDefaultState(organizationId, userId)
+    
+    // CRITICAL FIX: Force DEFAULT_LAYOUT_LG if layouts are empty or invalid
+    const hasValidLayouts = parsed.layouts && 
+                           parsed.layouts.lg && 
+                           Array.isArray(parsed.layouts.lg) && 
+                           parsed.layouts.lg.length > 0;
+    
     return {
       ...parsed,
       widgets: {
         ...defaultState.widgets,
         ...parsed.widgets
       },
-      layouts: parsed.layouts || defaultState.layouts,
+      layouts: hasValidLayouts ? parsed.layouts : defaultState.layouts,
       activeWidgets: parsed.activeWidgets || defaultState.activeWidgets,
       isSidebarOpen: parsed.isSidebarOpen !== undefined ? parsed.isSidebarOpen : true,
       editMode: parsed.editMode !== undefined ? parsed.editMode : true
