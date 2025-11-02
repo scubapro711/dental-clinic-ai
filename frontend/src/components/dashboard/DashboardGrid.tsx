@@ -177,13 +177,16 @@ export function DashboardGrid() {
     
     const grid = gridRef.current
     
+    // Disable change events temporarily to avoid loops
+    grid.off('change')
+    
     // Batch update for performance
     grid.batchUpdate()
     
     // Remove all widgets
     grid.removeAll(false)
     
-    // Add widgets back
+    // Add widgets back with their layout positions
     activeWidgets.forEach((widgetId) => {
       const ref = refs.current[widgetId]
       if (ref && ref.current) {
@@ -202,7 +205,29 @@ export function DashboardGrid() {
     })
     
     grid.batchUpdate(false)
-  }, [activeWidgets, layouts])
+    
+    // Re-enable change events
+    grid.on('change', (event, items) => {
+      if (!items) return
+      
+      // Update layouts in context
+      const newLayout = items.map((item: GridStackWidget) => ({
+        i: item.id || '',
+        x: item.x || 0,
+        y: item.y || 0,
+        w: item.w || 4,
+        h: item.h || 4
+      }))
+      
+      setLayouts({
+        lg: newLayout,
+        md: newLayout,
+        sm: newLayout,
+        xs: newLayout,
+        xxs: newLayout
+      })
+    })
+  }, [activeWidgets])
   
   // Enable/disable drag and resize based on edit mode
   useEffect(() => {
