@@ -129,10 +129,6 @@ export function DashboardSidebar() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const userInfo = getUserInfo()
   
-  // Debug: Log activeWidgets changes
-  useEffect(() => {
-    console.log('📋 Sidebar - Active widgets updated:', activeWidgets)
-  }, [activeWidgets])
   
   // Filter widgets
   const filteredWidgets = WIDGET_LIBRARY.filter(widget => {

@@ -472,11 +472,8 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [])
   
   const removeWidget = useCallback((widgetId: string) => {
-    console.log('🗑️ Removing widget:', widgetId)
     setState(prev => {
       const newActiveWidgets = prev.activeWidgets.filter(id => id !== widgetId)
-      console.log('📊 Active widgets before:', prev.activeWidgets)
-      console.log('📊 Active widgets after:', newActiveWidgets)
       return {
         ...prev,
         activeWidgets: newActiveWidgets,

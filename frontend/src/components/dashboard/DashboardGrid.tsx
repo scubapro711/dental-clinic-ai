@@ -125,14 +125,6 @@ export function DashboardGrid() {
   const containerRef = useRef<HTMLDivElement>(null)
   const containerWidth = useElementWidth(containerRef)
   
-  // DEBUG: Log layouts and width
-  console.log('🔍 DashboardGrid Debug:', {
-    activeWidgets,
-    layouts,
-    containerWidth,
-    layoutsLg: layouts?.lg,
-    layoutsLgLength: layouts?.lg?.length
-  })
   
   // Handle layout change
   const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
@@ -213,16 +205,6 @@ export function DashboardGrid() {
     )
   }
   
-  // DEBUG: Save layouts to window
-  if (typeof window !== 'undefined') {
-    (window as any).debugLayouts = {
-      layouts,
-      activeWidgets,
-      layoutsLg: layouts.lg,
-      layoutsLgLength: layouts.lg?.length || 0,
-      timestamp: new Date().toISOString()
-    };
-  }
   
   // Don't render grid until we have a width measurement
   if (!containerWidth) {
