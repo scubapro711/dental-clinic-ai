@@ -137,7 +137,7 @@ const DEFAULT_LAYOUT_XXS: Layout[] = [
 function getDefaultState(organizationId: string, userId: string): DashboardState {
   return {
     widgets: { ...DEFAULT_WIDGETS },
-    editMode: false,
+    editMode: true,
     organizationId,
     userId,
     lastModified: new Date().toISOString(),
@@ -192,7 +192,8 @@ function loadDashboardState(organizationId: string, userId: string): DashboardSt
       },
       layouts: parsed.layouts || defaultState.layouts,
       activeWidgets: parsed.activeWidgets || defaultState.activeWidgets,
-      isSidebarOpen: parsed.isSidebarOpen !== undefined ? parsed.isSidebarOpen : true
+      isSidebarOpen: parsed.isSidebarOpen !== undefined ? parsed.isSidebarOpen : true,
+      editMode: parsed.editMode !== undefined ? parsed.editMode : true
     }
   } catch (error) {
     console.error('Failed to load dashboard state:', error)
