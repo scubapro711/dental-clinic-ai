@@ -1,195 +1,178 @@
 /**
- * DashboardGrid v4.0 - Clean Rebuild
+ * DashboardGrid v5.0 - React-RND Implementation
  * 
- * Simple, working implementation:
+ * Simple, working implementation with react-rnd:
  * - One widget: Today's Patients
  * - Always-on drag & resize (no edit mode)
  * - Auto-save to localStorage
  * - No Done/Reset buttons
+ * - Controlled state management
  */
 
-import { useCallback, useRef } from 'react'
-import { Responsive, Layout, Layouts } from 'react-grid-layout'
-import { useElementWidth } from '../../hooks/useElementWidth'
+import { useState, useCallback } from 'react'
+import { Rnd } from 'react-rnd'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 
-// Import react-grid-layout CSS
-import 'react-grid-layout/css/styles.css'
-import 'react-resizable/css/styles.css'
+// Import custom styles
 import '../../styles/dashboard-grid.css'
 
-// Default layout for Today's Patients widget
-const DEFAULT_LAYOUT: Layout = {
-  i: 'todays-patients',
-  x: 0,
-  y: 0,
-  w: 4,
-  h: 5,
-  minW: 3,
-  minH: 4
+// Widget position and size type
+interface WidgetState {
+  x: number
+  y: number
+  width: number
+  height: number
 }
 
+// Default position and size for Today's Patients widget
+const DEFAULT_WIDGET_STATE: WidgetState = {
+  x: 20,
+  y: 20,
+  width: 400,
+  height: 350
+}
+
+// LocalStorage key
+const STORAGE_KEY = 'dashboard-widget-todays-patients-v5'
+
 export function DashboardGrid() {
-  // Calculate container width
-  const containerRef = useRef<HTMLDivElement>(null)
-  const containerWidth = useElementWidth(containerRef)
-  
-  // Load layout from localStorage or use default
-  const loadLayout = (): Layouts => {
+  // Load widget state from localStorage or use default
+  const loadWidgetState = (): WidgetState => {
     try {
-      const saved = localStorage.getItem('dashboard-layout-v4')
+      const saved = localStorage.getItem(STORAGE_KEY)
       if (saved) {
-        return JSON.parse(saved)
+        const parsed = JSON.parse(saved)
+        console.log('Loaded widget state:', parsed)
+        return parsed
       }
     } catch (e) {
-      console.error('Failed to load layout:', e)
+      console.error('Failed to load widget state:', e)
     }
     
-    // Return default layout for all breakpoints
-    return {
-      lg: [DEFAULT_LAYOUT],
-      md: [DEFAULT_LAYOUT],
-      sm: [DEFAULT_LAYOUT],
-      xs: [DEFAULT_LAYOUT],
-      xxs: [DEFAULT_LAYOUT]
-    }
+    return DEFAULT_WIDGET_STATE
   }
-  
-  // Save layout to localStorage
-  const saveLayout = (layouts: Layouts) => {
+
+  // State for widget position and size
+  const [widgetState, setWidgetState] = useState<WidgetState>(loadWidgetState)
+
+  // Save widget state to localStorage
+  const saveWidgetState = useCallback((state: WidgetState) => {
     try {
-      localStorage.setItem('dashboard-layout-v4', JSON.stringify(layouts))
-      console.log('Layout saved:', layouts)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      console.log('Widget state saved:', state)
     } catch (e) {
-      console.error('Failed to save layout:', e)
+      console.error('Failed to save widget state:', e)
     }
-  }
-  
-  // Handle layout change (auto-save)
-  const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Layouts) => {
-    console.log('Layout changed:', allLayouts)
-    saveLayout(allLayouts)
   }, [])
-  
-  // Wait for width measurement
-  if (!containerWidth) {
-    return (
-      <div
-        ref={containerRef}
-        style={{
-          width: '100%',
-          minHeight: '100vh',
-          padding: 'var(--spacing-lg)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <div style={{ color: 'var(--foreground-secondary)' }}>
-          Loading dashboard...
-        </div>
-      </div>
-    )
-  }
-  
+
+  // Handle drag stop - save new position
+  const handleDragStop = useCallback((e: any, d: { x: number; y: number }) => {
+    const newState = {
+      ...widgetState,
+      x: d.x,
+      y: d.y
+    }
+    setWidgetState(newState)
+    saveWidgetState(newState)
+  }, [widgetState, saveWidgetState])
+
+  // Handle resize stop - save new size and position
+  const handleResizeStop = useCallback((
+    e: any,
+    direction: any,
+    ref: HTMLElement,
+    delta: any,
+    position: { x: number; y: number }
+  ) => {
+    const newState = {
+      x: position.x,
+      y: position.y,
+      width: ref.offsetWidth,
+      height: ref.offsetHeight
+    }
+    setWidgetState(newState)
+    saveWidgetState(newState)
+  }, [saveWidgetState])
+
   return (
     <div
-      ref={containerRef}
       style={{
         width: '100%',
         minHeight: '100vh',
-        padding: 'var(--spacing-lg)'
+        padding: 'var(--spacing-lg)',
+        position: 'relative',
+        background: 'var(--background-secondary)'
       }}
     >
-      <Responsive
-        className="layout"
-        layouts={loadLayout()}
-        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-        rowHeight={60}
-        margin={[16, 16]}
-        containerPadding={[0, 0]}
-        
-        // Always draggable and resizable
-        isDraggable={true}
-        isResizable={true}
-        
-        // Free positioning
-        compactType={null}
-        preventCollision={false}
-        
-        // Resize handles
-        resizeHandles={['se', 'sw', 'ne', 'nw']}
-        
-        // Callbacks
-        onLayoutChange={handleLayoutChange}
-        
-        // Width
-        width={containerWidth}
+      <Rnd
+        size={{ width: widgetState.width, height: widgetState.height }}
+        position={{ x: widgetState.x, y: widgetState.y }}
+        onDragStop={handleDragStop}
+        onResizeStop={handleResizeStop}
+        minWidth={300}
+        minHeight={250}
+        bounds="parent"
+        dragHandleClassName="widget-drag-handle"
+        style={{
+          background: 'var(--background)',
+          borderRadius: 'var(--radius-lg)',
+          boxShadow: 'var(--shadow-md)',
+          border: '1px solid var(--border)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}
       >
+        {/* Widget Header - Drag Handle */}
         <div
-          key="todays-patients"
+          className="widget-drag-handle"
           style={{
-            background: 'var(--background)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-md)',
-            overflow: 'hidden',
+            padding: 'var(--spacing-md)',
+            borderBottom: '1px solid var(--border)',
             display: 'flex',
-            flexDirection: 'column',
-            border: '1px solid var(--border)',
-            height: '100%'
+            alignItems: 'center',
+            gap: 'var(--spacing-sm)',
+            background: 'var(--background-secondary)',
+            cursor: 'move'
           }}
         >
-          {/* Widget Header */}
           <div
             style={{
-              padding: 'var(--spacing-md)',
-              borderBottom: '1px solid var(--border)',
+              width: '32px',
+              height: '32px',
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--primary)',
               display: 'flex',
               alignItems: 'center',
-              gap: 'var(--spacing-sm)',
-              background: 'var(--background-secondary)',
-              cursor: 'move'
+              justifyContent: 'center',
+              fontSize: '18px'
             }}
           >
-            <div
-              style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px'
-              }}
-            >
-              👥
-            </div>
-            <h3
-              style={{
-                fontSize: 'var(--font-size-lg)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--foreground)',
-                margin: 0
-              }}
-            >
-              Today's Patients
-            </h3>
+            👥
           </div>
-          
-          {/* Widget Content */}
-          <div
+          <h3
             style={{
-              flex: '1',
-              overflow: 'auto',
-              padding: 0
+              fontSize: 'var(--font-size-lg)',
+              fontWeight: 'var(--font-weight-semibold)',
+              color: 'var(--foreground)',
+              margin: 0
             }}
           >
-            <TodaysPatientsWidget />
-          </div>
+            Today's Patients
+          </h3>
         </div>
-      </Responsive>
+
+        {/* Widget Content */}
+        <div
+          style={{
+            flex: '1',
+            overflow: 'auto',
+            padding: 0
+          }}
+        >
+          <TodaysPatientsWidget />
+        </div>
+      </Rnd>
     </div>
   )
 }
