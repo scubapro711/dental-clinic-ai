@@ -39,7 +39,7 @@ export const WIDGET_LIBRARY = [
     icon: Users,
     category: 'operations',
     description: 'View and manage today\'s patient appointments',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 4, h: 4 },
     color: 'blue'
   },
   {
@@ -48,7 +48,7 @@ export const WIDGET_LIBRARY = [
     icon: DollarSign,
     category: 'analytics',
     description: 'Track revenue and financial metrics',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 3, h: 4 },
     color: 'cyan'
   },
   {
@@ -57,7 +57,7 @@ export const WIDGET_LIBRARY = [
     icon: CheckCircle,
     category: 'admin',
     description: 'Monitor compliance and regulatory status',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 4, h: 4 },
     color: 'orange'
   },
   {
@@ -66,7 +66,7 @@ export const WIDGET_LIBRARY = [
     icon: AlertCircle,
     category: 'operations',
     description: 'Review pending decisions and approvals',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 5, h: 4 },
     color: 'green'
   },
   {
@@ -75,7 +75,7 @@ export const WIDGET_LIBRARY = [
     icon: Activity,
     category: 'clinical',
     description: 'Clinical data and patient insights',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 6, h: 5 },
     color: 'purple'
   },
   {
@@ -84,7 +84,7 @@ export const WIDGET_LIBRARY = [
     icon: Settings,
     category: 'admin',
     description: 'AI model fine-tuning and optimization',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 4, h: 4 },
     color: 'orange'
   },
   {
@@ -93,7 +93,7 @@ export const WIDGET_LIBRARY = [
     icon: BarChart3,
     category: 'analytics',
     description: 'Monitor AI agent performance and activity',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 4, h: 4 },
     color: 'cyan'
   },
   {
@@ -102,7 +102,7 @@ export const WIDGET_LIBRARY = [
     icon: Eye,
     category: 'admin',
     description: 'View AI decision-making transparency logs',
-    defaultSize: { w: 4, h: 2 },
+    defaultSize: { w: 5, h: 5 },
     color: 'purple'
   }
 ]
