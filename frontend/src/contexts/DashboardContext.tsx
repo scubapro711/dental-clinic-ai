@@ -348,11 +348,21 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [])
   
   const resetToDefaults = useCallback(() => {
-    const defaultState = getDefaultState(organizationId, userId)
-    setState(defaultState)
-    // Save to localStorage immediately
-    saveDashboardState(defaultState)
-    // Reload to ensure clean state
+    // CRITICAL FIX: Clear localStorage FIRST, then reload
+    // This ensures the page loads with default state, not stale localStorage
+    
+    // Clear all dashboard-related localStorage keys
+    const key = getStorageKey(organizationId, userId)
+    localStorage.removeItem(key)
+    
+    // Also clear legacy keys (if any)
+    localStorage.removeItem('dashboard-layouts')
+    localStorage.removeItem('dashboard-active-widgets')
+    localStorage.removeItem('dashboard-collapsed-widgets')
+    
+    console.log('🔄 Reset to defaults: localStorage cleared')
+    
+    // Reload page - will load with default state
     window.location.reload()
   }, [organizationId, userId])
   
