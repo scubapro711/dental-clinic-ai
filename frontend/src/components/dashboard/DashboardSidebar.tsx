@@ -374,15 +374,20 @@ export function DashboardSidebar() {
               return (
                 <div
                   key={widget.id}
-                  draggable={!isActive}
-                  onDragStart={(e) => handleDragStart(e, widget)}
+                  onClick={() => !isActive && addWidget(widget.id, {
+                    i: widget.id,
+                    x: 0,
+                    y: 0,
+                    w: widget.defaultSize.w,
+                    h: widget.defaultSize.h
+                  })}
                   className="widget-library-item"
                   style={{
                     padding: 'var(--spacing-md)',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid var(--border)',
                     background: isActive ? 'var(--muted)' : 'var(--background)',
-                    cursor: isActive ? 'not-allowed' : 'grab',
+                    cursor: isActive ? 'not-allowed' : 'pointer',
                     transition: 'all var(--transition-base)',
                     opacity: isActive ? 0.5 : 1
                   }}

@@ -1,5 +1,5 @@
 /**
- * DashboardGrid v2.0 - Powered by Gridstack.js
+ * DashboardGrid v2.0 - Modern Drag & Drop Grid Layout with @dnd-kit
  * 
  * Features:
  * - Free widget placement (no auto-compacting)
@@ -9,11 +9,19 @@
  * - State persistence
  * - RBAC integration
  * - RTL support
- * - Mobile touch support
  */
 
-import { useEffect, useRef, createRef, useCallback } from 'react'
-import { GridStack, GridStackWidget } from 'gridstack'
+import { useState, useCallback } from 'react'
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverEvent
+} from '@dnd-kit/core'
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
 import { WIDGET_LIBRARY } from './DashboardSidebar'
@@ -26,9 +34,6 @@ import ClinicalDashboard from '../clinical/ClinicalDashboard'
 import EnhancedFineTuningWidget from '../fine-tuning/EnhancedFineTuningWidget'
 import AgentActivityPanel from '../transparency/AgentActivityPanel'
 import EnhancedTransparencyPanel from '../transparency/EnhancedTransparencyPanel'
-
-// Import Gridstack CSS
-import 'gridstack/dist/gridstack.min.css'
 
 // Widget Content Renderer
 function renderWidgetContent(widgetId: string) {
@@ -102,128 +107,138 @@ function renderWidgetContent(widgetId: string) {
   }
 }
 
-export function DashboardGrid() {
+// Grid constants
+const GRID_SIZE = 60 // pixels per grid unit
+const MARGIN = 16
+
+interface WidgetPosition {
+  id: string
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+interface DashboardGridProps {
+  children?: React.ReactNode
+}
+
+export function DashboardGrid({ children }: DashboardGridProps) {
   const {
     activeWidgets,
+    addWidget,
     removeWidget,
     isEditMode,
     layouts,
     setLayouts
   } = useDashboard()
   
-  const gridRef = useRef<GridStack | null>(null)
-  const refs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({})
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [draggedFromSidebar, setDraggedFromSidebar] = useState<any>(null)
   
-  // Create refs for each widget
-  if (activeWidgets) {
-    activeWidgets.forEach((widgetId) => {
-      if (!refs.current[widgetId]) {
-        refs.current[widgetId] = createRef<HTMLDivElement>()
+  // Configure sensors for drag
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement before drag starts
+      },
+    })
+  )
+  
+  // Get widget positions from layouts
+  const getWidgetPositions = (): WidgetPosition[] => {
+    if (!activeWidgets || !layouts.lg) return []
+    
+    return activeWidgets.map(widgetId => {
+      const layoutItem = layouts.lg.find(item => item.i === widgetId)
+      return {
+        id: widgetId,
+        x: layoutItem?.x || 0,
+        y: layoutItem?.y || 0,
+        w: layoutItem?.w || 4,
+        h: layoutItem?.h || 4
       }
     })
   }
   
-  // Initialize Gridstack
-  useEffect(() => {
-    if (!gridRef.current) {
-      gridRef.current = GridStack.init({
-        float: true, // Free positioning (no auto-compact)
-        cellHeight: 60,
-        margin: 16,
-        column: 12,
-        animate: true,
-        draggable: {
-          handle: '.widget-header'
-        },
-        resizable: {
-          handles: 'se, sw, ne, nw'
-        }
-      })
-      
-      // Listen to changes
-      gridRef.current.on('change', (event, items) => {
-        if (!items) return
-        
-        // Update layouts in context
-        const newLayout = items.map((item: GridStackWidget) => ({
-          i: item.id || '',
-          x: item.x || 0,
-          y: item.y || 0,
-          w: item.w || 4,
-          h: item.h || 4
-        }))
-        
-        setLayouts({
-          lg: newLayout,
-          md: newLayout,
-          sm: newLayout,
-          xs: newLayout,
-          xxs: newLayout
-        })
-      })
-    }
+  const widgetPositions = getWidgetPositions()
+  
+  // Handle drag start
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    const { active } = event
+    setActiveId(active.id as string)
     
-    return () => {
-      if (gridRef.current) {
-        gridRef.current.destroy(false)
-        gridRef.current = null
-      }
+    // Check if dragging from sidebar
+    if (active.data.current?.fromSidebar) {
+      setDraggedFromSidebar(active.data.current.widget)
     }
   }, [])
   
-  // Update widgets when activeWidgets changes
-  useEffect(() => {
-    if (!gridRef.current || !activeWidgets) return
-    
-    const grid = gridRef.current
-    
-    // Batch update for performance
-    grid.batchUpdate()
-    
-    // Remove all widgets
-    grid.removeAll(false)
-    
-    // Add widgets back
-    activeWidgets.forEach((widgetId) => {
-      const ref = refs.current[widgetId]
-      if (ref && ref.current) {
-        // Get layout data for this widget
-        const layoutItem = layouts.lg?.find(item => item.i === widgetId)
-        
-        // Make widget with layout data
-        grid.makeWidget(ref.current, {
-          id: widgetId,
-          x: layoutItem?.x || 0,
-          y: layoutItem?.y || 0,
-          w: layoutItem?.w || 4,
-          h: layoutItem?.h || 4
-        })
-      }
-    })
-    
-    grid.batchUpdate(false)
-  }, [activeWidgets, layouts])
+  // Handle drag over (for preview)
+  const handleDragOver = useCallback((event: DragOverEvent) => {
+    // Can add preview logic here if needed
+  }, [])
   
-  // Enable/disable drag and resize based on edit mode
-  useEffect(() => {
-    if (!gridRef.current) return
+  // Handle drag end
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, delta } = event
     
-    const grid = gridRef.current
-    
-    if (isEditMode) {
-      grid.enable()
+    // If dragging from sidebar
+    if (draggedFromSidebar) {
+      const widget = draggedFromSidebar
+      
+      // Calculate grid position from drop location
+      const x = Math.round(delta.x / (GRID_SIZE + MARGIN))
+      const y = Math.round(delta.y / (GRID_SIZE + MARGIN))
+      
+      // Add widget at drop position
+      addWidget(widget.id, {
+        i: widget.id,
+        x: Math.max(0, x),
+        y: Math.max(0, y),
+        w: widget.defaultSize.w,
+        h: widget.defaultSize.h
+      })
+      
+      setDraggedFromSidebar(null)
     } else {
-      grid.disable()
+      // Moving existing widget
+      const widgetId = active.id as string
+      const currentPos = widgetPositions.find(w => w.id === widgetId)
+      
+      if (currentPos) {
+        const gridDeltaX = Math.round(delta.x / (GRID_SIZE + MARGIN))
+        const gridDeltaY = Math.round(delta.y / (GRID_SIZE + MARGIN))
+        
+        const newX = Math.max(0, currentPos.x + gridDeltaX)
+        const newY = Math.max(0, currentPos.y + gridDeltaY)
+        
+        // Update layout
+        const newLayouts = { ...layouts }
+        const lgLayout = [...(newLayouts.lg || [])]
+        const itemIndex = lgLayout.findIndex(item => item.i === widgetId)
+        
+        if (itemIndex >= 0) {
+          lgLayout[itemIndex] = {
+            ...lgLayout[itemIndex],
+            x: newX,
+            y: newY
+          }
+          
+          newLayouts.lg = lgLayout
+          setLayouts(newLayouts)
+        }
+      }
     }
-  }, [isEditMode])
+    
+    setActiveId(null)
+  }, [draggedFromSidebar, widgetPositions, layouts, setLayouts, addWidget])
   
   // Handle remove widget
   const handleRemoveWidget = useCallback((e: React.MouseEvent, widgetId: string) => {
     e.stopPropagation()
     e.preventDefault()
-    
-    const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
-    if (confirm(`Remove ${widgetDef?.title || 'widget'} from dashboard?`)) {
+    if (confirm(`Remove widget from dashboard?`)) {
       removeWidget(widgetId)
     }
   }, [removeWidget])
@@ -291,31 +306,46 @@ export function DashboardGrid() {
   }
   
   return (
-    <div
-      className="dashboard-grid-container"
-      style={{
-        width: '100%',
-        minHeight: '100vh',
-        padding: 'var(--spacing-lg)',
-        paddingRight: 'calc(320px + var(--spacing-lg))'
-      }}
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
     >
-      <div className="grid-stack">
-        {activeWidgets.map((widgetId) => {
-          const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
-          if (!widgetDef) return null
-          
-          const Icon = widgetDef.icon
-          
-          return (
-            <div
-              key={widgetId}
-              ref={refs.current[widgetId]}
-              className="grid-stack-item"
-            >
-              <div 
-                className="grid-stack-item-content"
+      <div
+        className="dashboard-grid-container"
+        style={{
+          width: '100%',
+          minHeight: '100vh',
+          padding: 'var(--spacing-lg)',
+          paddingRight: 'calc(320px + var(--spacing-lg))',
+          position: 'relative'
+        }}
+      >
+        {/* Grid with widgets */}
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            minHeight: '800px'
+          }}
+        >
+          {widgetPositions.map(pos => {
+            const widgetDef = WIDGET_LIBRARY.find(w => w.id === pos.id)
+            if (!widgetDef) return null
+            
+            const Icon = widgetDef.icon
+            
+            return (
+              <div
+                key={pos.id}
+                id={pos.id}
                 style={{
+                  position: 'absolute',
+                  left: `${pos.x * (GRID_SIZE + MARGIN)}px`,
+                  top: `${pos.y * (GRID_SIZE + MARGIN)}px`,
+                  width: `${pos.w * GRID_SIZE + (pos.w - 1) * MARGIN}px`,
+                  height: `${pos.h * GRID_SIZE + (pos.h - 1) * MARGIN}px`,
                   background: 'var(--background)',
                   borderRadius: 'var(--radius-lg)',
                   boxShadow: 'var(--shadow-md)',
@@ -323,7 +353,9 @@ export function DashboardGrid() {
                   display: 'flex',
                   flexDirection: 'column',
                   border: '1px solid var(--border)',
-                  height: '100%'
+                  cursor: isEditMode ? 'move' : 'default',
+                  transition: activeId === pos.id ? 'none' : 'all 0.2s ease',
+                  opacity: activeId === pos.id ? 0.5 : 1
                 }}
               >
                 {/* Widget Header */}
@@ -381,7 +413,7 @@ export function DashboardGrid() {
                   {/* Remove button (edit mode only) */}
                   {isEditMode && (
                     <button
-                      onClick={(e) => handleRemoveWidget(e, widgetId)}
+                      onClick={(e) => handleRemoveWidget(e, pos.id)}
                       className="widget-remove-button"
                       aria-label={`Remove ${widgetDef.title}`}
                       style={{
@@ -420,48 +452,64 @@ export function DashboardGrid() {
                     overflow: 'auto'
                   }}
                 >
-                  {renderWidgetContent(widgetId)}
+                  {renderWidgetContent(pos.id)}
                 </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
+        
+        {/* Edit Mode Indicator */}
+        {isEditMode && (
+          <div
+            className="edit-mode-indicator"
+            style={{
+              position: 'fixed',
+              bottom: 'var(--spacing-lg)',
+              left: 'var(--spacing-lg)',
+              padding: '12px 20px',
+              background: 'var(--primary)',
+              color: 'var(--primary-foreground)',
+              borderRadius: 'var(--radius-md)',
+              boxShadow: 'var(--shadow-lg)',
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-semibold)',
+              zIndex: 1000,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--spacing-sm)'
+            }}
+          >
+            <span
+              style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: 'var(--primary-foreground)'
+              }}
+            />
+            Edit Mode Active - Drag & Resize Widgets
+          </div>
+        )}
       </div>
       
-      {/* Edit Mode Indicator */}
-      {isEditMode && (
-        <div
-          className="edit-mode-indicator"
-          style={{
-            position: 'fixed',
-            bottom: 'var(--spacing-lg)',
-            left: 'var(--spacing-lg)',
-            padding: '12px 20px',
-            background: 'var(--primary)',
-            color: 'var(--primary-foreground)',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-lg)',
-            fontSize: 'var(--font-size-sm)',
-            fontWeight: 'var(--font-weight-semibold)',
-            zIndex: 1000,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-sm)'
-          }}
-        >
-          <span
+      {/* Drag Overlay */}
+      <DragOverlay>
+        {activeId ? (
+          <div
             style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: 'var(--primary-foreground)',
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              background: 'var(--background)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-xl)',
+              padding: 'var(--spacing-md)',
+              opacity: 0.8
             }}
-          />
-          Edit Mode Active - Drag & Resize Widgets
-        </div>
-      )}
-    </div>
+          >
+            Dragging widget...
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   )
 }
 
