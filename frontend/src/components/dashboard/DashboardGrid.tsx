@@ -33,6 +33,7 @@ import EnhancedTransparencyPanel from '../transparency/EnhancedTransparencyPanel
 // Import react-grid-layout CSS
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import '../../styles/dashboard-grid.css'
 
 // Create responsive grid layout with WidthProvider
 const ResponsiveGridLayout = WidthProvider(Responsive)
