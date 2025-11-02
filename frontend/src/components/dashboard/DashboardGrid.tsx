@@ -206,6 +206,17 @@ export function DashboardGrid() {
     )
   }
   
+  // DEBUG: Save layouts to window
+  if (typeof window !== 'undefined') {
+    (window as any).debugLayouts = {
+      layouts,
+      activeWidgets,
+      layoutsLg: layouts.lg,
+      layoutsLgLength: layouts.lg?.length || 0,
+      timestamp: new Date().toISOString()
+    };
+  }
+  
   return (
     <div
       className="dashboard-grid-container"
