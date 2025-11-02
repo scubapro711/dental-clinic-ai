@@ -12,7 +12,7 @@
  * - Mobile touch support
  */
 
-import { useEffect, useRef, createRef, useCallback } from 'react'
+import { useEffect, useRef, createRef, useCallback, useMemo } from 'react'
 import { GridStack, GridStackWidget } from 'gridstack'
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
@@ -113,6 +113,7 @@ export function DashboardGrid() {
   
   const gridRef = useRef<GridStack | null>(null)
   const refs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({})
+  const isUpdatingRef = useRef(false)
   
   // Create refs for each widget
   if (activeWidgets) {
@@ -122,6 +123,26 @@ export function DashboardGrid() {
       }
     })
   }
+  
+  // Memoize widget positions to prevent race conditions
+  // This ensures positions are computed atomically when activeWidgets or layouts change
+  const widgetPositions = useMemo(() => {
+    if (!activeWidgets || !layouts?.lg) return {}
+    
+    const positions: Record<string, { x: number, y: number, w: number, h: number }> = {}
+    
+    activeWidgets.forEach((widgetId) => {
+      const layoutItem = layouts.lg.find(item => item.i === widgetId)
+      positions[widgetId] = {
+        x: layoutItem?.x ?? 0,
+        y: layoutItem?.y ?? 0,
+        w: layoutItem?.w ?? 4,
+        h: layoutItem?.h ?? 4
+      }
+    })
+    
+    return positions
+  }, [activeWidgets, layouts])
   
   // Initialize Gridstack
   useEffect(() => {
@@ -175,9 +196,35 @@ export function DashboardGrid() {
     }
   }, [])
   
-  // Update widgets when activeWidgets changes
+  // Handle change events from Gridstack
+  const handleGridChange = useCallback((event: Event, items: GridStackWidget[]) => {
+    if (!items || isUpdatingRef.current) return
+    
+    // Update layouts in context
+    const newLayout = items.map((item: GridStackWidget) => ({
+      i: item.id || '',
+      x: item.x || 0,
+      y: item.y || 0,
+      w: item.w || 4,
+      h: item.h || 4
+    }))
+    
+    setLayouts({
+      lg: newLayout,
+      md: newLayout,
+      sm: newLayout,
+      xs: newLayout,
+      xxs: newLayout
+    })
+  }, [setLayouts])
+  
+  // Update widgets when widgetPositions changes (memoized from activeWidgets + layouts)
   useEffect(() => {
-    if (!gridRef.current || !activeWidgets) return
+    if (!gridRef.current || !activeWidgets || Object.keys(widgetPositions).length === 0) return
+    
+    // Prevent re-entry during update
+    if (isUpdatingRef.current) return
+    isUpdatingRef.current = true
     
     const grid = gridRef.current
     
@@ -190,48 +237,33 @@ export function DashboardGrid() {
     // Remove all widgets
     grid.removeAll(false)
     
-    // Add widgets back with their layout positions
+    // Add widgets back with their memoized positions
     activeWidgets.forEach((widgetId) => {
       const ref = refs.current[widgetId]
       if (ref && ref.current) {
-        // Get layout data for this widget
-        const layoutItem = layouts.lg?.find(item => item.i === widgetId)
+        const pos = widgetPositions[widgetId]
         
-        // Make widget with layout data
+        // Make widget with position data
         grid.makeWidget(ref.current, {
           id: widgetId,
-          x: layoutItem?.x || 0,
-          y: layoutItem?.y || 0,
-          w: layoutItem?.w || 4,
-          h: layoutItem?.h || 4
+          x: pos.x,
+          y: pos.y,
+          w: pos.w,
+          h: pos.h
         })
       }
     })
     
     grid.batchUpdate(false)
     
-    // Re-enable change events
-    grid.on('change', (event, items) => {
-      if (!items) return
-      
-      // Update layouts in context
-      const newLayout = items.map((item: GridStackWidget) => ({
-        i: item.id || '',
-        x: item.x || 0,
-        y: item.y || 0,
-        w: item.w || 4,
-        h: item.h || 4
-      }))
-      
-      setLayouts({
-        lg: newLayout,
-        md: newLayout,
-        sm: newLayout,
-        xs: newLayout,
-        xxs: newLayout
-      })
-    })
-  }, [activeWidgets])
+    // Re-enable change events after a delay to allow React to settle
+    setTimeout(() => {
+      if (gridRef.current) {
+        gridRef.current.on('change', handleGridChange)
+      }
+      isUpdatingRef.current = false
+    }, 100)
+  }, [widgetPositions, activeWidgets, handleGridChange])
   
   // Enable/disable drag and resize based on edit mode
   useEffect(() => {
