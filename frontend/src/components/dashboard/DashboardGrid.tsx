@@ -132,6 +132,10 @@ export function DashboardGrid() {
         margin: 16,
         column: 12,
         animate: true,
+        disableOneColumnMode: true, // Prevent responsive stacking
+        minRow: 1, // Minimum rows
+        acceptWidgets: false, // No drag from outside for now
+        removable: false, // No drag to remove
         draggable: {
           handle: '.widget-header'
         },
