@@ -22,6 +22,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 
 // Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
+import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
 import BAAManagementPage from './pages/clinic/BAAManagementPage'
@@ -162,7 +163,7 @@ function App() {
           }
         >
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
-          <Route path="dashboard" element={<AgenticDashboard />} />
+          <Route path="dashboard" element={<MissionControlPage />} />
           <Route path="patients" element={<PatientsManagement />} />
           <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
