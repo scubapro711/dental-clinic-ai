@@ -368,6 +368,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     if (isTest) {
       // In tests: update state directly (no reload)
       setState({
+        widgets: { ...DEFAULT_WIDGETS },
         layouts: {
           lg: DEFAULT_LAYOUT_LG,
           md: DEFAULT_LAYOUT_MD,
@@ -386,6 +387,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           'fine-tuning'
         ],
         collapsedWidgets: [],
+        isSidebarOpen: true,
         editMode: false,
         organizationId,
         userId,
