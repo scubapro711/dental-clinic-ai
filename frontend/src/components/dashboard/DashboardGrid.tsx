@@ -15,7 +15,7 @@
  * - Material Design principles
  */
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { Responsive, WidthProvider, Layout } from 'react-grid-layout'
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
@@ -126,6 +126,16 @@ export function DashboardGrid() {
     layoutsLg: layouts?.lg,
     layoutsLgLength: layouts?.lg?.length
   })
+  
+  // FIX #1: Trigger resize event on mount to ensure WidthProvider calculates width correctly
+  // This is a backup fix in case measureBeforeMount doesn't work
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event('resize'))
+      console.log('🔧 Resize event triggered to fix grid layout')
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
   
   // Handle layout change
   const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
@@ -259,6 +269,10 @@ export function DashboardGrid() {
         
         // Responsive behavior
         autoSize={true}
+        
+        // FIX #2: Measure container width BEFORE mounting children
+        // This prevents initial render with width=0 which causes vertical stacking
+        measureBeforeMount={true}
       >
         {activeWidgets.map((widgetId) => {
           const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
