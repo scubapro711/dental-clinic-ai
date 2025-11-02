@@ -253,9 +253,13 @@ export function DashboardGrid({ children }: DashboardGridProps) {
       
       const Icon = widgetDef.icon
       
+      // Get layout data for this widget
+      const layoutItem = layouts[currentBreakpoint]?.find(item => item.i === widgetId)
+      
       return (
         <div
           key={widgetId}
+          data-grid={layoutItem}
           className="dashboard-widget"
           style={{
             background: 'var(--background)',
@@ -367,7 +371,7 @@ export function DashboardGrid({ children }: DashboardGridProps) {
         </div>
       )
     })
-  }, [activeWidgets, isEditMode, handleRemoveWidget])
+  }, [activeWidgets, isEditMode, handleRemoveWidget, layouts, currentBreakpoint])
   
   return (
     <div
