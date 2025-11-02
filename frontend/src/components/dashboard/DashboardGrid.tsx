@@ -1,19 +1,22 @@
 /**
- * DashboardGrid v2.0 - Powered by Gridstack.js
+ * DashboardGrid v3.0 - Powered by react-grid-layout
  * 
  * Features:
- * - Free widget placement (no auto-compacting)
- * - Drag widgets from sidebar
- * - Resize widgets
- * - Drag to reposition
- * - State persistence
+ * - Free widget placement (compactType={null})
+ * - Drag & resize widgets
+ * - Persistent layouts via DashboardContext
  * - RBAC integration
- * - RTL support
- * - Mobile touch support
+ * - Professional UX following F-Pattern
+ * - No auto-compacting or position jumping
+ * 
+ * Configuration based on:
+ * - ilert.com case study (Nov 2024)
+ * - react-grid-layout best practices
+ * - Material Design principles
  */
 
-import { useEffect, useRef, createRef, useCallback, useMemo } from 'react'
-import { GridStack, GridStackWidget } from 'gridstack'
+import { useCallback } from 'react'
+import { Responsive, WidthProvider, Layout } from 'react-grid-layout'
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
 import { WIDGET_LIBRARY } from './DashboardSidebar'
@@ -27,8 +30,12 @@ import EnhancedFineTuningWidget from '../fine-tuning/EnhancedFineTuningWidget'
 import AgentActivityPanel from '../transparency/AgentActivityPanel'
 import EnhancedTransparencyPanel from '../transparency/EnhancedTransparencyPanel'
 
-// Import Gridstack CSS
-import 'gridstack/dist/gridstack.min.css'
+// Import react-grid-layout CSS
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
+
+// Create responsive grid layout with WidthProvider
+const ResponsiveGridLayout = WidthProvider(Responsive)
 
 // Widget Content Renderer
 function renderWidgetContent(widgetId: string) {
@@ -111,172 +118,11 @@ export function DashboardGrid() {
     setLayouts
   } = useDashboard()
   
-  const gridRef = useRef<GridStack | null>(null)
-  const refs = useRef<Record<string, React.RefObject<HTMLDivElement>>>({})
-  const isUpdatingRef = useRef(false)
-  
-  // Create refs for each widget
-  if (activeWidgets) {
-    activeWidgets.forEach((widgetId) => {
-      if (!refs.current[widgetId]) {
-        refs.current[widgetId] = createRef<HTMLDivElement>()
-      }
-    })
-  }
-  
-  // Memoize widget positions to prevent race conditions
-  // This ensures positions are computed atomically when activeWidgets or layouts change
-  const widgetPositions = useMemo(() => {
-    if (!activeWidgets || !layouts?.lg) return {}
-    
-    const positions: Record<string, { x: number, y: number, w: number, h: number }> = {}
-    
-    activeWidgets.forEach((widgetId) => {
-      const layoutItem = layouts.lg.find(item => item.i === widgetId)
-      positions[widgetId] = {
-        x: layoutItem?.x ?? 0,
-        y: layoutItem?.y ?? 0,
-        w: layoutItem?.w ?? 4,
-        h: layoutItem?.h ?? 4
-      }
-    })
-    
-    return positions
-  }, [activeWidgets, layouts])
-  
-  // Initialize Gridstack
-  useEffect(() => {
-    if (!gridRef.current) {
-      gridRef.current = GridStack.init({
-        float: true, // Free positioning (no auto-compact)
-        cellHeight: 60,
-        margin: 16,
-        column: 12,
-        animate: true,
-        disableOneColumnMode: true, // Prevent responsive stacking
-        minRow: 1, // Minimum rows
-        acceptWidgets: false, // No drag from outside for now
-        removable: false, // No drag to remove
-        draggable: {
-          handle: '.widget-header'
-        },
-        resizable: {
-          handles: 'se, sw, ne, nw'
-        }
-      })
-      
-      // Listen to changes
-      gridRef.current.on('change', (event, items) => {
-        if (!items) return
-        
-        // Update layouts in context
-        const newLayout = items.map((item: GridStackWidget) => ({
-          i: item.id || '',
-          x: item.x || 0,
-          y: item.y || 0,
-          w: item.w || 4,
-          h: item.h || 4
-        }))
-        
-        setLayouts({
-          lg: newLayout,
-          md: newLayout,
-          sm: newLayout,
-          xs: newLayout,
-          xxs: newLayout
-        })
-      })
-    }
-    
-    return () => {
-      if (gridRef.current) {
-        gridRef.current.destroy(false)
-        gridRef.current = null
-      }
-    }
-  }, [])
-  
-  // Handle change events from Gridstack
-  const handleGridChange = useCallback((event: Event, items: GridStackWidget[]) => {
-    if (!items || isUpdatingRef.current) return
-    
-    // Update layouts in context
-    const newLayout = items.map((item: GridStackWidget) => ({
-      i: item.id || '',
-      x: item.x || 0,
-      y: item.y || 0,
-      w: item.w || 4,
-      h: item.h || 4
-    }))
-    
-    setLayouts({
-      lg: newLayout,
-      md: newLayout,
-      sm: newLayout,
-      xs: newLayout,
-      xxs: newLayout
-    })
+  // Handle layout change
+  const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
+    // Update all layouts in context
+    setLayouts(allLayouts)
   }, [setLayouts])
-  
-  // Update widgets when widgetPositions changes (memoized from activeWidgets + layouts)
-  useEffect(() => {
-    if (!gridRef.current || !activeWidgets || Object.keys(widgetPositions).length === 0) return
-    
-    // Prevent re-entry during update
-    if (isUpdatingRef.current) return
-    isUpdatingRef.current = true
-    
-    const grid = gridRef.current
-    
-    // Disable change events temporarily to avoid loops
-    grid.off('change')
-    
-    // Batch update for performance
-    grid.batchUpdate()
-    
-    // Remove all widgets
-    grid.removeAll(false)
-    
-    // Add widgets back with their memoized positions
-    activeWidgets.forEach((widgetId) => {
-      const ref = refs.current[widgetId]
-      if (ref && ref.current) {
-        const pos = widgetPositions[widgetId]
-        
-        // Make widget with position data
-        grid.makeWidget(ref.current, {
-          id: widgetId,
-          x: pos.x,
-          y: pos.y,
-          w: pos.w,
-          h: pos.h
-        })
-      }
-    })
-    
-    grid.batchUpdate(false)
-    
-    // Re-enable change events after a delay to allow React to settle
-    setTimeout(() => {
-      if (gridRef.current) {
-        gridRef.current.on('change', handleGridChange)
-      }
-      isUpdatingRef.current = false
-    }, 100)
-  }, [widgetPositions, activeWidgets, handleGridChange])
-  
-  // Enable/disable drag and resize based on edit mode
-  useEffect(() => {
-    if (!gridRef.current) return
-    
-    const grid = gridRef.current
-    
-    if (isEditMode) {
-      grid.enable()
-    } else {
-      grid.disable()
-    }
-  }, [isEditMode])
   
   // Handle remove widget
   const handleRemoveWidget = useCallback((e: React.MouseEvent, widgetId: string) => {
@@ -333,7 +179,7 @@ export function DashboardGrid() {
               maxWidth: '500px'
             }}
           >
-            Drag widgets from the sidebar to customize your dashboard
+            Click widgets in the sidebar to add them to your dashboard
           </p>
           <div
             style={{
@@ -361,7 +207,39 @@ export function DashboardGrid() {
         paddingRight: 'calc(320px + var(--spacing-lg))'
       }}
     >
-      <div className="grid-stack">
+      <ResponsiveGridLayout
+        className="layout"
+        layouts={layouts}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+        rowHeight={60}
+        margin={[16, 16]}
+        containerPadding={[0, 0]}
+        
+        // CRITICAL SETTINGS - Prevent auto-compacting and overlapping
+        compactType={null}              // NO auto-compact (free positioning)
+        preventCollision={true}          // Prevent overlapping
+        allowOverlap={false}             // No widget overlap
+        
+        // Functionality
+        isDraggable={isEditMode}
+        isResizable={isEditMode}
+        
+        // Resize handles (all corners)
+        resizeHandles={['se', 'sw', 'ne', 'nw']}
+        
+        // Drag handle (widget header only)
+        draggableHandle=".widget-header"
+        
+        // Callbacks
+        onLayoutChange={handleLayoutChange}
+        
+        // Performance
+        useCSSTransforms={true}
+        
+        // Responsive behavior
+        autoSize={true}
+      >
         {activeWidgets.map((widgetId) => {
           const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
           if (!widgetDef) return null
@@ -371,123 +249,117 @@ export function DashboardGrid() {
           return (
             <div
               key={widgetId}
-              ref={refs.current[widgetId]}
-              className="grid-stack-item"
+              style={{
+                background: 'var(--background)',
+                borderRadius: 'var(--radius-lg)',
+                boxShadow: 'var(--shadow-md)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                border: '1px solid var(--border)',
+                height: '100%'
+              }}
             >
-              <div 
-                className="grid-stack-item-content"
+              {/* Widget Header */}
+              <div
+                className="widget-header"
                 style={{
-                  background: 'var(--background)',
-                  borderRadius: 'var(--radius-lg)',
-                  boxShadow: 'var(--shadow-md)',
-                  overflow: 'hidden',
+                  padding: 'var(--spacing-md)',
+                  borderBottom: '1px solid var(--border)',
                   display: 'flex',
-                  flexDirection: 'column',
-                  border: '1px solid var(--border)',
-                  height: '100%'
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  background: 'var(--background-secondary)',
+                  cursor: isEditMode ? 'move' : 'default'
                 }}
               >
-                {/* Widget Header */}
                 <div
-                  className="widget-header"
                   style={{
-                    padding: 'var(--spacing-md)',
-                    borderBottom: '1px solid var(--border)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between',
-                    background: 'var(--background-secondary)',
-                    cursor: isEditMode ? 'move' : 'default'
+                    gap: 'var(--spacing-sm)',
+                    flex: '1',
+                    minWidth: '0'
                   }}
                 >
                   <div
                     style={{
+                      width: '32px',
+                      height: '32px',
+                      borderRadius: 'var(--radius-md)',
+                      background: 'oklch(0.95 0.05 240)',
+                      color: 'var(--primary)',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 'var(--spacing-sm)',
-                      flex: '1',
-                      minWidth: '0'
+                      justifyContent: 'center',
+                      flexShrink: '0'
                     }}
                   >
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: 'var(--radius-md)',
-                        background: 'oklch(0.95 0.05 240)',
-                        color: 'var(--primary)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: '0'
-                      }}
-                    >
-                      <Icon size={18} />
-                    </div>
-                    <h3
-                      style={{
-                        fontSize: 'var(--font-size-base)',
-                        fontWeight: 'var(--font-weight-semibold)',
-                        color: 'var(--foreground)',
-                        margin: '0',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {widgetDef.title}
-                    </h3>
+                    <Icon size={18} />
                   </div>
-                  
-                  {/* Remove button (edit mode only) */}
-                  {isEditMode && (
-                    <button
-                      onClick={(e) => handleRemoveWidget(e, widgetId)}
-                      className="widget-remove-button"
-                      aria-label={`Remove ${widgetDef.title}`}
-                      style={{
-                        width: '28px',
-                        height: '28px',
-                        borderRadius: 'var(--radius-sm)',
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'var(--foreground-tertiary)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        transition: 'all var(--transition-base)',
-                        flexShrink: '0'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--destructive)'
-                        e.currentTarget.style.color = 'var(--destructive-foreground)'
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent'
-                        e.currentTarget.style.color = 'var(--foreground-tertiary)'
-                      }}
-                    >
-                      <X size={16} />
-                    </button>
-                  )}
+                  <h3
+                    style={{
+                      fontSize: 'var(--font-size-base)',
+                      fontWeight: 'var(--font-weight-semibold)',
+                      color: 'var(--foreground)',
+                      margin: '0',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    {widgetDef.title}
+                  </h3>
                 </div>
                 
-                {/* Widget Content */}
-                <div
-                  className="widget-content"
-                  style={{
-                    flex: '1',
-                    overflow: 'auto'
-                  }}
-                >
-                  {renderWidgetContent(widgetId)}
-                </div>
+                {/* Remove button (edit mode only) */}
+                {isEditMode && (
+                  <button
+                    onClick={(e) => handleRemoveWidget(e, widgetId)}
+                    className="widget-remove-button"
+                    aria-label={`Remove ${widgetDef.title}`}
+                    style={{
+                      width: '28px',
+                      height: '28px',
+                      borderRadius: 'var(--radius-sm)',
+                      background: 'transparent',
+                      border: 'none',
+                      color: 'var(--foreground-tertiary)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all var(--transition-base)',
+                      flexShrink: '0'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--destructive)'
+                      e.currentTarget.style.color = 'var(--destructive-foreground)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'transparent'
+                      e.currentTarget.style.color = 'var(--foreground-tertiary)'
+                    }}
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+              
+              {/* Widget Content */}
+              <div
+                className="widget-content"
+                style={{
+                  flex: '1',
+                  overflow: 'auto'
+                }}
+              >
+                {renderWidgetContent(widgetId)}
               </div>
             </div>
           )
         })}
-      </div>
+      </ResponsiveGridLayout>
       
       {/* Edit Mode Indicator */}
       {isEditMode && (
