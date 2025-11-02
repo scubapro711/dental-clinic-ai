@@ -100,19 +100,24 @@ const DEFAULT_WIDGETS: { [key: string]: WidgetState } = {
 }
 
 const DEFAULT_LAYOUT_LG: Layout[] = [
-  // Row 1 - Operations & Critical (most important)
-  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 4 },
-  { i: 'decision-queue', x: 4, y: 0, w: 5, h: 4 },
-  { i: 'revenue', x: 9, y: 0, w: 3, h: 4 },
+  // Row 1 - Operations (y: 0-5, height: 6)
+  // Optimal size for list-based widgets with 3-5 items visible
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 6 },
+  { i: 'decision-queue', x: 4, y: 0, w: 4, h: 6 },
+  { i: 'revenue', x: 8, y: 0, w: 4, h: 6 },
   
-  // Row 2 - Clinical & Monitoring
-  { i: 'clinical-system', x: 0, y: 4, w: 6, h: 5 },
-  { i: 'agent-activity', x: 6, y: 4, w: 3, h: 4 },
-  { i: 'compliance-alerts', x: 9, y: 4, w: 3, h: 4 },
+  // Row 2 - Clinical & Monitoring (y: 6-13)
+  // Clinical needs more space for charts and visualizations (h: 8)
+  // Activity and Compliance are status widgets (h: 6)
+  { i: 'clinical-system', x: 0, y: 6, w: 6, h: 8 },
+  { i: 'agent-activity', x: 6, y: 6, w: 3, h: 6 },
+  { i: 'compliance-alerts', x: 9, y: 6, w: 3, h: 6 },
   
-  // Row 3 - Admin & Transparency
-  { i: 'transparency-panel', x: 0, y: 9, w: 5, h: 5 },
-  { i: 'fine-tuning', x: 5, y: 9, w: 4, h: 4 }
+  // Row 3 - Admin & Transparency (y: 14-21)
+  // Transparency needs vertical space for detailed logs (h: 8)
+  // Fine-tuning needs space for controls and preview (h: 6)
+  { i: 'transparency-panel', x: 0, y: 14, w: 6, h: 8 },
+  { i: 'fine-tuning', x: 6, y: 14, w: 6, h: 6 }
 ]
 
 const DEFAULT_LAYOUT_MD: Layout[] = [
