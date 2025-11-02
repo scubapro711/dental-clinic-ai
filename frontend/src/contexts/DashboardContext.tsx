@@ -100,10 +100,19 @@ const DEFAULT_WIDGETS: { [key: string]: WidgetState } = {
 }
 
 const DEFAULT_LAYOUT_LG: Layout[] = [
-  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 2 },
-  { i: 'decision-queue', x: 4, y: 0, w: 4, h: 2 },
-  { i: 'revenue', x: 8, y: 0, w: 4, h: 2 },
-  { i: 'compliance', x: 0, y: 2, w: 4, h: 2 }
+  // Row 1 - Operations & Critical (most important)
+  { i: 'todays-patients', x: 0, y: 0, w: 4, h: 4 },
+  { i: 'decision-queue', x: 4, y: 0, w: 5, h: 4 },
+  { i: 'revenue', x: 9, y: 0, w: 3, h: 4 },
+  
+  // Row 2 - Clinical & Monitoring
+  { i: 'clinical-system', x: 0, y: 4, w: 6, h: 5 },
+  { i: 'agent-activity', x: 6, y: 4, w: 3, h: 4 },
+  { i: 'compliance-alerts', x: 9, y: 4, w: 3, h: 4 },
+  
+  // Row 3 - Admin & Transparency
+  { i: 'transparency-panel', x: 0, y: 9, w: 5, h: 5 },
+  { i: 'fine-tuning', x: 5, y: 9, w: 4, h: 4 }
 ]
 
 const DEFAULT_LAYOUT_MD: Layout[] = [
@@ -148,7 +157,16 @@ function getDefaultState(organizationId: string, userId: string): DashboardState
       xs: [...DEFAULT_LAYOUT_XS],
       xxs: [...DEFAULT_LAYOUT_XXS]
     },
-    activeWidgets: ['todays-patients', 'decision-queue', 'revenue', 'compliance'],
+    activeWidgets: [
+      'todays-patients',
+      'decision-queue', 
+      'revenue',
+      'clinical-system',
+      'agent-activity',
+      'compliance-alerts',
+      'transparency-panel',
+      'fine-tuning'
+    ],
     isSidebarOpen: true
   }
 }
