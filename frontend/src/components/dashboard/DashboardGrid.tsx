@@ -247,6 +247,7 @@ export function DashboardGrid() {
       }}
     >
       <Responsive
+        key={activeWidgets.join(',')}
         className="layout"
         layouts={filteredLayouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
