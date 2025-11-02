@@ -413,16 +413,22 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   }, [])
   
   const setLayouts = useCallback((layouts: Record<string, Layout[]>) => {
-    setState(prev => ({
-      ...prev,
-      layouts: {
-        lg: layouts.lg || prev.layouts.lg,
-        md: layouts.md || prev.layouts.md,
-        sm: layouts.sm || prev.layouts.sm,
-        xs: layouts.xs || prev.layouts.xs,
-        xxs: layouts.xxs || prev.layouts.xxs
+    setState(prev => {
+      // FIX: Filter layouts to only include items that have matching active widgets
+      // This prevents ghost items (pink placeholders) from being saved
+      const filteredLayouts = {
+        lg: (layouts.lg || prev.layouts.lg).filter(item => prev.activeWidgets.includes(item.i)),
+        md: (layouts.md || prev.layouts.md).filter(item => prev.activeWidgets.includes(item.i)),
+        sm: (layouts.sm || prev.layouts.sm).filter(item => prev.activeWidgets.includes(item.i)),
+        xs: (layouts.xs || prev.layouts.xs).filter(item => prev.activeWidgets.includes(item.i)),
+        xxs: (layouts.xxs || prev.layouts.xxs).filter(item => prev.activeWidgets.includes(item.i))
       }
-    }))
+      
+      return {
+        ...prev,
+        layouts: filteredLayouts
+      }
+    })
     setIsSaving(true)
   }, [])
   

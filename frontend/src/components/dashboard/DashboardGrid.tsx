@@ -15,7 +15,7 @@
  * - Material Design principles
  */
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useMemo } from 'react'
 import { Responsive, Layout } from 'react-grid-layout'
 import { useElementWidth } from '../../hooks/useElementWidth'
 import { X } from 'lucide-react'
@@ -125,6 +125,15 @@ export function DashboardGrid() {
   const containerRef = useRef<HTMLDivElement>(null)
   const containerWidth = useElementWidth(containerRef)
   
+  // FIX: Filter layouts to remove ghost items (items without matching widgets)
+  // This prevents pink placeholder rectangles from appearing
+  const filteredLayouts = useMemo(() => ({
+    lg: layouts.lg.filter(item => activeWidgets.includes(item.i)),
+    md: layouts.md.filter(item => activeWidgets.includes(item.i)),
+    sm: layouts.sm.filter(item => activeWidgets.includes(item.i)),
+    xs: layouts.xs.filter(item => activeWidgets.includes(item.i)),
+    xxs: layouts.xxs.filter(item => activeWidgets.includes(item.i))
+  }), [layouts, activeWidgets])
   
   // Handle layout change
   const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
@@ -239,7 +248,7 @@ export function DashboardGrid() {
     >
       <Responsive
         className="layout"
-        layouts={layouts}
+        layouts={filteredLayouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={60}
