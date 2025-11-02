@@ -375,7 +375,16 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
           xs: DEFAULT_LAYOUT_XS,
           xxs: DEFAULT_LAYOUT_XXS
         },
-        activeWidgets: DEFAULT_ACTIVE_WIDGETS,
+        activeWidgets: [
+          'todays-patients',
+          'decision-queue', 
+          'revenue',
+          'clinical-system',
+          'agent-activity',
+          'compliance-alerts',
+          'transparency-panel',
+          'fine-tuning'
+        ],
         collapsedWidgets: [],
         editMode: false,
         organizationId,
