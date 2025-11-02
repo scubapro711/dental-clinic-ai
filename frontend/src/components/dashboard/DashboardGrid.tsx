@@ -1,234 +1,91 @@
 /**
- * DashboardGrid v3.0 - Powered by react-grid-layout
+ * DashboardGrid v4.0 - Clean Rebuild
  * 
- * Features:
- * - Free widget placement (compactType={null})
- * - Drag & resize widgets
- * - Persistent layouts via DashboardContext
- * - RBAC integration
- * - Professional UX following F-Pattern
- * - No auto-compacting or position jumping
- * 
- * Configuration based on:
- * - ilert.com case study (Nov 2024)
- * - react-grid-layout best practices
- * - Material Design principles
+ * Simple, working implementation:
+ * - One widget: Today's Patients
+ * - Always-on drag & resize (no edit mode)
+ * - Auto-save to localStorage
+ * - No Done/Reset buttons
  */
 
-import { useCallback, useEffect, useRef, useMemo } from 'react'
-import { Responsive, Layout } from 'react-grid-layout'
+import { useCallback, useRef } from 'react'
+import { Responsive, Layout, Layouts } from 'react-grid-layout'
 import { useElementWidth } from '../../hooks/useElementWidth'
-import { X } from 'lucide-react'
-import { useDashboard } from '../../contexts/DashboardContext'
-import { WIDGET_LIBRARY } from './DashboardSidebar'
-import ProtectedWidget from '../rbac/ProtectedWidget'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
-import RevenueWidget from '../widgets/RevenueWidget'
-import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
-import ComplianceAlerts from '../compliance/ComplianceAlerts'
-import ClinicalDashboard from '../clinical/ClinicalDashboard'
-import EnhancedFineTuningWidget from '../fine-tuning/EnhancedFineTuningWidget'
-import AgentActivityPanel from '../transparency/AgentActivityPanel'
-import EnhancedTransparencyPanel from '../transparency/EnhancedTransparencyPanel'
 
 // Import react-grid-layout CSS
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import '../../styles/dashboard-grid.css'
 
-// Use Responsive grid layout directly (without WidthProvider)
-// We'll calculate width manually using useElementWidth hook
-
-// Widget Content Renderer
-function renderWidgetContent(widgetId: string) {
-  switch (widgetId) {
-    case 'todays-patients':
-      return (
-        <ProtectedWidget widgetId="todays-patients">
-          <TodaysPatientsWidget />
-        </ProtectedWidget>
-      )
-    
-    case 'revenue':
-      return (
-        <ProtectedWidget widgetId="revenue">
-          <RevenueWidget />
-        </ProtectedWidget>
-      )
-    
-    case 'decision-queue':
-      return (
-        <ProtectedWidget widgetId="decision-queue">
-          <DecisionQueueWidget />
-        </ProtectedWidget>
-      )
-    
-    case 'compliance-alerts':
-      return (
-        <ProtectedWidget widgetId="compliance-alerts">
-          <ComplianceAlerts />
-        </ProtectedWidget>
-      )
-    
-    case 'clinical-system':
-      return (
-        <ProtectedWidget widgetId="clinical-system">
-          <ClinicalDashboard />
-        </ProtectedWidget>
-      )
-    
-    case 'fine-tuning':
-      return (
-        <ProtectedWidget widgetId="fine-tuning">
-          <EnhancedFineTuningWidget />
-        </ProtectedWidget>
-      )
-    
-    case 'agent-activity':
-      return (
-        <ProtectedWidget widgetId="agent-activity">
-          <AgentActivityPanel />
-        </ProtectedWidget>
-      )
-    
-    case 'transparency-panel':
-      return (
-        <ProtectedWidget widgetId="transparency-panel">
-          <EnhancedTransparencyPanel />
-        </ProtectedWidget>
-      )
-    
-    default:
-      return (
-        <div style={{ 
-          padding: 'var(--spacing-md)', 
-          textAlign: 'center',
-          color: 'var(--foreground-tertiary)'
-        }}>
-          <p>Widget "{widgetId}" not found</p>
-        </div>
-      )
-  }
+// Default layout for Today's Patients widget
+const DEFAULT_LAYOUT: Layout = {
+  i: 'todays-patients',
+  x: 0,
+  y: 0,
+  w: 4,
+  h: 5,
+  minW: 3,
+  minH: 4
 }
 
 export function DashboardGrid() {
-  const {
-    activeWidgets,
-    removeWidget,
-    isEditMode,
-    layouts,
-    setLayouts
-  } = useDashboard()
-  
-  // FIX: Use custom width calculation instead of WidthProvider
-  // This fixes the collapsing width issue with measureBeforeMount
+  // Calculate container width
   const containerRef = useRef<HTMLDivElement>(null)
   const containerWidth = useElementWidth(containerRef)
   
-  // FIX: Filter layouts to remove ghost items (items without matching widgets)
-  // This prevents pink placeholder rectangles from appearing
-  const filteredLayouts = useMemo(() => ({
-    lg: layouts.lg.filter(item => activeWidgets.includes(item.i)),
-    md: layouts.md.filter(item => activeWidgets.includes(item.i)),
-    sm: layouts.sm.filter(item => activeWidgets.includes(item.i)),
-    xs: layouts.xs.filter(item => activeWidgets.includes(item.i)),
-    xxs: layouts.xxs.filter(item => activeWidgets.includes(item.i))
-  }), [layouts, activeWidgets])
-  
-  // Handle layout change
-  const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
-    // Update all layouts in context
-    setLayouts(allLayouts)
-  }, [setLayouts])
-  
-  // Handle remove widget
-  const handleRemoveWidget = useCallback((e: React.MouseEvent, widgetId: string) => {
-    e.stopPropagation()
-    e.preventDefault()
-    
-    const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
-    if (confirm(`Remove ${widgetDef?.title || 'widget'} from dashboard?`)) {
-      removeWidget(widgetId)
+  // Load layout from localStorage or use default
+  const loadLayout = (): Layouts => {
+    try {
+      const saved = localStorage.getItem('dashboard-layout-v4')
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    } catch (e) {
+      console.error('Failed to load layout:', e)
     }
-  }, [removeWidget])
-  
-  // Render empty state
-  if (!activeWidgets || activeWidgets.length === 0) {
-    return (
-      <div
-        className="dashboard-grid-container"
-        style={{
-          width: '100%',
-          minHeight: '100vh',
-          padding: 'var(--spacing-lg)',
-          paddingRight: 'calc(320px + var(--spacing-lg))'
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'var(--background)',
-            borderRadius: 'var(--radius-lg)',
-            border: '2px dashed var(--border)',
-            padding: 'var(--spacing-2xl)',
-            textAlign: 'center',
-            minHeight: '400px'
-          }}
-        >
-          <h3
-            style={{
-              fontSize: 'var(--font-size-2xl)',
-              fontWeight: 'var(--font-weight-bold)',
-              color: 'var(--foreground)',
-              margin: '0 0 var(--spacing-sm) 0'
-            }}
-          >
-            No Widgets Added
-          </h3>
-          <p
-            style={{
-              fontSize: 'var(--font-size-base)',
-              color: 'var(--foreground-tertiary)',
-              margin: '0 0 var(--spacing-md) 0',
-              maxWidth: '500px'
-            }}
-          >
-            Click widgets in the sidebar to add them to your dashboard
-          </p>
-          <div
-            style={{
-              fontSize: 'var(--font-size-sm)',
-              color: 'var(--foreground-secondary)',
-              background: 'var(--muted)',
-              padding: '8px 16px',
-              borderRadius: 'var(--radius-md)'
-            }}
-          >
-            👉 Open the sidebar on the right to get started
-          </div>
-        </div>
-      </div>
-    )
+    
+    // Return default layout for all breakpoints
+    return {
+      lg: [DEFAULT_LAYOUT],
+      md: [DEFAULT_LAYOUT],
+      sm: [DEFAULT_LAYOUT],
+      xs: [DEFAULT_LAYOUT],
+      xxs: [DEFAULT_LAYOUT]
+    }
   }
   
+  // Save layout to localStorage
+  const saveLayout = (layouts: Layouts) => {
+    try {
+      localStorage.setItem('dashboard-layout-v4', JSON.stringify(layouts))
+      console.log('Layout saved:', layouts)
+    } catch (e) {
+      console.error('Failed to save layout:', e)
+    }
+  }
   
-  // Don't render grid until we have a width measurement
+  // Handle layout change (auto-save)
+  const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Layouts) => {
+    console.log('Layout changed:', allLayouts)
+    saveLayout(allLayouts)
+  }, [])
+  
+  // Wait for width measurement
   if (!containerWidth) {
     return (
       <div
         ref={containerRef}
-        className="dashboard-grid-container"
         style={{
           width: '100%',
           minHeight: '100vh',
           padding: 'var(--spacing-lg)',
-          paddingRight: 'calc(320px + var(--spacing-lg))'
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
       >
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--foreground-secondary)' }}>
+        <div style={{ color: 'var(--foreground-secondary)' }}>
           Loading dashboard...
         </div>
       </div>
@@ -238,207 +95,101 @@ export function DashboardGrid() {
   return (
     <div
       ref={containerRef}
-      className="dashboard-grid-container"
       style={{
         width: '100%',
         minHeight: '100vh',
-        padding: 'var(--spacing-lg)',
-        paddingRight: 'calc(320px + var(--spacing-lg))'
+        padding: 'var(--spacing-lg)'
       }}
     >
       <Responsive
-        key={activeWidgets.join(',')}
         className="layout"
-        layouts={filteredLayouts}
+        layouts={loadLayout()}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={60}
         margin={[16, 16]}
         containerPadding={[0, 0]}
         
-        // CRITICAL SETTINGS - Prevent auto-compacting and overlapping
-        compactType={null}              // NO auto-compact (free positioning)
-        preventCollision={true}          // Prevent overlapping
-        allowOverlap={false}             // No widget overlap
+        // Always draggable and resizable
+        isDraggable={true}
+        isResizable={true}
         
-        // Functionality
-        isDraggable={isEditMode}
-        isResizable={isEditMode}
+        // Free positioning
+        compactType={null}
+        preventCollision={false}
         
-        // Resize handles (all corners)
+        // Resize handles
         resizeHandles={['se', 'sw', 'ne', 'nw']}
-        
-        // Drag handle (widget header only)
-        draggableHandle=".widget-header"
         
         // Callbacks
         onLayoutChange={handleLayoutChange}
         
-        // Performance
-        useCSSTransforms={true}
-        
-        // Responsive behavior
-        autoSize={true}
-        
-        // FIX: Pass width directly instead of using WidthProvider
-        // This prevents the collapsing width issue
+        // Width
         width={containerWidth}
       >
-        {activeWidgets.map((widgetId) => {
-          const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
-          if (!widgetDef) return null
-          
-          const Icon = widgetDef.icon
-          
-          return (
-            <div
-              key={widgetId}
-              style={{
-                background: 'var(--background)',
-                borderRadius: 'var(--radius-lg)',
-                boxShadow: 'var(--shadow-md)',
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                border: '1px solid var(--border)',
-                height: '100%'
-              }}
-            >
-              {/* Widget Header */}
-              <div
-                className="widget-header"
-                style={{
-                  padding: 'var(--spacing-md)',
-                  borderBottom: '1px solid var(--border)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'var(--background-secondary)',
-                  cursor: isEditMode ? 'move' : 'default'
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--spacing-sm)',
-                    flex: '1',
-                    minWidth: '0'
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '32px',
-                      height: '32px',
-                      borderRadius: 'var(--radius-md)',
-                      background: 'oklch(0.95 0.05 240)',
-                      color: 'var(--primary)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: '0'
-                    }}
-                  >
-                    <Icon size={18} />
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: 'var(--font-size-base)',
-                      fontWeight: 'var(--font-weight-semibold)',
-                      color: 'var(--foreground)',
-                      margin: '0',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    {widgetDef.title}
-                  </h3>
-                </div>
-                
-                {/* Remove button (edit mode only) */}
-                {isEditMode && (
-                  <button
-                    onClick={(e) => handleRemoveWidget(e, widgetId)}
-                    className="widget-remove-button"
-                    aria-label={`Remove ${widgetDef.title}`}
-                    style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: 'var(--radius-sm)',
-                      background: 'transparent',
-                      border: 'none',
-                      color: 'var(--foreground-tertiary)',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      transition: 'all var(--transition-base)',
-                      flexShrink: '0'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--destructive)'
-                      e.currentTarget.style.color = 'var(--destructive-foreground)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'transparent'
-                      e.currentTarget.style.color = 'var(--foreground-tertiary)'
-                    }}
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-              
-              {/* Widget Content */}
-              <div
-                className="widget-content"
-                style={{
-                  flex: '1',
-                  overflow: 'auto'
-                }}
-              >
-                {renderWidgetContent(widgetId)}
-              </div>
-            </div>
-          )
-        })}
-      </Responsive>
-      
-      {/* Edit Mode Indicator */}
-      {isEditMode && (
         <div
-          className="edit-mode-indicator"
+          key="todays-patients"
           style={{
-            position: 'fixed',
-            bottom: 'var(--spacing-lg)',
-            left: 'var(--spacing-lg)',
-            padding: '12px 20px',
-            background: 'var(--primary)',
-            color: 'var(--primary-foreground)',
-            borderRadius: 'var(--radius-md)',
-            boxShadow: 'var(--shadow-lg)',
-            fontSize: 'var(--font-size-sm)',
-            fontWeight: 'var(--font-weight-semibold)',
-            zIndex: 1000,
+            background: 'var(--background)',
+            borderRadius: 'var(--radius-lg)',
+            boxShadow: 'var(--shadow-md)',
+            overflow: 'hidden',
             display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-sm)'
+            flexDirection: 'column',
+            border: '1px solid var(--border)',
+            height: '100%'
           }}
         >
-          <span
+          {/* Widget Header */}
+          <div
             style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: 'var(--primary-foreground)',
-              animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+              padding: 'var(--spacing-md)',
+              borderBottom: '1px solid var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--spacing-sm)',
+              background: 'var(--background-secondary)',
+              cursor: 'move'
             }}
-          />
-          Edit Mode Active - Drag & Resize Widgets
+          >
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: 'var(--radius-md)',
+                background: 'var(--primary)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px'
+              }}
+            >
+              👥
+            </div>
+            <h3
+              style={{
+                fontSize: 'var(--font-size-lg)',
+                fontWeight: 'var(--font-weight-semibold)',
+                color: 'var(--foreground)',
+                margin: 0
+              }}
+            >
+              Today's Patients
+            </h3>
+          </div>
+          
+          {/* Widget Content */}
+          <div
+            style={{
+              flex: '1',
+              overflow: 'auto',
+              padding: 0
+            }}
+          >
+            <TodaysPatientsWidget />
+          </div>
         </div>
-      )}
+      </Responsive>
     </div>
   )
 }
-
