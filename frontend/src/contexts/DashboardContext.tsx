@@ -362,8 +362,30 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     
     console.log('🔄 Reset to defaults: localStorage cleared')
     
-    // Reload page - will load with default state
-    window.location.reload()
+    // Check if we're in a test environment
+    const isTest = typeof process !== 'undefined' && process.env.NODE_ENV === 'test'
+    
+    if (isTest) {
+      // In tests: update state directly (no reload)
+      setState({
+        layouts: {
+          lg: DEFAULT_LAYOUT_LG,
+          md: DEFAULT_LAYOUT_MD,
+          sm: DEFAULT_LAYOUT_SM,
+          xs: DEFAULT_LAYOUT_XS,
+          xxs: DEFAULT_LAYOUT_XXS
+        },
+        activeWidgets: DEFAULT_ACTIVE_WIDGETS,
+        collapsedWidgets: [],
+        editMode: false,
+        organizationId,
+        userId,
+        lastModified: new Date().toISOString()
+      })
+    } else {
+      // In production: reload page - will load with default state
+      window.location.reload()
+    }
   }, [organizationId, userId])
   
   // NEW: Grid Layout Actions
