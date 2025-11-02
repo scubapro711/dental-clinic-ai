@@ -16,7 +16,8 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react'
-import { Responsive, WidthProvider, Layout } from 'react-grid-layout'
+import { Responsive, Layout } from 'react-grid-layout'
+import { useElementWidth } from '../../hooks/useElementWidth'
 import { X } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
 import { WIDGET_LIBRARY } from './DashboardSidebar'
@@ -35,8 +36,8 @@ import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import '../../styles/dashboard-grid.css'
 
-// Create responsive grid layout with WidthProvider
-const ResponsiveGridLayout = WidthProvider(Responsive)
+// Use Responsive grid layout directly (without WidthProvider)
+// We'll calculate width manually using useElementWidth hook
 
 // Widget Content Renderer
 function renderWidgetContent(widgetId: string) {
@@ -119,23 +120,19 @@ export function DashboardGrid() {
     setLayouts
   } = useDashboard()
   
-  // DEBUG: Log layouts and activeWidgets
+  // FIX: Use custom width calculation instead of WidthProvider
+  // This fixes the collapsing width issue with measureBeforeMount
+  const containerRef = useRef<HTMLDivElement>(null)
+  const containerWidth = useElementWidth(containerRef)
+  
+  // DEBUG: Log layouts and width
   console.log('🔍 DashboardGrid Debug:', {
     activeWidgets,
     layouts,
+    containerWidth,
     layoutsLg: layouts?.lg,
     layoutsLgLength: layouts?.lg?.length
   })
-  
-  // FIX #1: Trigger resize event on mount to ensure WidthProvider calculates width correctly
-  // This is a backup fix in case measureBeforeMount doesn't work
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.dispatchEvent(new Event('resize'))
-      console.log('🔧 Resize event triggered to fix grid layout')
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [])
   
   // Handle layout change
   const handleLayoutChange = useCallback((currentLayout: Layout[], allLayouts: Record<string, Layout[]>) => {
@@ -227,8 +224,29 @@ export function DashboardGrid() {
     };
   }
   
+  // Don't render grid until we have a width measurement
+  if (!containerWidth) {
+    return (
+      <div
+        ref={containerRef}
+        className="dashboard-grid-container"
+        style={{
+          width: '100%',
+          minHeight: '100vh',
+          padding: 'var(--spacing-lg)',
+          paddingRight: 'calc(320px + var(--spacing-lg))'
+        }}
+      >
+        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--foreground-secondary)' }}>
+          Loading dashboard...
+        </div>
+      </div>
+    )
+  }
+  
   return (
     <div
+      ref={containerRef}
       className="dashboard-grid-container"
       style={{
         width: '100%',
@@ -237,7 +255,7 @@ export function DashboardGrid() {
         paddingRight: 'calc(320px + var(--spacing-lg))'
       }}
     >
-      <ResponsiveGridLayout
+      <Responsive
         className="layout"
         layouts={layouts}
         breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -270,9 +288,9 @@ export function DashboardGrid() {
         // Responsive behavior
         autoSize={true}
         
-        // FIX #2: Measure container width BEFORE mounting children
-        // This prevents initial render with width=0 which causes vertical stacking
-        measureBeforeMount={true}
+        // FIX: Pass width directly instead of using WidthProvider
+        // This prevents the collapsing width issue
+        width={containerWidth}
       >
         {activeWidgets.map((widgetId) => {
           const widgetDef = WIDGET_LIBRARY.find(w => w.id === widgetId)
@@ -393,7 +411,7 @@ export function DashboardGrid() {
             </div>
           )
         })}
-      </ResponsiveGridLayout>
+      </Responsive>
       
       {/* Edit Mode Indicator */}
       {isEditMode && (
