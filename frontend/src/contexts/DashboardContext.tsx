@@ -350,6 +350,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const resetToDefaults = useCallback(() => {
     const defaultState = getDefaultState(organizationId, userId)
     setState(defaultState)
+    // Save to localStorage immediately
+    saveDashboardState(defaultState)
+    // Reload to ensure clean state
+    window.location.reload()
   }, [organizationId, userId])
   
   // NEW: Grid Layout Actions
