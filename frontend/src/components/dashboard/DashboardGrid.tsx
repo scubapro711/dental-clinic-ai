@@ -15,6 +15,7 @@ import { useDashboard } from '../../contexts/DashboardContext'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 import RevenueWidget from '../widgets/RevenueWidget'
 import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
+import ComplianceWidget from '../widgets/ComplianceWidget'
 
 // Import custom styles
 import '../../styles/dashboard-grid.css'
@@ -58,6 +59,13 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     icon: '⚠️',
     component: DecisionQueueWidget,
     defaultState: { x: 840, y: 20, width: 500, height: 400 }
+  },
+  {
+    id: 'compliance',
+    title: 'Compliance',
+    icon: '🛡️',
+    component: ComplianceWidget,
+    defaultState: { x: 20, y: 440, width: 400, height: 400 }
   }
 ]
 
