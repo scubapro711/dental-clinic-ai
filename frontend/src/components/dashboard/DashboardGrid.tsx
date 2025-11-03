@@ -1,18 +1,19 @@
 /**
- * DashboardGrid v5.2 - React-RND with Fixed Persistence
+ * DashboardGrid v6.0 - Multi-Widget Support
  * 
  * Features:
  * - react-rnd for drag & resize
  * - Integrated with DashboardContext
  * - Delete widget functionality
  * - Fixed: Widget position/size persistence
- * - Single widget: Today's Patients
+ * - Support for multiple widgets
  */
 
 import { useState, useCallback, useEffect } from 'react'
 import { Rnd } from 'react-rnd'
 import { useDashboard } from '../../contexts/DashboardContext'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
+import RevenueWidget from '../widgets/RevenueWidget'
 
 // Import custom styles
 import '../../styles/dashboard-grid.css'
@@ -25,81 +26,114 @@ interface WidgetState {
   height: number
 }
 
-// Default position and size for Today's Patients widget
-const DEFAULT_WIDGET_STATE: WidgetState = {
-  x: 20,
-  y: 20,
-  width: 400,
-  height: 350
+// Widget configuration type
+interface WidgetConfig {
+  id: string
+  title: string
+  icon: string
+  component: React.ComponentType<any>
+  defaultState: WidgetState
 }
 
-// LocalStorage key
-const STORAGE_KEY = 'dashboard-widget-todays-patients-v5'
+// Widget configurations
+const WIDGET_CONFIGS: WidgetConfig[] = [
+  {
+    id: 'todays-patients',
+    title: "Today's Patients",
+    icon: '👥',
+    component: TodaysPatientsWidget,
+    defaultState: { x: 20, y: 20, width: 400, height: 350 }
+  },
+  {
+    id: 'revenue',
+    title: 'Revenue',
+    icon: '💰',
+    component: RevenueWidget,
+    defaultState: { x: 440, y: 20, width: 380, height: 350 }
+  }
+]
+
+// Get localStorage key for widget
+const getStorageKey = (widgetId: string) => `dashboard-widget-${widgetId}-v6`
 
 export function DashboardGrid() {
   const { activeWidgets, removeWidget } = useDashboard()
   
-  // Load widget state from localStorage or use default
-  const loadWidgetState = (): WidgetState => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY)
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        return parsed
-      }
-    } catch (e) {
-      console.error('Failed to load widget state:', e)
-    }
+  // State for all widgets - map of widgetId to WidgetState
+  const [widgetStates, setWidgetStates] = useState<Record<string, WidgetState>>(() => {
+    const initialStates: Record<string, WidgetState> = {}
     
-    return DEFAULT_WIDGET_STATE
-  }
-
-  // State for widget position and size
-  const [widgetState, setWidgetState] = useState<WidgetState>(loadWidgetState)
+    WIDGET_CONFIGS.forEach(config => {
+      try {
+        const saved = localStorage.getItem(getStorageKey(config.id))
+        if (saved) {
+          initialStates[config.id] = JSON.parse(saved)
+        } else {
+          initialStates[config.id] = config.defaultState
+        }
+      } catch (e) {
+        console.error(`Failed to load state for ${config.id}:`, e)
+        initialStates[config.id] = config.defaultState
+      }
+    })
+    
+    return initialStates
+  })
 
   // Save widget state to localStorage whenever it changes
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(widgetState))
-    } catch (e) {
-      console.error('Failed to save widget state:', e)
-    }
-  }, [widgetState])
+    Object.entries(widgetStates).forEach(([widgetId, state]) => {
+      try {
+        localStorage.setItem(getStorageKey(widgetId), JSON.stringify(state))
+      } catch (e) {
+        console.error(`Failed to save state for ${widgetId}:`, e)
+      }
+    })
+  }, [widgetStates])
 
-  // Handle drag stop - update state with new position
-  const handleDragStop = useCallback((e: any, d: { x: number; y: number }) => {
-    setWidgetState(prev => ({
-      ...prev,
-      x: d.x,
-      y: d.y
-    }))
+  // Handle drag stop for a specific widget
+  const handleDragStop = useCallback((widgetId: string) => {
+    return (e: any, d: { x: number; y: number }) => {
+      setWidgetStates(prev => ({
+        ...prev,
+        [widgetId]: {
+          ...prev[widgetId],
+          x: d.x,
+          y: d.y
+        }
+      }))
+    }
   }, [])
 
-  // Handle resize stop - update state with new size and position
-  const handleResizeStop = useCallback((
-    e: any,
-    direction: any,
-    ref: HTMLElement,
-    delta: any,
-    position: { x: number; y: number }
-  ) => {
-    setWidgetState({
-      x: position.x,
-      y: position.y,
-      width: ref.offsetWidth,
-      height: ref.offsetHeight
-    })
+  // Handle resize stop for a specific widget
+  const handleResizeStop = useCallback((widgetId: string) => {
+    return (
+      e: any,
+      direction: any,
+      ref: HTMLElement,
+      delta: any,
+      position: { x: number; y: number }
+    ) => {
+      setWidgetStates(prev => ({
+        ...prev,
+        [widgetId]: {
+          x: position.x,
+          y: position.y,
+          width: ref.offsetWidth,
+          height: ref.offsetHeight
+        }
+      }))
+    }
   }, [])
 
   // Handle delete widget
-  const handleDelete = useCallback(() => {
-    removeWidget('todays-patients')
-    // Also clear from localStorage
-    localStorage.removeItem(STORAGE_KEY)
+  const handleDelete = useCallback((widgetId: string) => {
+    return () => {
+      removeWidget(widgetId)
+      // Also clear from localStorage
+      localStorage.removeItem(getStorageKey(widgetId))
+    }
   }, [removeWidget])
-
-  // Check if widget is visible
-  const isVisible = activeWidgets.includes('todays-patients')
 
   return (
     <div
@@ -111,107 +145,116 @@ export function DashboardGrid() {
         background: 'var(--background-secondary)'
       }}
     >
-      {isVisible && (
-        <Rnd
-          size={{ width: widgetState.width, height: widgetState.height }}
-          position={{ x: widgetState.x, y: widgetState.y }}
-          onDragStop={handleDragStop}
-          onResizeStop={handleResizeStop}
-          minWidth={300}
-          minHeight={250}
-          bounds="parent"
-          dragHandleClassName="widget-drag-handle"
-          style={{
-            background: 'var(--background)',
-            borderRadius: 'var(--radius-lg)',
-            boxShadow: 'var(--shadow-md)',
-            border: '1px solid var(--border)',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden'
-          }}
-        >
-          {/* Widget Header - Drag Handle */}
-          <div
-            className="widget-drag-handle"
+      {WIDGET_CONFIGS.map(config => {
+        const isVisible = activeWidgets.includes(config.id)
+        if (!isVisible) return null
+        
+        const widgetState = widgetStates[config.id]
+        const WidgetComponent = config.component
+        
+        return (
+          <Rnd
+            key={config.id}
+            size={{ width: widgetState.width, height: widgetState.height }}
+            position={{ x: widgetState.x, y: widgetState.y }}
+            onDragStop={handleDragStop(config.id)}
+            onResizeStop={handleResizeStop(config.id)}
+            minWidth={300}
+            minHeight={250}
+            bounds="parent"
+            dragHandleClassName="widget-drag-handle"
             style={{
-              padding: 'var(--spacing-md)',
-              borderBottom: '1px solid var(--border)',
+              background: 'var(--background)',
+              borderRadius: 'var(--radius-lg)',
+              boxShadow: 'var(--shadow-md)',
+              border: '1px solid var(--border)',
               display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--spacing-sm)',
-              background: 'var(--background-secondary)',
-              cursor: 'move'
+              flexDirection: 'column',
+              overflow: 'hidden'
             }}
           >
+            {/* Widget Header - Drag Handle */}
+            <div
+              className="widget-drag-handle"
+              style={{
+                padding: 'var(--spacing-md)',
+                borderBottom: '1px solid var(--border)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--spacing-sm)',
+                background: 'var(--background-secondary)',
+                cursor: 'move'
+              }}
+            >
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: 'var(--radius-md)',
+                  background: 'var(--primary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px'
+                }}
+              >
+                {config.icon}
+              </div>
+              <h3
+                style={{
+                  fontSize: 'var(--font-size-lg)',
+                  fontWeight: 'var(--font-weight-semibold)',
+                  color: 'var(--foreground)',
+                  margin: 0,
+                  flex: 1
+                }}
+              >
+                {config.title}
+              </h3>
+              
+              {/* Delete Button */}
+              <button
+                onClick={handleDelete(config.id)}
+                style={{
+                  padding: '8px',
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--foreground-secondary)',
+                  fontSize: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 'var(--radius-sm)',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'var(--destructive-light)'
+                  e.currentTarget.style.color = 'var(--destructive)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = 'var(--foreground-secondary)'
+                }}
+                title="Delete widget"
+              >
+                🗑️
+              </button>
+            </div>
+
+            {/* Widget Content */}
             <div
               style={{
-                width: '32px',
-                height: '32px',
-                borderRadius: 'var(--radius-md)',
-                background: 'var(--primary)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px'
+                flex: '1',
+                overflow: 'auto',
+                padding: 0
               }}
             >
-              👥
+              <WidgetComponent />
             </div>
-            <h3
-              style={{
-                fontSize: 'var(--font-size-lg)',
-                fontWeight: 'var(--font-weight-semibold)',
-                color: 'var(--foreground)',
-                margin: 0,
-                flex: 1
-              }}
-            >
-              Today's Patients
-            </h3>
-            
-            {/* Delete Button */}
-            <button
-              onClick={handleDelete}
-              style={{
-                padding: '8px',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--foreground-secondary)',
-                fontSize: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 'var(--radius-sm)',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--destructive-light)'
-                e.currentTarget.style.color = 'var(--destructive)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = 'var(--foreground-secondary)'
-              }}
-              title="Delete widget"
-            >
-              🗑️
-            </button>
-          </div>
-
-          {/* Widget Content */}
-          <div
-            style={{
-              flex: '1',
-              overflow: 'auto',
-              padding: 0
-            }}
-          >
-            <TodaysPatientsWidget />
-          </div>
-        </Rnd>
-      )}
+          </Rnd>
+        )
+      })}
     </div>
   )
 }
