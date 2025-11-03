@@ -124,7 +124,7 @@ const NAVIGATION_ITEMS = [
 ]
 
 export function DashboardSidebar() {
-  const { activeWidgets, isSidebarOpen, toggleSidebar } = useDashboard()
+  const { activeWidgets, isSidebarOpen, toggleSidebar, addWidget } = useDashboard()
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const userInfo = getUserInfo()

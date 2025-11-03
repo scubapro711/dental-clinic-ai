@@ -1,15 +1,15 @@
 /**
- * DashboardGrid v5.1 - React-RND with Context Integration
+ * DashboardGrid v5.2 - React-RND with Fixed Persistence
  * 
  * Features:
  * - react-rnd for drag & resize
  * - Integrated with DashboardContext
  * - Delete widget functionality
- * - Auto-save to localStorage via context
+ * - Fixed: Widget position/size persistence
  * - Single widget: Today's Patients
  */
 
-import { useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Rnd } from 'react-rnd'
 import { useDashboard } from '../../contexts/DashboardContext'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
@@ -54,32 +54,28 @@ export function DashboardGrid() {
     return DEFAULT_WIDGET_STATE
   }
 
-  // Get initial state
-  const getInitialState = (): WidgetState => {
-    return loadWidgetState()
-  }
+  // State for widget position and size
+  const [widgetState, setWidgetState] = useState<WidgetState>(loadWidgetState)
 
-  // Save widget state to localStorage
-  const saveWidgetState = useCallback((state: WidgetState) => {
+  // Save widget state to localStorage whenever it changes
+  useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(widgetState))
     } catch (e) {
       console.error('Failed to save widget state:', e)
     }
-  }, [])
+  }, [widgetState])
 
-  // Handle drag stop - save new position
+  // Handle drag stop - update state with new position
   const handleDragStop = useCallback((e: any, d: { x: number; y: number }) => {
-    const currentState = loadWidgetState()
-    const newState = {
-      ...currentState,
+    setWidgetState(prev => ({
+      ...prev,
       x: d.x,
       y: d.y
-    }
-    saveWidgetState(newState)
-  }, [saveWidgetState])
+    }))
+  }, [])
 
-  // Handle resize stop - save new size and position
+  // Handle resize stop - update state with new size and position
   const handleResizeStop = useCallback((
     e: any,
     direction: any,
@@ -87,14 +83,13 @@ export function DashboardGrid() {
     delta: any,
     position: { x: number; y: number }
   ) => {
-    const newState = {
+    setWidgetState({
       x: position.x,
       y: position.y,
       width: ref.offsetWidth,
       height: ref.offsetHeight
-    }
-    saveWidgetState(newState)
-  }, [saveWidgetState])
+    })
+  }, [])
 
   // Handle delete widget
   const handleDelete = useCallback(() => {
@@ -105,9 +100,6 @@ export function DashboardGrid() {
 
   // Check if widget is visible
   const isVisible = activeWidgets.includes('todays-patients')
-  
-  // Get widget state
-  const widgetState = getInitialState()
 
   return (
     <div
