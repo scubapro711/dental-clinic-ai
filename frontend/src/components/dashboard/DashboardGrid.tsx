@@ -61,7 +61,7 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     defaultState: { x: 840, y: 20, width: 500, height: 400 }
   },
   {
-    id: 'compliance',
+    id: 'compliance-alerts',
     title: 'Compliance',
     icon: '🛡️',
     component: ComplianceWidget,
