@@ -57,7 +57,7 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     title: 'Decision Queue',
     icon: '⚠️',
     component: DecisionQueueWidget,
-    defaultState: { x: 20, y: 390, width: 500, height: 400 }
+    defaultState: { x: 840, y: 20, width: 500, height: 400 }
   }
 ]
 
