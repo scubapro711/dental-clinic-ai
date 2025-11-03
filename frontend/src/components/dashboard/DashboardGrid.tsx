@@ -14,6 +14,7 @@ import { Rnd } from 'react-rnd'
 import { useDashboard } from '../../contexts/DashboardContext'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 import RevenueWidget from '../widgets/RevenueWidget'
+import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
 
 // Import custom styles
 import '../../styles/dashboard-grid.css'
@@ -50,6 +51,13 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     icon: '💰',
     component: RevenueWidget,
     defaultState: { x: 440, y: 20, width: 380, height: 350 }
+  },
+  {
+    id: 'decision-queue',
+    title: 'Decision Queue',
+    icon: '⚠️',
+    component: DecisionQueueWidget,
+    defaultState: { x: 20, y: 390, width: 500, height: 400 }
   }
 ]
 
