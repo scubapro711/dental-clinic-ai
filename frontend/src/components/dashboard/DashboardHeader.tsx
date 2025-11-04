@@ -9,6 +9,7 @@
  */
 
 import { getUserInfo } from '../../utils/rbac'
+import { OrganizationSelector } from '../OrganizationSelector'
 
 const AI_AGENTS = [
   { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981', icon: 'H' },
@@ -39,7 +40,10 @@ export function DashboardHeader() {
         minHeight: '60px'
       }}
     >
-      {/* Left: Title and Greeting - Compact */}
+      {/* Left: Organization Selector (if multiple orgs) */}
+      <OrganizationSelector />
+      
+      {/* Center: Title and Greeting - Compact */}
       <div style={{ minWidth: '200px' }}>
         <h1 
           className="dashboard-title"
