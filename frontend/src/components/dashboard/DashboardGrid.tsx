@@ -40,32 +40,32 @@ interface WidgetConfig {
 // Widget configurations
 const WIDGET_CONFIGS: WidgetConfig[] = [
   {
-    id: 'todays-patients',
-    title: "Today's Patients",
-    icon: '👥',
-    component: TodaysPatientsWidget,
-    defaultState: { x: 20, y: 20, width: 400, height: 350 }
-  },
-  {
-    id: 'revenue',
-    title: 'Revenue',
-    icon: '💰',
-    component: RevenueWidget,
-    defaultState: { x: 440, y: 20, width: 380, height: 350 }
-  },
-  {
     id: 'decision-queue',
     title: 'Decision Queue',
     icon: '⚠️',
     component: DecisionQueueWidget,
-    defaultState: { x: 840, y: 20, width: 500, height: 400 }
+    defaultState: { x: 20, y: 20, width: 1220, height: 300 }
+  },
+  {
+    id: 'todays-patients',
+    title: "Today's Patients",
+    icon: '👥',
+    component: TodaysPatientsWidget,
+    defaultState: { x: 20, y: 340, width: 380, height: 450 }
   },
   {
     id: 'compliance-alerts',
     title: 'Compliance',
     icon: '🛡️',
     component: ComplianceWidget,
-    defaultState: { x: 20, y: 440, width: 400, height: 400 }
+    defaultState: { x: 420, y: 340, width: 380, height: 450 }
+  },
+  {
+    id: 'revenue',
+    title: 'Revenue',
+    icon: '💰',
+    component: RevenueWidget,
+    defaultState: { x: 820, y: 340, width: 420, height: 450 }
   }
 ]
 
