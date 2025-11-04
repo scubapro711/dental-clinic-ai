@@ -1,9 +1,9 @@
 /**
- * DashboardHeader v7.0 - Compact Header with Horizontal Agent Cards
+ * DashboardHeader v7.1 - Compact Header with Larger Horizontal Agent Cards
  * 
  * Features:
  * - Compact, normal-sized top bar
- * - Horizontal rectangular agent cards (wider than tall)
+ * - Larger horizontal rectangular agent cards
  * - Responsive design with scroll for agents
  * - Professional card design
  */
@@ -70,11 +70,11 @@ export function DashboardHeader() {
         </p>
       </div>
       
-      {/* Right: AI Agents - Horizontal Rectangles */}
+      {/* Right: AI Agents - Larger Horizontal Rectangles */}
       <div 
         style={{ 
           display: 'flex', 
-          gap: '10px', 
+          gap: '12px', 
           flex: 1,
           overflowX: 'auto',
           padding: '2px 4px',
@@ -94,40 +94,40 @@ export function DashboardHeader() {
               display: 'flex',
               flexDirection: 'row',
               alignItems: 'center',
-              gap: '10px',
-              padding: '8px 14px',
-              borderRadius: '8px',
+              gap: '14px',
+              padding: '12px 18px',
+              borderRadius: '10px',
               background: 'white',
-              border: '1px solid var(--border)',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+              border: '1.5px solid var(--border)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
               transition: 'all 0.2s ease',
               cursor: 'pointer',
               minWidth: 'fit-content',
-              height: '44px'
+              height: '56px'
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)'
+              e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.12)'
               e.currentTarget.style.borderColor = agent.color
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.05)'
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)'
               e.currentTarget.style.borderColor = 'var(--border)'
             }}
           >
-            {/* Agent Avatar - Compact */}
+            {/* Agent Avatar - Larger */}
             <div
               style={{
-                width: '32px',
-                height: '32px',
+                width: '40px',
+                height: '40px',
                 borderRadius: '50%',
                 background: `${agent.color}15`,
-                border: `2px solid ${agent.color}`,
+                border: `2.5px solid ${agent.color}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '14px',
+                fontSize: '16px',
                 fontWeight: '700',
                 color: agent.color,
                 flexShrink: 0
@@ -136,24 +136,24 @@ export function DashboardHeader() {
               {agent.icon}
             </div>
             
-            {/* Agent Info - Horizontal */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {/* Agent Info - Horizontal with larger text */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
               <div
                 style={{
-                  fontSize: '15px',
+                  fontSize: '18px',
                   fontWeight: '700',
                   color: agent.color,
-                  lineHeight: '1'
+                  lineHeight: '1.1'
                 }}
               >
                 {agent.value}
               </div>
               <div
                 style={{
-                  fontSize: '12px',
-                  fontWeight: '500',
+                  fontSize: '13px',
+                  fontWeight: '600',
                   color: 'var(--foreground-secondary)',
-                  lineHeight: '1'
+                  lineHeight: '1.1'
                 }}
               >
                 {agent.name}
