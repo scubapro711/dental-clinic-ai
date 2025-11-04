@@ -102,16 +102,28 @@ export default function AgenticDashboard() {
         style={{
           minHeight: '100vh',
           background: 'var(--background)',
-          position: 'relative'
+          position: 'relative',
+          paddingTop: '80px'
         }}
       >
-        {/* Header */}
-        <DashboardHeader 
+        {/* Header - Sticky */}
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          background: 'var(--background)',
+          borderBottom: '1px solid var(--border)',
+          padding: '0 20px'
+        }}>
+          <DashboardHeader 
           userInfo={userInfo}
           onExportLog={() => exportReasoningLog(reasoningSteps)}
           onToggleHistory={() => setShowHistorySidebar(!showHistorySidebar)}
           enableCustomization={enableCustomization}
         />
+        </div>
 
         {/* Main Dashboard Grid */}
         <DashboardGrid />
