@@ -23,7 +23,7 @@ import { getUserInfo } from '../utils/rbac';
 import { DashboardProvider } from '../contexts/DashboardContext';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { DashboardSidebar } from '../components/dashboard/DashboardSidebar';
-import { DashboardGrid } from '../components/dashboard/DashboardGrid';
+import DashboardGrid from '../components/dashboard/DashboardGrid';
 import { isFeatureEnabled } from '../config/features';
 
 /**
