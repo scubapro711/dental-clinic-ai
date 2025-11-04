@@ -1,23 +1,22 @@
 /**
- * DashboardHeader v5.0 - Simplified Dashboard Header
+ * DashboardHeader v6.0 - Enhanced Dashboard Header with Prominent Agent Cards
  * 
  * Features:
  * - Single row layout: Title | AI Agents
  * - User greeting with role display
- * - AI Agents horizontal display
+ * - Large, prominent AI Agent cards with enhanced styling
  * - Responsive design with scroll for agents on smaller screens
- * - No edit mode - always editable
- * - No Done/Reset buttons
+ * - Professional card design with better visual hierarchy
  */
 
 import { getUserInfo } from '../../utils/rbac'
 
 const AI_AGENTS = [
-  { id: 'alex', name: 'Alex', role: 'Patient Experience', value: '247', color: '#3b82f6' },
-  { id: 'sarah', name: 'Sarah', role: 'Clinical Support', value: '98%', color: '#8b5cf6' },
-  { id: 'marcus', name: 'Marcus', role: 'Financial', value: '₪45,230', color: '#06b6d4' },
-  { id: 'sophia', name: 'Sophia', role: 'Scheduling', value: '8', color: '#f59e0b' },
-  { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981' }
+  { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981', icon: 'H' },
+  { id: 'sophia', name: 'Sophia', role: 'Scheduling', value: '8', color: '#f59e0b', icon: 'S' },
+  { id: 'marcus', name: 'Marcus', role: 'Financial', value: '₪45,230', color: '#06b6d4', icon: 'M' },
+  { id: 'sarah', name: 'Sarah', role: 'Clinical Support', value: '98%', color: '#8b5cf6', icon: 'S' },
+  { id: 'alex', name: 'Alex', role: 'Patient Experience', value: '247', color: '#3b82f6', icon: 'A' }
 ]
 
 export function DashboardHeader() {
@@ -35,7 +34,7 @@ export function DashboardHeader() {
         border: 'none',
         borderRadius: 'var(--radius-lg)',
         boxShadow: 'none',
-        gap: 'var(--spacing-lg)',
+        gap: 'var(--spacing-xl)',
         marginBottom: 'var(--spacing-xl)',
         flexWrap: 'wrap'
       }}
@@ -71,19 +70,19 @@ export function DashboardHeader() {
         </p>
       </div>
       
-      {/* Right: AI Agents - Compact Horizontal */}
+      {/* Right: AI Agents - Large Prominent Cards */}
       <div 
         style={{ 
           display: 'flex', 
-          gap: 'var(--spacing-xs)', 
+          gap: 'var(--spacing-md)', 
           flex: 1,
           overflowX: 'auto',
-          maxWidth: '600px',
-          padding: '0 8px',
+          padding: '4px 8px',
           background: 'transparent',
           scrollbarWidth: 'none',
           msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
+          WebkitOverflowScrolling: 'touch',
+          justifyContent: 'flex-end'
         }}
         className="ai-agents-container"
       >
@@ -93,65 +92,73 @@ export function DashboardHeader() {
             title={`${agent.name} - ${agent.role}`}
             style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               gap: 'var(--spacing-xs)',
-              padding: 'var(--spacing-xs) var(--spacing-sm)',
-              borderRadius: 'var(--radius-md)',
-              background: 'var(--muted)',
-              transition: 'all var(--transition-base)',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--radius-lg)',
+              background: 'white',
+              border: '1px solid var(--border)',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
+              transition: 'all 0.2s ease',
               cursor: 'pointer',
-              minWidth: 'fit-content',
-              whiteSpace: 'nowrap'
+              minWidth: '110px',
+              position: 'relative'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--background-secondary)'
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = 'var(--shadow-md)'
+              e.currentTarget.style.transform = 'translateY(-4px)'
+              e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.12)'
+              e.currentTarget.style.borderColor = agent.color
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--muted)'
               e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = 'none'
+              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)'
+              e.currentTarget.style.borderColor = 'var(--border)'
             }}
           >
+            {/* Agent Avatar - Larger */}
             <div
               style={{
-                width: '28px',
-                height: '28px',
+                width: '48px',
+                height: '48px',
                 borderRadius: 'var(--radius-full)',
-                background: `${agent.color}20`,
-                border: `2px solid ${agent.color}`,
+                background: `${agent.color}15`,
+                border: `3px solid ${agent.color}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 'var(--font-size-xs)',
+                fontSize: 'var(--font-size-lg)',
                 fontWeight: 'var(--font-weight-bold)',
                 color: agent.color,
-                flexShrink: 0
+                flexShrink: 0,
+                marginBottom: 'var(--spacing-xs)'
               }}
             >
-              {agent.name[0]}
+              {agent.icon}
             </div>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-xs)' }}>
-              <span
-                style={{
-                  fontSize: 'var(--font-size-sm)',
-                  fontWeight: 'var(--font-weight-semibold)',
-                  color: 'var(--foreground)'
-                }}
-              >
-                {agent.name}
-              </span>
-              <span
-                style={{
-                  fontSize: 'var(--font-size-xs)',
-                  fontWeight: 'var(--font-weight-bold)',
-                  color: agent.color
-                }}
-              >
-                {agent.value}
-              </span>
+            {/* Agent Value - Prominent */}
+            <div
+              style={{
+                fontSize: 'var(--font-size-lg)',
+                fontWeight: 'var(--font-weight-bold)',
+                color: agent.color,
+                lineHeight: '1.2'
+              }}
+            >
+              {agent.value}
+            </div>
+            
+            {/* Agent Name */}
+            <div
+              style={{
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 'var(--font-weight-semibold)',
+                color: 'var(--foreground)',
+                textAlign: 'center'
+              }}
+            >
+              {agent.name}
             </div>
           </div>
         ))}
