@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseWidget from './BaseWidget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
  * Shows clinical summary, AI findings, and pending treatments
  */
 export default function ClinicalInsightsWidget({ onChatWithAgent }) {
+  const navigate = useNavigate();
   const [clinicalData, setClinicalData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -180,6 +182,14 @@ export default function ClinicalInsightsWidget({ onChatWithAgent }) {
                       💡 {finding.action}
                     </div>
                   </div>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-xs"
+                    onClick={() => navigate(`/clinic/clinical?patient=${encodeURIComponent(finding.patient)}`)}
+                  >
+                    <Eye className="w-3 h-3" />
+                  </Button>
                 </div>
               </div>
             ))}

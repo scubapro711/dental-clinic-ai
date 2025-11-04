@@ -74,6 +74,7 @@ export default function ClinicLayout() {
     { to: '/clinic/dashboard', label: 'Mission Control', icon: '🎯' },
     { to: '/clinic/dashboard', label: 'Dashboard', icon: '🏠' },
     { to: '/clinic/patients', label: 'Patients', icon: '👥' },
+    { to: '/clinic/clinical', label: 'Clinical Dashboard', icon: '🩺' },
     { to: '/clinic/communications', label: 'Communications', icon: '📱' },
     { to: '/clinic/appointments', label: 'Appointments', icon: '📅' },
     { to: '/clinic/compliance', label: 'Compliance', icon: '🛡️' },
