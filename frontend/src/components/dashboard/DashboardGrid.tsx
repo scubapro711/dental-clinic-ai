@@ -17,6 +17,9 @@ import RevenueWidget from '../widgets/RevenueWidget'
 import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
 import ComplianceWidget from '../widgets/ComplianceWidget'
 import ClinicalInsightsWidget from '../widgets/ClinicalInsightsWidget'
+import FineTuningWidget from '../widgets/FineTuningWidget'
+import AgentActivityWidget from '../widgets/AgentActivityWidget'
+import TransparencyWidget from '../widgets/TransparencyWidget'
 
 // Import custom styles
 import '../../styles/dashboard-grid.css'
@@ -74,6 +77,27 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     icon: '🩺',
     component: ClinicalInsightsWidget,
     defaultState: { x: 20, y: 810, width: 1220, height: 400 }
+  },
+  {
+    id: 'fine-tuning',
+    title: 'Fine-Tuning',
+    icon: '⚙️',
+    component: FineTuningWidget,
+    defaultState: { x: 20, y: 1230, width: 600, height: 400 }
+  },
+  {
+    id: 'agent-activity',
+    title: 'Agent Activity',
+    icon: '📊',
+    component: AgentActivityWidget,
+    defaultState: { x: 640, y: 1230, width: 600, height: 400 }
+  },
+  {
+    id: 'transparency-panel',
+    title: 'Transparency',
+    icon: '👁️',
+    component: TransparencyWidget,
+    defaultState: { x: 20, y: 1650, width: 1220, height: 450 }
   }
 ]
 
