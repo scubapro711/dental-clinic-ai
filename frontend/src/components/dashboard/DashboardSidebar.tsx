@@ -26,7 +26,8 @@ import {
   Home,
   Calendar,
   UserCircle,
-  LogOut
+  LogOut,
+  Stethoscope
 } from 'lucide-react'
 import { useDashboard } from '../../contexts/DashboardContext'
 import { getUserInfo, canViewWidget } from '../../utils/rbac'
@@ -117,6 +118,7 @@ const CATEGORIES = [
 
 const NAVIGATION_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/clinic/dashboard' },
+  { id: 'clinical', label: 'Clinical Dashboard', icon: Stethoscope, path: '/clinic/clinical' },
   { id: 'schedule', label: 'Schedule', icon: Calendar, path: '/clinic/schedule' },
   { id: 'patients', label: 'Patients', icon: Users, path: '/clinic/patients' },
   { id: 'profile', label: 'Profile', icon: UserCircle, path: '/clinic/profile' },

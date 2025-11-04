@@ -159,11 +159,17 @@ export function DashboardGrid() {
     }
   }, [removeWidget])
 
+  // Calculate dynamic grid height based on widgets
+  const gridHeight = Object.values(widgetStates).reduce((maxHeight, state) => {
+    const widgetBottom = state.y + state.height
+    return Math.max(maxHeight, widgetBottom)
+  }, 1000) // Minimum 1000px
+
   return (
     <div
       style={{
         width: '100%',
-        minHeight: '100vh',
+        minHeight: `${gridHeight + 100}px`, // Add 100px padding at bottom
         padding: 'var(--spacing-lg)',
         position: 'relative',
         background: 'var(--background-secondary)'
