@@ -5,21 +5,21 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'gcr.io/dentaflow-442914/dentaflow-backend:${SHORT_SHA}'
+      - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:${SHORT_SHA}'
       - '-t'
-      - 'gcr.io/dentaflow-442914/dentaflow-backend:latest'
+      - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:latest'
       - '.'
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/dentaflow-442914/dentaflow-backend:${SHORT_SHA}'
+      - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:${SHORT_SHA}'
 
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
-      - 'gcr.io/dentaflow-442914/dentaflow-backend:latest'
+      - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:latest'
 
   # Deploy container image to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -29,15 +29,15 @@ steps:
       - 'deploy'
       - 'dentaflow-backend'
       - '--image'
-      - 'gcr.io/dentaflow-442914/dentaflow-backend:${SHORT_SHA}'
+      - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:${SHORT_SHA}'
       - '--region'
       - 'us-central1'
       - '--platform'
       - 'managed'
 
 images:
-  - 'gcr.io/dentaflow-442914/dentaflow-backend:${SHORT_SHA}'
-  - 'gcr.io/dentaflow-442914/dentaflow-backend:latest'
+  - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:${SHORT_SHA}'
+  - 'us-central1-docker.pkg.dev/dentaflow-442914/dentaflow/dentaflow-backend:latest'
 
 options:
   machineType: 'E2_HIGHCPU_8'
