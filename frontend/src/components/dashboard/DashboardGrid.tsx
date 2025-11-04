@@ -16,6 +16,7 @@ import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 import RevenueWidget from '../widgets/RevenueWidget'
 import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
 import ComplianceWidget from '../widgets/ComplianceWidget'
+import ClinicalInsightsWidget from '../widgets/ClinicalInsightsWidget'
 
 // Import custom styles
 import '../../styles/dashboard-grid.css'
@@ -66,6 +67,13 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     icon: '💰',
     component: RevenueWidget,
     defaultState: { x: 820, y: 340, width: 420, height: 450 }
+  },
+  {
+    id: 'clinical-system',
+    title: 'Clinical Insights',
+    icon: '🩺',
+    component: ClinicalInsightsWidget,
+    defaultState: { x: 20, y: 810, width: 1220, height: 400 }
   }
 ]
 
