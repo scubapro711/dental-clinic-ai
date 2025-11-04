@@ -44,6 +44,7 @@ import ComplianceDashboard from './pages/super-admin/ComplianceDashboard'
 import BAAManagementPageSuperAdmin from './pages/super-admin/BAAManagementPage'
 import DataRetentionPage from './pages/super-admin/DataRetentionPage'
 import HarperDashboard from './components/compliance/HarperDashboard'
+import ClinicalDashboard from './components/clinical/ClinicalDashboard'
 
 // Shared
 import ChatPage from './pages/ChatPage'
@@ -164,6 +165,7 @@ function App() {
         >
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
           <Route path="dashboard" element={<AgenticDashboard />} />
+          <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
           <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
