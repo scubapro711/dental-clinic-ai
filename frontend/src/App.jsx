@@ -6,7 +6,7 @@ import PatientLayout from './layouts/PatientLayout'
 import ClinicLayout from './layouts/ClinicLayout'
 
 // Auth Pages
-import SimpleMockLogin from './pages/SimpleMockLogin'
+import RealLogin from './pages/RealLogin'
 import RegisterPage from './pages/RegisterPage'
 
 // Onboarding Pages
@@ -110,7 +110,7 @@ function App() {
         <Route path="/dashboard-redirect" element={<RoleBasedRedirect />} />
         
         {/* Auth Routes (Public) */}
-        <Route path="/login" element={<SimpleMockLogin />} />
+        <Route path="/login" element={<RealLogin />} />
         <Route path="/register" element={<RegisterPage />} />
         
         {/* Onboarding Routes (Public/Protected) */}
