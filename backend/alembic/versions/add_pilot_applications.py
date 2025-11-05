@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers
 revision = 'add_pilot_apps'
-down_revision = None
+down_revision = 'harper_compliance_001'  # add_harper_compliance_tables
 branch_labels = None
 depends_on = None
 

@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'harper_compliance_001'
-down_revision = None  # Update this to the latest revision in your migrations
+down_revision = '5a8c2b9d3e4f'  # add_mfa_columns_to_users
 branch_labels = None
 depends_on = None
 
