@@ -21,7 +21,7 @@ def upgrade():
     op.create_table(
         'compliance_alerts',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('organization_id', sa.Integer(), nullable=False),
+        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
         sa.Column('alert_type', sa.Enum(
@@ -86,7 +86,7 @@ def upgrade():
     op.create_table(
         'compliance_metrics',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('organization_id', sa.Integer(), nullable=False),
+        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('recorded_at', sa.DateTime(), nullable=False),
         sa.Column('metric_type', sa.String(length=50), nullable=False),
         sa.Column('value', sa.Integer(), nullable=True),
