@@ -27,7 +27,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'dentaflow-backend'
+      - '${_SERVICE_NAME}'
       - '--image'
       - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend:${SHORT_SHA}'
       - '--region'
