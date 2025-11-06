@@ -34,6 +34,8 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
+      - '--add-cloudsql-instances'
+      - 'dentaflow-production:us-central1:dentaflow-db-instance'
 
 images:
   - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend:${SHORT_SHA}'
