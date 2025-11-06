@@ -3,7 +3,7 @@
  * 
  * Features:
  * - 9 comprehensive widgets
- * - Draggable/resizable widget grid
+ * - Draggable/resizable widget grid (RESPONSIVE)
  * - Real-time updates via WebSocket
  * - Persistent layout configuration
  * 
@@ -29,14 +29,19 @@ import { AlertsWidget } from '@/components/dashboard/widgets/AlertsWidget'
 import { LogsWidget } from '@/components/dashboard/widgets/LogsWidget'
 import { PatientsWidget } from '@/components/dashboard/widgets/PatientsWidget'
 import { ConfigurationWidget } from '@/components/dashboard/widgets/ConfigurationWidget'
-import GridLayout from 'react-grid-layout'
+import { Responsive, WidthProvider } from 'react-grid-layout'
+import 'react-grid-layout/css/styles.css'
+import 'react-resizable/css/styles.css'
 import { useDashboardStore } from '@/stores/dashboardStore'
+
+const ResponsiveGridLayout = WidthProvider(Responsive)
 
 export default function MissionControlPage({ user, onLogout }) {
   const { widgetLayout, setWidgetLayout } = useDashboardStore()
 
-  const handleLayoutChange = (layout) => {
-    setWidgetLayout(layout)
+  const handleLayoutChange = (layout, allLayouts) => {
+    // Save the large layout as primary
+    setWidgetLayout(allLayouts.lg || layout)
   }
 
   // Widget components map - all 9 widgets
@@ -62,21 +67,31 @@ export default function MissionControlPage({ user, onLogout }) {
           </p>
         </div>
 
-        <GridLayout
+        <ResponsiveGridLayout
           className="layout"
-          layout={widgetLayout}
-          cols={12}
+          layouts={{
+            lg: widgetLayout,
+            md: widgetLayout,
+            sm: widgetLayout,
+            xs: widgetLayout
+          }}
+          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480 }}
+          cols={{ lg: 12, md: 10, sm: 6, xs: 4 }}
           rowHeight={80}
-          width={1200}
           onLayoutChange={handleLayoutChange}
           draggableHandle=".drag-handle"
-          isDraggable
-          isResizable
+          isDraggable={true}
+          isResizable={true}
           compactType="vertical"
           preventCollision={false}
         >
           {widgetLayout.map((item) => (
-            <div key={item.i} id={item.i} className="widget-container">
+            <div 
+              key={item.i} 
+              id={item.i} 
+              className="widget-container"
+              data-grid={item}
+            >
               {widgets[item.i] || (
                 <div className="h-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
                   <p className="text-muted-foreground">Widget: {item.i}</p>
@@ -84,7 +99,7 @@ export default function MissionControlPage({ user, onLogout }) {
               )}
             </div>
           ))}
-        </GridLayout>
+        </ResponsiveGridLayout>
       </div>
     </MissionControlLayout>
   )

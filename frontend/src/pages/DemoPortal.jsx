@@ -146,8 +146,8 @@ const DemoDashboard = () => {
   }
 
   const { financialSummary, patients, appointments } = demoData;
-  const activePatients = patients.filter(p => p.status === 'Active').length;
-  const upcomingAppointments = appointments.length;
+  const activePatients = (patients || []).filter(p => p.status === 'Active').length;
+  const upcomingAppointments = (appointments || []).length;
 
   return (
     <div className="demo-dashboard">
@@ -244,7 +244,7 @@ const DemoPatients = () => {
       <div className="patients-container">
         {/* Patients List */}
         <div className="patients-list">
-          {patients.map((patient) => (
+          {(patients || []).map((patient) => (
             <div
               key={patient.id}
               className={`patient-card ${selectedPatient?.id === patient.id ? 'selected' : ''}`}
@@ -321,7 +321,7 @@ const DemoAppointments = () => {
       <h2>Appointments</h2>
 
       <div className="appointments-list">
-        {appointments.map((appointment) => (
+        {(appointments || []).map((appointment) => (
           <div key={appointment.id} className="appointment-card">
             <div className="appointment-date">
               <div className="date-day">{new Date(appointment.date).getDate()}</div>
@@ -383,7 +383,7 @@ const DemoFinancial = () => {
 
       <h3>Outstanding Invoices</h3>
       <div className="invoices-list">
-        {invoices.map((invoice) => (
+        {(invoices || []).map((invoice) => (
           <div key={invoice.id} className="invoice-card">
             <div className="invoice-patient">{invoice.patientName}</div>
             <div className="invoice-details">

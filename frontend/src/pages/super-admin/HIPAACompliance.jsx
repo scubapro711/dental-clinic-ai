@@ -544,7 +544,7 @@ const HIPAACompliance = () => {
                     Refresh
                   </Button>
                 </Box>
-                {incidents.length === 0 ? (
+                {(incidents || []).length === 0 ? (
                   <Alert severity="success">No security incidents reported</Alert>
                 ) : (
                   <TableContainer>
@@ -560,7 +560,7 @@ const HIPAACompliance = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {incidents.map((incident) => (
+                        {(incidents || []).map((incident) => (
                           <TableRow key={incident.id}>
                             <TableCell>{incident.id}</TableCell>
                             <TableCell>{incident.date}</TableCell>

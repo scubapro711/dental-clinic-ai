@@ -194,12 +194,12 @@ export function AppointmentsWidget() {
         icon={Calendar}
         loading={loading}
         error={error}
-        empty={appointments.length === 0}
+        empty={(appointments || []).length === 0}
         emptyMessage="No appointments today"
         onRefresh={loadAppointments}
       >
         <div className="space-y-2">
-          {appointments.map((appointment) => (
+          {(appointments || []).map((appointment) => (
             <div
               key={appointment.id}
               className="p-3 border rounded-lg hover:shadow-sm transition-shadow"

@@ -1,0 +1,350 @@
+/**
+ * Dashboard Grid Styles
+ * 
+ * Styles for react-grid-layout and custom dashboard components
+ */
+
+/* Grid Layout */
+.react-grid-layout {
+  position: relative;
+  transition: height var(--transition-base);
+}
+
+.react-grid-item {
+  transition: all var(--transition-base);
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary);
+  opacity: 0.2;
+  border-radius: var(--radius-lg);
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.react-grid-item > .react-resizable-handle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+}
+
+.react-grid-item > .react-resizable-handle::after {
+  content: "";
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid var(--primary);
+  border-bottom: 2px solid var(--primary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.react-grid-item:hover > .react-resizable-handle::after {
+  opacity: 1;
+}
+
+.react-grid-item.resizing {
+  opacity: 0.9;
+  z-index: 100;
+  box-shadow: var(--shadow-xl);
+}
+
+.react-grid-item.static {
+  cursor: default;
+}
+
+.react-grid-item.react-draggable-dragging {
+  transition: none;
+  z-index: 100;
+  box-shadow: var(--shadow-2xl);
+  opacity: 0.9;
+}
+
+.react-grid-item.dropping {
+  visibility: hidden;
+}
+
+.react-grid-item.react-grid-placeholder {
+  background: var(--primary);
+  opacity: 0.2;
+  transition-duration: 100ms;
+  z-index: 2;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+/* Resize Handles */
+.react-resizable-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.react-resizable-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+}
+
+.react-resizable-handle-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+}
+
+.react-resizable-handle-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+}
+
+.react-resizable-handle-n {
+  top: 0;
+  left: 50%;
+  margin-left: -10px;
+  cursor: n-resize;
+}
+
+.react-resizable-handle-s {
+  bottom: 0;
+  left: 50%;
+  margin-left: -10px;
+  cursor: s-resize;
+}
+
+.react-resizable-handle-e {
+  right: 0;
+  top: 50%;
+  margin-top: -10px;
+  cursor: e-resize;
+}
+
+.react-resizable-handle-w {
+  left: 0;
+  top: 50%;
+  margin-top: -10px;
+  cursor: w-resize;
+}
+
+/* Dashboard Widget */
+.dashboard-widget {
+  position: relative;
+}
+
+.dashboard-widget:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.dashboard-widget .widget-header {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Sidebar */
+.dashboard-sidebar {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.dashboard-sidebar[data-collapsed="true"] {
+  width: 60px;
+}
+
+.dashboard-sidebar[data-collapsed="true"] .sidebar-content {
+  display: none;
+}
+
+/* Widget Library Item */
+.widget-library-item:active {
+  cursor: grabbing;
+}
+
+/* Scrollbar Styling */
+.sidebar-widgets::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-widgets::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-widgets::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+.sidebar-widgets::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground-tertiary);
+}
+
+/* Animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-grid-container {
+    padding-right: var(--spacing-lg) !important;
+  }
+  
+  .dashboard-sidebar {
+    width: 100% !important;
+    height: auto !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    top: auto !important;
+    right: 0 !important;
+    left: 0 !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+    max-height: 50vh;
+  }
+  
+  .dashboard-sidebar[data-collapsed="true"] {
+    height: 60px !important;
+  }
+  
+  .sidebar-toggle {
+    left: 50% !important;
+    top: -16px !important;
+    transform: translateX(-50%) !important;
+  }
+  
+  .sidebar-toggle:hover {
+    transform: translateX(-50%) scale(1.1) !important;
+  }
+  
+  .edit-mode-indicator {
+    bottom: calc(60px + var(--spacing-lg)) !important;
+  }
+}
+
+/* RTL Support */
+[dir="rtl"] .react-resizable-handle-se {
+  right: auto;
+  left: 0;
+  cursor: sw-resize;
+}
+
+[dir="rtl"] .react-resizable-handle-sw {
+  left: auto;
+  right: 0;
+  cursor: se-resize;
+}
+
+[dir="rtl"] .react-resizable-handle-ne {
+  right: auto;
+  left: 0;
+  cursor: nw-resize;
+}
+
+[dir="rtl"] .react-resizable-handle-nw {
+  left: auto;
+  right: 0;
+  cursor: ne-resize;
+}
+
+[dir="rtl"] .react-resizable-handle-e {
+  right: auto;
+  left: 0;
+  cursor: w-resize;
+}
+
+[dir="rtl"] .react-resizable-handle-w {
+  left: auto;
+  right: 0;
+  cursor: e-resize;
+}
+
+[dir="rtl"] .dashboard-sidebar {
+  right: auto;
+  left: 0;
+  border-left: none;
+  border-right: 1px solid var(--border);
+}
+
+[dir="rtl"] .dashboard-grid-container {
+  padding-right: var(--spacing-lg);
+  padding-left: calc(320px + var(--spacing-lg));
+}
+
+[dir="rtl"] .sidebar-toggle {
+  left: auto;
+  right: -16px;
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .react-grid-item > .react-resizable-handle::after {
+    border-color: var(--primary-foreground);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .dashboard-sidebar,
+  .sidebar-toggle,
+  .edit-mode-indicator,
+  .widget-remove-button,
+  .react-resizable-handle {
+    display: none !important;
+  }
+  
+  .dashboard-grid-container {
+    padding-right: 0 !important;
+  }
+  
+  .react-grid-item {
+    page-break-inside: avoid;
+  }
+}
+
+/* Hide scrollbar for AI Agents container */
+.ai-agents-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+

@@ -167,7 +167,7 @@ const InteractiveDemoChat = ({ onClose }) => {
       </div>
 
       <div className="demo-chat-messages">
-        {messages.map((msg, index) => (
+        {(messages || []).map((msg, index) => (
           <div key={index} className={`message ${msg.type}`}>
             <div className="message-avatar">
               {msg.type === 'bot' ? '🤖' : '👤'}

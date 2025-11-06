@@ -139,7 +139,7 @@ export const ProactiveSuggestionsPanel = () => {
     setDismissedIds(prev => new Set([...prev, suggestionId]));
   };
 
-  const visibleSuggestions = suggestions.filter(s => !dismissedIds.has(s.id));
+  const visibleSuggestions = (suggestions || []).filter(s => !dismissedIds.has(s.id));
 
   const priorityConfig = {
     high: {

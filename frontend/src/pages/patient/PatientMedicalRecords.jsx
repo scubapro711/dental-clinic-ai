@@ -221,7 +221,7 @@ export default function PatientMedicalRecords() {
 
           {/* Treatments Tab */}
           <TabsContent value="treatments" className="space-y-4">
-            {treatments.map((treatment) => (
+            {(treatments || []).map((treatment) => (
               <Card key={treatment.id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">

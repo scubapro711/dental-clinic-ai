@@ -204,14 +204,14 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
     }
   };
 
-  const highPriorityCount = decisions.filter(d => d.priority === 'high').length;
+  const highPriorityCount = (decisions || []).filter(d => d.priority === 'high').length;
 
   return (
     <BaseWidget
       title="החלטות ממתינות"
       agent="system"
       icon="⚡"
-      badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${decisions.length} פריטים`}
+      badge={highPriorityCount > 0 ? `${highPriorityCount} דחופות` : `${(decisions || []).length} פריטים`}
       isLoading={isLoading}
     >
       {/* ARIA Live Region for status announcements */}
@@ -224,27 +224,25 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
         {statusMessage}
       </div>
       
-      <div className="space-y-3">
-        {decisions.length === 0 ? (
-          <div className="text-center text-sm text-gray-500 py-8">
-            <CheckCircle2 className="w-12 h-12 mx-auto mb-2 text-green-500" />
-            <div>אין החלטות ממתינות</div>
+      <div className="widget-content">
+        {(decisions || []).length === 0 ? (
+          <div className="widget-empty-state">
+            <CheckCircle2 className="widget-empty-icon text-green-500" />
+            <div className="widget-empty-text">אין החלטות ממתינות</div>
             <div className="text-xs mt-1">כל המשימות טופלו! 🎉</div>
           </div>
         ) : (
-          decisions.map((decision) => {
-            const priorityConfig = getPriorityConfig(decision.priority);
-            const agentConfig = getAgentConfig(decision.agent);
-            
-            return (
-              <div
-                key={decision.id}
-                className={cn(
-                  'rounded-lg border-2 p-3 transition-all duration-200',
-                  'hover:shadow-md',
-                  priorityConfig.color
-                )}
-              >
+          <ul className="widget-list">
+            {(decisions || []).map((decision) => {
+              const priorityConfig = getPriorityConfig(decision.priority);
+              const agentConfig = getAgentConfig(decision.agent);
+              
+              return (
+                <li
+                  key={decision.id}
+                  className="widget-list-item"
+                  style={{ borderLeft: `4px solid ${priorityConfig.borderColor || 'transparent'}` }}
+                >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-2">
@@ -301,14 +299,15 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
                     <XCircle className="w-3 h-3" aria-hidden="true" />
                   </Button>
                 </div>
-              </div>
+              </li>
             );
-          })
+          })}
+          </ul>
         )}
       </div>
 
       {/* Footer */}
-      {decisions.length > 0 && (
+      {(decisions || []).length > 0 && (
         <div className="mt-4 pt-3 border-t">
           <div className="text-xs text-gray-600 text-center">
             💡 הסוכנים מארגנים עבורך את המשימות החשובות ביותר

@@ -23,12 +23,12 @@ import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
  * 
  * Last updated: 2025-10-26 - Hotfix deployment trigger
  */
-export default function AIChat({ user, onStreamEvent }) {
-  const [messages, setMessages] = useState([]);
+export default function AIChat({ user, onStreamEvent, initialMessages = [], conversationId: propConversationId, onClearChat }) {
+  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentAgent, setCurrentAgent] = useState(null);
-  const [conversationId] = useState(() => `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [conversationId] = useState(() => propConversationId || `conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
   const [error, setError] = useState(null);
   const [toolCalls, setToolCalls] = useState([]);
   const [isThinking, setIsThinking] = useState(false);
@@ -190,7 +190,7 @@ export default function AIChat({ user, onStreamEvent }) {
         },
         body: JSON.stringify({
           messages: [
-            ...messages.filter(m => !m.isStreaming).map(m => ({ role: m.role, content: m.content })),
+            ...(messages || []).filter(m => !m.isStreaming).map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: userMessage.content }
           ],
           conversation_id: conversationId,
@@ -404,7 +404,7 @@ export default function AIChat({ user, onStreamEvent }) {
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
+          {(messages || []).length === 0 && (
             <div className="flex flex-col items-center justify-center h-full text-center p-8">
               <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center mb-4">
                 <Sparkles className="w-8 h-8 text-white" />
@@ -442,7 +442,7 @@ export default function AIChat({ user, onStreamEvent }) {
             </div>
           )}
 
-          {messages.map((message, index) => (
+          {(messages || []).map((message, index) => (
             <Message 
               key={index} 
               message={message} 

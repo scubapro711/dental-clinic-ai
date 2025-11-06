@@ -139,7 +139,7 @@ const HarperChat = ({ onClose }) => {
           {/* Messages */}
           <ScrollArea className="flex-1 p-6" ref={scrollRef}>
             <div className="space-y-4">
-              {messages.map((message, index) => (
+              {(messages || []).map((message, index) => (
                 <div
                   key={index}
                   className={`flex gap-3 ${

@@ -105,8 +105,8 @@ const ComplianceDashboard = () => {
   }
 
   // Calculate summary stats
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical').length;
-  const highAlerts = alerts.filter(a => a.severity === 'high').length;
+  const criticalAlerts = (alerts || []).filter(a => a.severity === 'critical').length;
+  const highAlerts = (alerts || []).filter(a => a.severity === 'high').length;
   const overallScore = complianceScore?.overall_score || 0;
 
   return (

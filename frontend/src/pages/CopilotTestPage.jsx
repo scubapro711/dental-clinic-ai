@@ -92,7 +92,7 @@ export function CopilotTestPage() {
                   </span>
                 </div>
                 <p className="text-sm text-purple-600 mt-1">
-                  {messages.length} messages
+                  {(messages || []).length} messages
                 </p>
               </div>
             </div>
@@ -179,14 +179,14 @@ export function CopilotTestPage() {
         </Card>
 
         {/* Message History */}
-        {messages.length > 0 && (
+        {(messages || []).length > 0 && (
           <Card className="p-6 bg-white shadow-lg">
             <div className="space-y-4">
               <h2 className="text-2xl font-semibold text-gray-800">
                 Message History
               </h2>
               <div className="space-y-3 max-h-96 overflow-y-auto">
-                {messages.map((msg, idx) => (
+                {(messages || []).map((msg, idx) => (
                   <div
                     key={idx}
                     className={`p-4 rounded-lg ${

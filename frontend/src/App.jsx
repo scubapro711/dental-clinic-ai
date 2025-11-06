@@ -6,7 +6,7 @@ import PatientLayout from './layouts/PatientLayout'
 import ClinicLayout from './layouts/ClinicLayout'
 
 // Auth Pages
-import SimpleMockLogin from './pages/SimpleMockLogin'
+import RealLogin from './pages/RealLogin'
 import RegisterPage from './pages/RegisterPage'
 
 // Onboarding Pages
@@ -22,6 +22,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 
 // Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
+// import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
 import BAAManagementPage from './pages/clinic/BAAManagementPage'
@@ -43,6 +44,7 @@ import ComplianceDashboard from './pages/super-admin/ComplianceDashboard'
 import BAAManagementPageSuperAdmin from './pages/super-admin/BAAManagementPage'
 import DataRetentionPage from './pages/super-admin/DataRetentionPage'
 import HarperDashboard from './components/compliance/HarperDashboard'
+import ClinicalDashboard from './components/clinical/ClinicalDashboard'
 
 // Shared
 import ChatPage from './pages/ChatPage'
@@ -108,7 +110,7 @@ function App() {
         <Route path="/dashboard-redirect" element={<RoleBasedRedirect />} />
         
         {/* Auth Routes (Public) */}
-        <Route path="/login" element={<SimpleMockLogin />} />
+        <Route path="/login" element={<RealLogin />} />
         <Route path="/register" element={<RegisterPage />} />
         
         {/* Onboarding Routes (Public/Protected) */}
@@ -163,6 +165,7 @@ function App() {
         >
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
           <Route path="dashboard" element={<AgenticDashboard />} />
+          <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
           <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />

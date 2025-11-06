@@ -240,7 +240,7 @@ export function ConversationMonitorWidget() {
     }
   }
 
-  const filteredConversations = conversations.filter((conv) => {
+  const filteredConversations = (conversations || []).filter((conv) => {
     // Status filter
     if (conversationFilters.status !== 'all') {
       if (conversationFilters.status === 'escalated' && !conv.escalation_level) {

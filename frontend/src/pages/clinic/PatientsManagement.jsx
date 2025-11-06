@@ -225,7 +225,7 @@ export default function PatientsManagement() {
 
         {/* Patients List */}
         <div className="space-y-4">
-          {patients.map((patient) => (
+          {(patients || []).map((patient) => (
             <Card key={patient.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">

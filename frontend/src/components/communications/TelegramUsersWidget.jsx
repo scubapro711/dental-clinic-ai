@@ -88,11 +88,11 @@ export default function TelegramUsersWidget() {
       title="משתמשי Telegram"
       icon={<Users />}
       agent="alex"
-      badge={`${users.filter(u => u.status === 'LINKED').length} מקושרים`}
+      badge={`${(users || []).filter(u => u.status === 'LINKED').length} מקושרים`}
       isLoading={isLoading}
     >
       <div className="space-y-3">
-        {users.length === 0 ? (
+        {(users || []).length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <Users className="w-12 h-12 mx-auto mb-3 text-gray-400" />
             <p>אין משתמשים עדיין</p>
@@ -100,7 +100,7 @@ export default function TelegramUsersWidget() {
           </div>
         ) : (
           <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {users.map((user) => (
+            {(users || []).map((user) => (
               <div
                 key={user.id}
                 className="p-3 border-2 rounded-lg hover:shadow-md transition-all duration-200 bg-white"

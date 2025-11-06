@@ -235,17 +235,17 @@ const PendingDecisionsWidget = () => {
     <div className="widget pending-decisions-widget">
       <div className="widget-header">
         <h3>⏳ {t("landing.demo.pendingDecisions")}</h3>
-        <span className="badge">{decisions.length}</span>
+        <span className="badge">{(decisions || []).length}</span>
       </div>
       <div className="widget-content">
-        {decisions.length === 0 ? (
+        {(decisions || []).length === 0 ? (
           <div className="empty-state">
             <p>✅ {t("landing.demo.noPendingDecisions")}</p>
             <p className="text-sm">{t("landing.demo.allReviewed")}</p>
           </div>
         ) : (
           <div className="decisions-list">
-            {decisions.map(decision => (
+            {(decisions || []).map(decision => (
               <div key={decision.id} className="decision-card">
                 <div className="decision-header">
                   <span className="agent-badge">{decision.agent}</span>
@@ -366,7 +366,7 @@ const AgentActivityWidget = () => {
       </div>
       <div className="widget-content">
         <div className="activity-stream">
-          {activities.map(activity => (
+          {(activities || []).map(activity => (
             <div key={activity.id} className="activity-item">
               <div 
                 className="activity-dot"
@@ -600,7 +600,7 @@ const TransparencyPanelDemo = () => {
       <p className="panel-subtitle">{t('demo.transparency.see_how')}</p>
       
       <div className="decision-selector">
-        {decisions.map((d, index) => (
+        {(decisions || []).map((d, index) => (
           <button
             key={index}
             className={`decision-tab ${selectedDecision === index ? 'active' : ''}`}
@@ -662,8 +662,8 @@ const DemoDashboardEnhanced = () => {
   }
 
   const { financialSummary, patients, appointments } = demoData;
-  const activePatients = patients.filter(p => p.status === 'Active').length;
-  const upcomingAppointments = appointments.length;
+  const activePatients = (patients || []).filter(p => p.status === 'Active').length;
+  const upcomingAppointments = (appointments || []).length;
 
   // Agent colors for consistency
   const agentColors = {
@@ -784,7 +784,7 @@ const DemoPatientsEnhanced = () => {
   const { patients } = demoData;
 
   // Filter patients based on search query and status
-  const filteredPatients = patients.filter(patient => {
+  const filteredPatients = (patients || []).filter(patient => {
     const matchesSearch = 
       patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       patient.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -828,19 +828,19 @@ const DemoPatientsEnhanced = () => {
             className={`filter-btn ${filterStatus === 'all' ? 'active' : ''}`}
             onClick={() => setFilterStatus('all')}
           >
-            {t("demo.patients.all")} ({patients.length})
+            {t("demo.patients.all")} ({(patients || []).length})
           </button>
           <button
             className={`filter-btn ${filterStatus === 'active' ? 'active' : ''}`}
             onClick={() => setFilterStatus('active')}
           >
-            {t("demo.patients.active")} ({patients.filter(p => p.status === 'Active').length})
+            {t("demo.patients.active")} ({(patients || []).filter(p => p.status === 'Active').length})
           </button>
           <button
             className={`filter-btn ${filterStatus === 'inactive' ? 'active' : ''}`}
             onClick={() => setFilterStatus('inactive')}
           >
-            {t("demo.patients.inactive")} ({patients.filter(p => p.status === 'Inactive').length})
+            {t("demo.patients.inactive")} ({(patients || []).filter(p => p.status === 'Inactive').length})
           </button>
         </div>
       </div>
@@ -1037,7 +1037,7 @@ const DemoAppointmentsEnhanced = () => {
       <p className="page-subtitle">{t("demo.appointments.subtitle")}</p>
 
       <div className="appointments-list">
-        {appointments.map((apt, index) => (
+        {(appointments || []).map((apt, index) => (
           <div key={index} className="appointment-card">
             <div className="appointment-time">
               <div className="time-label">{apt.time}</div>

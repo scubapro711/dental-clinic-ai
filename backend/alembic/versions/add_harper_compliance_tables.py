@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'harper_compliance_001'
-down_revision = None  # Update this to the latest revision in your migrations
+down_revision = '5a8c2b9d3e4f'  # add_mfa_columns_to_users
 branch_labels = None
 depends_on = None
 
@@ -21,7 +21,7 @@ def upgrade():
     op.create_table(
         'compliance_alerts',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('organization_id', sa.Integer(), nullable=False),
+        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
         sa.Column('updated_at', sa.DateTime(), nullable=True),
         sa.Column('alert_type', sa.Enum(
@@ -46,12 +46,12 @@ def upgrade():
         sa.Column('deadline_date', sa.DateTime(), nullable=True),
         sa.Column('metadata', sa.JSON(), nullable=True),
         sa.Column('acknowledged_at', sa.DateTime(), nullable=True),
-        sa.Column('acknowledged_by', sa.Integer(), nullable=True),
+        sa.Column('acknowledged_by', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('resolved_at', sa.DateTime(), nullable=True),
-        sa.Column('resolved_by', sa.Integer(), nullable=True),
+        sa.Column('resolved_by', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('resolution_notes', sa.Text(), nullable=True),
         sa.Column('dismissed_at', sa.DateTime(), nullable=True),
-        sa.Column('dismissed_by', sa.Integer(), nullable=True),
+        sa.Column('dismissed_by', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('dismissal_reason', sa.Text(), nullable=True),
         sa.Column('related_entity_type', sa.String(length=50), nullable=True),
         sa.Column('related_entity_id', sa.Integer(), nullable=True),
@@ -86,7 +86,7 @@ def upgrade():
     op.create_table(
         'compliance_metrics',
         sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-        sa.Column('organization_id', sa.Integer(), nullable=False),
+        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column('recorded_at', sa.DateTime(), nullable=False),
         sa.Column('metric_type', sa.String(length=50), nullable=False),
         sa.Column('value', sa.Integer(), nullable=True),

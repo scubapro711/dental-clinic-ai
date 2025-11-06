@@ -219,8 +219,8 @@ const HarperDashboard = () => {
     );
   }
 
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical');
-  const highAlerts = alerts.filter(a => a.severity === 'high');
+  const criticalAlerts = (alerts || []).filter(a => a.severity === 'critical');
+  const highAlerts = (alerts || []).filter(a => a.severity === 'high');
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -242,12 +242,12 @@ const HarperDashboard = () => {
       </div>
 
       {/* Critical Alerts Banner */}
-      {criticalAlerts.length > 0 && (
+      {(criticalAlerts || []).length > 0 && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Critical Compliance Issues</AlertTitle>
           <AlertDescription>
-            You have {criticalAlerts.length} critical alert{criticalAlerts.length !== 1 ? 's' : ''} requiring immediate attention.
+            You have {(criticalAlerts || []).length} critical alert{(criticalAlerts || []).length !== 1 ? 's' : ''} requiring immediate attention.
             <Button variant="link" className="ml-2 p-0 h-auto" onClick={() => document.getElementById('alerts-section').scrollIntoView({ behavior: 'smooth' })}>
               View Alerts →
             </Button>
@@ -328,17 +328,17 @@ const HarperDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold mb-2">
-              {alerts.length}
+              {(alerts || []).length}
             </div>
             <div className="flex gap-2 mt-2">
-              {criticalAlerts.length > 0 && (
+              {(criticalAlerts || []).length > 0 && (
                 <Badge variant="destructive" className="text-xs">
-                  {criticalAlerts.length} Critical
+                  {(criticalAlerts || []).length} Critical
                 </Badge>
               )}
-              {highAlerts.length > 0 && (
+              {(highAlerts || []).length > 0 && (
                 <Badge variant="warning" className="text-xs">
-                  {highAlerts.length} High
+                  {(highAlerts || []).length} High
                 </Badge>
               )}
             </div>

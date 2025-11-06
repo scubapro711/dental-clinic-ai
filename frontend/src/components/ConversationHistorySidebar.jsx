@@ -144,7 +144,7 @@ const ConversationHistorySidebar = ({
             <div className="text-center text-gray-500 py-8">
               טוען שיחות...
             </div>
-          ) : conversations.length === 0 ? (
+          ) : (conversations || []).length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
               <p>אין שיחות קודמות</p>
@@ -152,7 +152,7 @@ const ConversationHistorySidebar = ({
             </div>
           ) : (
             <div className="space-y-2">
-              {conversations.map((conv) => (
+              {(conversations || []).map((conv) => (
                 <div
                   key={conv.id}
                   onClick={() => {
