@@ -320,6 +320,16 @@ async def http_exception_handler(request, exc: HTTPException):
         headers=exc.headers
     )
 
+# CORS middleware (MUST be added first, so it processes last)
+# FastAPI processes middleware in reverse order!
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Add SlowAPI middleware
 app.add_middleware(SlowAPIMiddleware)
 
@@ -331,15 +341,6 @@ app.add_middleware(CSRFMiddleware)
 
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
-
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 # Include API routers
