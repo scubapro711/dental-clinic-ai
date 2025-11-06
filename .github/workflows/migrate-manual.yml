@@ -1,0 +1,237 @@
+name: Run Database Migrations - Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+      migration_target:
+        description: 'Migration target (default: head)'
+        required: false
+        default: 'head'
+        type: string
+      create_backup:
+        description: 'Create backup before migration (production only)'
+        required: false
+        default: true
+        type: boolean
+      dry_run:
+        description: 'Dry run (show pending migrations without applying)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  PROJECT_ID: dentaflow-production
+  REGION: us-central1
+  INSTANCE_NAME: dentaflow-db-instance
+  DATABASE_NAME: dentaflow
+
+jobs:
+  migrate:
+    name: Run Manual Migration (${{ inputs.environment }})
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install alembic psycopg2-binary sqlalchemy
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+      
+      - name: Set DATABASE_URL
+        id: set_db_url
+        run: |
+          if [ "${{ inputs.environment }}" = "production" ]; then
+            echo "database_url=${{ secrets.DATABASE_URL_PRODUCTION }}" >> $GITHUB_OUTPUT
+            echo "env_name=Production" >> $GITHUB_OUTPUT
+          else
+            echo "database_url=${{ secrets.DATABASE_URL_STAGING }}" >> $GITHUB_OUTPUT
+            echo "env_name=Staging" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Create database backup
+        if: inputs.environment == 'production' && inputs.create_backup && !inputs.dry_run
+        run: |
+          echo "Creating database backup before migration..."
+          BACKUP_NAME="manual-migration-backup-$(date +%Y%m%d-%H%M%S)"
+          
+          gcloud sql backups create \
+            --instance=${{ env.INSTANCE_NAME }} \
+            --project=${{ env.PROJECT_ID }} \
+            --description="Manual migration backup from GitHub Actions" \
+            --async
+          
+          echo "✅ Backup initiated: $BACKUP_NAME"
+          echo "BACKUP_NAME=$BACKUP_NAME" >> $GITHUB_ENV
+          
+          sleep 10
+      
+      - name: Install Cloud SQL Proxy
+        run: |
+          wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+          chmod +x cloud_sql_proxy
+      
+      - name: Start Cloud SQL Proxy
+        run: |
+          ./cloud_sql_proxy -instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.INSTANCE_NAME }}=tcp:5432 &
+          sleep 5
+          echo "Cloud SQL Proxy started"
+      
+      - name: Check current migration status
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ steps.set_db_url.outputs.database_url }}
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Environment: ${{ steps.set_db_url.outputs.env_name }}"
+          echo "Migration target: ${{ inputs.migration_target }}"
+          echo "Dry run: ${{ inputs.dry_run }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Current migration status:"
+          alembic current || echo "No migrations applied yet"
+          echo ""
+          echo "Migration history:"
+          alembic history || echo "No migration history"
+          echo ""
+          echo "Pending migrations:"
+          alembic upgrade ${{ inputs.migration_target }} --sql || echo "No pending migrations"
+      
+      - name: Run migrations (dry run)
+        if: inputs.dry_run
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ steps.set_db_url.outputs.database_url }}
+        run: |
+          echo "DRY RUN MODE - No changes will be applied"
+          echo ""
+          echo "SQL that would be executed:"
+          alembic upgrade ${{ inputs.migration_target }} --sql
+          echo ""
+          echo "✅ Dry run completed - no changes were made"
+      
+      - name: Run migrations (actual)
+        if: '!inputs.dry_run'
+        id: migration
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ steps.set_db_url.outputs.database_url }}
+        run: |
+          echo "Running migrations to: ${{ inputs.migration_target }}"
+          alembic upgrade ${{ inputs.migration_target }}
+          echo "✅ Migrations completed successfully"
+          echo "migration_status=success" >> $GITHUB_OUTPUT
+      
+      - name: Verify migration
+        if: '!inputs.dry_run && steps.migration.outputs.migration_status == ''success'''
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ steps.set_db_url.outputs.database_url }}
+        run: |
+          echo "Verifying migration status:"
+          alembic current
+          echo "✅ Migration verification completed"
+      
+      - name: Test database connection
+        if: '!inputs.dry_run && steps.migration.outputs.migration_status == ''success'''
+        env:
+          DATABASE_URL: ${{ steps.set_db_url.outputs.database_url }}
+        run: |
+          python3 << 'EOF'
+          import os
+          import psycopg2
+          
+          db_url = os.environ['DATABASE_URL']
+          
+          try:
+              conn = psycopg2.connect(db_url)
+              cursor = conn.cursor()
+              
+              # Test query
+              cursor.execute("SELECT version();")
+              version = cursor.fetchone()
+              print(f"✅ Database connection successful")
+              print(f"PostgreSQL version: {version[0]}")
+              
+              # Check subscription_tier enum values
+              cursor.execute("""
+                  SELECT enumlabel 
+                  FROM pg_enum 
+                  WHERE enumtypid = (
+                      SELECT oid FROM pg_type WHERE typname = 'subscriptiontier'
+                  )
+                  ORDER BY enumsortorder;
+              """)
+              enum_values = [row[0] for row in cursor.fetchall()]
+              print(f"✅ SubscriptionTier enum values: {enum_values}")
+              
+              cursor.close()
+              conn.close()
+              
+              print("\n✅ All database checks passed!")
+              
+          except Exception as e:
+              print(f"❌ Database check failed: {e}")
+              exit(1)
+          EOF
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "Stopping Cloud SQL Proxy..."
+          pkill -f cloud_sql_proxy || true
+          echo "✅ Cleanup completed"
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            echo "✅ DRY RUN COMPLETED SUCCESSFULLY"
+          else
+            echo "✅ MANUAL MIGRATION COMPLETED SUCCESSFULLY"
+          fi
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo ""
+          echo "Environment: ${{ steps.set_db_url.outputs.env_name }}"
+          echo "Migration target: ${{ inputs.migration_target }}"
+          echo "Dry run: ${{ inputs.dry_run }}"
+          if [ "${{ inputs.environment }}" = "production" ] && [ "${{ inputs.create_backup }}" = "true" ] && [ "${{ inputs.dry_run }}" = "false" ]; then
+            echo "Backup: ${{ env.BACKUP_NAME }}"
+          fi
+          echo ""
+          if [ "${{ inputs.dry_run }}" = "false" ]; then
+            echo "Next steps:"
+            echo "1. Verify the application is working correctly"
+            echo "2. Check logs for any errors"
+            echo "3. Test critical functionality"
+          fi
