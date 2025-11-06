@@ -39,7 +39,7 @@ steps:
       - '--build-arg'
       - 'VITE_APP_ENV=staging'
       - '--build-arg'
-      - 'VITE_API_URL=https://dentaflow-backend-688311017213.us-central1.run.app/api/v1'
+      - 'VITE_API_URL=https://dentaflow-backend-staging-688311017213.us-central1.run.app/api/v1'
       - '-f'
       - 'Dockerfile'
       - '.'
