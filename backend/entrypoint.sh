@@ -21,7 +21,7 @@ retry_count = 0
 
 while retry_count < max_retries:
     try:
-        engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
+        engine = create_engine(str(settings.DATABASE_URL))
         with engine.connect() as conn:
             conn.execute(text('SELECT 1'))
         print('✅ Database connection successful')
