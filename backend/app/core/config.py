@@ -148,6 +148,11 @@ class Settings(BaseSettings):
         return self.APP_ENV == "development"
     
     @property
+    def app_env(self) -> str:
+        """Get normalized app environment."""
+        return self.APP_ENV
+    
+    @property
     def is_staging(self) -> bool:
         """Check if running in staging."""
         return self.APP_ENV == "staging"
