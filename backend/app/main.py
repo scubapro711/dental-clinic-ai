@@ -130,6 +130,15 @@ tags_metadata = [
     },
 ]
 
+# Initialize OpenTelemetry before creating the app
+from app.core.telemetry import setup_opentelemetry, instrument_app
+
+# Setup OpenTelemetry tracer provider
+setup_opentelemetry(
+    app_env=settings.app_env,
+    service_version="24.0.3"
+)
+
 # Create FastAPI app
 app = FastAPI(
     title="DentaFlow API",
@@ -342,6 +351,9 @@ app.add_middleware(CSRFMiddleware)
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
+# Instrument the app with OpenTelemetry
+# This must be done after all middleware is added
+instrument_app(app)
 
 # Include API routers
 from app.api.v1 import api_router
