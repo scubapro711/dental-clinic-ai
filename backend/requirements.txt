@@ -92,9 +92,9 @@ fastapi-cors==0.0.6
 boto3>=1.28.0
 
 # Google Cloud Services
-# Pin google-api-core and protobuf to avoid dependency resolution issues
-google-api-core[grpc]==2.19.1
-protobuf==4.25.3
+# Allow flexible versions to avoid conflicts with OpenTelemetry
+google-api-core[grpc]>=2.19.0
+protobuf>=4.25.0,<6.0.0
 google-cloud-bigquery>=3.11.0
 google-cloud-monitoring>=2.15.0
 
