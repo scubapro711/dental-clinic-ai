@@ -34,6 +34,8 @@ steps:
       - 'us-central1'
       - '--platform'
       - 'managed'
+      - '--set-secrets=DATABASE_URL=database-url:latest,CHECKPOINT_DATABASE_URL=checkpoint-database-url:latest,OPENAI_API_KEY=openai-api-key:latest,PINECONE_API_KEY=pinecone-api-key:latest,REDIS_URL=redis-url:latest,SECRET_KEY=secret-key:latest,JWT_SECRET=jwt-secret:latest,ODOO_URL=odoo-url:latest,ODOO_USERNAME=odoo-username:latest,ODOO_PASSWORD=odoo-password:latest,ODOO_DB=odoo-db:latest'
+      - '--set-env-vars=ENVIRONMENT=staging,DEBUG=false,PROJECT_ID=dentaflow-production'
       - '--add-cloudsql-instances'
       - 'dentaflow-production:us-central1:dentaflow-db-instance'
 
