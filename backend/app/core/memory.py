@@ -73,8 +73,8 @@ def get_memory_saver() -> PostgresSaver:
             
             # Use PostgreSQL for persistent memory storage
             import time
-            max_retries = 5
-            retry_delay = 2  # seconds
+            max_retries = 10
+            retry_delay = 3  # seconds
             
             for attempt in range(max_retries):
                 try:
