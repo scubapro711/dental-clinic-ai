@@ -72,30 +72,46 @@ def get_memory_saver() -> PostgresSaver:
             logger.info("Initializing PostgreSQL memory saver for LangGraph")
             
             # Use PostgreSQL for persistent memory storage
-            try:
-                # PostgreSQL connection string for checkpointer
-                # Format: postgresql://user:password@host:port/database
-                checkpoint_db_url = settings.CHECKPOINT_DATABASE_URL
-                
-                logger.info(f"Connecting to PostgreSQL checkpointer: {checkpoint_db_url.split('@')[1] if '@' in checkpoint_db_url else 'localhost'}")
-                
-                # Create PostgresSaver with connection string
-                # Note: PostgresSaver.from_conn_string returns a context manager
-                # We need to enter it and keep the context alive
-                _memory_context = PostgresSaver.from_conn_string(checkpoint_db_url)
-                _memory_saver = _memory_context.__enter__()
-                
-                logger.info("PostgresSaver initialized successfully (persistent storage)")
-            except Exception as e:
-                logger.error(f"Failed to setup PostgresSaver: {e}")
-                logger.warning("Falling back to MemorySaver (in-memory, non-persistent)")
+            import time
+            max_retries = 5
+            retry_delay = 2  # seconds
+            
+            for attempt in range(max_retries):
                 try:
-                    from langgraph.checkpoint.memory import MemorySaver
-                    _memory_saver = MemorySaver()
-                    logger.info("MemorySaver initialized as fallback")
-                except Exception as fallback_error:
-                    logger.error(f"Failed to setup fallback MemorySaver: {fallback_error}")
-                    raise
+                    # PostgreSQL connection string for checkpointer
+                    # Format: postgresql://user:password@host:port/database
+                    checkpoint_db_url = settings.CHECKPOINT_DATABASE_URL
+                    
+                    if attempt > 0:
+                        logger.info(f"Retry attempt {attempt + 1}/{max_retries} for PostgreSQL checkpointer")
+                        time.sleep(retry_delay)
+                    else:
+                        logger.info(f"Connecting to PostgreSQL checkpointer: {checkpoint_db_url.split('@')[1] if '@' in checkpoint_db_url else 'localhost'}")
+                    
+                    # Create PostgresSaver with connection string
+                    # Note: PostgresSaver.from_conn_string returns a context manager
+                    # We need to enter it and keep the context alive
+                    _memory_context = PostgresSaver.from_conn_string(checkpoint_db_url)
+                    _memory_saver = _memory_context.__enter__()
+                    
+                    logger.info("PostgresSaver initialized successfully (persistent storage)")
+                    break  # Success, exit retry loop
+                    
+                except Exception as e:
+                    if attempt < max_retries - 1:
+                        logger.warning(f"Failed to setup PostgresSaver (attempt {attempt + 1}/{max_retries}): {e}")
+                        continue  # Try again
+                    else:
+                        # Final attempt failed, fall back to MemorySaver
+                        logger.error(f"Failed to setup PostgresSaver after {max_retries} attempts: {e}")
+                        logger.warning("Falling back to MemorySaver (in-memory, non-persistent)")
+                        try:
+                            from langgraph.checkpoint.memory import MemorySaver
+                            _memory_saver = MemorySaver()
+                            logger.info("MemorySaver initialized as fallback")
+                        except Exception as fallback_error:
+                            logger.error(f"Failed to setup fallback MemorySaver: {fallback_error}")
+                            raise
     
     return _memory_saver
 
