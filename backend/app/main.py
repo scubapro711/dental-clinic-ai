@@ -139,6 +139,37 @@ setup_opentelemetry(
     service_version="24.0.3"
 )
 
+# Initialize Sentry for error tracking and performance monitoring
+if settings.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        profiles_sample_rate=settings.SENTRY_PROFILES_SAMPLE_RATE,
+        integrations=[
+            FastApiIntegration(),
+            SqlalchemyIntegration(),
+        ],
+        # Set release version
+        release="dentaflow-backend@24.0.3",
+        # Send PII (Personally Identifiable Information) - disabled for HIPAA compliance
+        send_default_pii=False,
+        # Attach stacktrace to messages
+        attach_stacktrace=True,
+        # Enable performance monitoring
+        enable_tracing=True,
+    )
+    logger = logging.getLogger(__name__)
+    logger.info(f"Sentry initialized for environment: {settings.SENTRY_ENVIRONMENT}")
+else:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Sentry DSN not configured - error tracking disabled")
+
 # Create FastAPI app
 app = FastAPI(
     title="DentaFlow API",

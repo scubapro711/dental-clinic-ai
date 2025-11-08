@@ -50,6 +50,12 @@ class Settings(BaseSettings):
     CLOUD_RUN_REVISION: str = Field(default="")  # Auto-populated in Cloud Run
     ENABLE_GCP_MONITORING: bool = Field(default=False)  # DISABLED: Causing deployment failures, needs fix
 
+    # Sentry (Error Tracking & Performance Monitoring)
+    SENTRY_DSN: Optional[str] = Field(default=None)
+    SENTRY_ENVIRONMENT: str = Field(default="staging")
+    SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.1)  # 10% of transactions
+    SENTRY_PROFILES_SAMPLE_RATE: float = Field(default=0.1)  # 10% of transactions
+
     # Security
     SECRET_KEY: str = Field(...)
     JWT_SECRET: str = Field(...)
