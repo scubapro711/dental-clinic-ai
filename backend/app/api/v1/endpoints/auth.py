@@ -186,11 +186,17 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
     # Get user's membership to include organization_id and odoo_partner_id in token
     from app.models.organization_membership import OrganizationMembership
     from app.models.user_patient_mapping import UserPatientMapping
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    logger.info(f"Login: user.id={user.id}, user.organization_id={user.organization_id}")
     
     membership = db.query(OrganizationMembership).filter(
         OrganizationMembership.user_id == user.id,
         OrganizationMembership.is_active == True
     ).first()
+    
+    logger.info(f"Login: membership found={membership is not None}")
     
     organization_id = None
     odoo_partner_id = None
@@ -198,10 +204,14 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
     if membership:
         organization_id = str(membership.organization_id)
         odoo_partner_id = membership.odoo_partner_id
+        logger.info(f"Login: Using membership - org_id={organization_id}")
     else:
         # Fallback: use user.organization_id if no membership found
         if user.organization_id:
             organization_id = str(user.organization_id)
+            logger.info(f"Login: Using user.organization_id fallback - org_id={organization_id}")
+        else:
+            logger.warning(f"Login: No organization_id found for user {user.email}")
         
         # Try to get odoo_partner_id from user_patient_mappings
         user_mapping = db.query(UserPatientMapping).filter(
@@ -209,6 +219,7 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
         ).first()
         if user_mapping:
             odoo_partner_id = user_mapping.odoo_partner_id
+            logger.info(f"Login: Found odoo_partner_id in mapping={odoo_partner_id}")
 
     # Create tokens with organization_id and odoo_partner_id
     token_data = {
