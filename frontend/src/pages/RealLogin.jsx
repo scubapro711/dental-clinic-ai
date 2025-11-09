@@ -15,7 +15,7 @@ export default function RealLogin() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dentaflow-backend-gmi5lyn5wq-uc.a.run.app/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dentaflow-backend-staging-688311017213.us-central1.run.app';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ export default function RealLogin() {
 
     try {
       // Call backend login API
-      const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+      const response = await axios.post(`${API_BASE_URL}/api/v1/auth/login`, {
         email: email.trim(),
         password: password
       }, {
