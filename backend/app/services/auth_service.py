@@ -72,7 +72,10 @@ class AuthService:
     @staticmethod
     def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
         """Authenticate user with email and password."""
-        user = db.query(User).filter(User.email == email).first()
+        from sqlalchemy.orm import joinedload
+        
+        # Eager load organization to ensure organization_id is accessible
+        user = db.query(User).options(joinedload(User.organization)).filter(User.email == email).first()
         
         if not user:
             # Constant-time: always verify password even if user doesn't exist
