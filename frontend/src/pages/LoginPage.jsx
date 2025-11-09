@@ -25,10 +25,10 @@ export default function LoginPage({ onLogin }) {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          username: email,
+        body: JSON.stringify({
+          email: email,
           password: password,
         }),
       })
