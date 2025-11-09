@@ -74,7 +74,7 @@ export default function RealLogin() {
       localStorage.setItem('user_profile', JSON.stringify(userProfile));
 
       // Navigate based on role
-      const redirectPath = userRole === 'org_admin' || userRole === 'STAFF' 
+      const redirectPath = userRole === 'org_admin' || userRole === 'org_staff' 
         ? '/clinic/dashboard' 
         : '/patient/dashboard';
 
