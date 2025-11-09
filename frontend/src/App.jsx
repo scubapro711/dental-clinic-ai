@@ -136,11 +136,11 @@ function App() {
         {/* Pricing Page (Public) */}
         <Route path="/pricing" element={<PricingPage />} />
         
-        {/* Patient Portal Routes (ORG_VIEWER) */}
+        {/* Patient Portal Routes (PATIENT) */}
         <Route
           path="/patient"
           element={
-            <ProtectedRoute allowedRoles={['org_viewer']}>
+            <ProtectedRoute allowedRoles={['patient']}>
               <PatientLayout />
             </ProtectedRoute>
           }

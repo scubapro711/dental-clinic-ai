@@ -51,6 +51,8 @@ function getDefaultPortalForRole(role) {
     case 'org_staff':
       return '/clinic/dashboard';
     case 'org_viewer':
+      return '/clinic/dashboard';
+    case 'patient':
       return '/patient/dashboard';
     default:
       return '/login';
