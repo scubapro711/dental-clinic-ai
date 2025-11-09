@@ -185,6 +185,8 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
 
     # Get user's membership to include organization_id and odoo_partner_id in token
     from app.models.organization_membership import OrganizationMembership
+    from app.models.user_patient_mapping import UserPatientMapping
+    
     membership = db.query(OrganizationMembership).filter(
         OrganizationMembership.user_id == user.id,
         OrganizationMembership.is_active == True
@@ -196,6 +198,17 @@ async def login(request: Request, credentials: UserLogin, db: Session = Depends(
     if membership:
         organization_id = str(membership.organization_id)
         odoo_partner_id = membership.odoo_partner_id
+    else:
+        # Fallback: use user.organization_id if no membership found
+        if user.organization_id:
+            organization_id = str(user.organization_id)
+        
+        # Try to get odoo_partner_id from user_patient_mappings
+        user_mapping = db.query(UserPatientMapping).filter(
+            UserPatientMapping.user_id == user.id
+        ).first()
+        if user_mapping:
+            odoo_partner_id = user_mapping.odoo_partner_id
 
     # Create tokens with organization_id and odoo_partner_id
     token_data = {
