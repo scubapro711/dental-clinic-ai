@@ -22,7 +22,7 @@ export default function LoginPage({ onLogin }) {
     setError('')
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -64,7 +64,7 @@ export default function LoginPage({ onLogin }) {
   const completeLogin = async (accessToken) => {
     try {
       // Fetch user info
-      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
