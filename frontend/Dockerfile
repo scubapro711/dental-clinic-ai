@@ -3,11 +3,11 @@ FROM node:20-alpine AS build
 
 # Accept build arguments
 ARG VITE_APP_ENV=production
-ARG VITE_API_URL
+ARG VITE_API_BASE_URL
 
 # Set as environment variables for Vite build
 ENV VITE_APP_ENV=$VITE_APP_ENV
-ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 # Install pnpm
 RUN npm install -g pnpm@latest
