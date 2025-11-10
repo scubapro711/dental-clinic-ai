@@ -9,8 +9,8 @@ import axios from 'axios';
  */
 export default function RealLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('rachel@dentaflow.ai');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -191,14 +191,20 @@ export default function RealLogin() {
         </form>
 
         {/* Demo Credentials Info */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <p className="text-sm text-blue-800">
-            <strong>💡 Demo Credentials:</strong>
-            <br />
-            Email: rachel@dentaflow.ai
-            <br />
-            Password: admin
+        <div className="mt-6 space-y-3">
+          <p className="text-xs text-center text-gray-500 font-semibold uppercase tracking-wide">
+            Demo Accounts
           </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-xs font-semibold text-blue-900 mb-1">🦷 Patient Portal</p>
+            <p className="text-xs text-blue-700 font-mono">rachel@dentaflow.ai</p>
+            <p className="text-xs text-blue-700 font-mono">Admin123!</p>
+          </div>
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+            <p className="text-xs font-semibold text-purple-900 mb-1">🏥 Clinic Admin</p>
+            <p className="text-xs text-purple-700 font-mono">admin@demo-clinic.com</p>
+            <p className="text-xs text-purple-700 font-mono">Admin123!</p>
+          </div>
         </div>
 
         {/* Version Info */}
