@@ -85,19 +85,6 @@ steps:
       - 'VITE_APP_ENV=staging'
       - '--tag'
       - 'staging-$SHORT_SHA'
-      - '--no-traffic'  # Don't send traffic to new revision yet
-
-  # Step 5: Gradually migrate traffic to new revision
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-      - 'run'
-      - 'services'
-      - 'update-traffic'
-      - 'dentaflow-frontend-staging'
-      - '--to-latest'
-      - '--region'
-      - 'us-central1'
 
 # Build timeout (20 minutes)
 timeout: '1200s'
