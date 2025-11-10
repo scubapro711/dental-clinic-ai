@@ -9,8 +9,8 @@ import axios from 'axios';
  */
 export default function RealLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('rachel@dentaflow.ai');
-  const [password, setPassword] = useState('admin');
+  const [email, setEmail] = useState('sarah@example.com');
+  const [password, setPassword] = useState('demo123');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +62,7 @@ export default function RealLogin() {
         role: userRole,
         organization_id: organizationId,
         odoo_partner_id: odooPartnerId,
-        name: email === 'rachel@dentaflow.ai' ? 'Dr. Rachel Cohen' : userEmail,
+        name: email === 'rachel@dentaflow.ai' ? 'Dr. Rachel Cohen' : email === 'sarah@example.com' ? 'Sarah Johnson' : userEmail,
         organization_name: 'DentaFlow Clinic'
       };
 
@@ -74,9 +74,9 @@ export default function RealLogin() {
       localStorage.setItem('user_profile', JSON.stringify(userProfile));
 
       // Navigate based on role
-      const redirectPath = userRole === 'org_admin' || userRole === 'STAFF' 
-        ? '/clinic/dashboard' 
-        : '/patient/dashboard';
+      const redirectPath = userRole === 'patient' 
+        ? '/patient/dashboard'
+        : '/clinic/dashboard';
 
       navigate(redirectPath, { replace: true });
       
@@ -195,9 +195,9 @@ export default function RealLogin() {
           <p className="text-sm text-blue-800">
             <strong>💡 Demo Credentials:</strong>
             <br />
-            Email: rachel@dentaflow.ai
+            <strong>Patient Portal:</strong> sarah@example.com / demo123
             <br />
-            Password: admin
+            <strong>Clinic Admin:</strong> rachel@dentaflow.ai / demo123
           </p>
         </div>
 
