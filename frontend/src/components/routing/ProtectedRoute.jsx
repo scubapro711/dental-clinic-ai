@@ -50,8 +50,10 @@ function getDefaultPortalForRole(role) {
     case 'org_admin':
     case 'org_staff':
       return '/clinic/dashboard';
-    case 'org_viewer':
+    case 'patient':
       return '/patient/dashboard';
+    case 'org_viewer':
+      return '/patient/dashboard'; // Legacy role, same as patient
     default:
       return '/login';
   }

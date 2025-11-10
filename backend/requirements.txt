@@ -56,6 +56,17 @@ pytz==2024.1
 # Monitoring & Logging
 prometheus-client==0.19.0
 structlog==24.1.0
+sentry-sdk[fastapi]==1.40.0
+
+# OpenTelemetry
+opentelemetry-api>=1.20.0
+opentelemetry-sdk>=1.20.0
+opentelemetry-instrumentation-fastapi>=0.41b0
+opentelemetry-instrumentation-sqlalchemy>=0.41b0
+opentelemetry-instrumentation-requests>=0.41b0
+opentelemetry-instrumentation-httpx>=0.41b0
+opentelemetry-exporter-otlp>=1.20.0
+google-auth>=2.23.0
 
 # Task Queue
 celery==5.3.6
@@ -82,9 +93,9 @@ fastapi-cors==0.0.6
 boto3>=1.28.0
 
 # Google Cloud Services
-# Pin google-api-core and protobuf to avoid dependency resolution issues
-google-api-core[grpc]==2.19.1
-protobuf==4.25.3
+# Allow flexible versions to avoid conflicts with OpenTelemetry
+google-api-core[grpc]>=2.19.0
+protobuf>=4.25.0,<6.0.0
 google-cloud-bigquery>=3.11.0
 google-cloud-monitoring>=2.15.0
 

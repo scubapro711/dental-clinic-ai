@@ -130,6 +130,46 @@ tags_metadata = [
     },
 ]
 
+# Initialize OpenTelemetry before creating the app
+from app.core.telemetry import setup_opentelemetry, instrument_app
+
+# Setup OpenTelemetry tracer provider
+setup_opentelemetry(
+    app_env=settings.app_env,
+    service_version="24.0.3"
+)
+
+# Initialize Sentry for error tracking and performance monitoring
+if settings.SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
+    
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        environment=settings.SENTRY_ENVIRONMENT,
+        traces_sample_rate=settings.SENTRY_TRACES_SAMPLE_RATE,
+        profiles_sample_rate=settings.SENTRY_PROFILES_SAMPLE_RATE,
+        integrations=[
+            FastApiIntegration(),
+            SqlalchemyIntegration(),
+        ],
+        # Set release version
+        release="dentaflow-backend@24.0.3",
+        # Send PII (Personally Identifiable Information) - disabled for HIPAA compliance
+        send_default_pii=False,
+        # Attach stacktrace to messages
+        attach_stacktrace=True,
+        # Enable performance monitoring
+        enable_tracing=True,
+    )
+    logger = logging.getLogger(__name__)
+    logger.info(f"Sentry initialized for environment: {settings.SENTRY_ENVIRONMENT}")
+else:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning("Sentry DSN not configured - error tracking disabled")
+
 # Create FastAPI app
 app = FastAPI(
     title="DentaFlow API",
@@ -320,6 +360,16 @@ async def http_exception_handler(request, exc: HTTPException):
         headers=exc.headers
     )
 
+# CORS middleware (MUST be added first, so it processes last)
+# FastAPI processes middleware in reverse order!
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins_list,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Add SlowAPI middleware
 app.add_middleware(SlowAPIMiddleware)
 
@@ -332,15 +382,9 @@ app.add_middleware(CSRFMiddleware)
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Instrument the app with OpenTelemetry
+# This must be done after all middleware is added
+instrument_app(app)
 
 # Include API routers
 from app.api.v1 import api_router

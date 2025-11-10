@@ -50,7 +50,7 @@ export default function RoleBasedRedirect() {
     return <Navigate to="/clinic/dashboard" replace />;
   }
 
-  if (role === 'org_viewer') {
+  if (role === 'patient' || role === 'org_viewer') {
     return <Navigate to="/patient/dashboard" replace />;
   }
 

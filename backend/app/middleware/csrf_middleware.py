@@ -44,6 +44,7 @@ class CSRFMiddleware(BaseHTTPMiddleware):
     # Paths that are exempt from CSRF protection
     EXEMPT_PATHS = {
         "/api/v1/auth/login",          # Login endpoint (no session yet)
+        "/auth/login",                 # Login endpoint (alternative path)
         "/api/v1/auth/register",       # Registration endpoint
         "/api/v1/auth/google/callback", # OAuth callback (uses state parameter)
         "/docs",                        # API documentation

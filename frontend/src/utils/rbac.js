@@ -7,7 +7,8 @@
  * - super_admin (4) - Full system access
  * - org_admin (3) - Organization admin access
  * - org_staff (2) - Staff member access
- * - org_viewer (1) - Patient/viewer access
+ * - patient (1) - Patient portal access
+ * - org_viewer (1) - Read-only viewer access (legacy, same as patient)
  */
 
 // Role constants
@@ -15,7 +16,8 @@ export const ROLES = {
   SUPER_ADMIN: 'super_admin',
   ORG_ADMIN: 'org_admin',
   ORG_STAFF: 'org_staff',
-  ORG_VIEWER: 'org_viewer',
+  PATIENT: 'patient',
+  ORG_VIEWER: 'org_viewer', // Legacy role, same permissions as PATIENT
 };
 
 // Role hierarchy (higher number = more permissions)
@@ -23,7 +25,8 @@ const ROLE_HIERARCHY = {
   [ROLES.SUPER_ADMIN]: 4,
   [ROLES.ORG_ADMIN]: 3,
   [ROLES.ORG_STAFF]: 2,
-  [ROLES.ORG_VIEWER]: 1,
+  [ROLES.PATIENT]: 1,
+  [ROLES.ORG_VIEWER]: 1, // Same level as PATIENT
 };
 
 // Widget permissions configuration
@@ -54,8 +57,8 @@ export const WIDGET_PERMISSIONS = {
     interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   },
   'ai-chat': {
-    view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
-    interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
+    view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
+    interact: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
   },
   'compliance-alerts': {
     view: [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
@@ -68,20 +71,20 @@ export const WIDGET_PERMISSIONS = {
   
   // Patient Portal Widgets
   'patient-dashboard': {
-    view: [ROLES.ORG_VIEWER],
-    interact: [ROLES.ORG_VIEWER],
+    view: [ROLES.PATIENT, ROLES.ORG_VIEWER],
+    interact: [ROLES.PATIENT, ROLES.ORG_VIEWER],
   },
   'patient-appointments': {
-    view: [ROLES.ORG_VIEWER],
-    interact: [ROLES.ORG_VIEWER],
+    view: [ROLES.PATIENT, ROLES.ORG_VIEWER],
+    interact: [ROLES.PATIENT, ROLES.ORG_VIEWER],
   },
   'patient-medical-records': {
-    view: [ROLES.ORG_VIEWER],
-    interact: [ROLES.ORG_VIEWER],
+    view: [ROLES.PATIENT, ROLES.ORG_VIEWER],
+    interact: [ROLES.PATIENT, ROLES.ORG_VIEWER],
   },
   'patient-billing': {
-    view: [ROLES.ORG_VIEWER],
-    interact: [ROLES.ORG_VIEWER],
+    view: [ROLES.PATIENT, ROLES.ORG_VIEWER],
+    interact: [ROLES.PATIENT, ROLES.ORG_VIEWER],
   },
   
   // Management Features
@@ -119,17 +122,17 @@ export const FEATURE_PERMISSIONS = {
   'view-patient-list': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   
   // Appointments
-  'create-appointment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
+  'create-appointment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
   'edit-appointment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
-  'cancel-appointment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
+  'cancel-appointment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
   
   // Financial
   'view-revenue': [ROLES.ORG_ADMIN],
-  'view-billing': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
+  'view-billing': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
   'process-payment': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   
   // Medical Records
-  'view-medical-records': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.ORG_VIEWER],
+  'view-medical-records': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF, ROLES.PATIENT, ROLES.ORG_VIEWER],
   'edit-medical-records': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   'upload-xray': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
   'sarah-analysis': [ROLES.ORG_ADMIN, ROLES.ORG_STAFF],
@@ -238,10 +241,10 @@ export function isStaff(userRole) {
 }
 
 /**
- * Check if user is patient (org_viewer)
+ * Check if user is patient (patient or org_viewer for legacy support)
  */
 export function isPatient(userRole) {
-  return userRole === ROLES.ORG_VIEWER;
+  return userRole === ROLES.PATIENT || userRole === ROLES.ORG_VIEWER;
 }
 
 /**
@@ -279,7 +282,8 @@ export function formatRoleName(role) {
     [ROLES.SUPER_ADMIN]: 'Super Admin',
     [ROLES.ORG_ADMIN]: 'Organization Admin',
     [ROLES.ORG_STAFF]: 'Staff Member',
-    [ROLES.ORG_VIEWER]: 'Patient',
+    [ROLES.PATIENT]: 'Patient',
+    [ROLES.ORG_VIEWER]: 'Patient', // Legacy role
   };
   
   return roleNames[role] || role;
@@ -293,7 +297,8 @@ export function getRoleBadgeColor(role) {
     [ROLES.SUPER_ADMIN]: 'bg-red-500',
     [ROLES.ORG_ADMIN]: 'bg-blue-500',
     [ROLES.ORG_STAFF]: 'bg-green-500',
-    [ROLES.ORG_VIEWER]: 'bg-gray-500',
+    [ROLES.PATIENT]: 'bg-purple-500',
+    [ROLES.ORG_VIEWER]: 'bg-gray-500', // Legacy role
   };
   
   return colors[role] || 'bg-gray-500';

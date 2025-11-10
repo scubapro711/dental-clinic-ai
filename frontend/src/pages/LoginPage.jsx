@@ -22,13 +22,13 @@ export default function LoginPage({ onLogin }) {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: new URLSearchParams({
-          username: email,
+        body: JSON.stringify({
+          email: email,
           password: password,
         }),
       })
@@ -64,7 +64,7 @@ export default function LoginPage({ onLogin }) {
   const completeLogin = async (accessToken) => {
     try {
       // Fetch user info
-      const userResponse = await fetch('http://localhost:8000/api/v1/auth/me', {
+      const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/auth/me`, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
@@ -160,6 +160,24 @@ export default function LoginPage({ onLogin }) {
                   'Sign In'
                 )}
               </Button>
+              {/* Demo Credentials */}
+              <div className="border-t pt-4 space-y-3">
+                <p className="text-xs text-center text-gray-500 font-semibold uppercase tracking-wide">
+                  Demo Accounts
+                </p>
+                <div className="space-y-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-blue-900 mb-1">🦷 Patient Portal</p>
+                    <p className="text-xs text-blue-700 font-mono">rachel@dentaflow.ai</p>
+                    <p className="text-xs text-blue-700 font-mono">Admin123!</p>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-purple-900 mb-1">🏥 Clinic Admin</p>
+                    <p className="text-xs text-purple-700 font-mono">admin@demo-clinic.com</p>
+                    <p className="text-xs text-purple-700 font-mono">Admin123!</p>
+                  </div>
+                </div>
+              </div>
               <p className="text-sm text-center text-gray-600">
                 Don't have an account?{' '}
                 <Link to="/register" className="text-blue-600 hover:underline font-medium">

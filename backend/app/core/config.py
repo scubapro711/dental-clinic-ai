@@ -50,6 +50,12 @@ class Settings(BaseSettings):
     CLOUD_RUN_REVISION: str = Field(default="")  # Auto-populated in Cloud Run
     ENABLE_GCP_MONITORING: bool = Field(default=False)  # DISABLED: Causing deployment failures, needs fix
 
+    # Sentry (Error Tracking & Performance Monitoring)
+    SENTRY_DSN: Optional[str] = Field(default=None)
+    SENTRY_ENVIRONMENT: str = Field(default="staging")
+    SENTRY_TRACES_SAMPLE_RATE: float = Field(default=0.1)  # 10% of transactions
+    SENTRY_PROFILES_SAMPLE_RATE: float = Field(default=0.1)  # 10% of transactions
+
     # Security
     SECRET_KEY: str = Field(...)
     JWT_SECRET: str = Field(...)
@@ -112,7 +118,7 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: str = Field(
-        default="http://localhost:5173,http://localhost:3000,https://dentaflow-frontend-688311017213.us-central1.run.app,https://dentaflow-frontend-gmi5lyn5wq-uc.a.run.app,https://dentaflow-frontend-staging-gmi5lyn5wq-uc.a.run.app,https://dentaflow.ai,https://www.dentaflow.ai"
+        default="http://localhost:5173,http://localhost:3000,https://dentaflow-frontend-688311017213.us-central1.run.app,https://dentaflow-frontend-staging-688311017213.us-central1.run.app,https://dentaflow-frontend-gmi5lyn5wq-uc.a.run.app,https://dentaflow-frontend-staging-gmi5lyn5wq-uc.a.run.app,https://dentaflow.ai,https://www.dentaflow.ai"
     )
     
     @property
@@ -146,6 +152,11 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         """Check if running in development."""
         return self.APP_ENV == "development"
+    
+    @property
+    def app_env(self) -> str:
+        """Get normalized app environment."""
+        return self.APP_ENV
     
     @property
     def is_staging(self) -> bool:
