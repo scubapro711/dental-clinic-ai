@@ -160,6 +160,24 @@ export default function LoginPage({ onLogin }) {
                   'Sign In'
                 )}
               </Button>
+              {/* Demo Credentials */}
+              <div className="border-t pt-4 space-y-3">
+                <p className="text-xs text-center text-gray-500 font-semibold uppercase tracking-wide">
+                  Demo Accounts
+                </p>
+                <div className="space-y-2">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-blue-900 mb-1">🦷 Patient Portal</p>
+                    <p className="text-xs text-blue-700 font-mono">rachel@dentaflow.ai</p>
+                    <p className="text-xs text-blue-700 font-mono">Admin123!</p>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-purple-900 mb-1">🏥 Clinic Admin</p>
+                    <p className="text-xs text-purple-700 font-mono">admin@demo-clinic.com</p>
+                    <p className="text-xs text-purple-700 font-mono">Admin123!</p>
+                  </div>
+                </div>
+              </div>
               <p className="text-sm text-center text-gray-600">
                 Don't have an account?{' '}
                 <Link to="/register" className="text-blue-600 hover:underline font-medium">
