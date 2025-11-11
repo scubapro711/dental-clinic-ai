@@ -10,6 +10,7 @@ from app.api.v1.endpoints import (
     telegram,
     telegram_admin,
     statistics,
+    users,
     memberships,
     clinic_settings,
     treatment_prices,
@@ -78,6 +79,7 @@ api_router.include_router(telegram_admin.router, tags=["telegram-admin"])
 
 # Organization management
 api_router.include_router(organizations.router, tags=["organizations"])
+api_router.include_router(users.router, tags=["users"])  # User-centric endpoints (/users/me/*)
 api_router.include_router(memberships.router, prefix="/memberships", tags=["memberships"])
 api_router.include_router(team_invitations.router, tags=["invitations"])
 api_router.include_router(clinic_settings.router, prefix="/clinic-settings", tags=["clinic-settings"])
