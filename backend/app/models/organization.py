@@ -44,7 +44,9 @@ class Organization(Base):
 
     # Subscription
     subscription_tier = Column(
-        Enum(SubscriptionTier), nullable=False, default=SubscriptionTier.BASIC
+        Enum(SubscriptionTier, name='subscriptiontier', native_enum=True, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        default=SubscriptionTier.BASIC
     )
     subscription_status = Column(String(50), nullable=False, default="active")
     subscription_start_date = Column(DateTime, nullable=True)

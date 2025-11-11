@@ -21,35 +21,71 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema - Fix subscription_tier enum to use lowercase values.
     
-    The original migration created the enum with uppercase values (BASIC, PROFESSIONAL, ENTERPRISE)
-    but the Python model uses lowercase values (basic, professional, enterprise).
-    This migration fixes the mismatch.
+    This migration is designed to fix existing databases that have uppercase enum values.
+    For new databases, the initial migration already creates the enum correctly.
     """
-    # Check if any organizations exist
     conn = op.get_bind()
+    
+    # Check if organizations table exists
+    table_check = conn.execute(sa.text(
+        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'organizations')"
+    ))
+    table_exists = table_check.scalar()
+    
+    if not table_exists:
+        # Table doesn't exist yet - skip this migration
+        return
+    
+    # Check if subscription_tier column exists
+    column_check = conn.execute(sa.text("""
+        SELECT EXISTS (
+            SELECT FROM information_schema.columns 
+            WHERE table_name = 'organizations' 
+            AND column_name = 'subscription_tier'
+        )
+    """))
+    column_exists = column_check.scalar()
+    
+    if not column_exists:
+        # Column doesn't exist yet - skip this migration
+        return
+    
+    # Check what enum values currently exist
+    enum_check = conn.execute(sa.text("""
+        SELECT EXISTS (
+            SELECT 1 FROM pg_type t
+            JOIN pg_enum e ON t.oid = e.enumtypid
+            WHERE t.typname = 'subscriptiontier'
+            AND e.enumlabel = 'BASIC'
+        )
+    """))
+    has_uppercase = enum_check.scalar()
+    
+    if not has_uppercase:
+        # Enum already has lowercase values - skip this migration
+        return
+    
+    # At this point, we know:
+    # - Table exists
+    # - Column exists
+    # - Enum has uppercase values that need fixing
+    
+    # Check if any data exists
     result = conn.execute(sa.text("SELECT COUNT(*) FROM organizations"))
     org_count = result.scalar()
     
     if org_count == 0:
-        # No data exists - simple fix
-        # Drop the old enum type (CASCADE will handle the column)
-        op.execute("DROP TYPE IF EXISTS subscriptiontier CASCADE")
-        
-        # Create new enum with lowercase values
+        # No data - safe to drop and recreate
+        op.execute("DROP TYPE subscriptiontier CASCADE")
         op.execute("CREATE TYPE subscriptiontier AS ENUM ('basic', 'professional', 'enterprise')")
-        
-        # Recreate the column with the new enum type
         op.execute("""
             ALTER TABLE organizations 
-            ALTER COLUMN subscription_tier TYPE subscriptiontier 
-            USING subscription_tier::text::subscriptiontier
+            ADD COLUMN subscription_tier subscriptiontier NOT NULL DEFAULT 'basic'
         """)
     else:
-        # Data exists - safe migration
-        # Create new enum type with lowercase values
+        # Data exists - careful migration
         op.execute("CREATE TYPE subscriptiontier_new AS ENUM ('basic', 'professional', 'enterprise')")
         
-        # Migrate existing data from uppercase to lowercase
         op.execute("""
             ALTER TABLE organizations 
             ALTER COLUMN subscription_tier TYPE subscriptiontier_new 
@@ -58,7 +94,6 @@ def upgrade() -> None:
                     WHEN subscription_tier::text = 'BASIC' THEN 'basic'::subscriptiontier_new
                     WHEN subscription_tier::text = 'PROFESSIONAL' THEN 'professional'::subscriptiontier_new
                     WHEN subscription_tier::text = 'ENTERPRISE' THEN 'enterprise'::subscriptiontier_new
-                    -- Handle lowercase values if they already exist
                     WHEN subscription_tier::text = 'basic' THEN 'basic'::subscriptiontier_new
                     WHEN subscription_tier::text = 'professional' THEN 'professional'::subscriptiontier_new
                     WHEN subscription_tier::text = 'enterprise' THEN 'enterprise'::subscriptiontier_new
@@ -66,22 +101,34 @@ def upgrade() -> None:
             )
         """)
         
-        # Drop old enum type
         op.execute("DROP TYPE subscriptiontier")
-        
-        # Rename new enum type to original name
         op.execute("ALTER TYPE subscriptiontier_new RENAME TO subscriptiontier")
 
 
 def downgrade() -> None:
-    """Downgrade schema - Revert to uppercase enum values.
+    """Downgrade schema - Revert to uppercase enum values."""
+    conn = op.get_bind()
     
-    This is provided for completeness but should rarely be used.
-    """
-    # Create old enum type with uppercase values
+    # Check if we need to do anything
+    table_check = conn.execute(sa.text(
+        "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'organizations')"
+    ))
+    if not table_check.scalar():
+        return
+    
+    column_check = conn.execute(sa.text("""
+        SELECT EXISTS (
+            SELECT FROM information_schema.columns 
+            WHERE table_name = 'organizations' 
+            AND column_name = 'subscription_tier'
+        )
+    """))
+    if not column_check.scalar():
+        return
+    
+    # Perform downgrade
     op.execute("CREATE TYPE subscriptiontier_old AS ENUM ('BASIC', 'PROFESSIONAL', 'ENTERPRISE')")
     
-    # Migrate data back to uppercase
     op.execute("""
         ALTER TABLE organizations 
         ALTER COLUMN subscription_tier TYPE subscriptiontier_old 
@@ -94,8 +141,5 @@ def downgrade() -> None:
         )
     """)
     
-    # Drop new enum type
     op.execute("DROP TYPE subscriptiontier")
-    
-    # Rename old enum type back
     op.execute("ALTER TYPE subscriptiontier_old RENAME TO subscriptiontier")

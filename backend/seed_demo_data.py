@@ -58,10 +58,10 @@ def create_demo_organizations(db: Session) -> list[Organization]:
             email=clinic_data["email"],
             phone="+972-50-123-4567",
             address="123 Main St, Tel Aviv, Israel",
-            subscription_tier=SubscriptionTier.PROFESSIONAL,
+            subscription_tier="professional",
             subscription_status="active",
             is_active=True,
-            odoo_db_name="dentalai_odoo"
+            odoo_db_name=f"dentaflow_{clinic_data['slug']}"
         )
         
         db.add(org)
@@ -192,10 +192,8 @@ def main():
     db = SessionLocal()
     
     try:
-        # Create tables if they don't exist
-        print("📊 Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        print("✓ Tables created\n")
+        # Note: Tables are created by Alembic migrations, not here
+        # We only seed data
         
         # Create organizations
         print("🏢 Creating demo organizations...")
