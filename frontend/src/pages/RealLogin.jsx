@@ -15,7 +15,7 @@ export default function RealLogin() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dentaflow-backend-gmi5lyn5wq-uc.a.run.app/api/v1';
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1';
 
   const handleLogin = async (e) => {
     e.preventDefault();
