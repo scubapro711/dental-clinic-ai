@@ -116,13 +116,15 @@ const CATEGORIES = [
   { id: 'admin', label: 'Admin' }
 ]
 
+// Navigation items for sidebar
+// Note: Logout is handled separately as a button at the bottom of sidebar
 const NAVIGATION_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/clinic/dashboard' },
   { id: 'clinical', label: 'Clinical Dashboard', icon: Stethoscope, path: '/clinic/clinical' },
   { id: 'schedule', label: 'Schedule', icon: Calendar, path: '/clinic/schedule' },
   { id: 'patients', label: 'Patients', icon: Users, path: '/clinic/patients' },
-  { id: 'profile', label: 'Profile', icon: UserCircle, path: '/clinic/profile' },
-  { id: 'logout', label: 'Logout', icon: LogOut, path: '/logout' }
+  { id: 'profile', label: 'Profile', icon: UserCircle, path: '/clinic/profile' }
+  // Logout removed - it's a button at the bottom, not a navigation item
 ]
 
 export function DashboardSidebar() {
@@ -608,11 +610,14 @@ export function DashboardSidebar() {
             {/* Logout Button */}
             <button
               onClick={() => {
+                // Clear all authentication-related localStorage items
                 localStorage.removeItem('auth_token')
                 localStorage.removeItem('user_profile')
                 localStorage.removeItem('token')
                 localStorage.removeItem('access_token')
+                localStorage.removeItem('user_data')  // Added: clear user data from useAuth
                 localStorage.removeItem('mockUser')
+                // Redirect to login page
                 window.location.href = '/login'
               }}
               style={{
