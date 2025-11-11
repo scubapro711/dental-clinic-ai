@@ -208,8 +208,34 @@ export function getUserRole() {
 
 /**
  * Get user info from localStorage or context
+ * 
+ * Priority:
+ * 1. Real user data from useAuth (stored after /auth/me call)
+ * 2. Mock user data (for testing)
+ * 3. Guest user (fallback)
  */
 export function getUserInfo() {
+  // First, try to get real user data from localStorage (set by useAuth hook)
+  const token = localStorage.getItem('access_token');
+  if (token && !token.startsWith('mock-jwt-token-')) {
+    // For real tokens, we should have user data stored
+    // This is a temporary solution - ideally should use React Context
+    const userDataStr = localStorage.getItem('user_data');
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        return {
+          email: userData.email,
+          role: userData.role,
+          name: userData.full_name || userData.name || 'User',
+        };
+      } catch (e) {
+        console.error('Error parsing user_data:', e);
+      }
+    }
+  }
+  
+  // Second, try mock user (for testing)
   const mockUser = localStorage.getItem('mockUser');
   if (mockUser) {
     try {
@@ -219,6 +245,7 @@ export function getUserInfo() {
     }
   }
   
+  // Fallback to guest user
   return {
     email: 'guest@dentaflow.ai',
     role: ROLES.ORG_VIEWER,

@@ -67,9 +67,12 @@ export function useAuth() {
         const userData = await response.json();
         setUser(userData);
         setIsAuthenticated(true);
+        // Save user data to localStorage for RBAC utilities
+        localStorage.setItem('user_data', JSON.stringify(userData));
       } else {
         // Token invalid
         localStorage.removeItem('access_token');
+        localStorage.removeItem('user_data');
         setIsAuthenticated(false);
         setUser(null);
       }
@@ -119,6 +122,7 @@ export function useAuth() {
    */
   const logout = useCallback(() => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_data');
     setIsAuthenticated(false);
     setUser(null);
   }, []);
