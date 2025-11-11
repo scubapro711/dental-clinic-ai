@@ -49,6 +49,7 @@ from app.api.v1.endpoints import (
     security_incidents,
     compliance,
     hipaa_compliance,
+    diagnostics,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -102,6 +103,9 @@ api_router.include_router(dashboard_metrics.router, prefix="/dashboard/metrics",
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
+
+# Diagnostics (for testing and debugging)
+api_router.include_router(diagnostics.router, prefix="/diagnostics", tags=["diagnostics"])
 
 # Monitoring & Compliance
 api_router.include_router(hipaa_compliance.router, prefix="/hipaa", tags=["hipaa-compliance"])
