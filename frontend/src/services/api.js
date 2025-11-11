@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://dentaflow-backend-gmi5lyn5wq-uc.a.run.app',
+  baseURL: import.meta.env.VITE_API_URL || 'https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
