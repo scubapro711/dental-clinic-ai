@@ -258,11 +258,20 @@ export const api = {
   
   // Dashboard endpoints
   dashboard: {
-    getMetrics: (organizationId: string) =>
-      apiClient.get(`/dashboard/metrics`, { params: { organization_id: organizationId } }),
-    
+    // Legacy dashboard endpoints
     getStatistics: (organizationId: string, params?: { start_date?: string; end_date?: string }) =>
       apiClient.get(`/dashboard/statistics`, { params: { organization_id: organizationId, ...params } }),
+  },
+  
+  // Dashboard Metrics endpoints (NEW - real data from Odoo + Checkpoints)
+  dashboardMetrics: {
+    // Get overall dashboard metrics (14 fields)
+    getMetrics: () =>
+      apiClient.get(`/dashboard-metrics/metrics`),
+    
+    // Get agent metrics (5 agents)
+    getAgentMetrics: () =>
+      apiClient.get(`/dashboard-metrics/metrics/agents`),
   },
   
   // Proactive Suggestions endpoints

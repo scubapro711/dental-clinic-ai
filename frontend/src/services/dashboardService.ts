@@ -3,6 +3,8 @@
  * 
  * Centralized service for all dashboard-related API calls.
  * Uses the API client for consistent error handling, auth, and organization context.
+ * 
+ * Updated to use real data from backend with proper error handling.
  */
 
 import { api } from '../api/client';
@@ -10,14 +12,49 @@ import { AxiosResponse } from 'axios';
 
 // ========== TYPE DEFINITIONS ==========
 
+/**
+ * Dashboard metrics matching backend schema (14 fields)
+ * Source: backend/app/api/v1/endpoints/dashboard_metrics.py
+ */
 export interface DashboardMetrics {
-  appointments_today: number;
-  revenue_this_month: number;
-  pending_decisions: number;
+  // Alex Agent metrics (conversations from checkpoints)
   active_conversations: number;
-  patient_satisfaction: number;
-  compliance_score: number;
+  total_conversations_today: number;
+  avg_response_time_seconds: number;
+  escalations_pending: number;
+  
+  // Sophia (Admin) metrics (appointments from Odoo)
+  appointments_today: number;
+  appointments_completed: number;
+  appointments_upcoming: number;
+  scheduling_conflicts: number;
+  
+  // Marcus (CFO) metrics (financial from Odoo)
+  revenue_today: number;
+  revenue_this_month: number;
+  outstanding_payments: number;
+  payment_success_rate: number;
+  
+  // System metrics
+  uptime_hours: number;
+  last_updated: string;
 }
+
+/**
+ * Agent metrics matching backend schema (7 fields)
+ * Source: backend/app/api/v1/endpoints/dashboard_metrics.py
+ */
+export interface AgentMetrics {
+  agent_name: string;
+  status: string; // online, offline, paused
+  uptime_seconds: number;
+  requests_handled: number;
+  avg_response_time: number;
+  success_rate: number;
+  last_active: string;
+}
+
+// Legacy types (kept for backward compatibility)
 
 export interface RevenueData {
   thisMonth: number;
@@ -108,21 +145,39 @@ export interface FineTuningMetrics {
 
 class DashboardService {
   /**
-   * Get overall dashboard metrics
+   * Get overall dashboard metrics (REAL DATA)
+   * Endpoint: GET /api/v1/dashboard-metrics/metrics
    */
-  async getMetrics(organizationId: string): Promise<DashboardMetrics> {
+  async getMetrics(): Promise<DashboardMetrics> {
     try {
-      const response: AxiosResponse<DashboardMetrics> = await api.dashboard.getMetrics(organizationId);
+      const response: AxiosResponse<DashboardMetrics> = await api.get('/dashboard-metrics/metrics');
+      console.log('[DashboardService] Metrics fetched successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch metrics:', error);
-      // Return mock data as fallback
-      return this.getMockMetrics();
+      // Return empty/zero metrics instead of mock data
+      return this.getEmptyMetrics();
     }
   }
 
   /**
-   * Get revenue data
+   * Get agent metrics (REAL DATA)
+   * Endpoint: GET /api/v1/dashboard-metrics/metrics/agents
+   */
+  async getAgentMetrics(): Promise<AgentMetrics[]> {
+    try {
+      const response: AxiosResponse<AgentMetrics[]> = await api.get('/dashboard-metrics/metrics/agents');
+      console.log('[DashboardService] Agent metrics fetched successfully:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('[DashboardService] Failed to fetch agent metrics:', error);
+      // Return empty array instead of mock data
+      return [];
+    }
+  }
+
+  /**
+   * Get revenue data (LEGACY - uses old endpoint)
    */
   async getRevenue(organizationId: string): Promise<RevenueData> {
     try {
@@ -132,12 +187,25 @@ class DashboardService {
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch revenue:', error);
-      return this.getMockRevenue();
+      // Try to construct from metrics
+      try {
+        const metrics = await this.getMetrics();
+        return {
+          thisMonth: metrics.revenue_this_month,
+          lastMonth: 0, // Not available
+          change: 0,
+          trend: 'stable',
+          insight: `הכנסות החודש: ₪${metrics.revenue_this_month.toLocaleString()}`,
+          recommendation: 'נתונים מלאים זמינים בדשבורד הראשי',
+        };
+      } catch {
+        return this.getMockRevenue();
+      }
     }
   }
 
   /**
-   * Get today's appointments
+   * Get today's appointments (LEGACY - uses old endpoint)
    */
   async getTodaysAppointments(organizationId: string): Promise<AppointmentData[]> {
     try {
@@ -147,7 +215,7 @@ class DashboardService {
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch appointments:', error);
-      return this.getMockAppointments();
+      return [];
     }
   }
 
@@ -162,7 +230,7 @@ class DashboardService {
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch decision queue:', error);
-      return this.getMockDecisionQueue();
+      return [];
     }
   }
 
@@ -201,7 +269,7 @@ class DashboardService {
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch clinical insights:', error);
-      return this.getMockClinicalInsights();
+      return [];
     }
   }
 
@@ -221,17 +289,26 @@ class DashboardService {
   }
 
   /**
-   * Get agent activity
+   * Get agent activity (LEGACY - uses old format)
+   * Consider using getAgentMetrics() instead for real data
    */
   async getAgentActivity(organizationId: string): Promise<AgentActivity[]> {
     try {
-      const response: AxiosResponse<AgentActivity[]> = await api.get(`/agents/activity`, {
-        params: { organization_id: organizationId }
-      });
-      return response.data;
+      // Try new endpoint first
+      const agentMetrics = await this.getAgentMetrics();
+      
+      // Convert to legacy format
+      return agentMetrics.map(metric => ({
+        agent: metric.agent_name.toLowerCase() as any,
+        name: metric.agent_name,
+        status: metric.status === 'online' ? 'active' : 'offline',
+        last_action: 'Activity tracked',
+        last_action_time: metric.last_active,
+        tasks_completed_today: metric.requests_handled,
+      }));
     } catch (error) {
       console.error('[DashboardService] Failed to fetch agent activity:', error);
-      return this.getMockAgentActivity();
+      return [];
     }
   }
 
@@ -250,180 +327,69 @@ class DashboardService {
     }
   }
 
-  // ========== MOCK DATA METHODS (Fallback) ==========
+  // ========== FALLBACK METHODS ==========
 
-  private getMockMetrics(): DashboardMetrics {
+  /**
+   * Return empty metrics (no mock data)
+   */
+  private getEmptyMetrics(): DashboardMetrics {
     return {
-      appointments_today: 12,
-      revenue_this_month: 45000,
-      pending_decisions: 5,
-      active_conversations: 8,
-      patient_satisfaction: 4.7,
-      compliance_score: 95,
+      active_conversations: 0,
+      total_conversations_today: 0,
+      avg_response_time_seconds: 0,
+      escalations_pending: 0,
+      appointments_today: 0,
+      appointments_completed: 0,
+      appointments_upcoming: 0,
+      scheduling_conflicts: 0,
+      revenue_today: 0,
+      revenue_this_month: 0,
+      outstanding_payments: 0,
+      payment_success_rate: 0,
+      uptime_hours: 0,
+      last_updated: new Date().toISOString(),
     };
   }
 
+  /**
+   * Mock revenue data (fallback only)
+   */
   private getMockRevenue(): RevenueData {
     return {
-      thisMonth: 45000,
-      lastMonth: 39000,
-      change: 15.4,
-      trend: 'up',
-      insight: 'הכנסות עלו ב-15% לעומת החודש הקודם',
-      recommendation: 'מרקוס ממליץ: התמקדו בטיפולים מורכבים - הם מניבים 40% מההכנסות',
-      breakdown: {
-        treatments: 30000,
-        consultations: 10000,
-        other: 5000,
-      },
+      thisMonth: 0,
+      lastMonth: 0,
+      change: 0,
+      trend: 'stable',
+      insight: 'נתונים לא זמינים',
+      recommendation: 'אנא בדוק את חיבור המערכת',
     };
   }
 
-  private getMockAppointments(): AppointmentData[] {
-    return [
-      {
-        id: '1',
-        patient_name: 'יוסי כהן',
-        patient_id: 'p001',
-        time: '09:00',
-        treatment_type: 'ניקוי אבנית',
-        status: 'confirmed',
-        doctor: 'ד"ר לוי',
-      },
-      {
-        id: '2',
-        patient_name: 'שרה לוי',
-        patient_id: 'p002',
-        time: '10:30',
-        treatment_type: 'סתימה',
-        status: 'scheduled',
-        doctor: 'ד"ר כהן',
-      },
-      {
-        id: '3',
-        patient_name: 'דוד מזרחי',
-        patient_id: 'p003',
-        time: '14:00',
-        treatment_type: 'שורש',
-        status: 'confirmed',
-        doctor: 'ד"ר לוי',
-      },
-    ];
-  }
-
-  private getMockDecisionQueue(): DecisionQueueItem[] {
-    return [
-      {
-        id: 'd1',
-        agent: 'alex',
-        title: 'תזכורת לפגישה',
-        description: 'שלח תזכורת SMS למטופל יוסי כהן לפגישה מחר',
-        priority: 'high',
-        created_at: new Date().toISOString(),
-        suggested_action: 'שלח SMS',
-        confidence: 0.92,
-        status: 'pending',
-      },
-      {
-        id: 'd2',
-        agent: 'marcus',
-        title: 'חשבונית ממתינה',
-        description: 'שלח תזכורת לתשלום לשרה לוי (₪800)',
-        priority: 'medium',
-        created_at: new Date().toISOString(),
-        suggested_action: 'שלח תזכורת',
-        confidence: 0.85,
-        status: 'pending',
-      },
-    ];
-  }
-
-  private getMockClinicalInsights(): ClinicalInsight[] {
-    return [
-      {
-        id: 'ci1',
-        patient_id: 'p001',
-        patient_name: 'יוסי כהן',
-        insight_type: 'follow_up',
-        title: 'נדרש מעקב',
-        description: 'מטופל זקוק לבדיקת המשך לאחר טיפול שורש',
-        severity: 'medium',
-        recommended_action: 'קבע פגישת המשך בעוד שבועיים',
-        created_by: 'sarah',
-        created_at: new Date().toISOString(),
-      },
-    ];
-  }
-
+  /**
+   * Mock compliance status (fallback only)
+   */
   private getMockComplianceStatus(): ComplianceStatus {
     return {
-      overall_score: 95,
-      hipaa_compliant: true,
-      last_audit_date: '2025-11-01',
+      overall_score: 0,
+      hipaa_compliant: false,
+      last_audit_date: new Date().toISOString().split('T')[0],
       issues: [],
-      recommendations: [
-        'המשך לעדכן מדיניות פרטיות',
-        'בצע הדרכת צוות רבעונית',
-      ],
+      recommendations: ['נתונים לא זמינים'],
     };
   }
 
-  private getMockAgentActivity(): AgentActivity[] {
-    return [
-      {
-        agent: 'alex',
-        name: 'אלכס - קבלת קהל',
-        status: 'active',
-        last_action: 'שלח תזכורת SMS',
-        last_action_time: '2 דקות',
-        tasks_completed_today: 24,
-        current_task: 'מתאם פגישה חדשה',
-      },
-      {
-        agent: 'marcus',
-        name: 'מרקוס - CFO',
-        status: 'active',
-        last_action: 'ניתח הכנסות',
-        last_action_time: '5 דקות',
-        tasks_completed_today: 12,
-      },
-      {
-        agent: 'sarah',
-        name: 'שרה - קלינית',
-        status: 'idle',
-        last_action: 'סקר תיק רפואי',
-        last_action_time: '15 דקות',
-        tasks_completed_today: 8,
-      },
-      {
-        agent: 'sophia',
-        name: 'סופיה - ניהול',
-        status: 'active',
-        last_action: 'עדכן לוח זמנים',
-        last_action_time: '1 דקה',
-        tasks_completed_today: 18,
-      },
-      {
-        agent: 'harper',
-        name: 'הארפר - HIPAA',
-        status: 'idle',
-        last_action: 'בדק לוגים',
-        last_action_time: '30 דקות',
-        tasks_completed_today: 5,
-      },
-    ];
-  }
-
+  /**
+   * Mock fine-tuning metrics (fallback only)
+   */
   private getMockFineTuningMetrics(): FineTuningMetrics {
     return {
-      total_feedback: 156,
-      average_rating: 4.6,
-      training_data_ready: true,
-      last_training_date: '2025-10-15',
+      total_feedback: 0,
+      average_rating: 0,
+      training_data_ready: false,
       model_performance: {
-        accuracy: 0.92,
-        response_quality: 0.89,
-        user_satisfaction: 0.94,
+        accuracy: 0,
+        response_quality: 0,
+        user_satisfaction: 0,
       },
     };
   }
