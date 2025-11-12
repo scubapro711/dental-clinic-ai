@@ -27,7 +27,7 @@ const LandingPage = () => {
             <a href="#pricing">{t("landing.nav.pricing")}</a>
             <a href="#pilot">{t("landing.nav.pilot")}</a>
             <LanguageSwitcher />
-            <Link to="/demo" className="nav-cta-demo">{t("landing.nav.tryDemo")}</Link>
+            <Link to="/login" className="nav-cta-demo">{t("landing.nav.tryDemo")}</Link>
             <Link to="/register" className="nav-cta">{t("landing.nav.startTrial")}</Link>
           </div>
         </div>
@@ -48,7 +48,7 @@ const LandingPage = () => {
             
             {/* 3-Level CTA Strategy */}
             <div className="hero-ctas">
-              <button className="cta-primary" onClick={() => navigate('/demo')}>
+              <button className="cta-primary" onClick={() => navigate('/login')}>
                 <span className="cta-icon">💬</span>
                 {t("landing.hero.tryDemo")}
                 <span className="cta-badge">{t("landing.hero.noSignup")}</span>
@@ -580,7 +580,7 @@ const LandingPage = () => {
           <h2>Ready to Transform Your Dental Practice?</h2>
           <p>Join forward-thinking clinics using AI to save time and increase revenue</p>
           <div className="final-ctas">
-            <button className="cta-large primary" onClick={() => navigate('/demo')}>
+            <button className="cta-large primary" onClick={() => navigate('/login')}>
               {t("landing.hero.tryDemo")}
             </button>
             <button className="cta-large secondary" onClick={() => navigate('/register')}>
@@ -605,7 +605,7 @@ const LandingPage = () => {
               <a href="#features">{t("landing.nav.features")}</a>
               <a href="#agents">AI Agents</a>
               <a href="#pricing">{t("landing.nav.pricing")}</a>
-              <a href="/demo">Interactive Demo</a>
+              <a href="/login">Try Demo</a>
             </div>
             <div className="footer-col">
               <h4>Company</h4>

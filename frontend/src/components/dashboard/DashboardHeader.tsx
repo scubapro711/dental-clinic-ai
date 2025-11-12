@@ -10,6 +10,7 @@
 
 import { getUserInfo } from '../../utils/rbac'
 import { OrganizationSelector } from '../OrganizationSelector'
+import { useNavigate } from 'react-router-dom'
 
 const AI_AGENTS = [
   { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981', icon: 'H' },
@@ -21,6 +22,7 @@ const AI_AGENTS = [
 
 export function DashboardHeader() {
   const userInfo = getUserInfo()
+  const navigate = useNavigate()
   
   return (
     <div 
@@ -94,6 +96,7 @@ export function DashboardHeader() {
           <div
             key={agent.id}
             title={`${agent.name} - ${agent.role}`}
+            onClick={() => navigate(`/clinic/agents/${agent.id}`)}
             style={{
               display: 'flex',
               flexDirection: 'row',
