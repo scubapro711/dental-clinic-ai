@@ -497,11 +497,11 @@ async def get_pending_decisions(
                     thread_id,
                     checkpoint_id,
                     metadata,
-                    channel_values,
-                    created_at
+                    checkpoint,
+                    (checkpoint->>'ts')::timestamp as created_at
                 FROM checkpoints
                 WHERE metadata->>'org_id' = :org_id
-                ORDER BY thread_id, created_at DESC
+                ORDER BY thread_id, (checkpoint->>'ts')::timestamp DESC
             ),
             decision_messages AS (
                 SELECT 
@@ -523,7 +523,7 @@ async def get_pending_decisions(
                     msg->>'due_by' as due_by,
                     lc.created_at
                 FROM latest_checkpoints lc,
-                jsonb_array_elements(lc.channel_values->'messages') as msg
+                jsonb_array_elements(lc.checkpoint->'channel_values'->'messages') as msg
                 WHERE msg->>'requires_approval' = 'true'
                 AND msg->>'approval_status' = 'pending'
             )
