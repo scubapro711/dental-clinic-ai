@@ -24,12 +24,24 @@ export default function AgentActivityWidget({ onChatWithAgent }) {
   const fetchActivityData = async () => {
     setIsLoading(true);
     try {
-      // TODO: Fetch real activity data from Backend
-      // For now, use mock data
-      useMockData();
+      // Fetch real activity data from Backend
+      const response = await fetch('/api/v1/agents/activity', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setActivityData(data);
+      } else {
+        console.error('Agent activity API failed');
+        setActivityData(null);
+      }
     } catch (error) {
       console.error('Error fetching activity data:', error);
-      useMockData();
+      setActivityData(null);
     } finally {
       setIsLoading(false);
     }

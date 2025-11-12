@@ -61,6 +61,7 @@ from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
 from app.api.v1 import appointments
 from app.api.v1.endpoints import revenue
 from app.api.v1.endpoints import decisions
+from app.api.v1.endpoints import agent_activity
 
 # Create main API router
 api_router = APIRouter(prefix="/api/v1")
@@ -105,6 +106,7 @@ api_router.include_router(dashboard_metrics.router, prefix="/dashboard-metrics",
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 api_router.include_router(revenue.router, prefix="/revenue", tags=["revenue"])
 api_router.include_router(decisions.router, prefix="/decisions", tags=["decisions"])
+api_router.include_router(agent_activity.router, prefix="/agents", tags=["agents"])
 from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
 
