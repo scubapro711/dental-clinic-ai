@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import MetricCard from './MetricCard';
 import { Users, Calendar, DollarSign, Activity, Shield } from 'lucide-react';
 import './DashboardStatsBar.css';
@@ -10,6 +11,7 @@ import './DashboardStatsBar.css';
  * Fetches real data from backend API with fallback to mock data.
  */
 const DashboardStatsBar = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     activePatients: { value: 0, trend: null },
     todayAppointments: { value: 0, trend: null },
@@ -115,6 +117,7 @@ const DashboardStatsBar = () => {
           icon={<Users className="w-6 h-6" />}
           trend={stats.activePatients.trend}
           agent={{ name: 'Alex', color: '#3b82f6' }}
+          onClick={() => navigate('/clinic/agents/alex')}
         />
         <MetricCard
           title="Today's Appointments"
@@ -122,6 +125,7 @@ const DashboardStatsBar = () => {
           icon={<Calendar className="w-6 h-6" />}
           trend={stats.todayAppointments.trend}
           agent={{ name: 'Alex', color: '#3b82f6' }}
+          onClick={() => navigate('/clinic/agents/alex')}
         />
         <MetricCard
           title="Monthly Revenue"
@@ -129,6 +133,7 @@ const DashboardStatsBar = () => {
           icon={<DollarSign className="w-6 h-6" />}
           trend={stats.monthlyRevenue.trend}
           agent={{ name: 'Marcus', color: '#10b981' }}
+          onClick={() => navigate('/clinic/agents/marcus')}
         />
         <MetricCard
           title="System Health"
@@ -143,6 +148,7 @@ const DashboardStatsBar = () => {
           icon={<Shield className="w-6 h-6" />}
           trend={stats.hipaaCompliance.trend}
           agent={{ name: 'Harper', color: '#8b5cf6' }}
+          onClick={() => navigate('/clinic/agents/harper')}
         />
       </div>
     </div>

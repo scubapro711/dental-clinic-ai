@@ -28,6 +28,13 @@ import CommunicationsHub from './pages/clinic/CommunicationsHub'
 import BAAManagementPage from './pages/clinic/BAAManagementPage'
 import SecuritySettings from './pages/SecuritySettings'
 
+// Agent Detail Pages
+import AlexPage from './pages/agents/AlexPage'
+import SarahPage from './pages/agents/SarahPage'
+import MarcusPage from './pages/agents/MarcusPage'
+import SophiaPage from './pages/agents/SophiaPage'
+import HarperPage from './pages/agents/HarperPage'
+
 // Billing Components
 import { PricingPage, SubscriptionManagement, BillingDashboard } from './components/billing'
 
@@ -176,6 +183,13 @@ function App() {
           <Route path="compliance" element={<ComplianceDashboard />} />
           <Route path="security" element={<SecuritySettings />} />
           <Route path="settings" element={<ComingSoon title="Settings" />} />
+          
+          {/* Agent Detail Pages */}
+          <Route path="agents/alex" element={<AlexPage />} />
+          <Route path="agents/sarah" element={<SarahPage />} />
+          <Route path="agents/marcus" element={<MarcusPage />} />
+          <Route path="agents/sophia" element={<SophiaPage />} />
+          <Route path="agents/harper" element={<HarperPage />} />
         </Route>
         
         {/* Super Admin Portal Routes (SUPER_ADMIN) */}
