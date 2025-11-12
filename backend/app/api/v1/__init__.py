@@ -64,7 +64,7 @@ from app.api.v1.endpoints import decisions
 from app.api.v1.endpoints import agent_activity
 
 # Create main API router
-api_router = APIRouter(prefix="/api/v1")
+api_router = APIRouter()
 
 # Authentication
 api_router.include_router(auth.router, tags=["auth"])

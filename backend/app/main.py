@@ -391,7 +391,7 @@ instrument_app(app)
 # Include API routers
 from app.api.v1 import api_router
 
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api/v1")
 
 
 @app.get("/", tags=["Root"])
