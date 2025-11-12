@@ -99,7 +99,7 @@ api_router.include_router(doctor.router, prefix="/doctor", tags=["doctor", "esca
 
 # Dashboard & Appointments
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
-api_router.include_router(dashboard_metrics.router, prefix="/dashboard/metrics", tags=["dashboard-metrics"])
+api_router.include_router(dashboard_metrics.router, prefix="/dashboard-metrics", tags=["dashboard-metrics"])
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
 from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
