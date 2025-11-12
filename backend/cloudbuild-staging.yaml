@@ -38,6 +38,10 @@ steps:
       - '--set-env-vars=ENVIRONMENT=staging,DEBUG=false,PROJECT_ID=dentaflow-production'
       - '--add-cloudsql-instances'
       - 'dentaflow-production:us-central1:dentaflow-db-staging'
+      - '--vpc-connector'
+      - 'dentaflow-vpc-connector'
+      - '--vpc-egress'
+      - 'private-ranges-only'
 
 images:
   - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend-staging:${SHORT_SHA}'
