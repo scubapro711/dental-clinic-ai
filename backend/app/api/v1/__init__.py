@@ -59,6 +59,7 @@ from app.api.v1.endpoints.super_admin import exports as super_admin_exports
 from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
 # from app.api.v1.endpoints.super_admin import hipaa as super_admin_hipaa  # TEMPORARILY DISABLED - missing Patient/Appointment models
 from app.api.v1 import appointments
+from app.api.v1.endpoints import revenue
 
 # Create main API router
 api_router = APIRouter(prefix="/api/v1")
@@ -101,6 +102,7 @@ api_router.include_router(doctor.router, prefix="/doctor", tags=["doctor", "esca
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
 api_router.include_router(dashboard_metrics.router, prefix="/dashboard-metrics", tags=["dashboard-metrics"])
 api_router.include_router(appointments.router, prefix="/appointments", tags=["appointments"])
+api_router.include_router(revenue.router, prefix="/revenue", tags=["revenue"])
 from app.api.v1 import agent_actions
 api_router.include_router(agent_actions.router, prefix="/agent-actions", tags=["agent-actions"])
 
