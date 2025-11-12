@@ -28,7 +28,7 @@ import { WIDGET_LIBRARY } from './DashboardSidebar'
 import ProtectedWidget from '../rbac/ProtectedWidget'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 import RevenueWidget from '../widgets/RevenueWidget'
-import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
+import EnhancedDecisionQueueWidget from '../widgets/EnhancedDecisionQueueWidget'
 import ComplianceAlerts from '../compliance/ComplianceAlerts'
 import ClinicalDashboard from '../clinical/ClinicalDashboard'
 import EnhancedFineTuningWidget from '../fine-tuning/EnhancedFineTuningWidget'
@@ -55,7 +55,7 @@ function renderWidgetContent(widgetId: string) {
     case 'decision-queue':
       return (
         <ProtectedWidget widgetId="decision-queue">
-          <DecisionQueueWidget />
+          <EnhancedDecisionQueueWidget />
         </ProtectedWidget>
       )
     

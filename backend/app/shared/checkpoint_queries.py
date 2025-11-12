@@ -460,8 +460,16 @@ async def get_pending_decisions(
         - title: Decision title
         - description: Decision description
         - action: Suggested action
-        - priority: Priority level (high/medium/low)
+        - priority: Priority level (critical/high/medium/low)
+        - category: Decision category (clinical/operational/financial/compliance)
+        - confidence: AI confidence score (0-100)
+        - reasoning: AI reasoning for the decision
+        - patient_id: Related patient ID (if applicable)
+        - patient_name: Related patient name (if applicable)
+        - impact_level: Impact level (high/medium/low)
+        - compliance_risk: Whether this involves compliance risk
         - timestamp: When the decision was created
+        - due_by: When decision should be made by (if applicable)
     
     Example:
         >>> decisions = await get_pending_decisions(db, "org_123", 10)
@@ -505,6 +513,14 @@ async def get_pending_decisions(
                     msg->>'description' as description,
                     msg->>'action' as action,
                     msg->>'priority' as priority,
+                    msg->>'category' as category,
+                    msg->>'confidence' as confidence,
+                    msg->>'reasoning' as reasoning,
+                    msg->>'patient_id' as patient_id,
+                    msg->>'patient_name' as patient_name,
+                    msg->>'impact_level' as impact_level,
+                    msg->>'compliance_risk' as compliance_risk,
+                    msg->>'due_by' as due_by,
                     lc.created_at
                 FROM latest_checkpoints lc,
                 jsonb_array_elements(lc.channel_values->'messages') as msg
@@ -519,10 +535,19 @@ async def get_pending_decisions(
                 description,
                 action,
                 COALESCE(priority, 'medium') as priority,
+                COALESCE(category, 'operational') as category,
+                confidence,
+                reasoning,
+                patient_id,
+                patient_name,
+                COALESCE(impact_level, 'medium') as impact_level,
+                compliance_risk,
+                due_by,
                 created_at
             FROM decision_messages
             ORDER BY 
                 CASE priority
+                    WHEN 'critical' THEN 0
                     WHEN 'high' THEN 1
                     WHEN 'medium' THEN 2
                     WHEN 'low' THEN 3
@@ -540,6 +565,19 @@ async def get_pending_decisions(
         
         decisions = []
         for row in rows:
+            # Parse confidence as integer (0-100)
+            confidence_val = None
+            if row.confidence:
+                try:
+                    confidence_val = int(float(row.confidence))
+                except (ValueError, TypeError):
+                    confidence_val = None
+            
+            # Parse compliance_risk as boolean
+            compliance_risk_val = None
+            if row.compliance_risk:
+                compliance_risk_val = str(row.compliance_risk).lower() in ('true', '1', 'yes')
+            
             decisions.append({
                 "id": f"{row.thread_id}_{row.checkpoint_id}",
                 "thread_id": row.thread_id,
@@ -548,6 +586,14 @@ async def get_pending_decisions(
                 "description": row.description or "No description available",
                 "action": row.action or "Review",
                 "priority": row.priority or "medium",
+                "category": row.category or "operational",
+                "confidence": confidence_val,
+                "reasoning": row.reasoning,
+                "patient_id": row.patient_id,
+                "patient_name": row.patient_name,
+                "impact_level": row.impact_level or "medium",
+                "compliance_risk": compliance_risk_val,
+                "due_by": row.due_by,
                 "timestamp": row.created_at.isoformat() if row.created_at else datetime.utcnow().isoformat()
             })
         

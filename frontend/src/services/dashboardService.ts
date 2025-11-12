@@ -93,6 +93,42 @@ export interface DecisionQueueItem {
   status: 'pending' | 'approved' | 'rejected' | 'executed';
 }
 
+/**
+ * Enhanced Decision model matching backend schema
+ * Source: backend/app/api/v1/endpoints/decisions.py
+ */
+export interface Decision {
+  // Core fields
+  id: string;
+  thread_id: string;
+  agent: 'alex' | 'sarah' | 'marcus' | 'sophia' | 'harper' | 'system';
+  
+  // Content
+  title: string;
+  description: string;
+  action: string;
+  
+  // Classification
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  category?: 'clinical' | 'operational' | 'financial' | 'compliance';
+  
+  // AI Metadata
+  confidence?: number; // 0-100
+  reasoning?: string;
+  
+  // Context
+  patient_id?: string;
+  patient_name?: string;
+  
+  // Impact
+  impact_level?: 'high' | 'medium' | 'low';
+  compliance_risk?: boolean;
+  
+  // Timing
+  timestamp: string;
+  due_by?: string;
+}
+
 export interface ClinicalInsight {
   id: string;
   patient_id: string;
@@ -220,13 +256,15 @@ class DashboardService {
   }
 
   /**
-   * Get decision queue items
+   * Get decision queue items (REAL DATA)
+   * Endpoint: GET /api/v1/decisions/pending
    */
-  async getDecisionQueue(organizationId: string, status?: string): Promise<DecisionQueueItem[]> {
+  async getDecisionQueue(organizationId: string, limit: number = 10): Promise<Decision[]> {
     try {
-      const response: AxiosResponse<DecisionQueueItem[]> = await api.get(`/decision-queue`, {
-        params: { organization_id: organizationId, status }
+      const response: AxiosResponse<Decision[]> = await api.get(`/decisions/pending`, {
+        params: { limit }
       });
+      console.log('[DashboardService] Decision queue fetched successfully:', response.data);
       return response.data;
     } catch (error) {
       console.error('[DashboardService] Failed to fetch decision queue:', error);
@@ -235,11 +273,16 @@ class DashboardService {
   }
 
   /**
-   * Approve a decision queue item
+   * Approve a decision
+   * Endpoint: POST /api/v1/decisions/{decision_id}/approve
    */
-  async approveDecision(decisionId: string): Promise<void> {
+  async approveDecision(decisionId: string, reason?: string): Promise<void> {
     try {
-      await api.post(`/decision-queue/${decisionId}/approve`);
+      await api.post(`/decisions/${decisionId}/approve`, {
+        execute: true,
+        reason: reason || "Approved by user"
+      });
+      console.log('[DashboardService] Decision approved:', decisionId);
     } catch (error) {
       console.error('[DashboardService] Failed to approve decision:', error);
       throw error;
@@ -247,11 +290,15 @@ class DashboardService {
   }
 
   /**
-   * Reject a decision queue item
+   * Reject a decision
+   * Endpoint: POST /api/v1/decisions/{decision_id}/reject
    */
   async rejectDecision(decisionId: string, reason?: string): Promise<void> {
     try {
-      await api.post(`/decision-queue/${decisionId}/reject`, { reason });
+      await api.post(`/decisions/${decisionId}/reject`, {
+        reason: reason || "Rejected by user"
+      });
+      console.log('[DashboardService] Decision rejected:', decisionId);
     } catch (error) {
       console.error('[DashboardService] Failed to reject decision:', error);
       throw error;

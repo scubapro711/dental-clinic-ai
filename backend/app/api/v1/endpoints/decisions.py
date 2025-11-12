@@ -25,15 +25,36 @@ router = APIRouter()
 
 
 class Decision(BaseModel):
-    """Pending decision model"""
+    """Pending decision model - Enhanced with context and AI metadata"""
+    # Core fields
     id: str
     thread_id: str
     agent: str
+    
+    # Content
     title: str
     description: str
     action: str
-    priority: str
+    
+    # Classification
+    priority: str  # critical, high, medium, low
+    category: Optional[str] = "operational"  # clinical, operational, financial, compliance
+    
+    # AI Metadata
+    confidence: Optional[int] = None  # 0-100
+    reasoning: Optional[str] = None
+    
+    # Context
+    patient_id: Optional[str] = None
+    patient_name: Optional[str] = None
+    
+    # Impact
+    impact_level: Optional[str] = "medium"  # high, medium, low
+    compliance_risk: Optional[bool] = None
+    
+    # Timing
     timestamp: str
+    due_by: Optional[str] = None
 
 
 class ApprovalRequest(BaseModel):

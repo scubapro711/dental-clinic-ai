@@ -3,7 +3,7 @@ import { Rnd } from 'react-rnd'
 import { useDashboard } from '../../contexts/DashboardContext'
 import TodaysPatientsWidget from '../widgets/TodaysPatientsWidget'
 import RevenueWidget from '../widgets/RevenueWidget'
-import DecisionQueueWidget from '../widgets/DecisionQueueWidget'
+import EnhancedDecisionQueueWidget from '../widgets/EnhancedDecisionQueueWidget'
 import ComplianceWidget from '../widgets/ComplianceWidget'
 import ClinicalInsightsWidget from '../widgets/ClinicalInsightsWidget'
 import FineTuningWidget from '../widgets/FineTuningWidget'
@@ -32,7 +32,7 @@ const WIDGET_CONFIGS: WidgetConfig[] = [
     id: 'decision-queue',
     title: 'Decision Queue',
     icon: '⚠️',
-    component: DecisionQueueWidget,
+    component: EnhancedDecisionQueueWidget,
     defaultState: { x: 20, y: 20, width: 1100, height: 450 }
   },
   {
