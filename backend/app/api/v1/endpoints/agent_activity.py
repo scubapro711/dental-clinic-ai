@@ -10,8 +10,8 @@ from pydantic import BaseModel
 from typing import List, Dict, Any
 
 from app.core.database import get_async_db
-from app.core.auth import get_current_membership
-from app.models.user import OrganizationMembership
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 from app.shared.checkpoint_queries import get_agent_activity_metrics
 
 router = APIRouter()

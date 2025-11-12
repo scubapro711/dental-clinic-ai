@@ -7,9 +7,9 @@ from typing import List, Dict, Any
 from datetime import datetime
 from pydantic import BaseModel
 
-from app.core.auth import get_current_membership
+from app.api.dependencies import get_current_membership
 from app.core.database import get_db
-from app.models.organization import OrganizationMembership
+from app.models.organization_membership import OrganizationMembership
 from app.shared.odoo_queries import (
     get_appointments_today,
     get_appointments_count_by_state,

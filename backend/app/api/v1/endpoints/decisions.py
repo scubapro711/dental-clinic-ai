@@ -13,8 +13,8 @@ from typing import List, Optional
 from datetime import datetime
 
 from app.core.database import get_async_db
-from app.core.auth import get_current_membership
-from app.models.user import OrganizationMembership
+from app.api.dependencies import get_current_membership
+from app.models.organization_membership import OrganizationMembership
 from app.shared.checkpoint_queries import (
     get_pending_decisions,
     approve_decision,
