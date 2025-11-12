@@ -321,7 +321,7 @@ async def get_appointments(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=domain,
-            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'appointment_status'],
             limit=limit,
             order='start DESC'
         )
@@ -343,7 +343,7 @@ async def get_appointments(
                 "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
                 "date": appt_datetime.strftime('%Y-%m-%d'),
                 "time": appt_datetime.strftime('%H:%M'),
-                "status": appt['state'],
+                "status": appt.get('appointment_status', 'draft'),
                 "start_datetime": str(appt['start']),
                 "end_datetime": str(appt['stop']),
             })
@@ -379,7 +379,7 @@ async def get_today_appointments(
                 ('start', '>=', f"{today} 00:00:00"),
                 ('start', '<=', f"{today} 23:59:59"),
             ],
-            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'appointment_status'],
             order='start ASC'
         )
         
@@ -399,7 +399,7 @@ async def get_today_appointments(
                 "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
                 "date": today,
                 "time": appt_datetime.strftime('%H:%M'),
-                "status": appt['state'],
+                "status": appt.get('appointment_status', 'draft'),
                 "start_datetime": str(appt['start']),
                 "end_datetime": str(appt['stop']),
             })
@@ -441,11 +441,11 @@ async def get_upcoming_appointments(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[
-                ('state', 'in', ['draft', 'confirmed']),
+                ('appointment_status', 'in', ['draft', 'confirm']),
                 ('start', '>=', f"{today_str} 00:00:00"),
                 ('start', '<=', f"{end_str} 23:59:59"),
             ],
-            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'state'],
+            fields=['id', 'patient_id', 'doctor_id', 'start', 'stop', 'appointment_status'],
             order='start ASC'
         )
         
@@ -465,7 +465,7 @@ async def get_upcoming_appointments(
                 "doctor_id": appt['doctor_id'][0] if isinstance(appt['doctor_id'], list) else appt['doctor_id'],
                 "date": appt_datetime.strftime('%Y-%m-%d'),
                 "time": appt_datetime.strftime('%H:%M'),
-                "status": appt['state'],
+                "status": appt.get('appointment_status', 'draft'),
                 "start_datetime": str(appt['start']),
                 "end_datetime": str(appt['stop']),
             })
