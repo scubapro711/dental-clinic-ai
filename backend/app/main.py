@@ -4,6 +4,8 @@ DentalAI Backend - FastAPI Application
 This is the main entry point for the DentalAI SaaS platform backend.
 """
 
+import logging
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -300,7 +302,6 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 from fastapi import HTTPException
 from app.core.audit import AuditLogger
 from app.core.database import SessionLocal
-import logging
 
 logger = logging.getLogger(__name__)
 
