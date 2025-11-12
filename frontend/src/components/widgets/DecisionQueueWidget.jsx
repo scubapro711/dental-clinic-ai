@@ -23,8 +23,8 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const fetchDecisions = async () => {
     setIsLoading(true);
     try {
-      // Fetch real agent actions from Backend
-      const response = await fetch('/api/v1/agent-actions/queue?status=pending', {
+      // Fetch real decisions from Backend (checkpoints)
+      const response = await fetch('/api/v1/decisions/pending', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'
@@ -33,11 +33,11 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
       
       if (response.ok) {
         const data = await response.json();
-        setDecisions(data);
+        // If no real decisions, show empty state (no mock data fallback)
+        setDecisions(data || []);
       } else {
-        // Fallback to mock data
-        console.warn('Agent actions API failed, using mock data');
-        useMockData();
+        console.error('Decisions API failed');
+        setDecisions([]);
       }
     } catch (error) {
       console.error('Error fetching decisions:', error);
@@ -139,7 +139,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const handleApprove = async (decision) => {
     try {
       setStatusMessage('Approving action...');
-      const response = await fetch(`/api/v1/agent-actions/${decision.id}/approve`, {
+      const response = await fetch(`/api/v1/decisions/${decision.id}/approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const handleReject = async (decision) => {
     try {
       setStatusMessage('Rejecting action...');
-      const response = await fetch(`/api/v1/agent-actions/${decision.id}/reject`, {
+      const response = await fetch(`/api/v1/decisions/${decision.id}/reject`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
