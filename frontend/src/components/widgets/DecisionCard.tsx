@@ -86,7 +86,12 @@ export default function DecisionCard({
       harper: { name: 'הארפר', color: 'bg-purple-100 text-purple-700 border-purple-300' },
       system: { name: 'מערכת', color: 'bg-gray-100 text-gray-700 border-gray-300' }
     };
-    return configs[agent] || configs.system;
+    // Defensive check: ensure agent exists and is valid
+    if (!agent || !configs[agent]) {
+      console.warn('[DecisionCard] Invalid agent:', agent, '- using system as fallback');
+      return configs.system;
+    }
+    return configs[agent];
   };
 
   const getCategoryConfig = (category?: string) => {
@@ -96,7 +101,13 @@ export default function DecisionCard({
       financial: { label: 'פיננסי', icon: <TrendingUp className="w-3 h-3" /> },
       compliance: { label: 'ציות', icon: <Shield className="w-3 h-3" /> }
     };
-    return configs[category || 'operational'];
+    // Defensive check: ensure category exists and is valid
+    const safeCategory = category || 'operational';
+    if (!configs[safeCategory]) {
+      console.warn('[DecisionCard] Invalid category:', category, '- using operational as fallback');
+      return configs.operational;
+    }
+    return configs[safeCategory];
   };
 
   const formatTimeAgo = (timestamp: string) => {
