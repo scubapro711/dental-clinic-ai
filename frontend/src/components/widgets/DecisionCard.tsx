@@ -69,7 +69,12 @@ export default function DecisionCard({
         label: 'נמוך'
       }
     };
-    return configs[priority] || configs.medium;
+    // Defensive check: ensure priority exists and is valid
+    if (!priority || !configs[priority]) {
+      console.warn('[DecisionCard] Invalid priority:', priority, '- using medium as fallback');
+      return configs.medium;
+    }
+    return configs[priority];
   };
 
   const getAgentConfig = (agent: string) => {
