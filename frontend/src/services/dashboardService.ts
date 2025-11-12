@@ -245,7 +245,7 @@ class DashboardService {
    */
   async getTodaysAppointments(organizationId: string): Promise<AppointmentData[]> {
     try {
-      const response: AxiosResponse<AppointmentData[]> = await api.get(`/appointments/today`, {
+      const response: AxiosResponse<AppointmentData[]> = await api.get(`/dashboard/appointments/today`, {
         params: { organization_id: organizationId }
       });
       return response.data;
