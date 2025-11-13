@@ -26,6 +26,11 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Create .env file with build-time variables for Vite
+RUN echo "VITE_APP_ENV=$VITE_APP_ENV" > .env.production && \
+    echo "VITE_API_URL=$VITE_API_URL" >> .env.production && \
+    cat .env.production
+
 # Build the app with pnpm
 RUN pnpm build
 
