@@ -245,10 +245,10 @@ class DashboardService {
    */
   async getTodaysAppointments(organizationId: string): Promise<AppointmentData[]> {
     try {
-      const response: AxiosResponse<AppointmentData[]> = await api.get(`/dashboard/appointments/today`, {
+      const response: AxiosResponse<{date: string, appointments: any[], total: number}> = await api.get(`/dashboard/appointments/today`, {
         params: { organization_id: organizationId }
       });
-      return response.data;
+      return response.data.appointments || [];
     } catch (error) {
       console.error('[DashboardService] Failed to fetch appointments:', error);
       return [];
