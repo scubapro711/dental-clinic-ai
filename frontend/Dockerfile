@@ -26,19 +26,22 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Create .env file with build-time variables for Vite
+# Create .env.production file with build-time variables for Vite
+# Vite will read this file during build and replace import.meta.env references
 RUN echo "VITE_APP_ENV=$VITE_APP_ENV" > .env.production && \
     echo "VITE_API_URL=$VITE_API_URL" >> .env.production && \
-    cat .env.production
+    echo "=== Created .env.production ===" && \
+    cat .env.production && \
+    echo "==============================="
 
 # Build the app with pnpm
+# Vite will now correctly read VITE_API_URL from .env.production
 RUN pnpm build
 
-# Replace the localhost URL in the built JavaScript with the actual backend URL
-# This ensures the API URL is correctly injected even if Vite doesn't pick up env vars
-RUN find /app/dist/assets -name '*.js' -type f -exec sed -i \
-    's|http://localhost:8000|'"${VITE_API_URL%/api/v1}"'|g' {} \; && \
-    echo "Replaced localhost URLs with backend: ${VITE_API_URL%/api/v1}"
+# Verify the build output
+RUN echo "=== Build completed ===" && \
+    ls -la /app/dist && \
+    echo "======================="
 
 # Production stage
 FROM nginx:alpine
