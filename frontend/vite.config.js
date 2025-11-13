@@ -4,6 +4,12 @@ import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
+// Debug: Log environment variables during build
+console.log('=== Vite Build Environment ===');
+console.log('VITE_API_URL:', process.env.VITE_API_URL);
+console.log('VITE_APP_ENV:', process.env.VITE_APP_ENV);
+console.log('================================');
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   define: {
