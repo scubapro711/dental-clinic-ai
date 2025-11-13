@@ -248,7 +248,18 @@ class DashboardService {
       const response: AxiosResponse<{date: string, appointments: any[], total: number}> = await api.get(`/dashboard/appointments/today`, {
         params: { organization_id: organizationId }
       });
-      return response.data.appointments || [];
+      // Map API response to widget format
+      const appointments = response.data.appointments || [];
+      return appointments.map((apt: any) => ({
+        id: apt.id?.toString() || '',
+        patient_id: apt.patient_id?.toString() || '',
+        patient_name: apt.patient_name || 'Unknown',
+        time: apt.time || '',
+        treatment_type: apt.treatment_type || 'General',
+        status: apt.status === 'confirm' ? 'confirmed' : 'scheduled',
+        doctor: apt.doctor_name || '',
+        notes: apt.notes || ''
+      }));
     } catch (error) {
       console.error('[DashboardService] Failed to fetch appointments:', error);
       return [];
