@@ -51,8 +51,8 @@ export default function MFAVerificationModal({
 
     try {
       const endpoint = useBackupCode 
-        ? 'http://localhost:8000/api/v1/mfa/verify-backup'
-        : 'http://localhost:8000/api/v1/mfa/verify'
+        ? API_CONFIG.endpoint('mfa/verify-backup')
+        : API_CONFIG.endpoint('mfa/verify')
 
       const response = await fetch(endpoint, {
         method: 'POST',

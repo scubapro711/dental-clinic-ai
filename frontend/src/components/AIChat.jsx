@@ -182,7 +182,7 @@ export default function AIChat({ user, onStreamEvent, initialMessages = [], conv
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/ai/chat', {
+      const response = await fetch(API_CONFIG.endpoint('ai/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

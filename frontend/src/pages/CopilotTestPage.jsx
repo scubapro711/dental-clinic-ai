@@ -70,7 +70,7 @@ export function CopilotTestPage() {
                   <span className="font-medium text-green-700">Backend Connected</span>
                 </div>
                 <p className="text-sm text-green-600 mt-1">
-                  {import.meta.env.VITE_API_URL || 'http://localhost:8000'}
+                  {import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL}
                 </p>
               </div>
               

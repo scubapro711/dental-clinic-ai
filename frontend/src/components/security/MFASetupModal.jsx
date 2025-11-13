@@ -50,7 +50,7 @@ export default function MFASetupModal({ open, onOpenChange, onSuccess, token }) 
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/setup', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/setup'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,7 +83,7 @@ export default function MFASetupModal({ open, onOpenChange, onSuccess, token }) 
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/verify-setup', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/verify-setup'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -12,7 +12,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import { useDashboardStore } from '../stores/dashboardStore'
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
+const WS_URL = import.meta.env.VITE_WS_URL || API_CONFIG.WS_URL
 
 export function useWebSocket() {
   const socketRef = useRef(null)

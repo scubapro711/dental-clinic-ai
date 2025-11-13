@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './InteractiveDemoChat.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL;
 
 const InteractiveDemoChat = ({ onClose }) => {
   const [sessionId, setSessionId] = useState(null);

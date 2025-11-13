@@ -82,7 +82,7 @@ export const AgentChatModal = ({
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/chat', {
+      const response = await fetch(API_CONFIG.endpoint('chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
