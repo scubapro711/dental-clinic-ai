@@ -39,9 +39,9 @@ steps:
       - '--build-arg'
       - 'VITE_APP_ENV=staging'
       - '--build-arg'
-      - 'VITE_API_BASE_URL=https://dentaflow-backend-staging-688311017213.us-central1.run.app/api/v1'
+      - 'VITE_API_BASE_URL=https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1'
       - '--build-arg'
-      - 'VITE_API_URL=https://dentaflow-backend-staging-688311017213.us-central1.run.app/api/v1'
+      - 'VITE_API_URL=https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1'
       - '-f'
       - 'Dockerfile'
       - '.'
@@ -87,6 +87,7 @@ steps:
       - 'VITE_APP_ENV=staging'
       - '--tag'
       - 'staging-$SHORT_SHA'
+      - '--no-traffic'
 
 # Build timeout (20 minutes)
 timeout: '1200s'
@@ -116,3 +117,15 @@ images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:$SHORT_SHA'
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:latest'
 
+
+  # Step 5: Migrate all traffic to new revision
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'services'
+      - 'update-traffic'
+      - 'dentaflow-frontend-staging'
+      - '--to-latest'
+      - '--region'
+      - 'us-central1'
