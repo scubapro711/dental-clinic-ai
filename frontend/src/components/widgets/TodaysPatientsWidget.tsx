@@ -35,16 +35,20 @@ export default function TodaysPatientsWidget({ onChatWithPatient }: TodaysPatien
   }, []);
 
   const fetchTodaysPatients = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const orgId = localStorage.getItem('current_organization_id') || 
                     localStorage.getItem('organization_id') || 
                     '1';
       
+      console.log('[TodaysPatientsWidget] Fetching appointments for orgId:', orgId);
       const data = await dashboardService.getTodaysAppointments(orgId);
+      console.log('[TodaysPatientsWidget] Received data:', data);
+      console.log('[TodaysPatientsWidget] Data length:', data?.length);
       setPatients(data);
     } catch (error) {
-      console.error('Error fetching patients:', error);
+      console.error('[TodaysPatientsWidget] Error fetching patients:', error);
+      console.error('[TodaysPatientsWidget] Error details:', JSON.stringify(error, null, 2));
       // dashboardService already handles fallback to mock data
       setPatients([]);
     } finally {
