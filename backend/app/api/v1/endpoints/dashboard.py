@@ -22,6 +22,7 @@ router = APIRouter()
 
 def get_odoo_client() -> OdooClient:
     """Dependency to get Odoo client instance."""
+    logger.info("Creating OdooClient instance for dashboard endpoint")
     return OdooClient()
 
 
