@@ -3,6 +3,12 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
+// Log environment variables for debugging
+console.log('=== Vite Config Environment ===');
+console.log('process.env.VITE_API_URL:', process.env.VITE_API_URL);
+console.log('process.env.VITE_APP_ENV:', process.env.VITE_APP_ENV);
+console.log('================================');
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
