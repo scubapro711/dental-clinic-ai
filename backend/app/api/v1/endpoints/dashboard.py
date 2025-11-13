@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def OdooClient() -> OdooClient:
+def get_odoo_client() -> OdooClient:
     """Dependency to get Odoo client instance."""
     return OdooClient()
 
@@ -30,7 +30,7 @@ def OdooClient() -> OdooClient:
 async def get_active_conversations(
     request: Request,
     membership: OrganizationMembership = Depends(get_current_membership),
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> List[Dict[str, Any]]:
     """
     Get active conversations for the dashboard.
@@ -107,7 +107,7 @@ async def get_patients(
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
     search: str = Query(None),
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get patients list with pagination and search.
@@ -209,7 +209,7 @@ async def get_patient_details(
     request: Request,
     patient_id: int,
     membership: OrganizationMembership = Depends(get_current_membership),
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get detailed information about a specific patient.
@@ -286,7 +286,7 @@ async def get_appointments(
     end_date: str = Query(None),
     status: str = Query(None),
     limit: int = Query(100, ge=1, le=1000),
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get appointments with optional filters.
@@ -362,7 +362,7 @@ async def get_appointments(
 @limiter.limit(get_rate_limit("default"))
 async def get_today_appointments(
     request: Request,
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get today's appointments.
@@ -420,7 +420,7 @@ async def get_today_appointments(
 async def get_upcoming_appointments(
     request: Request,
     days: int = Query(7, ge=1, le=30),
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get upcoming appointments for the next N days.
@@ -629,7 +629,7 @@ async def cancel_appointment(
 async def get_revenue_overview(
     request: Request,
     days: int = Query(30, description="Number of days to analyze"),
-    odoo: OdooClient = Depends(OdooClient),
+    odoo: OdooClient = Depends(get_odoo_client),
 ) -> Dict[str, Any]:
     """
     Get revenue overview for dashboard widget.
