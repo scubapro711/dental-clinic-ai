@@ -6,8 +6,18 @@ import path from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  // Let Vite naturally read from .env files - no need for explicit define
-  // Vite automatically exposes VITE_* variables to import.meta.env
+  
+  // Define environment variables for the build
+  // These will be replaced at build time with the actual values
+  define: {
+    'import.meta.env.VITE_API_URL': JSON.stringify(
+      process.env.VITE_API_URL || 'https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1'
+    ),
+    'import.meta.env.VITE_APP_ENV': JSON.stringify(
+      process.env.VITE_APP_ENV || 'production'
+    ),
+  },
+  
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
