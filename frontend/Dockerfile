@@ -37,8 +37,8 @@ RUN pnpm build
 # Replace the localhost URL in the built JavaScript with the actual backend URL
 # This ensures the API URL is correctly injected even if Vite doesn't pick up env vars
 RUN find /app/dist/assets -name '*.js' -type f -exec sed -i \
-    's|http://localhost:8000/api/v1|'"$VITE_API_URL"'|g' {} \; && \
-    echo "Replaced localhost URLs with: $VITE_API_URL"
+    's|http://localhost:8000|'"${VITE_API_URL%/api/v1}"'|g' {} \; && \
+    echo "Replaced localhost URLs with backend: ${VITE_API_URL%/api/v1}"
 
 # Production stage
 FROM nginx:alpine
