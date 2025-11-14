@@ -13,7 +13,7 @@ from app.models.organization_membership import OrganizationMembership
 from app.integrations.odoo_client import OdooClient
 from app.shared.odoo_queries import (
     get_appointments_today,
-    get_appointments_count_by_state,
+    get_appointments_count_by_status,
     get_upcoming_appointments,
     get_new_patients_by_period,
     get_patient_count
@@ -112,7 +112,7 @@ async def get_todays_appointments_enriched(
         today_appointments = get_appointments_today(odoo)
         
         # Get appointment counts by state
-        counts_by_state = get_appointments_count_by_state(odoo, today_str, today_str)
+        counts_by_status = get_appointments_count_by_status(odoo, today_str, today_str)
         
         # Get upcoming appointments (next 7 days)
         upcoming_appointments = get_upcoming_appointments(odoo, days=7)
@@ -129,9 +129,9 @@ async def get_todays_appointments_enriched(
         # Build summary
         summary = AppointmentSummary(
             total=len(today_appointments),
-            confirmed=counts_by_state.get('confirmed', 0),
-            pending=counts_by_state.get('draft', 0) + counts_by_state.get('pending', 0),
-            cancelled=counts_by_state.get('cancel', 0),
+            confirmed=counts_by_status.get('confirm', 0),
+            pending=counts_by_status.get('draft', 0),
+            cancelled=counts_by_status.get('cancelled', 0),
             first_visits=first_visits_count,
             upcoming_week=len(upcoming_appointments),
             new_patients_this_month=len(new_patients) if new_patients else 0

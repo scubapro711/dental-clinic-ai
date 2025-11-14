@@ -22,7 +22,7 @@ def get_appointments_by_date_range(
     odoo: OdooClient,
     start_date: str,
     end_date: str,
-    state: Optional[List[str]] = None
+    appointment_status: Optional[List[str]] = None
 ) -> List[Dict[str, Any]]:
     """
     Get appointments within a date range.
@@ -31,14 +31,14 @@ def get_appointments_by_date_range(
         odoo: OdooClient instance
         start_date: Start date (YYYY-MM-DD)
         end_date: End date (YYYY-MM-DD)
-        state: Optional list of states to filter by (e.g., ['draft', 'confirmed', 'done'])
+        appointment_status: Optional list of statuses to filter by (e.g., ['draft', 'confirmed', 'done'])
     
     Returns:
         List of appointment records
     
     Example:
         >>> appointments = get_appointments_by_date_range(
-        ...     odoo, "2025-11-12", "2025-11-19", state=["confirmed"]
+        ...     odoo, "2025-11-12", "2025-11-19", appointment_status=["confirmed"]
         ... )
     """
     domain = [
@@ -46,13 +46,13 @@ def get_appointments_by_date_range(
         ('start', '<=', f"{end_date} 23:59:59"),
     ]
     
-    if state:
-        domain.append(('state', 'in', state))
+    if appointment_status:
+        domain.append(('appointment_status', 'in', appointment_status))
     
     return odoo.search_read(
         'patient.appointment',
         domain=domain,
-        fields=['id', 'patient_id', 'doctor_id', 'start', 'duration', 'state', 'appointment_type']
+        fields=['id', 'patient_id', 'doctor_id', 'start', 'duration', 'appointment_status', 'appointment_type']
     )
 
 
@@ -75,13 +75,13 @@ def get_appointments_today(odoo: OdooClient) -> List[Dict[str, Any]]:
     return get_appointments_by_date_range(odoo, today_str, today_str)
 
 
-def get_appointments_count_by_state(
+def get_appointments_count_by_status(
     odoo: OdooClient,
     start_date: str,
     end_date: str
 ) -> Dict[str, int]:
     """
-    Get count of appointments by state within a date range.
+    Get count of appointments by status within a date range.
     
     Args:
         odoo: OdooClient instance
@@ -89,10 +89,10 @@ def get_appointments_count_by_state(
         end_date: End date (YYYY-MM-DD)
     
     Returns:
-        Dictionary with counts by state
+        Dictionary with counts by status
     
     Example:
-        >>> counts = get_appointments_count_by_state(odoo, "2025-11-12", "2025-11-19")
+        >>> counts = get_appointments_count_by_status(odoo, "2025-11-12", "2025-11-19")
         >>> print(counts)
         {"draft": 5, "confirmed": 10, "done": 8, "cancelled": 2}
     """
@@ -100,15 +100,15 @@ def get_appointments_count_by_state(
     
     counts = {
         "draft": 0,
-        "confirmed": 0,
-        "done": 0,
+        "confirm": 0,
+        "completed_appointment": 0,
         "cancelled": 0
     }
     
     for appointment in appointments:
-        state = appointment.get("state", "draft")
-        if state in counts:
-            counts[state] += 1
+        status = appointment.get("appointment_status", "draft")
+        if status in counts:
+            counts[status] += 1
     
     return counts
 
@@ -139,7 +139,7 @@ def get_upcoming_appointments(
         odoo,
         today_str,
         end_date,
-        state=['draft', 'confirmed']
+        appointment_status=['draft', 'confirm']
     )
 
 

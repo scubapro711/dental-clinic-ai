@@ -31,7 +31,7 @@ from app.shared.checkpoint_queries import (
 )
 from app.shared.odoo_queries import (
     get_appointments_today,
-    get_appointments_count_by_state,
+    get_appointments_count_by_status,
     get_upcoming_appointments,
     get_revenue_today,
     get_revenue_this_month,
