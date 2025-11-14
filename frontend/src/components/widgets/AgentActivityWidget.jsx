@@ -26,7 +26,7 @@ export default function AgentActivityWidget({ onChatWithAgent }) {
     setIsLoading(true);
     try {
       // Fetch real activity data from Backend
-      const response = await fetch(API_CONFIG.endpoint('agents/activity'), {
+      const response = await fetch(API_CONFIG.endpoint("agents/status"), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'
