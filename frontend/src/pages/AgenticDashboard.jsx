@@ -25,6 +25,7 @@ import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { DashboardSidebar } from '../components/dashboard/DashboardSidebar';
 import DashboardGrid from '../components/dashboard/DashboardGrid';
 import { isFeatureEnabled } from '../config/features';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgenticDashboard v3.0 - Professional SaaS Dashboard
@@ -70,7 +71,7 @@ export default function AgenticDashboard() {
   // Load conversation history
   const handleSelectConversation = async (conversationId) => {
     try {
-      const response = await fetch(`/api/v1/ai/conversations/${conversationId}`, {
+      const response = await fetch(API_CONFIG.endpoint('ai/conversations/${conversationId}'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
         }

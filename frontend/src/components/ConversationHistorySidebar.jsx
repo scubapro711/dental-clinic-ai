@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MessageSquare, Trash2, Plus, Clock } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 const ConversationHistorySidebar = ({ 
   isOpen, 
@@ -20,7 +21,7 @@ const ConversationHistorySidebar = ({
   const loadConversations = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/ai/conversations', {
+      const response = await fetch(API_CONFIG.endpoint('ai/conversations'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
         }
@@ -45,7 +46,7 @@ const ConversationHistorySidebar = ({
     }
 
     try {
-      const response = await fetch(`/api/v1/ai/conversations/${conversationId}`, {
+      const response = await fetch(API_CONFIG.endpoint('ai/conversations/${conversationId}'), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './SuperAdminPilotApplications.css';
+import API_CONFIG from '@/config/api';
 
 /**
  * Super Admin Pilot Applications Dashboard
@@ -46,7 +47,7 @@ const SuperAdminPilotApplications = () => {
   const fetchStats = async () => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch('/api/v1/pilot-applications/stats/summary', {
+      const response = await fetch(API_CONFIG.endpoint('pilot-applications/stats/summary'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -64,7 +65,7 @@ const SuperAdminPilotApplications = () => {
   const updateApplicationStatus = async (appId, status, notes = '') => {
     try {
       const token = localStorage.getItem('access_token');
-      const response = await fetch(`/api/v1/pilot-applications/${appId}`, {
+      const response = await fetch(API_CONFIG.endpoint('pilot-applications/${appId}'), {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,

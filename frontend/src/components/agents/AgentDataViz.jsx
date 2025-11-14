@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { BarChart3, TrendingUp, Activity } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentDataViz Component
@@ -24,7 +25,7 @@ const AgentDataViz = ({ agentId, agentColor }) => {
     setIsLoading(true);
     try {
       // Fetch agent activity data
-      const response = await fetch('/api/v1/agents/activity', {
+      const response = await fetch(API_CONFIG.endpoint('agents/activity'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

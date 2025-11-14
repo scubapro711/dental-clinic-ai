@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X, LogOut } from 'lucide-react';
 import { AGENTS } from '../data/agents';
 import AgentSidebarCard from '../components/agents/AgentSidebarCard';
+import API_CONFIG from '@/config/api';
 
 export default function ClinicLayout() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function ClinicLayout() {
 
   const fetchAgentStats = async () => {
     try {
-      const response = await fetch('/api/v1/dashboard/stats', {
+      const response = await fetch(API_CONFIG.endpoint('dashboard/stats'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

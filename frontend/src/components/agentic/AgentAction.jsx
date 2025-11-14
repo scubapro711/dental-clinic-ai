@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCopilotAction } from "@copilotkit/react-core";
 import { MessageSquare, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentAction - Embedded agent action button in widgets
@@ -42,7 +43,7 @@ export function AgentAction({
       setStatus('loading');
       try {
         // Call backend API to execute agent action
-        const response = await fetch('/api/v1/agent/execute', {
+        const response = await fetch(API_CONFIG.endpoint('agent/execute'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -73,7 +74,7 @@ export function AgentAction({
   const handleClick = async () => {
     setStatus('loading');
     try {
-      const response = await fetch('/api/v1/agent/execute', {
+      const response = await fetch(API_CONFIG.endpoint('agent/execute'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

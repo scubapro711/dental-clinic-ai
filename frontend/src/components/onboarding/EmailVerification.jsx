@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Mail, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * Email Verification Component
@@ -49,7 +50,7 @@ export default function EmailVerification({ email, onComplete, onSkip }) {
       setResending(true);
       setError('');
       
-      const response = await fetch('/api/v1/auth/resend-verification', {
+      const response = await fetch(API_CONFIG.endpoint('auth/resend-verification'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -133,7 +134,7 @@ export default function EmailVerification({ email, onComplete, onSkip }) {
       setLoading(true);
       setError('');
       
-      const response = await fetch('/api/v1/auth/verify-email', {
+      const response = await fetch(API_CONFIG.endpoint('auth/verify-email'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

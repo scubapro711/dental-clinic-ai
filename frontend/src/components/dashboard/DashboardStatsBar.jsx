@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import MetricCard from './MetricCard';
 import { Users, Calendar, DollarSign, Activity, Shield } from 'lucide-react';
 import './DashboardStatsBar.css';
+import API_CONFIG from '@/config/api';
 
 /**
  * DashboardStatsBar Component
@@ -28,7 +29,7 @@ const DashboardStatsBar = () => {
   const fetchDashboardStats = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/dashboard/stats', {
+      const response = await fetch(API_CONFIG.endpoint('dashboard/stats'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

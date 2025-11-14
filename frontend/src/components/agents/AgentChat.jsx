@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Send, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentChat Component
@@ -48,7 +49,7 @@ const AgentChat = ({ agentId, agentName, agentColor }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/v1/chat/stream', {
+      const response = await fetch(API_CONFIG.endpoint('chat/stream'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

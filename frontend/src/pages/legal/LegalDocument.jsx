@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { FileText, ArrowRight, Download, Printer, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import API_CONFIG from '@/config/api';
 
 /**
  * LegalDocument Component
@@ -76,7 +77,7 @@ export default function LegalDocument() {
         setError(null);
 
         // Fetch document from backend API
-        const response = await fetch(`/api/v1/legal/${documentId}`);
+        const response = await fetch(API_CONFIG.endpoint('legal/${documentId}'));
         
         if (!response.ok) {
           throw new Error(`Failed to load document: ${response.statusText}`);

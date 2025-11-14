@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Users, CheckCircle2, Clock, XCircle, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Telegram Users Widget
@@ -21,7 +22,7 @@ export default function TelegramUsersWidget() {
   const fetchTelegramUsers = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/telegram-admin/users', {
+      const response = await fetch(API_CONFIG.endpoint('telegram-admin/users'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id')

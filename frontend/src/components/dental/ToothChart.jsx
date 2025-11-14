@@ -20,6 +20,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
+import API_CONFIG from '@/config/api';
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -99,7 +100,7 @@ const ToothChart = ({ patientId, onToothClick, showSarahAnalysis = true }) => {
     try {
       setLoading(true);
       // TODO: Replace with actual API call
-      // const response = await fetch(`/api/v1/patients/${patientId}/tooth-chart`);
+      // const response = await fetch(API_CONFIG.endpoint('patients/${patientId}/tooth-chart'));
       // const data = await response.json();
       
       // Mock data for now
@@ -123,7 +124,7 @@ const ToothChart = ({ patientId, onToothClick, showSarahAnalysis = true }) => {
   const fetchSarahAnalysis = async () => {
     try {
       // TODO: Replace with actual API call to Sarah agent
-      // const response = await fetch(`/api/v1/decision-queue?agent_name=sarah&patient_id=${patientId}`);
+      // const response = await fetch(API_CONFIG.endpoint('decision-queue?agent_name=sarah&patient_id=${patientId}'));
       // const suggestions = await response.json();
       
       // Mock Sarah suggestions

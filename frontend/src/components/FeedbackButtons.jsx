@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ThumbsUp, ThumbsDown, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Feedback Buttons Component
@@ -25,7 +26,7 @@ export default function FeedbackButtons({
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/v1/ai/feedback/submit', {
+      const response = await fetch(API_CONFIG.endpoint('ai/feedback/submit'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

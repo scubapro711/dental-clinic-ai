@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentApprovals Component
@@ -29,7 +30,7 @@ const AgentApprovals = ({ agentId, agentColor }) => {
   const fetchDecisions = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/decisions/pending', {
+      const response = await fetch(API_CONFIG.endpoint('decisions/pending'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'
@@ -52,7 +53,7 @@ const AgentApprovals = ({ agentId, agentColor }) => {
   const handleApprove = async (decisionId) => {
     setProcessingId(decisionId);
     try {
-      const response = await fetch(`/api/v1/decisions/${decisionId}/approve`, {
+      const response = await fetch(API_CONFIG.endpoint('decisions/${decisionId}/approve'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
@@ -74,7 +75,7 @@ const AgentApprovals = ({ agentId, agentColor }) => {
   const handleReject = async (decisionId) => {
     setProcessingId(decisionId);
     try {
-      const response = await fetch(`/api/v1/decisions/${decisionId}/reject`, {
+      const response = await fetch(API_CONFIG.endpoint('decisions/${decisionId}/reject'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,

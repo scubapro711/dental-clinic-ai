@@ -5,6 +5,7 @@ import Step2OwnerDetails from '@/components/onboarding/Step2OwnerDetails';
 import BAASignature from '@/components/onboarding/BAASignature';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * Clinic Onboarding Wizard
@@ -61,7 +62,7 @@ export default function ClinicOnboardingWizard() {
       setRegistering(true);
       setError('');
       
-      const response = await fetch('/api/v1/organizations/register', {
+      const response = await fetch(API_CONFIG.endpoint('organizations/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -3,6 +3,7 @@ import BaseWidget from './BaseWidget';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, TrendingDown, DollarSign, ArrowUpRight, CreditCard, AlertCircle, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Revenue Widget - Marcus CFO Agent
@@ -27,7 +28,7 @@ export default function RevenueWidget({ onChatWithAgent }) {
       const organizationId = localStorage.getItem('organization_id') || '1';
       
       // Fetch enriched revenue data from new endpoint
-      const response = await fetch('/api/v1/revenue/dashboard', {
+      const response = await fetch(API_CONFIG.endpoint('revenue/dashboard'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': organizationId
