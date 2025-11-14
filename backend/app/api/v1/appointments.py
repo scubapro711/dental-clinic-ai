@@ -17,14 +17,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize Odoo client
-odoo_client = OdooClient()
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
+    return OdooClient()
 
 
 @router.get("/today")
 async def get_todays_appointments(
     x_organization_id: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo_client: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get today's appointments from Odoo
@@ -107,7 +110,8 @@ async def get_todays_appointments(
 async def get_appointment(
     appointment_id: int,
     x_organization_id: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo_client: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get specific appointment details
