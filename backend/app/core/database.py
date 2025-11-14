@@ -42,9 +42,12 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Create async engine for async operations (checkpoint queries, etc.)
-# Convert postgresql:// to postgresql+asyncpg://
+# Convert postgresql:// or postgres:// to postgresql+asyncpg://
 async_database_url = str(settings.DATABASE_URL)
-if async_database_url.startswith("postgresql://"):
+if async_database_url.startswith("postgres://"):
+    # Handle both postgres:// and postgresql:// formats
+    async_database_url = async_database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif async_database_url.startswith("postgresql://"):
     async_database_url = async_database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif async_database_url.startswith("sqlite"):
     # SQLite async support (would need aiosqlite)
