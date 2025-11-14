@@ -54,7 +54,7 @@ async def get_todays_appointments(
                 'start',
                 'stop',
                 'duration',
-                'patient_status',
+                'appointment_status',
                 'state',
                 'urgency'
             ]
@@ -92,9 +92,9 @@ async def get_todays_appointments(
                 'appointment_end': apt.get('stop'),
                 'duration': apt.get('duration'),
                 'status': apt.get('state', 'draft'),
-                'patient_status': apt.get('patient_status', 'pending'),
+                'patient_status': apt.get('appointment_status', 'pending'),
                 'treatment_type': 'General',  # TODO: Add treatment type field
-                'is_first_visit': apt.get('patient_status') == 'new',
+                'is_first_visit': apt.get('appointment_status') == 'new',
                 'urgency': apt.get('urgency', False)
             })
         
