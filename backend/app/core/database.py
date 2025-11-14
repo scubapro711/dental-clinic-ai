@@ -47,6 +47,9 @@ async_database_url = str(settings.DATABASE_URL)
 if async_database_url.startswith("postgres://"):
     # Handle both postgres:// and postgresql:// formats
     async_database_url = async_database_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif async_database_url.startswith("postgresql+psycopg2://"):
+    # Replace psycopg2 (sync) with asyncpg (async)
+    async_database_url = async_database_url.replace("postgresql+psycopg2://", "postgresql+asyncpg://", 1)
 elif async_database_url.startswith("postgresql://"):
     async_database_url = async_database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 elif async_database_url.startswith("sqlite"):
