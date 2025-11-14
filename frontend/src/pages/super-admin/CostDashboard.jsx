@@ -33,8 +33,8 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import {
 import API_CONFIG from '@/config/api';
+import {
   CloudQueue,
   Storage,
   Computer,
