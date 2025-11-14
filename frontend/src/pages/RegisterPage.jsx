@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Sparkles } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 export default function RegisterPage({ onRegister }) {
   const [formData, setFormData] = useState({

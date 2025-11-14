@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MissionControlLayout from '../components/dashboard/MissionControlLayout';
 import { AgentAction, AgentChatButton } from '../components/agentic/AgentAction';
 import { MessageSquare, Phone, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * MissionControlPageV1Enhanced

@@ -11,6 +11,7 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { io } from 'socket.io-client'
 import { useDashboardStore } from '../stores/dashboardStore'
+import API_CONFIG from '@/config/api';
 
 const WS_URL = import.meta.env.VITE_WS_URL || API_CONFIG.WS_URL
 

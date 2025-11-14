@@ -11,6 +11,7 @@ import { useCopilotChat, useCopilotAction } from '@copilotkit/react-core';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import '@copilotkit/react-ui/styles.css';
+import API_CONFIG from '@/config/api';
 
 export function CopilotTestPage() {
   const { messages, sendMessage, isLoading } = useCopilotChat();

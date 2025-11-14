@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import api from '@/services/api'
 import { formatDistanceToNow } from 'date-fns'
+import API_CONFIG from '@/config/api';
 
 export function ConversationMonitorWidget() {
   const {

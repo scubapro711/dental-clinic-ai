@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Shield, CheckCircle, AlertCircle, Copy, Check } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 /**
  * MFASetupModal - Component for setting up Multi-Factor Authentication

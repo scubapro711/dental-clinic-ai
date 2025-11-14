@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import {
+import API_CONFIG from '@/config/api';
   TrendingUp,
   TrendingDown,
   AttachMoney,

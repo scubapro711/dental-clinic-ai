@@ -29,6 +29,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import {
+import API_CONFIG from '@/config/api';
   Visibility,
   Block,
   Delete,

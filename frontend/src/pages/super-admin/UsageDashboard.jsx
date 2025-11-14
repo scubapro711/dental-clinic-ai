@@ -34,6 +34,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import {
+import API_CONFIG from '@/config/api';
   Chat,
   Event,
   People,

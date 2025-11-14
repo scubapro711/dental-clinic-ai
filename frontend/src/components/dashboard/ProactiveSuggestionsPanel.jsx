@@ -12,6 +12,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * ProactiveSuggestionsPanel - AI agents proactively suggest actions

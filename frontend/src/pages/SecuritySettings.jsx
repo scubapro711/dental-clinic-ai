@@ -13,6 +13,7 @@ import {
   Loader2
 } from 'lucide-react'
 import MFASetupModal from '@/components/security/MFASetupModal'
+import API_CONFIG from '@/config/api';
 
 /**
  * SecuritySettings - Page for managing security settings

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Shield, AlertCircle } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 /**
  * MFAVerificationModal - Component for verifying MFA code during login
