@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from app.api.dependencies import get_current_membership
 from app.core.database import get_db
 from app.models.organization_membership import OrganizationMembership
+from app.integrations.odoo_client import OdooClient
 from app.shared.odoo_queries import (
     get_revenue_today,
     get_revenue_this_month,
@@ -20,6 +21,11 @@ from app.shared.odoo_queries import (
 from sqlalchemy.orm import Session
 
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
+    return OdooClient()
 
 
 class RevenueData(BaseModel):
@@ -59,7 +65,8 @@ class RevenueDashboardResponse(BaseModel):
 @router.get("/dashboard", response_model=RevenueDashboardResponse)
 async def get_revenue_dashboard(
     membership: OrganizationMembership = Depends(get_current_membership),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get comprehensive revenue dashboard data
@@ -72,26 +79,24 @@ async def get_revenue_dashboard(
     This endpoint maximizes value by using ALL available revenue functions
     """
     try:
-        org_id = membership.organization_id
-        
         # Get revenue for different periods
-        revenue_today = get_revenue_today(org_id)
-        revenue_this_week = get_revenue_by_period(org_id, period='week')
-        revenue_this_month = get_revenue_this_month(org_id)
-        revenue_last_month = get_revenue_by_period(org_id, period='month', offset=-1)
-        revenue_this_year = get_revenue_by_period(org_id, period='year')
-        revenue_last_year = get_revenue_by_period(org_id, period='year', offset=-1)
+        revenue_today = get_revenue_today(odoo)
+        revenue_this_week = get_revenue_by_period(odoo, period='week')
+        revenue_this_month = get_revenue_this_month(odoo)
+        revenue_last_month = get_revenue_by_period(odoo, period='month', offset=-1)
+        revenue_this_year = get_revenue_by_period(odoo, period='year')
+        revenue_last_year = get_revenue_by_period(odoo, period='year', offset=-1)
         
         # Get outstanding invoices
-        outstanding_invoices = get_outstanding_invoices(org_id)
+        outstanding_invoices = get_outstanding_invoices(odoo)
         outstanding_amount = sum(inv.get('amount_residual', 0) for inv in outstanding_invoices)
         outstanding_count = len(outstanding_invoices)
         
         # Get payment success rate
-        payment_success = get_payment_success_rate(org_id)
+        payment_success = get_payment_success_rate(odoo)
         
         # Calculate average invoice
-        total_invoices = get_revenue_by_period(org_id, period='year')
+        total_invoices = get_revenue_by_period(odoo, period='year')
         # Rough estimate: assume ~100 invoices per year
         average_invoice = total_invoices / 100 if total_invoices > 0 else 0
         
@@ -101,7 +106,7 @@ async def get_revenue_dashboard(
         collection_rate = (revenue_this_year / total_billed * 100) if total_billed > 0 else 0
         
         # Get top treatments by revenue
-        top_treatments_data = get_treatments_by_revenue(org_id, limit=3)
+        top_treatments_data = get_treatments_by_revenue(odoo, limit=3)
         
         # Calculate total revenue for percentage
         total_treatment_revenue = sum(t.get('revenue', 0) for t in top_treatments_data)
