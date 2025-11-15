@@ -12,6 +12,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * ProactiveSuggestionsPanel - AI agents proactively suggest actions
@@ -35,7 +36,7 @@ export const ProactiveSuggestionsPanel = () => {
 
   const fetchSuggestions = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/v1/suggestions');
+      const response = await fetch(API_CONFIG.endpoint('suggestions'));
       if (response.ok) {
         const data = await response.json();
         setSuggestions(data.suggestions || []);

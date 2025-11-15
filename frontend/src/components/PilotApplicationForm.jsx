@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import './PilotApplicationForm.css';
+import API_CONFIG from '@/config/api';
 
 /**
  * Pilot Application Form
@@ -111,7 +112,7 @@ const PilotApplicationForm = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('/api/v1/pilot-applications/', {
+      const response = await fetch(API_CONFIG.endpoint('pilot-applications/'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

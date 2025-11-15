@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import MissionControlLayout from '../components/dashboard/MissionControlLayout';
 import { AgentAction, AgentChatButton } from '../components/agentic/AgentAction';
 import { MessageSquare, Phone, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * MissionControlPageV1Enhanced
@@ -59,14 +60,14 @@ export default function MissionControlPageV1Enhanced() {
   const loadDashboardData = async () => {
     try {
       // Load appointments
-      const apptResponse = await fetch('http://localhost:8000/api/v1/dashboard/appointments?date=today&limit=10');
+      const apptResponse = await fetch(API_CONFIG.endpoint('dashboard/appointments?date=today&limit=10'));
       if (apptResponse.ok) {
         const apptData = await apptResponse.json();
         setAppointments(apptData.slice(0, 10));
       }
 
       // Load patients
-      const patientResponse = await fetch('http://localhost:8000/api/v1/dashboard/patients?limit=10');
+      const patientResponse = await fetch(API_CONFIG.endpoint('dashboard/patients?limit=10'));
       if (patientResponse.ok) {
         const patientData = await patientResponse.json();
         setPatients(patientData.slice(0, 10));

@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { AGENTS } from '../../data/agents';
 import AgentCard from './AgentCard';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentsGrid Component
@@ -35,7 +36,7 @@ export function AgentsGrid({
   const fetchDashboardStats = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/dashboard/stats', {
+      const response = await fetch(API_CONFIG.endpoint('dashboard/stats'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

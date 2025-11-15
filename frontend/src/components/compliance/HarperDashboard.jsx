@@ -27,6 +27,7 @@ import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import HarperChat from './HarperChat';
 import ComplianceAlerts from './ComplianceAlerts';
 import ComplianceMetrics from './ComplianceMetrics';
+import API_CONFIG from '@/config/api';
 
 const HarperDashboard = () => {
   const [complianceScore, setComplianceScore] = useState(null);
@@ -44,7 +45,7 @@ const HarperDashboard = () => {
       setLoading(true);
       
       // Fetch metrics summary from new HIPAA API
-      const summaryResponse = await fetch('/api/v1/hipaa/metrics/summary');
+      const summaryResponse = await fetch(API_CONFIG.endpoint('hipaa/metrics/summary'));
       const summaryData = await summaryResponse.json();
       
       // Transform to match existing component structure

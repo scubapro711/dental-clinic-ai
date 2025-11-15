@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Shield, AlertCircle } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 /**
  * MFAVerificationModal - Component for verifying MFA code during login
@@ -51,8 +52,8 @@ export default function MFAVerificationModal({
 
     try {
       const endpoint = useBackupCode 
-        ? 'http://localhost:8000/api/v1/mfa/verify-backup'
-        : 'http://localhost:8000/api/v1/mfa/verify'
+        ? API_CONFIG.endpoint('mfa/verify-backup')
+        : API_CONFIG.endpoint('mfa/verify')
 
       const response = await fetch(endpoint, {
         method: 'POST',

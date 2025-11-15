@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Activity, CheckCircle, Clock, TrendingUp } from 'lucide-react';
+import API_CONFIG from '@/config/api';
 
 /**
  * AgentStatsGrid Component
  * 
  * Displays 4 key metrics for a specific agent.
- * Fetches real-time data from /api/v1/agents/activity endpoint.
+ * Fetches real-time data from /api/v1/agents/status endpoint.
  * 
  * @param {Object} props
  * @param {string} props.agentId - Agent ID (lowercase, e.g., 'alex')
@@ -26,7 +27,7 @@ const AgentStatsGrid = ({ agentId, agentColor }) => {
   const fetchAgentStats = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/agents/activity', {
+      const response = await fetch(API_CONFIG.endpoint("agents/status"), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

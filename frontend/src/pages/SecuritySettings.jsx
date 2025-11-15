@@ -13,6 +13,7 @@ import {
   Loader2
 } from 'lucide-react'
 import MFASetupModal from '@/components/security/MFASetupModal'
+import API_CONFIG from '@/config/api';
 
 /**
  * SecuritySettings - Page for managing security settings
@@ -42,7 +43,7 @@ export default function SecuritySettings({ token, user }) {
   const fetchMFAStatus = async () => {
     setLoading(true)
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/status', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/status'), {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -68,7 +69,7 @@ export default function SecuritySettings({ token, user }) {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/disable', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/disable'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -102,7 +103,7 @@ export default function SecuritySettings({ token, user }) {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/regenerate-backup-codes', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/regenerate-backup-codes'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

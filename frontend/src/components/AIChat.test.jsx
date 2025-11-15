@@ -2,6 +2,19 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AIChat from './AIChat';
+import API_CONFIG from '@/config/api';
+
+// Mock API_CONFIG
+vi.mock('@/config/api', () => ({
+  default: {
+    API_URL: 'http://localhost:8000/api/v1',
+    BASE_URL: 'http://localhost:8000',
+    WS_URL: 'ws://localhost:8000',
+    ENV: 'test',
+    endpoint: (path) => `http://localhost:8000/api/v1/${path}`,
+    ws: (path) => `ws://localhost:8000/${path}`,
+  },
+}));
 
 /**
  * AIChat Component Tests

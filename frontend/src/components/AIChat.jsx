@@ -8,6 +8,7 @@ import { Send, Loader2, Sparkles, User, Bot, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import FeedbackButtons from './FeedbackButtons';
 import AriaLiveRegion, { useAriaLive } from './AriaLiveRegion';
+import API_CONFIG from '@/config/api';
 
 /**
  * Professional AI Chat Component with Vercel AI SDK + LangGraph Integration
@@ -182,7 +183,7 @@ export default function AIChat({ user, onStreamEvent, initialMessages = [], conv
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/ai/chat', {
+      const response = await fetch(API_CONFIG.endpoint('ai/chat'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

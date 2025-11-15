@@ -246,18 +246,16 @@ class DashboardService {
   async getTodaysAppointments(organizationId: string): Promise<AppointmentData[]> {
     try {
       console.log('[DashboardService] getTodaysAppointments called with orgId:', organizationId);
-      const response: AxiosResponse<{date: string, appointments: any[], total: number}> = await api.get(`/dashboard/appointments/today`, {
-        params: { organization_id: organizationId }
-      });
+      const response: AxiosResponse<any[]> = await api.get(`/appointments/today`);
       console.log('[DashboardService] Raw API response:', response.data);
-      // Map API response to widget format (Patient interface)
-      const appointments = response.data.appointments || [];
+      // Backend returns array directly, not wrapped in {appointments: []}
+      const appointments = Array.isArray(response.data) ? response.data : [];
       return appointments.map((apt: any) => ({
         id: apt.id || 0,
         name: apt.patient_name || 'Unknown Patient',
-        time: apt.time || '',
+        time: apt.appointment_start || '',
         treatment: apt.treatment_type || 'General Checkup',
-        status: apt.status === 'confirm' ? 'confirmed' : 'unconfirmed',
+        status: apt.patient_status === 'confirmed' ? 'confirmed' : 'unconfirmed',
         isFirstVisit: apt.is_first_visit || false,
         patientId: apt.patient_id || 0,
         appointmentId: apt.id || 0

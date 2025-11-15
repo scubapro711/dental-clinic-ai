@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { FileText, Download, Check } from 'lucide-react';
 import SignatureCanvas from 'react-signature-canvas';
+import API_CONFIG from '@/config/api';
 
 /**
  * Digital Signature Component
@@ -64,7 +65,7 @@ export default function DigitalSignature({ documentType, documentTitle, document
       };
 
       // In production, send to backend API
-      // await fetch('/api/v1/signatures', { method: 'POST', body: JSON.stringify(signatureData) });
+      // await fetch(API_CONFIG.endpoint('signatures'), { method: 'POST', body: JSON.stringify(signatureData) });
 
       // Call parent callback
       onSign(signatureData);

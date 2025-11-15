@@ -58,7 +58,7 @@ from app.api.v1.endpoints.super_admin import costs as super_admin_costs
 from app.api.v1.endpoints.super_admin import exports as super_admin_exports
 from app.api.v1.endpoints.super_admin import analytics as super_admin_analytics
 # from app.api.v1.endpoints.super_admin import hipaa as super_admin_hipaa  # TEMPORARILY DISABLED - missing Patient/Appointment models
-from app.api.v1 import appointments
+from app.api.v1.endpoints import appointments
 from app.api.v1.endpoints import revenue
 from app.api.v1.endpoints import decisions
 from app.api.v1.endpoints import agent_activity

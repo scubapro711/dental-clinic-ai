@@ -10,9 +10,10 @@ from pydantic import BaseModel
 from app.api.dependencies import get_current_membership
 from app.core.database import get_db
 from app.models.organization_membership import OrganizationMembership
+from app.integrations.odoo_client import OdooClient
 from app.shared.odoo_queries import (
     get_appointments_today,
-    get_appointments_count_by_state,
+    get_appointments_count_by_status,
     get_upcoming_appointments,
     get_new_patients_by_period,
     get_patient_count
@@ -20,6 +21,11 @@ from app.shared.odoo_queries import (
 from sqlalchemy.orm import Session
 
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
+    return OdooClient()
 
 
 class AppointmentResponse(BaseModel):
@@ -56,7 +62,8 @@ class EnrichedAppointmentsResponse(BaseModel):
 @router.get("/today", response_model=List[AppointmentResponse])
 async def get_todays_appointments(
     membership: OrganizationMembership = Depends(get_current_membership),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get today's appointments for the organization
@@ -64,10 +71,8 @@ async def get_todays_appointments(
     Returns appointments from Odoo for the current day
     """
     try:
-        org_id = membership.organization_id
-        
         # Get appointments from Odoo
-        appointments = get_appointments_today(org_id)
+        appointments = get_appointments_today(odoo)
         
         if not appointments:
             return []
@@ -85,7 +90,8 @@ async def get_todays_appointments(
 @router.get("/today-enriched", response_model=EnrichedAppointmentsResponse)
 async def get_todays_appointments_enriched(
     membership: OrganizationMembership = Depends(get_current_membership),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get today's appointments with enriched statistics
@@ -99,19 +105,20 @@ async def get_todays_appointments_enriched(
     This endpoint maximizes value by using ALL available backend functions
     """
     try:
-        org_id = membership.organization_id
+        # Get today's date
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
         
         # Get today's appointments
-        today_appointments = get_appointments_today(org_id)
+        today_appointments = get_appointments_today(odoo)
         
         # Get appointment counts by state
-        counts_by_state = get_appointments_count_by_state(org_id, period='today')
+        counts_by_status = get_appointments_count_by_status(odoo, today_str, today_str)
         
         # Get upcoming appointments (next 7 days)
-        upcoming_appointments = get_upcoming_appointments(org_id, days=7)
+        upcoming_appointments = get_upcoming_appointments(odoo, days=7)
         
         # Get new patients this month
-        new_patients = get_new_patients_by_period(org_id, period='month')
+        new_patients = get_new_patients_by_period(odoo, period='month')
         
         # Count first visits in today's appointments
         first_visits_count = sum(
@@ -122,9 +129,9 @@ async def get_todays_appointments_enriched(
         # Build summary
         summary = AppointmentSummary(
             total=len(today_appointments),
-            confirmed=counts_by_state.get('confirmed', 0),
-            pending=counts_by_state.get('draft', 0) + counts_by_state.get('pending', 0),
-            cancelled=counts_by_state.get('cancel', 0),
+            confirmed=counts_by_status.get('confirm', 0),
+            pending=counts_by_status.get('draft', 0),
+            cancelled=counts_by_status.get('cancelled', 0),
             first_visits=first_visits_count,
             upcoming_week=len(upcoming_appointments),
             new_patients_this_month=len(new_patients) if new_patients else 0
@@ -165,7 +172,8 @@ async def get_todays_appointments_enriched(
 async def get_upcoming_appointments_endpoint(
     days: int = 7,
     membership: OrganizationMembership = Depends(get_current_membership),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get upcoming appointments for the next N days
@@ -174,9 +182,7 @@ async def get_upcoming_appointments_endpoint(
         days: Number of days to look ahead (default: 7)
     """
     try:
-        org_id = membership.organization_id
-        
-        appointments = get_upcoming_appointments(org_id, days=days)
+        appointments = get_upcoming_appointments(odoo, days=days)
         
         if not appointments:
             return []

@@ -29,7 +29,7 @@ steps:
 
   # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    waitFor: ['run-tests']  # Only build if tests pass
+    waitFor: ['run-tests']
     args:
       - 'build'
       - '-t'
@@ -89,35 +89,6 @@ steps:
       - 'staging-$SHORT_SHA'
       - '--no-traffic'
 
-# Build timeout (20 minutes)
-timeout: '1200s'
-
-# Substitutions for variables
-substitutions:
-  _SERVICE_NAME: dentaflow-frontend-staging
-  _REGION: us-central1
-  _ENV: staging
-
-# Build options
-options:
-  # Use Cloud Logging for better log management
-  logging: CLOUD_LOGGING_ONLY
-  
-  # Use high-CPU machine for faster builds
-  machineType: 'E2_HIGHCPU_8'
-  
-  # Increase disk size for large builds
-  diskSizeGb: 100
-  
-  # Substitution option
-  substitutionOption: 'ALLOW_LOOSE'
-
-# Images to be pushed to Artifact Registry
-images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:$SHORT_SHA'
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:latest'
-
-
   # Step 5: Migrate all traffic to new revision
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -129,3 +100,24 @@ images:
       - '--to-latest'
       - '--region'
       - 'us-central1'
+
+# Build timeout (20 minutes)
+timeout: '1200s'
+
+# Substitutions for variables
+substitutions:
+  _SERVICE_NAME: dentaflow-frontend-staging
+  _REGION: us-central1
+  _ENV: staging
+
+# Build options
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: 100
+  substitutionOption: 'ALLOW_LOOSE'
+
+# Images to be pushed to Artifact Registry
+images:
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:$SHORT_SHA'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/dentaflow-frontend-staging:latest'

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import API_CONFIG from '@/config/api';
 import { 
   CheckCircle2, 
   Circle, 
@@ -61,7 +62,7 @@ export default function OnboardingDashboard() {
       }
       
       // Get current user info
-      const userResponse = await fetch('/api/v1/auth/me', {
+      const userResponse = await fetch(API_CONFIG.endpoint('auth/me'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -77,7 +78,7 @@ export default function OnboardingDashboard() {
       
       // Check BAA status
       if (userData.organization_id) {
-        const baaResponse = await fetch(`/api/v1/baa/status/${userData.organization_id}`, {
+        const baaResponse = await fetch(API_CONFIG.endpoint('baa/status/${userData.organization_id}'), {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -93,7 +94,7 @@ export default function OnboardingDashboard() {
       }
       
       // Check email verification status
-      const verificationResponse = await fetch('/api/v1/auth/verification-status', {
+      const verificationResponse = await fetch(API_CONFIG.endpoint('auth/verification-status'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }

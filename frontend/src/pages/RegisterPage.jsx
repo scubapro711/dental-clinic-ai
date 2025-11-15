@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Sparkles } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 export default function RegisterPage({ onRegister }) {
   const [formData, setFormData] = useState({
@@ -37,7 +38,7 @@ export default function RegisterPage({ onRegister }) {
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/auth/register', {
+      const response = await fetch(API_CONFIG.endpoint('auth/register'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -53,7 +54,7 @@ export default function RegisterPage({ onRegister }) {
       const data = await response.json()
       
       // Auto-login after registration
-      const loginResponse = await fetch('http://localhost:8000/api/v1/auth/login', {
+      const loginResponse = await fetch(API_CONFIG.endpoint('auth/login'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',

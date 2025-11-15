@@ -37,7 +37,7 @@ class AgentActivityResponse(BaseModel):
     systemHealth: int
 
 
-@router.get("/activity", response_model=AgentActivityResponse)
+@router.get("/status", response_model=AgentActivityResponse)
 async def get_agent_activity(
     membership: OrganizationMembership = Depends(get_current_membership),
     async_db: AsyncSession = Depends(get_async_db),

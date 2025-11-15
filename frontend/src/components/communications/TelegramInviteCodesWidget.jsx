@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/table';
 import { Plus, Copy, Check, Ticket, Clock, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Telegram Invite Codes Widget
@@ -47,7 +48,7 @@ export default function TelegramInviteCodesWidget() {
   const fetchInviteCodes = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/telegram-admin/invite-codes', {
+      const response = await fetch(API_CONFIG.endpoint('telegram-admin/invite-codes'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id')
@@ -67,7 +68,7 @@ export default function TelegramInviteCodesWidget() {
 
   const createInviteCode = async () => {
     try {
-      const response = await fetch('/api/v1/telegram-admin/invite-codes', {
+      const response = await fetch(API_CONFIG.endpoint('telegram-admin/invite-codes'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,

@@ -17,14 +17,17 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Initialize Odoo client
-odoo_client = OdooClient()
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
+    return OdooClient()
 
 
 @router.get("/today")
 async def get_todays_appointments(
     x_organization_id: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo_client: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get today's appointments from Odoo
@@ -51,9 +54,7 @@ async def get_todays_appointments(
                 'start',
                 'stop',
                 'duration',
-                'patient_status',
-                'state',
-                'urgency'
+                'appointment_status'
             ]
         )
         
@@ -88,11 +89,10 @@ async def get_todays_appointments(
                 'appointment_start': apt.get('start'),
                 'appointment_end': apt.get('stop'),
                 'duration': apt.get('duration'),
-                'status': apt.get('state', 'draft'),
-                'patient_status': apt.get('patient_status', 'pending'),
+                'status': apt.get('appointment_status', 'draft'),
+                'patient_status': apt.get('appointment_status', 'pending'),
                 'treatment_type': 'General',  # TODO: Add treatment type field
-                'is_first_visit': apt.get('patient_status') == 'new',
-                'urgency': apt.get('urgency', False)
+                'is_first_visit': apt.get('appointment_status') == 'new'
             })
         
         logger.info(f"Found {len(result)} appointments for today")
@@ -107,7 +107,8 @@ async def get_todays_appointments(
 async def get_appointment(
     appointment_id: int,
     x_organization_id: Optional[str] = Header(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    odoo_client: OdooClient = Depends(get_odoo_client)
 ):
     """
     Get specific appointment details

@@ -1,9 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
+import API_CONFIG from '@/config/api';
 
 const DemoContext = createContext();
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL;
 
 export const useDemoContext = () => {
   const context = useContext(DemoContext);

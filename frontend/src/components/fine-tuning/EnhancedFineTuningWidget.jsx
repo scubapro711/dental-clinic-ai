@@ -8,6 +8,7 @@ import {
   CheckCircle2, XCircle, Clock, Sparkles, Download, Upload 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Enhanced Fine-Tuning Widget
@@ -46,7 +47,7 @@ export default function EnhancedFineTuningWidget({ onChatWithAgent }) {
   const loadTrainingData = async () => {
     try {
       // TODO: Replace with actual API call
-      // const response = await fetch('/api/v1/fine-tuning/stats');
+      // const response = await fetch(API_CONFIG.endpoint('fine-tuning/stats'));
       // const data = await response.json();
       
       // Mock data for now

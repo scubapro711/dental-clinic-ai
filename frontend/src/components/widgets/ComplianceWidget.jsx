@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Compliance Widget - Harper Agent
@@ -22,7 +23,7 @@ export default function ComplianceWidget({ onChatWithAgent }) {
     setIsLoading(true);
     try {
       // Fetch real compliance data from Backend
-      const response = await fetch('/api/v1/hipaa/metrics/summary', {
+      const response = await fetch(API_CONFIG.endpoint('hipaa/metrics/summary'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Activity, TrendingUp, Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Agent Activity Widget
@@ -25,7 +26,7 @@ export default function AgentActivityWidget({ onChatWithAgent }) {
     setIsLoading(true);
     try {
       // Fetch real activity data from Backend
-      const response = await fetch('/api/v1/agents/activity', {
+      const response = await fetch(API_CONFIG.endpoint("agents/status"), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

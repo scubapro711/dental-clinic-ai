@@ -11,6 +11,7 @@ import { useCopilotChat, useCopilotAction } from '@copilotkit/react-core';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import '@copilotkit/react-ui/styles.css';
+import API_CONFIG from '@/config/api';
 
 export function CopilotTestPage() {
   const { messages, sendMessage, isLoading } = useCopilotChat();
@@ -70,7 +71,7 @@ export function CopilotTestPage() {
                   <span className="font-medium text-green-700">Backend Connected</span>
                 </div>
                 <p className="text-sm text-green-600 mt-1">
-                  {import.meta.env.VITE_API_URL || 'http://localhost:8000'}
+                  {import.meta.env.VITE_API_URL || API_CONFIG.BASE_URL}
                 </p>
               </div>
               

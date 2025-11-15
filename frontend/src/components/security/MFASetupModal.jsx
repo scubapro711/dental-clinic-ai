@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Shield, CheckCircle, AlertCircle, Copy, Check } from 'lucide-react'
+import API_CONFIG from '@/config/api';
 
 /**
  * MFASetupModal - Component for setting up Multi-Factor Authentication
@@ -50,7 +51,7 @@ export default function MFASetupModal({ open, onOpenChange, onSuccess, token }) 
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/setup', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/setup'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -83,7 +84,7 @@ export default function MFASetupModal({ open, onOpenChange, onSuccess, token }) 
     setError('')
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/mfa/verify-setup', {
+      const response = await fetch(API_CONFIG.endpoint('mfa/verify-setup'), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

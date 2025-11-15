@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import API_CONFIG from '@/config/api';
 
 /**
  * BAA (Business Associate Agreement) Signature Component
@@ -49,7 +50,7 @@ export default function BAASignature({ organizationId, onComplete, onSkip }) {
       setLoading(true);
       setError('');
       
-      const response = await fetch(`/api/v1/baa/document/${organizationId}`, {
+      const response = await fetch(API_CONFIG.endpoint('baa/document/${organizationId}'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('access_token')}`
         }
@@ -112,7 +113,7 @@ export default function BAASignature({ organizationId, onComplete, onSkip }) {
       setSubmitting(true);
       setError('');
       
-      const response = await fetch('/api/v1/baa/sign', {
+      const response = await fetch(API_CONFIG.endpoint('baa/sign'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

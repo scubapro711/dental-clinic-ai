@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Phone, MessageSquare, CheckCircle2, Clock, AlertCircle, TrendingUp, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import API_CONFIG from '@/config/api';
 
 /**
  * Today's Patients Widget - Alex Agent
@@ -25,7 +26,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
     setIsLoading(true);
     try {
       // Fetch enriched data from Backend API
-      const response = await fetch('/api/v1/appointments/today-enriched', {
+      const response = await fetch(API_CONFIG.endpoint('appointments/today-enriched'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'

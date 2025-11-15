@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import api from '@/services/api'
 import { formatDistanceToNow } from 'date-fns'
+import API_CONFIG from '@/config/api';
 
 export function ConversationMonitorWidget() {
   const {
@@ -63,7 +64,7 @@ export function ConversationMonitorWidget() {
   }, [])
 
   const setupWebSocket = () => {
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1/ws/monitoring'
+    const wsUrl = import.meta.env.VITE_WS_URL || API_CONFIG.ws('api/v1/ws/monitoring')
     const ws = new WebSocket(wsUrl)
     
     ws.onopen = () => {

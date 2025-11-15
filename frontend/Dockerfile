@@ -26,8 +26,22 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Create .env.production file with build-time variables for Vite
+# Vite will read this file during build and replace import.meta.env references
+RUN echo "VITE_APP_ENV=$VITE_APP_ENV" > .env.production && \
+    echo "VITE_API_URL=$VITE_API_URL" >> .env.production && \
+    echo "=== Created .env.production ===" && \
+    cat .env.production && \
+    echo "==============================="
+
 # Build the app with pnpm
+# Vite will now correctly read VITE_API_URL from .env.production
 RUN pnpm build
+
+# Verify the build output
+RUN echo "=== Build completed ===" && \
+    ls -la /app/dist && \
+    echo "======================="
 
 # Production stage
 FROM nginx:alpine

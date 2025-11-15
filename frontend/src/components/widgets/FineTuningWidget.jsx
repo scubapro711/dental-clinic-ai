@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
+import API_CONFIG from '@/config/api';
+import {
   Brain, 
   TrendingUp, 
   Database, 
@@ -46,7 +47,7 @@ export default function FineTuningWidget({ onChatWithAgent }) {
 
   const fetchTrainingStats = async () => {
     try {
-      const response = await fetch('/api/v1/ai/feedback/stats', {
+      const response = await fetch(API_CONFIG.endpoint('ai/feedback/stats'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || 'demo_token'}`
         }
@@ -72,7 +73,7 @@ export default function FineTuningWidget({ onChatWithAgent }) {
   const handleExportData = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/v1/ai/feedback/export', {
+      const response = await fetch(API_CONFIG.endpoint('ai/feedback/export'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

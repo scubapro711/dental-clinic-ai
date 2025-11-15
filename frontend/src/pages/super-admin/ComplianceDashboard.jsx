@@ -23,8 +23,9 @@ import {
 import HarperDashboard from '../../components/compliance/HarperDashboard';
 import ComplianceAlerts from '../../components/compliance/ComplianceAlerts';
 import ComplianceMetrics from '../../components/compliance/ComplianceMetrics';
+import API_CONFIG from '@/config/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL;
 
 /**
  * Super Admin Compliance Dashboard

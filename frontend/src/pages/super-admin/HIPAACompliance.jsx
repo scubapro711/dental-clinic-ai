@@ -29,6 +29,7 @@ import {
   IconButton,
   Tooltip,
 } from '@mui/material';
+import API_CONFIG from '@/config/api';
 import {
   Security,
   PrivacyTip,
@@ -41,7 +42,7 @@ import {
   Refresh,
 } from '@mui/icons-material';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || API_CONFIG.BASE_URL;
 
 /**
  * HIPAA Compliance Management Component
