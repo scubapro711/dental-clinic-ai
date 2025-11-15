@@ -12,6 +12,10 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timedelta
 
 from app.integrations.odoo_client import OdooClient
+from app.shared.status_mapping import (
+    map_app_statuses_to_odoo_statuses,
+    enrich_appointment_with_app_status
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +35,14 @@ def get_appointments_by_date_range(
         odoo: OdooClient instance
         start_date: Start date (YYYY-MM-DD)
         end_date: End date (YYYY-MM-DD)
-        appointment_status: Optional list of statuses to filter by (e.g., ['draft', 'confirmed', 'done'])
+        appointment_status: Optional list of statuses to filter by (e.g., ['draft', 'confirm', 'cancelled'])
     
     Returns:
-        List of appointment records
+        List of appointment records with appointment_status field
     
     Example:
         >>> appointments = get_appointments_by_date_range(
-        ...     odoo, "2025-11-12", "2025-11-19", appointment_status=["confirmed"]
+        ...     odoo, "2025-11-12", "2025-11-19", appointment_status=["confirm"]
         ... )
     """
     domain = [
@@ -46,14 +50,20 @@ def get_appointments_by_date_range(
         ('start', '<=', f"{end_date} 23:59:59"),
     ]
     
+    # Convert app statuses to Odoo statuses if provided
     if appointment_status:
-        domain.append(('appointment_status', 'in', appointment_status))
+        odoo_statuses = map_app_statuses_to_odoo_statuses(appointment_status)
+        domain.append(('attendee_status', 'in', odoo_statuses))
     
-    return odoo.search_read(
-        'patient.appointment',
+    # Use calendar.event model (standard Odoo) instead of patient.appointment
+    appointments = odoo.search_read(
+        'calendar.event',
         domain=domain,
-        fields=['id', 'patient_id', 'doctor_id', 'start', 'duration', 'appointment_status', 'appointment_type']
+        fields=['id', 'partner_id', 'user_id', 'start', 'duration', 'attendee_status', 'name']
     )
+    
+    # Enrich appointments with app status field
+    return [enrich_appointment_with_app_status(apt) for apt in appointments]
 
 
 def get_appointments_today(odoo: OdooClient) -> List[Dict[str, Any]]:
@@ -106,6 +116,7 @@ def get_appointments_count_by_status(
     }
     
     for appointment in appointments:
+        # appointment_status is added by enrich_appointment_with_app_status
         status = appointment.get("appointment_status", "draft")
         if status in counts:
             counts[status] += 1
