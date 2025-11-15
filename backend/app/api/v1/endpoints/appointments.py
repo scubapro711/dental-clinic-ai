@@ -118,7 +118,11 @@ async def get_todays_appointments_enriched(
         upcoming_appointments = get_upcoming_appointments(odoo, days_ahead=7)
         
         # Get new patients this month
-        new_patients = get_new_patients_by_period(odoo, period='month')
+        from datetime import date
+        today = date.today()
+        month_start = today.replace(day=1).strftime('%Y-%m-%d')
+        month_end = today.strftime('%Y-%m-%d')
+        new_patients = get_new_patients_by_period(odoo, month_start, month_end)
         
         # Count first visits in today's appointments
         first_visits_count = sum(
