@@ -15,10 +15,14 @@ from app.integrations.odoo_client import OdooClient
 from app.core.config import settings
 from app.api.dependencies import get_current_membership
 from app.models.organization_membership import OrganizationMembership
-from app.core.dependencies import get_odoo_client
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
+    return OdooClient()
 
 
 @router.get("/stats")
