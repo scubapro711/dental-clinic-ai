@@ -5,6 +5,8 @@ Provides enriched revenue and financial health data
 from fastapi import APIRouter, Depends
 from typing import Dict, List, Any
 from pydantic import BaseModel
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 from app.api.dependencies import get_current_membership
 from app.core.database import get_db
@@ -81,11 +83,29 @@ async def get_revenue_dashboard(
     try:
         # Get revenue for different periods
         revenue_today = get_revenue_today(odoo)
-        revenue_this_week = get_revenue_by_period(odoo, period='week')
+        
+        # Calculate this week dates
+        today = datetime.utcnow().date()
+        week_start = today - timedelta(days=today.weekday())
+        week_end = week_start + timedelta(days=6)
+        revenue_this_week = get_revenue_by_period(odoo, week_start.strftime("%Y-%m-%d"), week_end.strftime("%Y-%m-%d"))
+        
         revenue_this_month = get_revenue_this_month(odoo)
-        revenue_last_month = get_revenue_by_period(odoo, period='month', offset=-1)
-        revenue_this_year = get_revenue_by_period(odoo, period='year')
-        revenue_last_year = get_revenue_by_period(odoo, period='year', offset=-1)
+        
+        # Calculate last month dates
+        last_month_start = today.replace(day=1) + relativedelta(months=-1)
+        last_month_end = today.replace(day=1) - timedelta(days=1)
+        revenue_last_month = get_revenue_by_period(odoo, last_month_start.strftime("%Y-%m-%d"), last_month_end.strftime("%Y-%m-%d"))
+        
+        # Calculate this year dates
+        year_start = today.replace(month=1, day=1)
+        year_end = today.replace(month=12, day=31)
+        revenue_this_year = get_revenue_by_period(odoo, year_start.strftime("%Y-%m-%d"), year_end.strftime("%Y-%m-%d"))
+        
+        # Calculate last year dates
+        last_year_start = year_start + relativedelta(years=-1)
+        last_year_end = year_end + relativedelta(years=-1)
+        revenue_last_year = get_revenue_by_period(odoo, last_year_start.strftime("%Y-%m-%d"), last_year_end.strftime("%Y-%m-%d"))
         
         # Get outstanding invoices
         outstanding_invoices = get_outstanding_invoices(odoo)

@@ -115,7 +115,7 @@ async def get_todays_appointments_enriched(
         counts_by_status = get_appointments_count_by_status(odoo, today_str, today_str)
         
         # Get upcoming appointments (next 7 days)
-        upcoming_appointments = get_upcoming_appointments(odoo, days=7)
+        upcoming_appointments = get_upcoming_appointments(odoo, days_ahead=7)
         
         # Get new patients this month
         new_patients = get_new_patients_by_period(odoo, period='month')
