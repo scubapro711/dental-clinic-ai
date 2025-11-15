@@ -418,6 +418,37 @@ async def health_check():
     
     Returns the service health status and version information.
     """
+    import os
+    
+    # Read git commit info if available
+    git_commit = "unknown"
+    git_commit_short = "unknown"
+    git_info = "unknown"
+    
+    try:
+        git_commit_path = os.path.join(os.path.dirname(__file__), "GIT_COMMIT")
+        if os.path.exists(git_commit_path):
+            with open(git_commit_path, "r") as f:
+                git_commit = f.read().strip()
+    except Exception:
+        pass
+    
+    try:
+        git_commit_short_path = os.path.join(os.path.dirname(__file__), "GIT_COMMIT_SHORT")
+        if os.path.exists(git_commit_short_path):
+            with open(git_commit_short_path, "r") as f:
+                git_commit_short = f.read().strip()
+    except Exception:
+        pass
+    
+    try:
+        git_info_path = os.path.join(os.path.dirname(__file__), "GIT_INFO")
+        if os.path.exists(git_info_path):
+            with open(git_info_path, "r") as f:
+                git_info = f.read().strip()
+    except Exception:
+        pass
+    
     return JSONResponse(
         status_code=200,
         content={
@@ -425,6 +456,9 @@ async def health_check():
             "service": "dentaflow-backend",
             "version": "24.0.3",
             "phase": "Phase 4 - Production Ready",
+            "git_commit": git_commit,
+            "git_commit_short": git_commit_short,
+            "git_info": git_info,
         },
     )
 
