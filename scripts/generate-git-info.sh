@@ -6,7 +6,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_DIR="$(dirname "$SCRIPT_DIR")"
-APP_DIR="$BACKEND_DIR/app"
+APP_DIR="$BACKEND_DIR/backend/app"
 
 echo "🔍 Generating Git info files..."
 
