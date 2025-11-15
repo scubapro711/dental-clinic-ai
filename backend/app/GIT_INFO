@@ -1,1 +1,1 @@
-fb9863cd38a7c9ebcf4eef3ef3e116b62c97f872|fb9863cd|2025-11-15 05:13:52 -0500|fix(backend): Fix TypeError bugs in appointments and revenue endpoints
+bd3d79eb9b588a2cc5bed9b7c1369522118ff66f|bd3d79eb|2025-11-15 12:29:21 -0500|fix(dashboard): Implement real stats from Odoo instead of hardcoded zeros
