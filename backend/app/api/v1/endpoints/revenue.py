@@ -116,7 +116,8 @@ async def get_revenue_dashboard(
         payment_success = get_payment_success_rate(odoo)
         
         # Calculate average invoice
-        total_invoices = get_revenue_by_period(odoo, period='year')
+        # total_invoices = get_revenue_by_period(odoo, period='year')  # FIXME: function signature mismatch
+        total_invoices = revenue_this_year  # Use year revenue as proxy
         # Rough estimate: assume ~100 invoices per year
         average_invoice = total_invoices / 100 if total_invoices > 0 else 0
         

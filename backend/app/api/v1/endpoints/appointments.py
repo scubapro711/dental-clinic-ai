@@ -138,7 +138,7 @@ async def get_todays_appointments_enriched(
             cancelled=counts_by_status.get('cancelled', 0),
             first_visits=first_visits_count,
             upcoming_week=len(upcoming_appointments),
-            new_patients_this_month=len(new_patients) if new_patients else 0
+            new_patients_this_month=new_patients if new_patients else 0
         )
         
         # Transform appointments
