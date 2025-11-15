@@ -20,6 +20,29 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.get("/stats")
+async def get_dashboard_stats(
+    membership: OrganizationMembership = Depends(get_current_membership)
+) -> Dict[str, Any]:
+    """
+    Get dashboard statistics summary.
+    
+    Returns high-level metrics for the dashboard.
+    """
+    try:
+        # TODO: Implement real stats from database/Odoo
+        return {
+            "total_patients": 0,
+            "total_appointments": 0,
+            "total_revenue": 0,
+            "active_agents": 0,
+            "pending_decisions": 0
+        }
+    except Exception as e:
+        logger.error(f"Error fetching dashboard stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 def get_odoo_client() -> OdooClient:
     """Dependency to get Odoo client instance."""
     logger.info("Creating OdooClient instance for dashboard endpoint")
