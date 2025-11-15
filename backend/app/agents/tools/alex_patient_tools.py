@@ -100,7 +100,7 @@ def create_patient_tool(
             'street': address,
             'city': city,
             'zip': zip_code,
-            'is_patient': True,
+            'customer_rank': 1,
             'company_id': clinic_id,
         }
         

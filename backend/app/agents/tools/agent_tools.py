@@ -92,7 +92,7 @@ def search_patient_tool(
         odoo = get_odoo_client()
         
         # Build search domain
-        domain = [('is_patient', '=', True)]
+        domain = [('customer_rank', '>', 0)]
         if name and phone:
             domain = ['&'] + domain + ['|', ('name', 'ilike', name), ('phone', 'ilike', phone)]
         elif name:
@@ -202,7 +202,7 @@ def create_appointment_tool(
         # Search for existing patient
         patients = odoo.search_read(
             'res.partner',
-            domain=['|', ('name', 'ilike', patient_name), ('phone', 'ilike', patient_phone), ('is_patient', '=', True)],
+            domain=['|', ('name', 'ilike', patient_name), ('phone', 'ilike', patient_phone), ('customer_rank', '>', 0)],
             fields=['id', 'name'],
             limit=1
         )
@@ -212,7 +212,7 @@ def create_appointment_tool(
             patient_id = odoo.create('res.partner', {
                 'name': patient_name,
                 'phone': patient_phone,
-                'is_patient': True,
+                'customer_rank': 1,
             })
         else:
             patient_id = patients[0]['id']
@@ -257,7 +257,7 @@ def get_patient_invoices_tool(patient_name: str, patient_phone: Optional[str] = 
         odoo = get_odoo_client()
         
         # Search for patient
-        domain = [('name', 'ilike', patient_name), ('is_patient', '=', True)]
+        domain = [('name', 'ilike', patient_name), ('customer_rank', '>', 0)]
         if patient_phone:
             domain = ['&'] + domain + [('phone', 'ilike', patient_phone)]
         

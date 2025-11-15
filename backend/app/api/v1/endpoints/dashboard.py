@@ -150,7 +150,7 @@ async def get_patients(
     """
     try:
         # Build search domain
-        domain = [('is_patient', '=', True)]
+        domain = [('customer_rank', '>', 0)]
         
         if search:
             domain.append('|')

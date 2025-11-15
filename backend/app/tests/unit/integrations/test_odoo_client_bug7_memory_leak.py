@@ -304,7 +304,7 @@ class TestBug7RealWorldScenarios:
         # Developer calls search_read without limit (common mistake)
         result = mock_odoo_client.search_read(
             'res.partner',
-            domain=[('is_patient', '=', True)]
+            domain=[('customer_rank', '>', 0)]
         )
         
         # After fix, default limit should prevent loading all 100k records

@@ -109,7 +109,7 @@ async def get_revenue_dashboard(
         
         # Get outstanding invoices
         outstanding_invoices = get_outstanding_invoices(odoo)
-        outstanding_amount = sum(inv.get('amount_residual', 0) for inv in outstanding_invoices)
+        outstanding_amount = sum(inv.get('amount_residual', 0) for inv in outstanding_invoices if isinstance(inv, dict))
         outstanding_count = len(outstanding_invoices)
         
         # Get payment success rate

@@ -353,7 +353,7 @@ def get_patient_count(odoo: OdooClient) -> int:
         >>> print(count)
         1250
     """
-    return odoo.search_count('res.partner', domain=[('is_patient', '=', True)])
+    return odoo.search_count('res.partner', domain=[('customer_rank', '>', 0)])
 
 
 def get_new_patients_by_period(
@@ -380,7 +380,7 @@ def get_new_patients_by_period(
     return odoo.search_count(
         'res.partner',
         domain=[
-            ('is_patient', '=', True),
+            ('customer_rank', '>', 0),
             ('create_date', '>=', f"{start_date} 00:00:00"),
             ('create_date', '<=', f"{end_date} 23:59:59"),
         ]
@@ -405,7 +405,7 @@ def get_patient_by_id(odoo: OdooClient, patient_id: int) -> Optional[Dict[str, A
     """
     patients = odoo.search_read(
         'res.partner',
-        domain=[('id', '=', patient_id), ('is_patient', '=', True)],
+        domain=[('id', '=', patient_id), ('customer_rank', '>', 0)],
         fields=['id', 'name', 'email', 'phone', 'mobile', 'street', 'city']
     )
     
