@@ -22,7 +22,8 @@ router = APIRouter()
 
 @router.get("/stats")
 async def get_dashboard_stats(
-    membership: OrganizationMembership = Depends(get_current_membership)
+    membership: OrganizationMembership = Depends(get_current_membership),
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get dashboard statistics summary.
@@ -30,16 +31,38 @@ async def get_dashboard_stats(
     Returns high-level metrics for the dashboard.
     """
     try:
-        # TODO: Implement real stats from database/Odoo
+        from app.shared.odoo_queries import (
+            get_appointments_today,
+            get_patient_count,
+            get_revenue_by_period
+        )
+        from datetime import datetime
+        
+        # Get today's date range
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        
+        # Get today's appointments count
+        today_appointments = get_appointments_today(odoo)
+        appointments_today = len(today_appointments) if today_appointments else 0
+        
+        # Get total patients count
+        total_patients = get_patient_count(odoo)
+        
+        # Get today's revenue
+        revenue_data = get_revenue_by_period(odoo, today_str, today_str)
+        revenue_today = revenue_data.get('total_revenue', 0) if revenue_data else 0
+        
         return {
-            "total_patients": 0,
-            "total_appointments": 0,
-            "total_revenue": 0,
-            "active_agents": 0,
-            "pending_decisions": 0
+            "appointments_today": appointments_today,
+            "total_patients": total_patients,
+            "revenue_today": revenue_today,
+            "active_agents": 5,  # Static for now - will be implemented with agent tracking
+            "pending_decisions": 0  # Static for now - will be implemented with decision queue
         }
     except Exception as e:
         logger.error(f"Error fetching dashboard stats: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 
