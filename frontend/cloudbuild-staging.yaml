@@ -39,6 +39,8 @@ steps:
       - '--build-arg'
       - 'VITE_APP_ENV=staging'
       - '--build-arg'
+      - 'VITE_API_BASE_URL=https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1'
+      - '--build-arg'
       - 'VITE_API_URL=https://dentaflow-backend-staging-gmi5lyn5wq-uc.a.run.app/api/v1'
       - '-f'
       - 'Dockerfile'
@@ -85,6 +87,7 @@ steps:
       - 'VITE_APP_ENV=staging'
       - '--tag'
       - 'staging-$SHORT_SHA'
+      - '--no-traffic'
 
   # Step 5: Migrate all traffic to new revision
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
