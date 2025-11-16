@@ -149,7 +149,7 @@ async def get_compliance_score(
 ):
     """Get current compliance score."""
     try:
-        monitoring_service = HarperMonitoringService(db)
+        monitoring_service = HarperMonitoringService(db, current_user.organization_id)
         score = await monitoring_service.calculate_compliance_score(current_user.organization_id)
         
         return ComplianceScoreResponse(**score)
@@ -370,7 +370,7 @@ async def get_compliance_metrics(
 ):
     """Get compliance metrics and trends."""
     try:
-        monitoring_service = HarperMonitoringService(db)
+        monitoring_service = HarperMonitoringService(db, current_user.organization_id)
         metrics = await monitoring_service.get_compliance_metrics(current_user.organization_id)
         
         return ComplianceMetricsResponse(**metrics)
