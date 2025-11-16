@@ -22,8 +22,8 @@ export default function ComplianceWidget({ onChatWithAgent }) {
   const fetchCompliance = async () => {
     setIsLoading(true);
     try {
-      // Fetch real compliance data from Backend
-      const response = await fetch(API_CONFIG.endpoint('hipaa/metrics/summary'), {
+      // Fetch real compliance data from new Backend endpoint
+      const response = await fetch(API_CONFIG.endpoint('compliance/score'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
           'X-Organization-ID': localStorage.getItem('organization_id') || '1'
@@ -32,7 +32,21 @@ export default function ComplianceWidget({ onChatWithAgent }) {
       
       if (response.ok) {
         const data = await response.json();
-        setCompliance(data);
+        // Transform new API response to widget format
+        const transformedData = {
+          score: data.overall || 0,
+          status: data.overall >= 90 ? 'good' : data.overall >= 70 ? 'warning' : 'critical',
+          alerts: (data.phi_findings || 0) + (data.security_gaps || 0),
+          trend: 'up', // TODO: Calculate from historical data
+          lastAudit: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // TODO: Get from API
+          insight: data.overall >= 90 
+            ? 'ציון תאימות גבוה - המשיכו כך!' 
+            : `נמצאו ${data.phi_findings} ממצאי PHI ו-${data.security_gaps} פערי אבטחה`,
+          recommendation: data.overall >= 90
+            ? 'Harper ממליצה: עדכנו את הדרכת הצוות בנושא HIPAA'
+            : 'Harper ממליצה: טפלו בפערי האבטחה והממצאים בהקדם'
+        };
+        setCompliance(transformedData);
       } else {
         // Fallback to mock data
         console.warn('Compliance API failed, using mock data');
