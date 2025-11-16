@@ -33,7 +33,7 @@ echo ""
 
 # Step 3: Build Docker image
 echo -e "${YELLOW}Step 3: Building Docker image...${NC}"
-cd "$BACKEND_DIR"
+cd "$BACKEND_DIR/backend"
 
 if command -v gcloud &> /dev/null; then
     echo "  Using Google Cloud Build..."
