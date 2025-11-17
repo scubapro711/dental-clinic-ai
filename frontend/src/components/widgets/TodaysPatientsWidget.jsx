@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import BaseWidget from './BaseWidget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +14,7 @@ import API_CONFIG from '@/config/api';
  * Now uses ALL available backend data for maximum value
  */
 export default function TodaysPatientsWidget({ onChatWithPatient }) {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [summary, setSummary] = useState(null);
   const [upcoming, setUpcoming] = useState([]);
@@ -190,6 +192,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
               return (
                 <div
                   key={patient.id}
+                  onClick={() => navigate(`/clinic/patients/${patient.patient_id}`)}
                   className={cn(
                     'rounded-lg border-2 p-3 transition-all duration-200',
                     'hover:shadow-md cursor-pointer',

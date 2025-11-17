@@ -24,6 +24,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 import AgenticDashboard from './pages/AgenticDashboard'
 // import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
+import PatientDetailPage from './pages/clinic/PatientDetailPage'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
 import BAAManagementPage from './pages/clinic/BAAManagementPage'
 import SecuritySettings from './pages/SecuritySettings'
@@ -174,6 +175,7 @@ function App() {
           <Route path="dashboard" element={<AgenticDashboard />} />
           <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
+          <Route path="patients/:id" element={<PatientDetailPage />} />
           <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />
