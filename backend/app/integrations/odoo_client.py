@@ -980,6 +980,216 @@ class OdooClient(object):
             logger.error(f"Error getting doctors: {e}")
             raise
     
+    def create_patient(
+        self,
+        name: str,
+        phone: Optional[str] = None,
+        email: Optional[str] = None,
+        street: Optional[str] = None,
+        city: Optional[str] = None,
+        **kwargs
+    ) -> int:
+        """
+        Create a new patient record in Odoo.
+        
+        Model: res.partner
+        
+        Args:
+            name: Patient's full name (required)
+            phone: Patient's phone number
+            email: Patient's email address
+            street: Street address
+            city: City
+            **kwargs: Additional patient fields
+            
+        Returns:
+            ID of created patient record
+            
+        Example:
+            >>> client = OdooClient()
+            >>> patient_id = client.create_patient(
+            ...     name="John Doe",
+            ...     phone="050-1234567",
+            ...     email="john@example.com"
+            ... )
+        """
+        try:
+            values = {
+                'name': name,
+                'is_patient': True,
+            }
+            
+            if phone:
+                values['phone'] = phone
+            if email:
+                values['email'] = email
+            if street:
+                values['street'] = street
+            if city:
+                values['city'] = city
+            
+            # Add any additional fields
+            values.update(kwargs)
+            
+            patient_id = self.create('res.partner', values)
+            logger.info(f"Created patient: {name} (ID: {patient_id})")
+            return patient_id
+            
+        except Exception as e:
+            logger.error(f"Failed to create patient {name}: {e}")
+            raise
+    
+    def update_patient(
+        self,
+        patient_id: int,
+        **kwargs
+    ) -> bool:
+        """
+        Update an existing patient record in Odoo.
+        
+        Model: res.partner
+        
+        Args:
+            patient_id: ID of patient to update
+            **kwargs: Fields to update (phone, email, street, city, etc.)
+            
+        Returns:
+            True if update successful, False otherwise
+            
+        Example:
+            >>> client = OdooClient()
+            >>> success = client.update_patient(
+            ...     patient_id=123,
+            ...     phone="050-9876543",
+            ...     email="newemail@example.com"
+            ... )
+        """
+        try:
+            if not kwargs:
+                logger.warning(f"No fields provided to update for patient {patient_id}")
+                return False
+            
+            success = self.write('res.partner', patient_id, kwargs)
+            logger.info(f"Updated patient {patient_id}: {list(kwargs.keys())}")
+            return success
+            
+        except Exception as e:
+            logger.error(f"Failed to update patient {patient_id}: {e}")
+            raise
+    
+    def get_appointment(self, appointment_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get appointment details by ID.
+        
+        Model: patient.appointment
+        
+        Args:
+            appointment_id: ID of appointment to retrieve
+            
+        Returns:
+            Dictionary with appointment details or None if not found
+            
+        Example:
+            >>> client = OdooClient()
+            >>> appt = client.get_appointment(456)
+            >>> print(appt['appointment_date'])
+        """
+        try:
+            appointments = self.read(
+                'patient.appointment',
+                [appointment_id],
+                ['patient_id', 'physician_id', 'appointment_date', 
+                 'appointment_end', 'state', 'notes']
+            )
+            
+            if not appointments:
+                logger.warning(f"Appointment {appointment_id} not found")
+                return None
+            
+            appt = appointments[0]
+            
+            # Extract many2one fields safely
+            patient_id, patient_name = safe_extract_many2one(appt.get('patient_id'))
+            physician_id, physician_name = safe_extract_many2one(appt.get('physician_id'))
+            
+            return {
+                'id': appt['id'],
+                'patient_id': patient_id,
+                'patient_name': patient_name,
+                'physician_id': physician_id,
+                'physician_name': physician_name,
+                'appointment_date': appt.get('appointment_date'),
+                'appointment_end': appt.get('appointment_end'),
+                'state': appt.get('state'),
+                'notes': appt.get('notes', ''),
+            }
+            
+        except Exception as e:
+            logger.error(f"Error getting appointment {appointment_id}: {e}")
+            raise
+    
+    def search_appointments(
+        self,
+        patient_id: Optional[int] = None,
+        physician_id: Optional[int] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+        state: Optional[str] = None,
+        limit: int = 100
+    ) -> List[int]:
+        """
+        Search for appointments by various criteria.
+        
+        Model: patient.appointment
+        
+        Args:
+            patient_id: Filter by patient ID
+            physician_id: Filter by physician ID
+            date_from: Filter by start date (YYYY-MM-DD)
+            date_to: Filter by end date (YYYY-MM-DD)
+            state: Filter by state (draft/confirmed/done/cancelled)
+            limit: Maximum number of results
+            
+        Returns:
+            List of appointment IDs matching criteria
+            
+        Example:
+            >>> client = OdooClient()
+            >>> appt_ids = client.search_appointments(
+            ...     patient_id=123,
+            ...     state='confirmed'
+            ... )
+        """
+        try:
+            domain = []
+            
+            if patient_id:
+                domain.append(('patient_id', '=', patient_id))
+            if physician_id:
+                domain.append(('physician_id', '=', physician_id))
+            if date_from:
+                domain.append(('appointment_date', '>=', date_from))
+            if date_to:
+                domain.append(('appointment_date', '<=', date_to))
+            if state:
+                domain.append(('state', '=', state))
+            
+            # Validate domain before search
+            self._validate_domain(domain)
+            
+            appointment_ids = self.search(
+                'patient.appointment',
+                domain,
+                limit=limit
+            )
+            
+            logger.info(f"Found {len(appointment_ids)} appointments matching criteria")
+            return appointment_ids
+            
+        except Exception as e:
+            logger.error(f"Error searching appointments: {e}")
+            raise
+    
     # ========== DENTAL CHART & TREATMENTS ==========
     
     def get_dental_chart(self, patient_id: int) -> Optional[Dict[str, Any]]:
