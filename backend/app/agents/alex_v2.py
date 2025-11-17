@@ -12,6 +12,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from app.core.config import settings
+from app.agents.context import DentaFlowContext
 from app.agents.error_handler import (
     handle_agent_errors,
     retry_handler,
@@ -752,7 +753,17 @@ Include [ESCALATE: {escalation_level}] at the end of your response.
                     for tool in self.tools:
                         if tool.name == tool_name:
                             try:
-                                tool_result = tool.invoke(tool_args)
+                                # Create config with DentaFlowContext for multi-tenancy
+                                config = {
+                                    "configurable": {
+                                        "context": DentaFlowContext(
+                                            organization_id=state.get("organization_id"),
+                                            user_id=state.get("user_id"),
+                                            user_role=state.get("user_role", "patient")
+                                        )
+                                    }
+                                }
+                                tool_result = tool.invoke(tool_args, config=config)
                             except Exception as e:
                                 tool_result = f"Error executing {tool_name}: {str(e)}"
                                 logger.error(f"Tool execution error: {e}")

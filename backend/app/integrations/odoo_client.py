@@ -204,7 +204,7 @@ class OdooClient(object):
     
     # ========== INITIALIZATION & CONNECTION ==========
     
-    def __init__(self):
+    def __init__(self, url=None, db=None, username=None, password=None):
         """
         Initialize Odoo client with connection to Odoo server.
         
@@ -213,10 +213,10 @@ class OdooClient(object):
         - Ensure ODOO_URL uses HTTPS to encrypt password in transit
         - Password is filtered from logs via PasswordFilter
         """
-        self.url = settings.ODOO_URL
-        self.db = settings.ODOO_DB
-        self.username = settings.ODOO_USERNAME
-        self.password = settings.ODOO_PASSWORD
+        self.url = url or settings.ODOO_URL
+        self.db = db or settings.ODOO_DB
+        self.username = username or settings.ODOO_USERNAME
+        self.password = password or settings.ODOO_PASSWORD
         
         # XML-RPC endpoints
         self.common = None
