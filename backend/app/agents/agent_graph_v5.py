@@ -34,6 +34,8 @@ from langgraph.graph import StateGraph, END
 from langgraph.types import Command
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 from langchain_openai import ChatOpenAI
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 
 from app.agents.graph_state import AgentState
 from app.agents.alex_v2 import AlexAgent
@@ -211,6 +213,7 @@ class AgentGraphV5:
         # Compile graph with memory checkpointer
         return workflow.compile(checkpointer=self.memory)
     
+    @traceable(name="supervisor_node")
     def _supervisor_node(self, state: AgentState) -> AgentState:
         """
         Supervisor node - decides which agent to call.
@@ -345,6 +348,7 @@ If the request is complete or unclear, respond with: end
         logger.info(f"Routing to: {next_agent}")
         return next_agent
     
+    @traceable(name="alex_node")
     def _alex_node(self, state: AgentState) -> AgentState:
         """
         Alex node - Patient interactions and reception.
@@ -383,6 +387,7 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="sarah_node")
     def _sarah_node(self, state: AgentState) -> AgentState:
         """
         שרה (Sarah) node - Clinical operations.
@@ -420,9 +425,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="marcus_node")
     def _marcus_node(self, state: AgentState) -> AgentState:
         """
-        Marcus node - CFO financial analysis.
+        Marcus node - Financial analysis.is.
         
         Args:
             state: Current agent state
@@ -457,9 +463,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="sophia_node")
     def _sophia_node(self, state: AgentState) -> AgentState:
         """
-        Sophia node - Practice admin operations.
+        Sophia node - Operations management.ons.
         
         Args:
             state: Current agent state
@@ -494,9 +501,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="harper_node")
     def _harper_node(self, state: AgentState) -> AgentState:
         """
-        Harper node - HIPAA Compliance Specialist.
+        Harper node - HIPAA Compliance.Specialist.
         
         Args:
             state: Current agent state
