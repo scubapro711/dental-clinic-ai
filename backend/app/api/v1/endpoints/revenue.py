@@ -130,8 +130,9 @@ async def get_revenue_dashboard(
         total_billed = revenue_this_year + outstanding_amount
         collection_rate = (revenue_this_year / total_billed * 100) if total_billed > 0 else 0
         
-        # Get top treatments by revenue
-        top_treatments_data = get_treatments_by_revenue(odoo, limit=3)
+        # Get top treatments by revenue (this year)
+        year_start = today.replace(month=1, day=1)
+        top_treatments_data = get_treatments_by_revenue(odoo, year_start.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d"), limit=3)
         
         # Calculate total revenue for percentage
         total_treatment_revenue = sum(t.get('revenue', 0) for t in top_treatments_data)
