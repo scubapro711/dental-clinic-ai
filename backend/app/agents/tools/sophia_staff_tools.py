@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
 from app.integrations.odoo_client import OdooClient
-
-odoo_client_v3 = OdooClient()
+from app.integrations.odoo_client_factory import OdooClientFactory
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,9 @@ __all__ = []
 
 
 @tool
-def get_staff_list_tool(department: Optional[str] = None, active_only: bool = True) -> str:
+def get_staff_list_tool(department: Optional[str] = None, active_only: bool = True,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get list of all clinic staff members.
     
@@ -35,10 +37,10 @@ def get_staff_list_tool(department: Optional[str] = None, active_only: bool = Tr
         logger.info(f"Getting staff list (department={department}, active={active_only})")
         
         # Get employees
-        employees = odoo_client_v3.get_employees(department=department, active_only=active_only)
+        employees = odoo.get_employees(department=department, active_only=active_only)
         
         # Get physicians
-        physicians = odoo_client_v3.get_physicians()
+        physicians = odoo.get_physicians()
         
         # Combine and organize
         staff = {
@@ -64,7 +66,9 @@ def get_staff_list_tool(department: Optional[str] = None, active_only: bool = Tr
 
 
 @tool
-def get_doctor_availability_tool(doctor_name: str, date: str) -> str:
+def get_doctor_availability_tool(doctor_name: str, date: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get doctor availability for a specific date.
     
@@ -76,17 +80,22 @@ def get_doctor_availability_tool(doctor_name: str, date: str) -> str:
         JSON string with doctor availability
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting availability for {doctor_name} on {date}")
         
         # Find doctor
-        physicians = odoo_client_v3.get_physicians()
+        physicians = odoo.get_physicians()
         doctor = next((p for p in physicians if doctor_name.lower() in p.get('name', '').lower()), None)
         
         if not doctor:
             return json.dumps({'error': f"Doctor '{doctor_name}' not found"}, ensure_ascii=False)
         
         # Get slots
-        slots = odoo_client_v3.get_doctor_slots(doctor['id'], date)
+        slots = odoo.get_doctor_slots(doctor['id'], date)
         
         # Calculate availability
         available_slots = [s for s in slots if s.get('available')]
@@ -113,7 +122,9 @@ def get_doctor_availability_tool(doctor_name: str, date: str) -> str:
 
 
 @tool
-def create_staff_schedule_tool(doctor_name: str, date: str, start_time: str, end_time: str, slot_duration: int = 30) -> str:
+def create_staff_schedule_tool(doctor_name: str, date: str, start_time: str, end_time: str, slot_duration: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create schedule slots for a doctor.
     
@@ -128,17 +139,22 @@ def create_staff_schedule_tool(doctor_name: str, date: str, start_time: str, end
         JSON string with created schedule
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Creating schedule for {doctor_name} on {date}")
         
         # Find doctor
-        physicians = odoo_client_v3.get_physicians()
+        physicians = odoo.get_physicians()
         doctor = next((p for p in physicians if doctor_name.lower() in p.get('name', '').lower()), None)
         
         if not doctor:
             return json.dumps({'error': f"Doctor '{doctor_name}' not found"}, ensure_ascii=False)
         
         # Create slot
-        slot = odoo_client_v3.create_doctor_slot(
+        slot = odoo.create_doctor_slot(
             doctor_id=doctor['id'],
             date=date,
             start_time=start_time,
@@ -168,7 +184,9 @@ def create_staff_schedule_tool(doctor_name: str, date: str, start_time: str, end
 
 
 @tool
-def get_staff_attendance_tool(employee_name: Optional[str] = None, days_back: int = 7) -> str:
+def get_staff_attendance_tool(employee_name: Optional[str] = None, days_back: int = 7,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get staff attendance records.
     
@@ -180,13 +198,18 @@ def get_staff_attendance_tool(employee_name: Optional[str] = None, days_back: in
         JSON string with attendance records
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting attendance (employee={employee_name}, days={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
         date_to = datetime.now().strftime('%Y-%m-%d')
         
         # Get all employees
-        employees = odoo_client_v3.get_employees()
+        employees = odoo.get_employees()
         
         # Filter by name if specified
         if employee_name:
@@ -194,7 +217,7 @@ def get_staff_attendance_tool(employee_name: Optional[str] = None, days_back: in
         
         attendance_data = []
         for emp in employees:
-            attendance = odoo_client_v3.get_employee_attendance(
+            attendance = odoo.get_employee_attendance(
                 employee_id=emp['id'],
                 date_from=date_from,
                 date_to=date_to
@@ -226,7 +249,9 @@ def get_staff_attendance_tool(employee_name: Optional[str] = None, days_back: in
 
 
 @tool
-def get_time_off_requests_tool(status: Optional[str] = None) -> str:
+def get_time_off_requests_tool(status: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get pending time-off requests.
     
@@ -237,10 +262,15 @@ def get_time_off_requests_tool(status: Optional[str] = None) -> str:
         JSON string with time-off requests
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting time-off requests (status={status})")
         
         # Get requests
-        requests = odoo_client_v3.get_time_off_requests(state=status)
+        requests = odoo.get_time_off_requests(state=status)
         
         # Group by status
         by_status = {}
@@ -266,7 +296,9 @@ def get_time_off_requests_tool(status: Optional[str] = None) -> str:
 
 
 @tool
-def approve_time_off_tool(request_id: int, employee_name: str) -> str:
+def approve_time_off_tool(request_id: int, employee_name: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Approve a time-off request.
     
@@ -278,10 +310,15 @@ def approve_time_off_tool(request_id: int, employee_name: str) -> str:
         JSON string with approval result
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Approving time-off request {request_id} for {employee_name}")
         
         # Approve request
-        result = odoo_client_v3.approve_time_off_request(request_id)
+        result = odoo.approve_time_off_request(request_id)
         
         if result.get('success'):
             result['employee_name'] = employee_name
@@ -296,7 +333,9 @@ def approve_time_off_tool(request_id: int, employee_name: str) -> str:
 
 
 @tool
-def get_staff_workload_tool(employee_name: Optional[str] = None, days_back: int = 7) -> str:
+def get_staff_workload_tool(employee_name: Optional[str] = None, days_back: int = 7,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get staff workload analysis (appointments, hours).
     
@@ -308,13 +347,18 @@ def get_staff_workload_tool(employee_name: Optional[str] = None, days_back: int 
         JSON string with workload analysis
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting staff workload (employee={employee_name}, days={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
         date_to = datetime.now().strftime('%Y-%m-%d')
         
         # Get physicians
-        physicians = odoo_client_v3.get_physicians()
+        physicians = odoo.get_physicians()
         
         # Filter by name if specified
         if employee_name:
@@ -322,7 +366,7 @@ def get_staff_workload_tool(employee_name: Optional[str] = None, days_back: int 
         
         workload_data = []
         for physician in physicians:
-            workload = odoo_client_v3.get_employee_workload(
+            workload = odoo.get_employee_workload(
                 employee_id=physician['id'],
                 date_from=date_from,
                 date_to=date_to
@@ -355,7 +399,9 @@ def get_staff_workload_tool(employee_name: Optional[str] = None, days_back: int 
 
 
 @tool
-def get_staff_performance_tool(days_back: int = 30) -> str:
+def get_staff_performance_tool(days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get comprehensive staff performance metrics.
     
@@ -366,13 +412,18 @@ def get_staff_performance_tool(days_back: int = 30) -> str:
         JSON string with performance metrics
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting staff performance metrics (days={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
         date_to = datetime.now().strftime('%Y-%m-%d')
         
         # Get performance metrics
-        metrics = odoo_client_v3.get_staff_performance_metrics(date_from, date_to)
+        metrics = odoo.get_staff_performance_metrics(date_from, date_to)
         
         # Calculate rankings
         for i, metric in enumerate(metrics):
@@ -398,7 +449,9 @@ def get_staff_performance_tool(days_back: int = 30) -> str:
 
 
 @tool
-def balance_staff_workload_tool(date: str) -> str:
+def balance_staff_workload_tool(date: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Analyze and suggest workload balancing for a specific date.
     
@@ -409,15 +462,20 @@ def balance_staff_workload_tool(date: str) -> str:
         JSON string with balancing suggestions
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Analyzing workload balance for {date}")
         
         # Get all physicians
-        physicians = odoo_client_v3.get_physicians()
+        physicians = odoo.get_physicians()
         
         workload_analysis = []
         for physician in physicians:
             # Get appointments for this date
-            slots = odoo_client_v3.get_doctor_slots(physician['id'], date)
+            slots = odoo.get_doctor_slots(physician['id'], date)
             
             booked = len([s for s in slots if not s.get('available')])
             available = len([s for s in slots if s.get('available')])
@@ -470,7 +528,9 @@ def balance_staff_workload_tool(date: str) -> str:
 
 
 @tool
-def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30) -> str:
+def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Generate comprehensive staff management report.
     
@@ -482,6 +542,11 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
         JSON string with staff report
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Generating staff report (type={report_type}, days={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
@@ -489,9 +554,9 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
         
         if report_type == "summary":
             # Get all key metrics
-            employees = odoo_client_v3.get_employees()
-            physicians = odoo_client_v3.get_physicians()
-            time_off_requests = odoo_client_v3.get_time_off_requests()
+            employees = odoo.get_employees()
+            physicians = odoo.get_physicians()
+            time_off_requests = odoo.get_time_off_requests()
             
             report = {
                 'report_type': 'summary',
@@ -510,7 +575,7 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
             }
         
         elif report_type == "performance":
-            metrics = odoo_client_v3.get_staff_performance_metrics(date_from, date_to)
+            metrics = odoo.get_staff_performance_metrics(date_from, date_to)
             
             report = {
                 'report_type': 'performance',
@@ -521,11 +586,11 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
             }
         
         elif report_type == "attendance":
-            employees = odoo_client_v3.get_employees()
+            employees = odoo.get_employees()
             attendance_summary = []
             
             for emp in employees[:10]:  # Limit to 10
-                attendance = odoo_client_v3.get_employee_attendance(emp['id'], date_from, date_to)
+                attendance = odoo.get_employee_attendance(emp['id'], date_from, date_to)
                 total_hours = sum(a.get('worked_hours', 0) for a in attendance)
                 
                 attendance_summary.append({
@@ -542,11 +607,11 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
             }
         
         elif report_type == "workload":
-            physicians = odoo_client_v3.get_physicians()
+            physicians = odoo.get_physicians()
             workload_summary = []
             
             for physician in physicians[:10]:  # Limit to 10
-                workload = odoo_client_v3.get_employee_workload(physician['id'], date_from, date_to)
+                workload = odoo.get_employee_workload(physician['id'], date_from, date_to)
                 workload['name'] = physician.get('name')
                 workload_summary.append(workload)
             
@@ -571,7 +636,9 @@ def generate_staff_report_tool(report_type: str = "summary", days_back: int = 30
 
 
 @tool
-def send_staff_notification_tool(message: str, department: Optional[str] = None) -> str:
+def send_staff_notification_tool(message: str, department: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Send a notification to all staff or a specific department.
 
@@ -583,6 +650,11 @@ def send_staff_notification_tool(message: str, department: Optional[str] = None)
         A success message.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Sending notification: '{message}' to department: {department}")
         # In a real implementation, this would integrate with a notification service (e.g., Slack, email)
         return f"✅ Notification sent successfully to {department or 'all staff'}."
@@ -598,7 +670,9 @@ __all__.append("send_staff_notification_tool")
 
 
 @tool
-def track_staff_certifications_tool(employee_name: Optional[str] = None) -> str:
+def track_staff_certifications_tool(employee_name: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Track the status of staff certifications and licenses.
 
@@ -609,6 +683,11 @@ def track_staff_certifications_tool(employee_name: Optional[str] = None) -> str:
         A formatted string with the certification status.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Tracking certifications for: {employee_name or 'all staff'}")
         # This is a mock implementation.
         # In a real system, this would query HR records.
@@ -636,7 +715,9 @@ def track_staff_certifications_tool(employee_name: Optional[str] = None) -> str:
 
 
 @tool
-def create_staff_training_tool(title: str, department: str, due_date: str) -> str:
+def create_staff_training_tool(title: str, department: str, due_date: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create a new training program for staff.
 
@@ -649,6 +730,11 @@ def create_staff_training_tool(title: str, department: str, due_date: str) -> st
         A success message with the training details.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Creating training: '{title}' for {department}")
         # This is a mock implementation.
         # In a real system, this would create a record in an LMS or HR system.

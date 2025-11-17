@@ -16,8 +16,10 @@ from datetime import datetime, timedelta
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.runnables import RunnableConfig
 
 from app.agents.graph_state import AgentState
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
@@ -410,6 +412,14 @@ Respond in Hebrew or English based on the user's language."""
             if response.tool_calls:
                 logger.info(f"Practice Admin calling {len(response.tool_calls)} tools")
                 
+                # Create context for multi-tenancy
+                context = DentaFlowContext(
+                    organization_id=state.get("organization_id"),
+                    user_id=state.get("user_id"),
+                    user_role=state.get("user_role", "patient")
+                )
+                config = RunnableConfig(configurable={"context": context})
+                
                 # Execute tools
                 tool_results = {}
                 for tool_call in response.tool_calls:
@@ -418,23 +428,23 @@ Respond in Hebrew or English based on the user's language."""
                     
                     logger.info(f"Executing tool: {tool_name}")
                     
-                    # Execute the tool
+                    # Execute the tool with context
                     if tool_name == "get_schedule_conflicts_tool":
-                        result = get_schedule_conflicts_tool.invoke(tool_args)
+                        result = get_schedule_conflicts_tool.invoke(tool_args, config=config)
                     elif tool_name == "get_available_slots_tool":
-                        result = get_available_slots_tool.invoke(tool_args)
+                        result = get_available_slots_tool.invoke(tool_args, config=config)
                     elif tool_name == "reschedule_appointment_tool":
-                        result = reschedule_appointment_tool.invoke(tool_args)
+                        result = reschedule_appointment_tool.invoke(tool_args, config=config)
                     elif tool_name == "cancel_appointment_tool":
-                        result = cancel_appointment_tool.invoke(tool_args)
+                        result = cancel_appointment_tool.invoke(tool_args, config=config)
                     elif tool_name == "get_staff_schedule_tool":
-                        result = get_staff_schedule_tool.invoke(tool_args)
+                        result = get_staff_schedule_tool.invoke(tool_args, config=config)
                     elif tool_name == "get_room_availability_tool":
-                        result = get_room_availability_tool.invoke(tool_args)
+                        result = get_room_availability_tool.invoke(tool_args, config=config)
                     elif tool_name == "optimize_schedule_tool":
-                        result = optimize_schedule_tool.invoke(tool_args)
+                        result = optimize_schedule_tool.invoke(tool_args, config=config)
                     elif tool_name == "get_operational_metrics_tool":
-                        result = get_operational_metrics_tool.invoke(tool_args)
+                        result = get_operational_metrics_tool.invoke(tool_args, config=config)
                     else:
                         result = f"Unknown tool: {tool_name}"
                     

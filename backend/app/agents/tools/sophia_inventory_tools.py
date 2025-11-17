@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
 from app.integrations.odoo_client import OdooClient
-
-odoo_client_v3 = OdooClient()
+from app.integrations.odoo_client_factory import OdooClientFactory
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,9 @@ __all__ = []
 
 
 @tool
-def check_inventory_levels_tool(category: Optional[str] = None, low_stock_only: bool = False) -> str:
+def check_inventory_levels_tool(category: Optional[str] = None, low_stock_only: bool = False,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Check current inventory levels for all supplies.
     
@@ -35,7 +37,7 @@ def check_inventory_levels_tool(category: Optional[str] = None, low_stock_only: 
         logger.info(f"Checking inventory levels (category={category}, low_stock={low_stock_only})")
         
         # Get inventory
-        inventory = odoo_client_v3.get_inventory_levels()
+        inventory = odoo.get_inventory_levels()
         
         # Filter by category if specified
         if category:
@@ -64,7 +66,9 @@ def check_inventory_levels_tool(category: Optional[str] = None, low_stock_only: 
 
 
 @tool
-def get_low_stock_alerts_tool() -> str:
+def get_low_stock_alerts_tool(
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get alerts for items with low stock that need reordering.
     
@@ -72,10 +76,15 @@ def get_low_stock_alerts_tool() -> str:
         JSON string with low stock alerts
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info("Getting low stock alerts")
         
         # Get stock alerts from Odoo
-        alerts = odoo_client_v3.get_stock_alerts(alert_type='low_stock')
+        alerts = odoo.get_stock_alerts(alert_type='low_stock')
         
         # Sort by urgency (lowest quantity first)
         alerts = sorted(alerts, key=lambda x: x.get('current_qty', 0))
@@ -96,7 +105,9 @@ def get_low_stock_alerts_tool() -> str:
 
 
 @tool
-def track_expiring_products_tool(days_ahead: int = 30) -> str:
+def track_expiring_products_tool(days_ahead: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Track products expiring within specified days.
     
@@ -107,10 +118,15 @@ def track_expiring_products_tool(days_ahead: int = 30) -> str:
         JSON string with expiring products
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Tracking products expiring in next {days_ahead} days")
         
         # Get expiring products
-        expiring = odoo_client_v3.get_expiring_products(days_threshold=days_ahead)
+        expiring = odoo.get_expiring_products(days_threshold=days_ahead)
         
         # Sort by expiration date
         expiring = sorted(expiring, key=lambda x: x.get('expiration_date', ''))
@@ -135,7 +151,9 @@ def track_expiring_products_tool(days_ahead: int = 30) -> str:
 
 
 @tool
-def create_purchase_order_tool(supplier_name: str, items: List[Dict[str, Any]], notes: Optional[str] = None) -> str:
+def create_purchase_order_tool(supplier_name: str, items: List[Dict[str, Any]], notes: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create a purchase order for supplies.
     
@@ -180,7 +198,9 @@ def create_purchase_order_tool(supplier_name: str, items: List[Dict[str, Any]], 
 
 
 @tool
-def get_purchase_orders_tool(status: Optional[str] = None, days_back: int = 30) -> str:
+def get_purchase_orders_tool(status: Optional[str] = None, days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get recent purchase orders.
     
@@ -192,12 +212,17 @@ def get_purchase_orders_tool(status: Optional[str] = None, days_back: int = 30) 
         JSON string with purchase orders
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting purchase orders (status={status}, days_back={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
         
         # Get purchase orders
-        orders = odoo_client_v3.get_purchase_orders(state=status, date_from=date_from)
+        orders = odoo.get_purchase_orders(state=status, date_from=date_from)
         
         # Sort by date (newest first)
         orders = sorted(orders, key=lambda x: x.get('date_order', ''), reverse=True)
@@ -222,7 +247,9 @@ def get_purchase_orders_tool(status: Optional[str] = None, days_back: int = 30) 
 
 
 @tool
-def get_inventory_valuation_tool() -> str:
+def get_inventory_valuation_tool(
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get total inventory valuation (cost and potential value).
     
@@ -230,10 +257,15 @@ def get_inventory_valuation_tool() -> str:
         JSON string with inventory valuation
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info("Getting inventory valuation")
         
         # Get valuation
-        valuation = odoo_client_v3.get_inventory_valuation()
+        valuation = odoo.get_inventory_valuation()
         
         result = {
             'total_cost': valuation.get('total_cost', 0),
@@ -255,7 +287,9 @@ def get_inventory_valuation_tool() -> str:
 
 
 @tool
-def get_stock_movements_tool(product_name: Optional[str] = None, days_back: int = 7) -> str:
+def get_stock_movements_tool(product_name: Optional[str] = None, days_back: int = 7,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get stock movements (in/out) for tracking usage.
     
@@ -267,12 +301,17 @@ def get_stock_movements_tool(product_name: Optional[str] = None, days_back: int 
         JSON string with stock movements
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting stock movements (product={product_name}, days_back={days_back})")
         
         date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
         
         # Get stock moves
-        moves = odoo_client_v3.get_stock_moves(date_from=date_from)
+        moves = odoo.get_stock_moves(date_from=date_from)
         
         # Filter by product if specified
         if product_name:
@@ -303,7 +342,9 @@ def get_stock_movements_tool(product_name: Optional[str] = None, days_back: int 
 
 
 @tool
-def suggest_reorder_quantities_tool(category: Optional[str] = None) -> str:
+def suggest_reorder_quantities_tool(category: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Suggest reorder quantities based on usage patterns and current stock.
     
@@ -314,14 +355,19 @@ def suggest_reorder_quantities_tool(category: Optional[str] = None) -> str:
         JSON string with reorder suggestions
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Suggesting reorder quantities (category={category})")
         
         # Get low stock items
-        inventory = odoo_client_v3.get_inventory_levels(category_id=None)
+        inventory = odoo.get_inventory_levels(category_id=None)
         low_stock = [item for item in inventory if item.get('qty_available', 0) < 10]
         
         # Get stock movements to calculate usage rate
-        moves = odoo_client_v3.get_stock_moves(date_from=(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
+        moves = odoo.get_stock_moves(date_from=(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'))
         
         suggestions = []
         for item in low_stock[:10]:  # Top 10
@@ -362,7 +408,9 @@ def suggest_reorder_quantities_tool(category: Optional[str] = None) -> str:
 
 
 @tool
-def get_storage_locations_tool() -> str:
+def get_storage_locations_tool(
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get all storage locations in the clinic.
     
@@ -370,10 +418,15 @@ def get_storage_locations_tool() -> str:
         JSON string with storage locations
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info("Getting storage locations")
         
         # Get locations
-        locations = odoo_client_v3.get_storage_locations()
+        locations = odoo.get_storage_locations()
         
         result = {
             'location_count': len(locations),
@@ -389,7 +442,9 @@ def get_storage_locations_tool() -> str:
 
 
 @tool
-def generate_inventory_report_tool(report_type: str = "summary", days_back: int = 30) -> str:
+def generate_inventory_report_tool(report_type: str = "summary", days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Generate comprehensive inventory report.
     
@@ -401,13 +456,18 @@ def generate_inventory_report_tool(report_type: str = "summary", days_back: int 
         JSON string with inventory report
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Generating inventory report (type={report_type}, days={days_back})")
         
         if report_type == "summary":
             # Get key metrics
-            inventory = odoo_client_v3.get_inventory_levels()
-            alerts = odoo_client_v3.get_stock_alerts()
-            valuation = odoo_client_v3.get_inventory_valuation()
+            inventory = odoo.get_inventory_levels()
+            alerts = odoo.get_stock_alerts()
+            valuation = odoo.get_inventory_valuation()
             
             report = {
                 'report_type': 'summary',
@@ -425,13 +485,13 @@ def generate_inventory_report_tool(report_type: str = "summary", days_back: int 
             }
         
         elif report_type == "valuation":
-            report = odoo_client_v3.get_inventory_valuation()
+            report = odoo.get_inventory_valuation()
             report['report_type'] = 'valuation'
             report['generated_date'] = datetime.now().isoformat()
         
         elif report_type == "movements":
             date_from = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
-            moves = odoo_client_v3.get_stock_moves(date_from=date_from)
+            moves = odoo.get_stock_moves(date_from=date_from)
             
             report = {
                 'report_type': 'movements',
@@ -453,7 +513,9 @@ def generate_inventory_report_tool(report_type: str = "summary", days_back: int 
 
 
 @tool
-def get_patient_satisfaction_tool(days_back: int = 30) -> str:
+def get_patient_satisfaction_tool(days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get patient satisfaction scores and feedback.
 
@@ -464,6 +526,11 @@ def get_patient_satisfaction_tool(days_back: int = 30) -> str:
         A formatted string with patient satisfaction metrics.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting patient satisfaction scores (days={days_back})")
         # This is a mock implementation.
         # In a real system, this would query a survey or feedback system.
@@ -503,7 +570,9 @@ def get_patient_satisfaction_tool(days_back: int = 30) -> str:
 
 
 @tool
-def get_no_show_rate_tool(days_back: int = 30) -> str:
+def get_no_show_rate_tool(days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get the no-show rate for appointments.
 
@@ -514,6 +583,11 @@ def get_no_show_rate_tool(days_back: int = 30) -> str:
         A formatted string with no-show rate metrics.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting no-show rate (days={days_back})")
         # This is a mock implementation.
         # In a real system, this would analyze appointment data from Odoo.
