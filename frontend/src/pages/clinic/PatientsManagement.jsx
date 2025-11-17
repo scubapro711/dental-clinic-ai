@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate } from 'react-router-dom';
+import API_CONFIG from '@/config/api';
 
 /**
  * Patients Management Page - Clinic Portal
@@ -28,48 +29,61 @@ export default function PatientsManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [patients, setPatients] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
 
-  // Mock patients data
-  const patients = [
-    {
-      id: 1,
-      name: 'שרה כהן',
-      phone: '+972-50-123-4567',
-      email: 'sarah.cohen@example.com',
-      lastVisit: '2025-10-05',
-      nextAppointment: '2025-10-12',
-      balance: 0,
-      status: 'active',
-      visits: 12,
-      kupat: 'מכבי',
-      healthScore: 85
-    },
-    {
-      id: 2,
-      name: 'יוסי לוי',
-      phone: '+972-52-987-6543',
-      email: 'yossi.levi@example.com',
-      lastVisit: '2025-09-20',
-      nextAppointment: null,
-      balance: 850,
-      status: 'overdue',
-      visits: 8,
-      kupat: 'כללית',
-      healthScore: 72
-    },
-    {
-      id: 3,
-      name: 'רחל אברהם',
-      phone: '+972-54-555-1234',
-      email: 'rachel.a@example.com',
-      lastVisit: '2025-10-01',
-      nextAppointment: '2025-11-15',
-      status: 'active',
-      visits: 15,
-      kupat: 'מאוחדת',
-      healthScore: 92
-    },
-  ];
+  // Fetch patients from API
+  useEffect(() => {
+    fetchPatients();
+  }, [searchQuery]);
+
+  const fetchPatients = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(
+        API_CONFIG.endpoint(`dashboard/patients?limit=50&search=${searchQuery || ''}`),
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
+            'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch patients');
+      }
+
+      const data = await response.json();
+      
+      // Transform API data to match component expectations
+      const transformedPatients = data.patients.map(patient => ({
+        id: patient.id,
+        name: patient.name,
+        phone: patient.phone || 'לא זמין',
+        email: patient.email || 'לא זמין',
+        lastVisit: patient.last_visit ? new Date(patient.last_visit).toISOString().split('T')[0] : null,
+        nextAppointment: null, // TODO: Add next appointment from API
+        balance: patient.outstanding_balance || 0,
+        status: patient.outstanding_balance > 0 ? 'overdue' : patient.active ? 'active' : 'inactive',
+        visits: patient.total_visits || 0,
+        kupat: patient.insurance_provider || 'לא ידוע',
+        healthScore: 85 // TODO: Calculate from patient data
+      }));
+      
+      setPatients(transformedPatients);
+      setTotalCount(data.total);
+    } catch (err) {
+      console.error('Error fetching patients:', err);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const getStatusBadge = (status) => {
     const config = {
@@ -224,8 +238,65 @@ export default function PatientsManagement() {
         </Card>
 
         {/* Patients List */}
-        <div className="space-y-4">
-          {(patients || []).map((patient) => (
+        {isLoading ? (
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="flex items-start gap-4">
+                      <div className="w-16 h-16 rounded-full bg-gray-200" />
+                      <div className="flex-1 space-y-3">
+                        <div className="h-4 bg-gray-200 rounded w-1/4" />
+                        <div className="h-3 bg-gray-200 rounded w-1/2" />
+                        <div className="h-3 bg-gray-200 rounded w-1/3" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ) : error ? (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3 text-red-800">
+                <AlertCircle className="h-6 w-6" />
+                <div>
+                  <h3 className="font-semibold">שגיאה בטעינת מטופלים</h3>
+                  <p className="text-sm">{error}</p>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="mt-4"
+                onClick={fetchPatients}
+              >
+                נסה שוב
+              </Button>
+            </CardContent>
+          </Card>
+        ) : patients.length === 0 ? (
+          <Card>
+            <CardContent className="p-12 text-center">
+              <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-semibold mb-2">לא נמצאו מטופלים</h3>
+              <p className="text-gray-600 mb-4">
+                {searchQuery ? 'נסה חיפוש אחר' : 'טרם נרשמו מטופלים במערכת'}
+              </p>
+              {searchQuery && (
+                <Button 
+                  variant="outline"
+                  onClick={() => setSearchQuery('')}
+                >
+                  נקה חיפוש
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {patients.map((patient) => (
             <Card key={patient.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -304,7 +375,8 @@ export default function PatientsManagement() {
               </CardContent>
             </Card>
           ))}
-        </div>
+          </div>
+        )}
       </main>
 
       {/* Floating Chat Button */}
