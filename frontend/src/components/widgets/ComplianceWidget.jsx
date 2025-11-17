@@ -32,7 +32,17 @@ export default function ComplianceWidget({ onChatWithAgent }) {
       
       if (response.ok) {
         const data = await response.json();
-        setCompliance(data);
+        // Map API response to widget format
+        const mappedData = {
+          score: data.compliance_score || 0,
+          status: data.compliance_score >= 90 ? 'good' : data.compliance_score >= 70 ? 'warning' : 'critical',
+          alerts: (data.unauthorized_access || 0) + (data.breach_incidents || 0),
+          trend: 'up',
+          lastAudit: data.last_updated ? new Date(data.last_updated) : new Date(),
+          insight: data.compliance_score >= 90 ? 'ציון תאימות גבוה - המשיכו כך!' : 'יש מקום לשיפור',
+          recommendation: 'Harper ממליצה: עדכנו את הדרכת הצוות בנושא HIPAA'
+        };
+        setCompliance(mappedData);
       } else {
         // Fallback to mock data
         console.warn('Compliance API failed, using mock data');
