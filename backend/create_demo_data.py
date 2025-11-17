@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from app.models.organization import Organization, SubscriptionTier
 from app.models.user import User, UserRole
+from app.models.organization_membership import OrganizationMembership
 from app.models.conversation import Conversation, ConversationStatus
 from app.models.message import Message
 from app.core.security import get_password_hash
@@ -117,6 +118,48 @@ def create_demo_data(db_url: str):
         print(f"   ✅ Receptionist user: {receptionist.email}")
         
         session.flush()
+        
+        # 3. Create Organization Memberships
+        print("\n3. Creating organization memberships...")
+        
+        # Admin membership
+        admin_membership = OrganizationMembership(
+            id=uuid4(),
+            user_id=admin.id,
+            organization_id=org.id,
+            organization_role="owner",
+            functional_role="admin",
+            is_active=True,
+            created_at=datetime.utcnow()
+        )
+        session.add(admin_membership)
+        print(f"   ✅ Admin membership created")
+        
+        # Dentist membership
+        dentist_membership = OrganizationMembership(
+            id=uuid4(),
+            user_id=dentist.id,
+            organization_id=org.id,
+            organization_role="staff",
+            functional_role="dentist",
+            is_active=True,
+            created_at=datetime.utcnow()
+        )
+        session.add(dentist_membership)
+        print(f"   ✅ Dentist membership created")
+        
+        # Receptionist membership
+        receptionist_membership = OrganizationMembership(
+            id=uuid4(),
+            user_id=receptionist.id,
+            organization_id=org.id,
+            organization_role="staff",
+            functional_role="receptionist",
+            is_active=True,
+            created_at=datetime.utcnow()
+        )
+        session.add(receptionist_membership)
+        print(f"   ✅ Receptionist membership created")
         
         # Note: Conversations and messages require more complex setup
         # They can be created through the API after login
