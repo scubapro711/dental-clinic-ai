@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Users, Search, Filter, Plus, Eye, Edit, MessageCircle,
   Phone, Mail, Calendar, FileText, DollarSign, AlertCircle,
