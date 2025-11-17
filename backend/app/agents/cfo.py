@@ -19,8 +19,10 @@ from typing import Dict, Any, List
 from datetime import datetime, timedelta
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
+from langchain_core.runnables import RunnableConfig
 
 from app.agents.graph_state import AgentState
+from app.agents.context import DentaFlowContext
 from app.agents.tools.marcus_financial_tools import marcus_financial_tools
 from app.agents.tools.tax_tools import tax_tools
 from app.agents.tools.accountant_referral import accountant_referral_tools
@@ -327,6 +329,14 @@ Revenue up 25% this quarter! Great job!
                 all_tools = marcus_financial_tools + tax_tools + accountant_referral_tools
                 tool_map = {tool.name: tool for tool in all_tools}
                 
+                # Create context for multi-tenancy
+                context = DentaFlowContext(
+                    organization_id=state.get("organization_id"),
+                    user_id=state.get("user_id"),
+                    user_role=state.get("user_role", "patient")
+                )
+                config = RunnableConfig(configurable={"context": context})
+                
                 # Execute tools
                 tool_results = {}
                 for tool_call in response.tool_calls:
@@ -335,10 +345,10 @@ Revenue up 25% this quarter! Great job!
                     
                     logger.info(f"CFO executing tool: {tool_name}")
                     
-                    # Execute the tool
+                    # Execute the tool with context
                     tool = tool_map.get(tool_name)
                     if tool:
-                        result = tool.invoke(tool_args)
+                        result = tool.invoke(tool_args, config=config)
                     else:
                         result = f"Unknown tool: {tool_name}"
                     
