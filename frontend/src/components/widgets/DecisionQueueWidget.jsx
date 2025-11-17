@@ -140,7 +140,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const handleApprove = async (decision) => {
     try {
       setStatusMessage('Approving action...');
-      const response = await fetch(API_CONFIG.endpoint('decisions/${decision.id}/approve'), {
+      const response = await fetch(API_CONFIG.endpoint(`decisions/${decision.id}/approve`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ export default function DecisionQueueWidget({ onChatWithAgent }) {
   const handleReject = async (decision) => {
     try {
       setStatusMessage('Rejecting action...');
-      const response = await fetch(API_CONFIG.endpoint('decisions/${decision.id}/reject'), {
+      const response = await fetch(API_CONFIG.endpoint(`decisions/${decision.id}/reject`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
