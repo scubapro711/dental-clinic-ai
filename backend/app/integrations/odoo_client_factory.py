@@ -52,16 +52,24 @@ class OdooClientFactory:
                 db = SessionLocal()
                 try:
                     org = db.query(Organization).filter(Organization.id == organization_id).first()
-                    if not org or not org.odoo_db_name or not org.odoo_api_key:
-                        raise ValueError(f"Odoo credentials not configured for organization {organization_id}")
+                    if not org:
+                        raise ValueError(f"Organization {organization_id} not found")
                     
-                    # Create a new client with organization-specific credentials
-                    cls._pool[organization_id] = OdooClient(
-                        url=os.getenv("ODOO_URL"),
-                        db=org.odoo_db_name,
-                        username=org.odoo_username, # Assuming a shared username or org-specific
-                        password=org.odoo_api_key
-                    )
+                    # If organization has Odoo credentials, use them
+                    # Otherwise, fall back to default client
+                    if org.odoo_db_name and org.odoo_api_key:
+                        # Create a new client with organization-specific credentials
+                        cls._pool[organization_id] = OdooClient(
+                            url=os.getenv("ODOO_URL"),
+                            db=org.odoo_db_name,
+                            username=os.getenv("ODOO_USERNAME"),  # Use global username
+                            password=org.odoo_api_key  # Use org-specific API key
+                        )
+                    else:
+                        # Fall back to default client if org doesn't have Odoo config
+                        if cls._default_client is None:
+                            cls._default_client = OdooClient()
+                        cls._pool[organization_id] = cls._default_client
                 finally:
                     db.close()
             return cls._pool[organization_id]
