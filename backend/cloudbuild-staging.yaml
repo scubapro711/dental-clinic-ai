@@ -9,7 +9,7 @@ steps:
       - '-t'
       - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend-staging:latest'
       - "-f"
-      - "backend/Dockerfile"
+      - "Dockerfile"
       - "."
 
   # Push the container image to Container Registry
