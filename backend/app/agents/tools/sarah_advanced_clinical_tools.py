@@ -13,8 +13,12 @@ Created: 2025-01-10
 import logging
 from datetime import datetime
 from typing import Optional
-from langchain_core.tools import tool
+from langchain_core.tools import tool, InjectedToolArg
+from langchain_core.runnables import RunnableConfig
+from typing import Annotated
 from app.integrations.odoo_client import OdooClient
+from app.integrations.odoo_client_factory import OdooClientFactory
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +31,8 @@ def create_referral_tool(
     urgency: str = "routine",
     clinical_findings: Optional[str] = None,
     requested_procedures: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Create a referral to a specialist for a patient.
@@ -52,7 +58,17 @@ def create_referral_tool(
                               reason="Impacted wisdom tooth extraction", urgency="urgent")
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Validate specialist type
         valid_specialists = [
@@ -152,6 +168,8 @@ def order_xray_tool(
     teeth_numbers: Optional[str] = None,
     reason: str = "",
     urgency: str = "routine",
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Order an X-ray (dental radiograph) for a patient.
@@ -175,7 +193,17 @@ def order_xray_tool(
                          reason="Initial assessment")
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Validate X-ray type
         valid_types = {
@@ -278,6 +306,8 @@ def order_lab_test_tool(
     lab_partner: str = "default",
     special_instructions: Optional[str] = None,
     urgency: str = "routine",
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Order a lab test or prosthetic work from a dental laboratory.
@@ -301,7 +331,17 @@ def order_lab_test_tool(
                              reason="Suspicious lesion", urgency="urgent")
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Validate test type
         valid_types = {
@@ -434,6 +474,8 @@ def create_clinical_note_tool(
     assessment: str,
     plan: str,
     teeth_numbers: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Create a structured clinical note using SOAP format (Subjective, Objective, Assessment, Plan).
@@ -463,7 +505,17 @@ def create_clinical_note_tool(
           )
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Validate note type
         valid_types = {
@@ -573,7 +625,9 @@ __all__ = [
 
 
 @tool
-def get_referrals_tool(patient_id: int, status: Optional[str] = None) -> str:
+def get_referrals_tool(patient_id: int, status: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get a list of referrals for a patient, optionally filtered by status.
 
@@ -585,7 +639,17 @@ def get_referrals_tool(patient_id: int, status: Optional[str] = None) -> str:
         A formatted string listing the patient's referrals.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation. In a real scenario, this would query the Odoo database.
         notes = odoo.get_patient_notes(patient_id, note_type="referral")
         if not notes:
@@ -607,7 +671,9 @@ def get_referrals_tool(patient_id: int, status: Optional[str] = None) -> str:
 
 
 @tool
-def get_clinical_notes_tool(patient_id: int, query: Optional[str] = None) -> str:
+def get_clinical_notes_tool(patient_id: int, query: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get a list of clinical notes for a patient, optionally filtered by a search query.
 
@@ -619,7 +685,17 @@ def get_clinical_notes_tool(patient_id: int, query: Optional[str] = None) -> str
         A formatted string listing the patient's clinical notes.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation. In a real scenario, this would query the Odoo database.
         notes = odoo.get_patient_notes(patient_id, note_type="clinical_soap")
         if not notes:
@@ -644,7 +720,9 @@ __all__.extend(["get_referrals_tool", "get_clinical_notes_tool"])
 
 
 @tool
-def upload_xray_tool(patient_id: int, file_path: str, xray_type: str) -> str:
+def upload_xray_tool(patient_id: int, file_path: str, xray_type: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Upload an X-ray file for a patient.
 
@@ -657,7 +735,17 @@ def upload_xray_tool(patient_id: int, file_path: str, xray_type: str) -> str:
         A success message with the file details.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would upload the file to a PACS or S3.
         # For now, we'll just record a note.
         note = f"📸 **צילום הועלה**\n\n**סוג צילום:** {xray_type}\n**קובץ:** {file_path}"
@@ -669,7 +757,9 @@ def upload_xray_tool(patient_id: int, file_path: str, xray_type: str) -> str:
 
 
 @tool
-def get_xrays_tool(patient_id: int) -> str:
+def get_xrays_tool(patient_id: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get a list of X-rays for a patient.
 
@@ -680,7 +770,17 @@ def get_xrays_tool(patient_id: int) -> str:
         A formatted string listing the patient's X-rays.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation. In a real scenario, this would query the PACS system.
         notes = odoo.get_patient_notes(patient_id, note_type="xray_upload")
         if not notes:
@@ -699,7 +799,9 @@ __all__.extend(["upload_xray_tool", "get_xrays_tool"])
 
 
 @tool
-def analyze_xray_tool(xray_id: int) -> str:
+def analyze_xray_tool(xray_id: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Analyze an X-ray using an AI model to detect potential issues.
     **Note:** This is a mock tool and does not perform real AI analysis.
@@ -735,7 +837,9 @@ def analyze_xray_tool(xray_id: int) -> str:
 
 
 @tool
-def schedule_followup_tool(patient_id: int, reason: str, days_from_now: int) -> str:
+def schedule_followup_tool(patient_id: int, reason: str, days_from_now: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Schedule a follow-up appointment for a patient.
 
@@ -750,7 +854,22 @@ def schedule_followup_tool(patient_id: int, reason: str, days_from_now: int) -> 
     try:
         from datetime import datetime, timedelta
 
-        odoo = OdooClient()
+        # Extract context
+
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+
+        organization_id = context.organization_id if context else None
+
+
+        
+
+
+        # Get organization-specific OdooClient
+
+
+        odoo = OdooClientFactory.get_client(organization_id)
         appointment_date = datetime.now() + timedelta(days=days_from_now)
 
         # This is a mock implementation. In a real scenario, this would create an appointment in Odoo.
@@ -771,7 +890,9 @@ __all__.extend(["analyze_xray_tool", "schedule_followup_tool"])
 
 
 @tool
-def get_lab_results_tool(patient_id: int, order_id: Optional[int] = None) -> str:
+def get_lab_results_tool(patient_id: int, order_id: Optional[int] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get the results of a lab test for a patient.
 
@@ -783,7 +904,17 @@ def get_lab_results_tool(patient_id: int, order_id: Optional[int] = None) -> str
         A formatted string with the lab results.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation. In a real scenario, this would query the lab partner's API.
         if order_id:
             notes = odoo.get_patient_notes(patient_id, note_type="lab_order")

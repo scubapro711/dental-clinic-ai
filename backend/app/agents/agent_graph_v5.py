@@ -44,6 +44,8 @@ from app.agents.cfo import CFOAgent
 from app.agents.practice_admin import PracticeAdminAgent
 from app.agents.harper_hipaa import harper_node
 from app.core.memory import get_memory_saver
+from langchain_core.runnables import RunnableConfig
+from app.agents.context import DentaFlowContext
 
 
 logger = logging.getLogger(__name__)
@@ -413,8 +415,16 @@ If the request is complete or unclear, respond with: end
             "user_role": state.get("user_role", "patient"),
         }
         
-        # Call Sarah
-        result = self.sarah(sarah_state)
+        # Create context for multi-tenancy
+        context = DentaFlowContext(
+            organization_id=state.get("organization_id"),
+            user_id=state.get("user_id"),
+            user_role=state.get("user_role", "patient")
+        )
+        config = RunnableConfig(configurable={"context": context})
+        
+        # Call Sarah with context
+        result = self.sarah.invoke(sarah_state, config=config)
         
         # Update main state
         state["messages"] = result["messages"]
