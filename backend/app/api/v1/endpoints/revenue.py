@@ -88,24 +88,28 @@ async def get_revenue_dashboard(
         today = datetime.utcnow().date()
         week_start = today - timedelta(days=today.weekday())
         week_end = week_start + timedelta(days=6)
-        revenue_this_week = get_revenue_by_period(odoo, week_start.strftime("%Y-%m-%d"), week_end.strftime("%Y-%m-%d"))
+        revenue_this_week_data = get_revenue_by_period(odoo, week_start.strftime("%Y-%m-%d"), week_end.strftime("%Y-%m-%d"))
+        revenue_this_week = revenue_this_week_data.get("total_revenue", 0)
         
         revenue_this_month = get_revenue_this_month(odoo)
         
         # Calculate last month dates
         last_month_start = today.replace(day=1) + relativedelta(months=-1)
         last_month_end = today.replace(day=1) - timedelta(days=1)
-        revenue_last_month = get_revenue_by_period(odoo, last_month_start.strftime("%Y-%m-%d"), last_month_end.strftime("%Y-%m-%d"))
+        revenue_last_month_data = get_revenue_by_period(odoo, last_month_start.strftime("%Y-%m-%d"), last_month_end.strftime("%Y-%m-%d"))
+        revenue_last_month = revenue_last_month_data.get("total_revenue", 0)
         
         # Calculate this year dates
         year_start = today.replace(month=1, day=1)
         year_end = today.replace(month=12, day=31)
-        revenue_this_year = get_revenue_by_period(odoo, year_start.strftime("%Y-%m-%d"), year_end.strftime("%Y-%m-%d"))
+        revenue_this_year_data = get_revenue_by_period(odoo, year_start.strftime("%Y-%m-%d"), year_end.strftime("%Y-%m-%d"))
+        revenue_this_year = revenue_this_year_data.get("total_revenue", 0)
         
         # Calculate last year dates
         last_year_start = year_start + relativedelta(years=-1)
         last_year_end = year_end + relativedelta(years=-1)
-        revenue_last_year = get_revenue_by_period(odoo, last_year_start.strftime("%Y-%m-%d"), last_year_end.strftime("%Y-%m-%d"))
+        revenue_last_year_data = get_revenue_by_period(odoo, last_year_start.strftime("%Y-%m-%d"), last_year_end.strftime("%Y-%m-%d"))
+        revenue_last_year = revenue_last_year_data.get("total_revenue", 0)
         
         # Get outstanding invoices
         outstanding_invoices = get_outstanding_invoices(odoo)
