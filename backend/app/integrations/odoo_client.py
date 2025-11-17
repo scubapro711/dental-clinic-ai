@@ -876,9 +876,110 @@ class OdooClient(object):
             logger.error(f"Failed to delete {model} records: {e}")
             raise
     
-    # ========== DENTAL CHART & TREATMENTS ==========
+    # ========== PATIENT & DOCTOR CONVENIENCE METHODS ==========
     
-
+    def search_patients(
+        self,
+        name: Optional[str] = None,
+        phone: Optional[str] = None,
+        email: Optional[str] = None,
+        limit: int = 10
+    ) -> List[int]:
+        """
+        Search for patients by name, phone, or email.
+        
+        This is a convenience wrapper around search() for res.partner model.
+        
+        Args:
+            name: Patient name (partial match with ilike)
+            phone: Patient phone number (partial match with ilike)
+            email: Patient email (partial match with ilike)
+            limit: Maximum number of results to return
+        
+        Returns:
+            List of patient IDs matching the search criteria
+        
+        Example:
+            >>> client = OdooClient()
+            >>> patient_ids = client.search_patients(name="Cohen", limit=5)
+            >>> print(patient_ids)  # [12, 45, 67]
+        """
+        domain = []
+        
+        # Build domain based on provided search criteria
+        if name:
+            domain.append(('name', 'ilike', name))
+        if phone:
+            domain.append(('phone', 'ilike', phone))
+        if email:
+            domain.append(('email', 'ilike', email))
+        
+        # If no criteria provided, return empty list
+        if not domain:
+            logger.warning("search_patients called with no search criteria")
+            return []
+        
+        try:
+            return self.search('res.partner', domain, limit=limit)
+        except Exception as e:
+            logger.error(f"Error searching patients: {e}")
+            raise
+    
+    def get_patient(self, patient_id: int) -> Optional[Dict[str, Any]]:
+        """
+        Get patient details by ID.
+        
+        This is a convenience wrapper around read() for res.partner model.
+        
+        Args:
+            patient_id: Patient ID (res.partner)
+        
+        Returns:
+            Dictionary with patient details or None if not found
+        
+        Example:
+            >>> client = OdooClient()
+            >>> patient = client.get_patient(12)
+            >>> print(patient['name'])  # "David Cohen"
+        """
+        fields = [
+            'id', 'name', 'phone', 'mobile', 'email',
+            'street', 'city', 'state_id', 'zip', 'country_id'
+        ]
+        
+        try:
+            results = self.read('res.partner', [patient_id], fields)
+            return results[0] if results else None
+        except Exception as e:
+            logger.error(f"Error getting patient {patient_id}: {e}")
+            raise
+    
+    def get_doctors(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """
+        Get list of doctors/physicians.
+        
+        This is a convenience wrapper around get_physicians().
+        
+        Args:
+            limit: Maximum number of doctors to return
+        
+        Returns:
+            List of doctor dictionaries with details
+        
+        Example:
+            >>> client = OdooClient()
+            >>> doctors = client.get_doctors(limit=10)
+            >>> for doc in doctors:
+            ...     print(doc['name'])
+        """
+        try:
+            # Use existing get_physicians method
+            physicians = self.get_physicians(specialization=None)
+            return physicians[:limit] if physicians else []
+        except Exception as e:
+            logger.error(f"Error getting doctors: {e}")
+            raise
+    
     # ========== DENTAL CHART & TREATMENTS ==========
     
     def get_dental_chart(self, patient_id: int) -> Optional[Dict[str, Any]]:

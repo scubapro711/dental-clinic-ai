@@ -10,8 +10,8 @@ Tools focus on patient management and basic information retrieval.
 from typing import Optional, Dict, Any
 from datetime import datetime, date
 import logging
+import os
 
-from app.integrations.odoo_client import OdooClient
 from app.agents.rbac import (
     has_permission,
     can_access_resource,
@@ -22,8 +22,15 @@ from app.agents.rbac import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize V3 client
-odoo_client = OdooClient()
+# Initialize client (mock in tests, real in production)
+if os.getenv("TESTING") == "1" or os.getenv("APP_ENV") == "test":
+    from app.integrations.mock_odoo_realistic import RealisticMockOdooClient
+    odoo_client = RealisticMockOdooClient()
+    logger.info("Using Mock Odoo Client for testing")
+else:
+    from app.integrations.odoo_client import OdooClient
+    odoo_client = OdooClient()
+    logger.info("Using Real Odoo Client")
 
 
 def search_patient_odoo(

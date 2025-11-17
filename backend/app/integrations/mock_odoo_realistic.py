@@ -85,15 +85,23 @@ class RealisticMockOdooClient:
     
     # Patient Management
     
-    def search_patients(self, name: Optional[str] = None, phone: Optional[str] = None) -> List[int]:
-        """Search for patients by name or phone."""
+    def search_patients(self, name: Optional[str] = None, phone: Optional[str] = None, email: Optional[str] = None, limit: int = 10) -> List[int]:
+        """Search for patients by name, phone, or email."""
         results = []
         
         for patient in self.patients:
+            match = False
             if name and name.lower() in patient["name"].lower():
+                match = True
+            if phone and phone in patient.get("phone", ""):
+                match = True
+            if email and email.lower() in patient.get("email", "").lower():
+                match = True
+            
+            if match:
                 results.append(patient["id"])
-            elif phone and phone in patient["phone"]:
-                results.append(patient["id"])
+                if len(results) >= limit:
+                    break
         
         return results
     
@@ -102,7 +110,7 @@ class RealisticMockOdooClient:
         return self.patients_by_id.get(patient_id)
     
     def create_patient(self, name: str, email: Optional[str] = None, 
-                      phone: Optional[str] = None) -> int:
+                      phone: Optional[str] = None, **kwargs) -> int:
         """Create a new patient."""
         patient_id = len(self.patients) + 1
         patient = {
@@ -110,14 +118,15 @@ class RealisticMockOdooClient:
             "name": name,
             "email": email,
             "phone": phone,
-            "birth_date": None,
+            "birth_date": kwargs.get("birth_date"),
             "registration_date": datetime.now().strftime("%Y-%m-%d"),
-            "address": None,
-            "insurance_provider": None,
-            "insurance_number": None,
-            "emergency_contact": None,
-            "allergies": "None",
-            "medical_conditions": "None",
+            "address": kwargs.get("street") or kwargs.get("address"),
+            "city": kwargs.get("city"),
+            "insurance_provider": kwargs.get("insurance_provider"),
+            "insurance_number": kwargs.get("insurance_number"),
+            "emergency_contact": kwargs.get("emergency_contact"),
+            "allergies": kwargs.get("allergies", "None"),
+            "medical_conditions": kwargs.get("medical_conditions", "None"),
             "last_visit": None,
             "total_visits": 0,
             "outstanding_balance": 0,
@@ -348,6 +357,60 @@ class RealisticMockOdooClient:
         
         # Add more models as needed
         return []
+    
+    # Doctor/Physician Management
+    
+    def get_physicians(self, specialization: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Get list of physicians/doctors."""
+        # Mock doctors data
+        doctors = [
+            {
+                "id": 1,
+                "name": "Dr. Sarah Cohen",
+                "specialization": "General Dentistry",
+                "work_email": "sarah.cohen@dentaflow.com",
+                "work_phone": "052-1111111"
+            },
+            {
+                "id": 2,
+                "name": "Dr. David Levi",
+                "specialization": "Orthodontics",
+                "work_email": "david.levi@dentaflow.com",
+                "work_phone": "052-2222222"
+            },
+            {
+                "id": 3,
+                "name": "Dr. Rachel Goldstein",
+                "specialization": "Endodontics",
+                "work_email": "rachel.goldstein@dentaflow.com",
+                "work_phone": "052-3333333"
+            },
+            {
+                "id": 4,
+                "name": "Dr. Michael Shapiro",
+                "specialization": "Periodontics",
+                "work_email": "michael.shapiro@dentaflow.com",
+                "work_phone": "052-4444444"
+            },
+            {
+                "id": 5,
+                "name": "Dr. Tamar Ben-David",
+                "specialization": "Oral Surgery",
+                "work_email": "tamar.bendavid@dentaflow.com",
+                "work_phone": "052-5555555"
+            }
+        ]
+        
+        # Filter by specialization if provided
+        if specialization:
+            doctors = [d for d in doctors if d["specialization"] == specialization]
+        
+        return doctors
+    
+    def get_doctors(self, limit: int = 20) -> List[Dict[str, Any]]:
+        """Get list of doctors (wrapper around get_physicians)."""
+        physicians = self.get_physicians(specialization=None)
+        return physicians[:limit] if physicians else []
     
     # Statistics
     
