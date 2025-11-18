@@ -38,6 +38,7 @@ export default function ComplianceWidget({ onChatWithAgent }) {
           recommendation: 'Harper ממליצה: עדכנו את הדרכת הצוות בנושא HIPAA'
         };
         setCompliance(mappedData);
+      }
     } catch (error) {
       console.error('Error fetching compliance:', error);
       useMockData();
