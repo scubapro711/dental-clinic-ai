@@ -550,6 +550,12 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     isSaving
   }
   
+  // Don't render dashboard until we have valid organizationId and userId
+  // This prevents "Missing organizationId or userId" warning
+  if (!organizationId || !userId) {
+    return null
+  }
+  
   return (
     <DashboardContext.Provider value={value}>
       {children}
