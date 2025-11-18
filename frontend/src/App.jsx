@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute, RoleBasedRedirect } from './components/routing/ProtectedRoute'
+import { Toaster } from './components/ui/sonner'
 
 // Layouts
 import PatientLayout from './layouts/PatientLayout'
@@ -108,6 +109,7 @@ function ComingSoon({ title }) {
 function App() {
   return (
     <ErrorBoundary>
+      <Toaster richColors position="top-right" />
       <Router>
         <DemoProvider>
         <Routes>

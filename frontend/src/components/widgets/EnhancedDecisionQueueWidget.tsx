@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import BaseWidget from './BaseWidget';
 import DecisionCard from './DecisionCard';
 import { Button } from '@/components/ui/button';
@@ -121,11 +122,19 @@ export default function EnhancedDecisionQueueWidget({ onChatWithAgent }: Enhance
     try {
       await dashboardService.approveDecision(decision.id);
       setStatusMessage('אושר בהצלחה!');
+      toast.success(`✅ ${decision.title} אושר בהצלחה!`, {
+        description: decision.patient_name ? `מטופל: ${decision.patient_name}` : undefined,
+        duration: 4000,
+      });
       await fetchDecisions();
       setTimeout(() => setStatusMessage(''), 2000);
     } catch (error) {
       console.error('Error approving decision:', error);
       setStatusMessage('שגיאה באישור');
+      toast.error('❌ שגיאה באישור ההחלטה', {
+        description: 'אנא נסה שוב או פנה לתמיכה',
+        duration: 5000,
+      });
       setTimeout(() => setStatusMessage(''), 2000);
     }
   };
@@ -135,11 +144,19 @@ export default function EnhancedDecisionQueueWidget({ onChatWithAgent }: Enhance
     try {
       await dashboardService.rejectDecision(decision.id);
       setStatusMessage('נדחה בהצלחה!');
+      toast.info(`🚫 ${decision.title} נדחה`, {
+        description: decision.patient_name ? `מטופל: ${decision.patient_name}` : undefined,
+        duration: 4000,
+      });
       await fetchDecisions();
       setTimeout(() => setStatusMessage(''), 2000);
     } catch (error) {
       console.error('Error rejecting decision:', error);
       setStatusMessage('שגיאה בדחייה');
+      toast.error('❌ שגיאה בדחיית ההחלטה', {
+        description: 'אנא נסה שוב או פנה לתמיכה',
+        duration: 5000,
+      });
       setTimeout(() => setStatusMessage(''), 2000);
     }
   };
