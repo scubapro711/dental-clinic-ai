@@ -204,7 +204,7 @@ async def get_patients(
             # Get patient's last appointment
             last_appt = odoo.search_read(
                 'patient.appointment',
-                domain=[('patient_id', '=', patient['id']), ('state', '=', 'done')],
+                domain=[('patient_id', '=', patient['id'])],
                 fields=['start'],
                 limit=1,
                 order='start DESC'
@@ -213,7 +213,7 @@ async def get_patients(
             # Get appointment count
             total_visits = odoo.search_count(
                 'patient.appointment',
-                [('patient_id', '=', patient['id']), ('state', '=', 'done')]
+                [('patient_id', '=', patient['id'])]
             )
             
             # Get outstanding balance from invoices
