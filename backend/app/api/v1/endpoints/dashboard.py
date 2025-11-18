@@ -303,7 +303,7 @@ async def get_patient_details(
         # Get treatment records (from appointments)
         treatments = odoo.search_read(
             'patient.appointment',
-            domain=[('patient_id', '=', patient_id), ('state', '=', 'done')],
+            domain=[('patient_id', '=', patient_id), ('status', '=', 'done')],
             fields=['id', 'start', 'doctor_id', 'comments'],
             order='start DESC'
         )

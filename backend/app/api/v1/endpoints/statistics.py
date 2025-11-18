@@ -319,7 +319,7 @@ async def get_top_patients(
             # Get appointment count
             appt_count = odoo.search_count(
                 'patient.appointment',
-                [('patient_id', '=', patient['id']), ('state', '=', 'done')]
+                [('patient_id', '=', patient['id']), ('status', '=', 'done')]
             )
             
             # Get total revenue (from invoices)

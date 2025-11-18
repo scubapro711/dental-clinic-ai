@@ -443,7 +443,7 @@ def get_patient_full_context_tool(
         past_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
             ('appointment_date', '<', today),
-            ('state', '=', 'done')
+            ('status', '=', 'done')
         ], ['appointment_date', 'doctor_id', 'treatment_id'], limit=10, order='appointment_date desc')
         
         # Get financial info
