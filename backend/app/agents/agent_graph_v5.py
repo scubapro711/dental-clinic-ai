@@ -34,6 +34,8 @@ from langgraph.graph import StateGraph, END
 from langgraph.types import Command
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 from langchain_openai import ChatOpenAI
+from langsmith import traceable
+from langsmith.wrappers import wrap_openai
 
 from app.agents.graph_state import AgentState
 from app.agents.alex_v2 import AlexAgent
@@ -42,6 +44,8 @@ from app.agents.cfo import CFOAgent
 from app.agents.practice_admin import PracticeAdminAgent
 from app.agents.harper_hipaa import harper_node
 from app.core.memory import get_memory_saver
+from langchain_core.runnables import RunnableConfig
+from app.agents.context import DentaFlowContext
 
 
 logger = logging.getLogger(__name__)
@@ -211,6 +215,7 @@ class AgentGraphV5:
         # Compile graph with memory checkpointer
         return workflow.compile(checkpointer=self.memory)
     
+    @traceable(name="supervisor_node")
     def _supervisor_node(self, state: AgentState) -> AgentState:
         """
         Supervisor node - decides which agent to call.
@@ -345,6 +350,7 @@ If the request is complete or unclear, respond with: end
         logger.info(f"Routing to: {next_agent}")
         return next_agent
     
+    @traceable(name="alex_node")
     def _alex_node(self, state: AgentState) -> AgentState:
         """
         Alex node - Patient interactions and reception.
@@ -383,6 +389,7 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="sarah_node")
     def _sarah_node(self, state: AgentState) -> AgentState:
         """
         שרה (Sarah) node - Clinical operations.
@@ -408,8 +415,16 @@ If the request is complete or unclear, respond with: end
             "user_role": state.get("user_role", "patient"),
         }
         
-        # Call Sarah
-        result = self.sarah(sarah_state)
+        # Create context for multi-tenancy
+        context = DentaFlowContext(
+            organization_id=state.get("organization_id"),
+            user_id=state.get("user_id"),
+            user_role=state.get("user_role", "patient")
+        )
+        config = RunnableConfig(configurable={"context": context})
+        
+        # Call Sarah with context
+        result = self.sarah.invoke(sarah_state, config=config)
         
         # Update main state
         state["messages"] = result["messages"]
@@ -420,9 +435,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="marcus_node")
     def _marcus_node(self, state: AgentState) -> AgentState:
         """
-        Marcus node - CFO financial analysis.
+        Marcus node - Financial analysis.is.
         
         Args:
             state: Current agent state
@@ -457,9 +473,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="sophia_node")
     def _sophia_node(self, state: AgentState) -> AgentState:
         """
-        Sophia node - Practice admin operations.
+        Sophia node - Operations management.ons.
         
         Args:
             state: Current agent state
@@ -494,9 +511,10 @@ If the request is complete or unclear, respond with: end
         
         return state
     
+    @traceable(name="harper_node")
     def _harper_node(self, state: AgentState) -> AgentState:
         """
-        Harper node - HIPAA Compliance Specialist.
+        Harper node - HIPAA Compliance.Specialist.
         
         Args:
             state: Current agent state
@@ -530,6 +548,84 @@ If the request is complete or unclear, respond with: end
             state["suggested_actions"] = result["suggested_actions"]
         
         return state
+    
+    async def process_message(
+        self,
+        user_id: str,
+        organization_id: str,
+        conversation_id: str,
+        message: str,
+    ) -> Dict[str, Any]:
+        """
+        Process a user message through the multi-agent graph.
+        
+        Args:
+            user_id: User ID
+            organization_id: Organization ID
+            conversation_id: Conversation ID
+            message: User message
+            
+        Returns:
+            Response dictionary with agent and response
+        """
+        logger.info(f"Processing message for user {user_id} in conversation {conversation_id}")
+        
+        # Create initial message
+        messages = [HumanMessage(content=message)]
+        
+        # Create initial state with all required fields
+        initial_state: AgentState = {
+            "messages": messages,
+            "current_agent": "supervisor",
+            "user_id": user_id,
+            "organization_id": organization_id,
+            "conversation_id": conversation_id,
+            "patient_id": None,
+            "appointment_id": None,
+            "invoice_id": None,
+            "intent": None,
+            "next_agent": None,
+            "tool_results": {},
+            "agent_responses": {},
+            "errors": [],
+            "rate_limit_counters": {},
+            "requires_human": False,
+            "escalation_level": None,
+        }
+        
+        # Run graph with conversation thread
+        final_state = await self.graph.ainvoke(
+            initial_state,
+            config={"configurable": {"thread_id": conversation_id}}
+        )
+        
+        # Extract response
+        last_message = final_state["messages"][-1]
+        response_text = last_message.content
+        
+        # Get which agent responded
+        agent_responses = final_state.get("agent_responses", {})
+        if agent_responses:
+            responding_agent = list(agent_responses.keys())[-1]
+        else:
+            responding_agent = "alex"  # fallback
+        
+        # Get escalation level
+        escalation_level = final_state.get("escalation_level")
+        
+        # Clean up escalation tags from response
+        for tag in ["[ESCALATE: EMERGENCY]", "[ESCALATE: DOCTOR_REQUIRED]", "[ESCALATE: ROUTINE]"]:
+            response_text = response_text.replace(tag, "").strip()
+        
+        logger.info(f"Response generated by {responding_agent} for user {user_id}")
+        
+        return {
+            "agent": responding_agent,
+            "response": response_text,
+            "requires_human": final_state.get("requires_human", False),
+            "escalation_level": escalation_level,
+            "agent_responses": final_state.get("agent_responses", {}),
+        }
     
     def invoke(self, state: Dict[str, Any], config: Dict[str, Any] = None) -> Dict[str, Any]:
         """

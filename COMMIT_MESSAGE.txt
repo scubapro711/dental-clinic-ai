@@ -1,0 +1,52 @@
+Fix: Correct Vite environment variable handling for staging deployment
+
+Root Cause Analysis:
+The frontend was showing "0 appointments" and other widgets were not loading
+data because the API URL was not being correctly injected during the build
+process. Despite setting VITE_API_URL in Docker ENV and creating .env.production,
+the JavaScript bundle contained "localhost:8000" instead of the staging backend URL.
+
+The Problem:
+1. vite.config.js used `process.env.VITE_API_URL` in the define block
+2. process.env is evaluated when vite.config.js loads, NOT when Vite reads .env files
+3. At config load time, process.env.VITE_API_URL was undefined
+4. The fallback 'http://localhost:8000/api/v1' was used and baked into the bundle
+5. Even though .env.production was created correctly, the define block took precedence
+
+The Solution:
+1. Import and use Vite's `loadEnv` function to explicitly read from .env files
+2. loadEnv reads .env.production based on the mode (production/development)
+3. The values are available when the config function executes
+4. Remove unnecessary sed replacement from Dockerfile (no longer needed)
+5. Keep .env.production creation (this is correct and needed)
+
+Changes Made:
+- frontend/vite.config.js:
+  * Import loadEnv from 'vite'
+  * Wrap config in function that receives { mode }
+  * Use loadEnv(mode, process.cwd(), '') to read .env files
+  * Use env.VITE_API_URL instead of process.env.VITE_API_URL
+  * Add mode to debug logging
+
+- frontend/Dockerfile:
+  * Remove sed replacement (lines 37-41) - no longer needed
+  * Keep .env.production creation (lines 29-32) - this is correct
+  * Add better logging for debugging
+  * Add build verification step
+
+Expected Result:
+- Vite will correctly read VITE_API_URL from .env.production during build
+- The staging backend URL will be baked into the JavaScript bundle
+- Frontend widgets will load data from the correct backend
+- "Today's Patients" will show 8 appointments (not 0)
+
+References:
+- Vite Documentation: https://vite.dev/guide/env-and-mode
+- Research findings: /home/ubuntu/DentaFlow/vite_env_research_findings.md
+- Solution analysis: /home/ubuntu/DentaFlow/SOLUTION_ANALYSIS.md
+
+Testing Required:
+- Verify build completes successfully
+- Check build logs show correct VITE_API_URL value
+- Verify frontend loads without errors
+- Test all dashboard widgets display data correctly

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import api from '@/services/api';
 
 /**
  * Compliance Widget - Harper Agent
@@ -22,20 +23,21 @@ export default function ComplianceWidget({ onChatWithAgent }) {
     setIsLoading(true);
     try {
       // Fetch real compliance data from Backend
-      const response = await fetch('/api/v1/hipaa/metrics/summary', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
-          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
-        }
-      });
+      const response = await api.get('/hipaa/metrics/summary');
+      const data = response.data;
       
-      if (response.ok) {
-        const data = await response.json();
-        setCompliance(data);
-      } else {
-        // Fallback to mock data
-        console.warn('Compliance API failed, using mock data');
-        useMockData();
+      if (data) {
+        // Map API response to widget format
+        const mappedData = {
+          score: data.compliance_score || 0,
+          status: data.compliance_score >= 90 ? 'good' : data.compliance_score >= 70 ? 'warning' : 'critical',
+          alerts: (data.unauthorized_access || 0) + (data.breach_incidents || 0),
+          trend: 'up',
+          lastAudit: data.last_updated ? new Date(data.last_updated) : new Date(),
+          insight: data.compliance_score >= 90 ? 'ציון תאימות גבוה - המשיכו כך!' : 'יש מקום לשיפור',
+          recommendation: 'Harper ממליצה: עדכנו את הדרכת הצוות בנושא HIPAA'
+        };
+        setCompliance(mappedData);
       }
     } catch (error) {
       console.error('Error fetching compliance:', error);

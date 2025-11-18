@@ -50,6 +50,7 @@ from app.api.v1.endpoints import (
     compliance,
     hipaa_compliance,
     diagnostics,
+    feedback,
 )
 from app.api.v1.endpoints.super_admin import organizations as super_admin_organizations
 from app.api.v1.endpoints.super_admin import usage as super_admin_usage
@@ -92,6 +93,7 @@ api_router.include_router(treatment_prices.router, prefix="/treatment-prices", t
 # AI features
 api_router.include_router(proactive_suggestions.router, prefix="/suggestions", tags=["suggestions"])
 api_router.include_router(decision_queue.router, prefix="/decision-queue", tags=["decision-queue"])
+api_router.include_router(feedback.router, prefix="/ai", tags=["ai", "feedback"])
 
 # Dental features
 api_router.include_router(tooth_chart.router, prefix="/tooth-chart", tags=["tooth-chart"])

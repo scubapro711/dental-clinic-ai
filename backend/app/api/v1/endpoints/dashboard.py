@@ -22,6 +22,57 @@ router = APIRouter()
 
 def get_odoo_client() -> OdooClient:
     """Dependency to get Odoo client instance."""
+    return OdooClient()
+
+
+@router.get("/stats")
+async def get_dashboard_stats(
+    membership: OrganizationMembership = Depends(get_current_membership),
+    odoo: OdooClient = Depends(get_odoo_client)
+) -> Dict[str, Any]:
+    """
+    Get dashboard statistics summary.
+    
+    Returns high-level metrics for the dashboard.
+    """
+    try:
+        from app.shared.odoo_queries import (
+            get_appointments_today,
+            get_patient_count,
+            get_revenue_by_period
+        )
+        from datetime import datetime
+        
+        # Get today's date range
+        today_str = datetime.utcnow().strftime("%Y-%m-%d")
+        
+        # Get today's appointments count
+        today_appointments = get_appointments_today(odoo)
+        appointments_today = len(today_appointments) if today_appointments else 0
+        
+        # Get total patients count
+        total_patients = get_patient_count(odoo)
+        
+        # Get today's revenue
+        revenue_data = get_revenue_by_period(odoo, today_str, today_str)
+        revenue_today = revenue_data.get('total_revenue', 0) if revenue_data else 0
+        
+        return {
+            "appointments_today": appointments_today,
+            "total_patients": total_patients,
+            "revenue_today": revenue_today,
+            "active_agents": 5,  # Static for now - will be implemented with agent tracking
+            "pending_decisions": 0  # Static for now - will be implemented with decision queue
+        }
+    except Exception as e:
+        logger.error(f"Error fetching dashboard stats: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_odoo_client() -> OdooClient:
+    """Dependency to get Odoo client instance."""
     logger.info("Creating OdooClient instance for dashboard endpoint")
     return OdooClient()
 
@@ -127,7 +178,7 @@ async def get_patients(
     """
     try:
         # Build search domain
-        domain = [('is_patient', '=', True)]
+        domain = [('customer_rank', '>', 0)]
         
         if search:
             domain.append('|')
@@ -141,7 +192,7 @@ async def get_patients(
         patients = odoo.search_read(
             'res.partner',
             domain=domain,
-            fields=['id', 'name', 'phone', 'email', 'birthdate_date', 'create_date'],
+            fields=['id', 'name', 'phone', 'email', 'create_date'],
             limit=limit,
             offset=offset,
             order='create_date DESC'
@@ -153,7 +204,7 @@ async def get_patients(
             # Get patient's last appointment
             last_appt = odoo.search_read(
                 'patient.appointment',
-                domain=[('patient_id', '=', patient['id']), ('state', '=', 'done')],
+                domain=[('patient_id', '=', patient['id'])],
                 fields=['start'],
                 limit=1,
                 order='start DESC'
@@ -162,7 +213,7 @@ async def get_patients(
             # Get appointment count
             total_visits = odoo.search_count(
                 'patient.appointment',
-                [('patient_id', '=', patient['id']), ('state', '=', 'done')]
+                [('patient_id', '=', patient['id'])]
             )
             
             # Get outstanding balance from invoices
@@ -183,7 +234,7 @@ async def get_patients(
                 "name": patient["name"],
                 "phone": patient.get("phone"),
                 "email": patient.get("email"),
-                "date_of_birth": patient.get("birthdate_date"),
+                "date_of_birth": None,  # TODO: Add birthdate field when available in Odoo
                 "registration_date": patient.get("create_date"),
                 "last_visit": last_appt[0]['start'] if last_appt else None,
                 "total_visits": total_visits,
@@ -227,7 +278,7 @@ async def get_patient_details(
     """
     try:
         # Get patient
-        patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email', 'birthdate_date'])
+        patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email'])
         if not patients:
             raise HTTPException(status_code=404, detail="Patient not found")
         

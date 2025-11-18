@@ -9,10 +9,13 @@ Reference: ODOO_DENTAL_MODULE_ANALYSIS.md, Phase 3
 import logging
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
-from langchain.tools import tool
+from langchain_core.tools import tool, InjectedToolArg
+from langchain_core.runnables import RunnableConfig
+from typing import Annotated
 
 from app.integrations.odoo_client import OdooClient
-odoo_client = OdooClient()
+from app.integrations.odoo_client_factory import OdooClientFactory
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +35,8 @@ __all__ = [
 def get_revenue_overview(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get comprehensive revenue overview for a time period.
@@ -44,13 +49,18 @@ def get_revenue_overview(
         Revenue overview as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         # Default to last 30 days
         if not date_to:
             date_to = datetime.now().strftime("%Y-%m-%d")
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        revenue_data = odoo_client.get_revenue_by_period(date_from, date_to)
+        revenue_data = odoo.get_revenue_by_period(date_from, date_to)
         
         result = f"""
 📊 **סקירת הכנסות**
@@ -69,7 +79,9 @@ def get_revenue_overview(
 
 
 @tool
-def get_outstanding_invoices(patient_id: Optional[int] = None) -> str:
+def get_outstanding_invoices(patient_id: Optional[int] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get list of outstanding (unpaid) invoices.
     
@@ -80,7 +92,12 @@ def get_outstanding_invoices(patient_id: Optional[int] = None) -> str:
         Outstanding invoices summary as formatted string
     """
     try:
-        outstanding_data = odoo_client.get_outstanding_balance(patient_id=patient_id)
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
+        outstanding_data = odoo.get_outstanding_balance(patient_id=patient_id)
         
         result = f"""
 ⚠️ **חשבוניות ממתינות לתשלום**
@@ -107,6 +124,8 @@ def get_top_treatments_by_revenue(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
     limit: int = 10,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get top treatments by revenue.
@@ -120,13 +139,18 @@ def get_top_treatments_by_revenue(
         Top treatments as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         # Default to last 30 days
         if not date_to:
             date_to = datetime.now().strftime("%Y-%m-%d")
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        treatments = odoo_client.get_treatment_revenue(
+        treatments = odoo.get_treatment_revenue(
             date_from=date_from,
             date_to=date_to,
             limit=limit
@@ -156,6 +180,8 @@ def get_top_treatments_by_revenue(
 def get_payment_collection_status(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get payment collection status and rates.
@@ -168,13 +194,18 @@ def get_payment_collection_status(
         Payment collection status as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         # Default to last 30 days
         if not date_to:
             date_to = datetime.now().strftime("%Y-%m-%d")
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        payments = odoo_client.get_payments(
+        payments = odoo.get_payments(
             date_from=date_from,
             date_to=date_to
         )
@@ -203,6 +234,8 @@ def get_payment_collection_status(
 def get_financial_summary(
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get comprehensive financial summary including revenue, payments, and outstanding.
@@ -215,13 +248,18 @@ def get_financial_summary(
         Financial summary as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         # Default to last 30 days
         if not date_to:
             date_to = datetime.now().strftime("%Y-%m-%d")
         if not date_from:
             date_from = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         
-        summary = odoo_client.get_financial_summary(date_from, date_to)
+        summary = odoo.get_financial_summary(date_from, date_to)
         
         result = f"""
 📊 **סיכום פיננסי מקיף**
@@ -257,7 +295,9 @@ def get_financial_summary(
 
 
 @tool
-def analyze_patient_financial_status(patient_id: int) -> str:
+def analyze_patient_financial_status(patient_id: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Analyze financial status for a specific patient.
     
@@ -268,14 +308,19 @@ def analyze_patient_financial_status(patient_id: int) -> str:
         Patient financial analysis as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         # Get patient invoices
-        invoices = odoo_client.get_invoices(patient_id=patient_id, limit=100)
+        invoices = odoo.get_invoices(patient_id=patient_id, limit=100)
         
         # Get patient payments
-        payments = odoo_client.get_payments(patient_id=patient_id, limit=100)
+        payments = odoo.get_payments(patient_id=patient_id, limit=100)
         
         # Get outstanding balance
-        outstanding = odoo_client.get_outstanding_balance(patient_id=patient_id)
+        outstanding = odoo.get_outstanding_balance(patient_id=patient_id)
         
         # Calculate totals
         total_invoiced = sum(inv.get('amount_total', 0) for inv in invoices)
@@ -308,7 +353,9 @@ def analyze_patient_financial_status(patient_id: int) -> str:
 
 
 @tool
-def get_monthly_revenue_trend(months: int = 6) -> str:
+def get_monthly_revenue_trend(months: int = 6,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get monthly revenue trend for the last N months.
     
@@ -319,6 +366,11 @@ def get_monthly_revenue_trend(months: int = 6) -> str:
         Monthly revenue trend as formatted string
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         result = f"📈 **מגמת הכנסות חודשית ({months} חודשים אחרונים)**\n\n"
         
         monthly_data = []
@@ -328,7 +380,7 @@ def get_monthly_revenue_trend(months: int = 6) -> str:
             start_date = (end_date - timedelta(days=30)).replace(day=1)
             
             # Get revenue for month
-            revenue_data = odoo_client.get_revenue_by_period(
+            revenue_data = odoo.get_revenue_by_period(
                 start_date.strftime("%Y-%m-%d"),
                 end_date.strftime("%Y-%m-%d")
             )
@@ -377,7 +429,9 @@ marcus_financial_tools = [
 
 
 @tool
-def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
+def create_invoice_tool(patient_id: int, treatment_ids: list[int],
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create an invoice using Green Invoice integration.
 
@@ -389,7 +443,18 @@ def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
         A success message with the invoice details.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         green_invoice = GreenInvoiceClient()
 
         patient = odoo.get_patient(patient_id)
@@ -409,7 +474,9 @@ def create_invoice_tool(patient_id: int, treatment_ids: list[int]) -> str:
 
 
 @tool
-def send_invoice_tool(invoice_id: int, method: str = "email") -> str:
+def send_invoice_tool(invoice_id: int, method: str = "email",
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Send an invoice to the patient.
 
@@ -431,7 +498,9 @@ def send_invoice_tool(invoice_id: int, method: str = "email") -> str:
 
 
 @tool
-def record_payment_tool(invoice_id: int, amount: float, payment_method: str) -> str:
+def record_payment_tool(invoice_id: int, amount: float, payment_method: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Record a payment for an invoice.
 
@@ -454,7 +523,9 @@ def record_payment_tool(invoice_id: int, amount: float, payment_method: str) -> 
 
 
 @tool
-def void_invoice_tool(invoice_id: int, reason: str) -> str:
+def void_invoice_tool(invoice_id: int, reason: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Void an invoice.
 
@@ -466,6 +537,11 @@ def void_invoice_tool(invoice_id: int, reason: str) -> str:
         A success message.
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         green_invoice = GreenInvoiceClient()
         # In a real implementation, this would call the Green Invoice API
         status = green_invoice.void_invoice(invoice_id, reason)
@@ -482,7 +558,9 @@ __all__.extend(["create_invoice_tool", "send_invoice_tool", "record_payment_tool
 
 
 @tool
-def create_expense_tool(amount: float, category: str, description: str) -> str:
+def create_expense_tool(amount: float, category: str, description: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Record a clinic expense.
 
@@ -495,7 +573,13 @@ def create_expense_tool(amount: float, category: str, description: str) -> str:
         A success message with the expense details.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would create an expense record in Odoo.
         expense_id = odoo.create_expense(amount, category, description)
         return f"✅ הוצאה בסך {amount} נרשמה בהצלחה. קטגוריה: {category}. מזהה: {expense_id}"
@@ -505,7 +589,9 @@ def create_expense_tool(amount: float, category: str, description: str) -> str:
 
 
 @tool
-def get_budget_tool(department: str) -> str:
+def get_budget_tool(department: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get the budget for a specific department.
 
@@ -516,7 +602,13 @@ def get_budget_tool(department: str) -> str:
         A formatted string with the budget details.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation.
         budget_data = odoo.get_budget(department)
         return f"📊 **תקציב למחלקת {department}**\n\n**תקציב מאושר:** {budget_data['allocated']}\n**ניצול עד כה:** {budget_data['spent']}\n**יתרה:** {budget_data['remaining']}"
@@ -526,7 +618,9 @@ def get_budget_tool(department: str) -> str:
 
 
 @tool
-def create_budget_tool(department: str, amount: float, year: int) -> str:
+def create_budget_tool(department: str, amount: float, year: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create a budget for a department for a specific year.
 
@@ -539,7 +633,18 @@ def create_budget_tool(department: str, amount: float, year: int) -> str:
         A success message.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would create a budget record in Odoo.
         budget_id = odoo.create_budget(department, amount, year)
         return f"✅ תקציב בסך {amount} למחלקת {department} לשנת {year} נוצר בהצלחה. מזהה: {budget_id}"
@@ -555,7 +660,9 @@ __all__.extend(["create_expense_tool", "get_budget_tool", "create_budget_tool"])
 
 
 @tool
-def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_company: str) -> str:
+def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_company: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Submit an insurance claim for a patient.
 
@@ -568,7 +675,18 @@ def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_comp
         A success message with the claim details.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would integrate with Israeli insurance APIs.
         claim_id = odoo.submit_insurance_claim(patient_id, invoice_id, insurance_company)
         return f"✅ תביעת ביטוח נשלחה בהצלחה עבור מטופל {patient_id} לחברת {insurance_company}. מספר תביעה: {claim_id}"
@@ -578,7 +696,9 @@ def submit_insurance_claim_tool(patient_id: int, invoice_id: int, insurance_comp
 
 
 @tool
-def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None) -> str:
+def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get a list of insurance claims for a patient.
 
@@ -590,7 +710,13 @@ def get_insurance_claims_tool(patient_id: int, status: Optional[str] = None) -> 
         A formatted string with the claims list.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # This is a mock implementation.
         claims = odoo.get_insurance_claims(patient_id, status)
         if not claims:
@@ -609,7 +735,9 @@ __all__.extend(["submit_insurance_claim_tool", "get_insurance_claims_tool"])
 
 
 @tool
-def export_to_accounting_tool(format: str = "csv") -> str:
+def export_to_accounting_tool(format: str = "csv",
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Export financial data to an accounting file.
 
@@ -620,7 +748,13 @@ def export_to_accounting_tool(format: str = "csv") -> str:
         A success message with the file path.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would generate a file with financial data.
         file_path = odoo.export_to_accounting(format)
         return f"✅ נתונים פיננסיים יוצאו בהצלחה לקובץ: {file_path}"
@@ -630,7 +764,9 @@ def export_to_accounting_tool(format: str = "csv") -> str:
 
 
 @tool
-def generate_tax_report_tool(year: int) -> str:
+def generate_tax_report_tool(year: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Generate a tax report for a specific year.
 
@@ -641,7 +777,18 @@ def generate_tax_report_tool(year: int) -> str:
         A success message with the report file path.
     """
     try:
-        odoo = OdooClient()
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
+        # Extract context
+
+        context = config.get("configurable", {}).get("context") if config else None
+
+        organization_id = context.organization_id if context else None
+
+        odoo = OdooClientFactory.get_client(organization_id)
         # In a real implementation, this would generate a tax report compliant with Israeli tax law.
         report_path = odoo.generate_tax_report(year)
         return f"✅ דוח מס לשנת {year} נוצר בהצלחה: {report_path}"

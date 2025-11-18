@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute, RoleBasedRedirect } from './components/routing/ProtectedRoute'
+import { Toaster } from './components/ui/sonner'
 
 // Layouts
 import PatientLayout from './layouts/PatientLayout'
@@ -24,7 +25,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 import AgenticDashboard from './pages/AgenticDashboard'
 // import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
-import PatientDetail from './pages/clinic/PatientDetail'
+import PatientDetailPage from './pages/clinic/PatientDetailPage'
 import CommunicationsHub from './pages/clinic/CommunicationsHub'
 import BAAManagementPage from './pages/clinic/BAAManagementPage'
 import SecuritySettings from './pages/SecuritySettings'
@@ -108,6 +109,7 @@ function ComingSoon({ title }) {
 function App() {
   return (
     <ErrorBoundary>
+      <Toaster richColors position="top-right" />
       <Router>
         <DemoProvider>
         <Routes>
@@ -175,7 +177,7 @@ function App() {
           <Route path="dashboard" element={<AgenticDashboard />} />
           <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
-          <Route path="patients/:id" element={<PatientDetail />} />
+          <Route path="patients/:id" element={<PatientDetailPage />} />
           <Route path="communications" element={<CommunicationsHub />} />
           <Route path="appointments" element={<ComingSoon title="Appointments Management" />} />
           <Route path="agents" element={<ComingSoon title="AI Agents" />} />

@@ -1,14 +1,16 @@
 steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'backend'
+
     args:
       - 'build'
       - '-t'
       - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend-staging:${SHORT_SHA}'
       - '-t'
       - 'us-central1-docker.pkg.dev/dentaflow-production/dentaflow/dentaflow-backend-staging:latest'
-      - '.'
+      - "-f"
+      - "Dockerfile"
+      - "."
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'

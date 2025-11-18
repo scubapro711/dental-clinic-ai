@@ -275,7 +275,7 @@ async def search_patients(
                   ('name', 'ilike', query),
                   ('phone', 'ilike', query),
                   ('email', 'ilike', query),
-                  ('is_patient', '=', True)]
+                  ('customer_rank', '>', 0)]
         
         # Search patients in Odoo
         patients = odoo.search_read(
@@ -336,10 +336,10 @@ async def create_my_mapping(
         patients = odoo.read(
             'res.partner',
             [request.odoo_patient_id],
-            ['name', 'email', 'is_patient']
+            ['name', 'email', 'customer_rank']
         )
         
-        if not patients or not patients[0].get('is_patient'):
+        if not patients or patients[0].get('customer_rank', 0) <= 0:
             raise HTTPException(status_code=404, detail="Patient not found in Odoo")
         
         patient = patients[0]

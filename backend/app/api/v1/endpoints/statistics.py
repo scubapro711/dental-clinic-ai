@@ -39,7 +39,7 @@ async def get_overview_statistics(
     """
     try:
         # Get total patients
-        total_patients = odoo.search_count('res.partner', [('is_patient', '=', True)])
+        total_patients = odoo.search_count('res.partner', [('customer_rank', '>', 0)])
         
         # Get total appointments
         total_appointments = odoo.search_count('patient.appointment', [])
@@ -120,14 +120,14 @@ async def get_patient_statistics(
     """
     try:
         # Get total patients
-        total_patients = odoo.search_count('res.partner', [('is_patient', '=', True)])
+        total_patients = odoo.search_count('res.partner', [('customer_rank', '>', 0)])
         
         # New patients (registered in last 30 days)
         thirty_days_ago = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
         new_patients = odoo.search_count(
             'res.partner',
             [
-                ('is_patient', '=', True),
+                ('customer_rank', '>', 0),
                 ('create_date', '>=', thirty_days_ago)
             ]
         )
@@ -156,7 +156,7 @@ async def get_patient_statistics(
         patients_with_balance = odoo.search_count(
             'res.partner',
             [
-                ('is_patient', '=', True),
+                ('customer_rank', '>', 0),
                 ('credit', '>', 0)  # Odoo tracks receivables in 'credit' field
             ]
         )
@@ -307,7 +307,7 @@ async def get_top_patients(
         # Get all patients with their total receivables
         patients = odoo.search_read(
             'res.partner',
-            domain=[('is_patient', '=', True)],
+            domain=[('customer_rank', '>', 0)],
             fields=['id', 'name', 'phone', 'credit', 'debit'],
             limit=limit * 3,  # Get more to filter
             order='debit DESC'  # Order by total invoiced (debit)

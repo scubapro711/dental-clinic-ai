@@ -10,14 +10,16 @@ from datetime import datetime, timedelta
 from langchain_core.tools import tool
 
 from app.integrations.odoo_client import OdooClient
-
-odoo_client_v3 = OdooClient()
+from app.integrations.odoo_client_factory import OdooClientFactory
+from app.agents.context import DentaFlowContext
 
 logger = logging.getLogger(__name__)
 
 
 @tool
-def get_rooms_list_tool(available_only: bool = False) -> str:
+def get_rooms_list_tool(available_only: bool = False,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get list of all treatment/operating rooms.
     
@@ -28,9 +30,14 @@ def get_rooms_list_tool(available_only: bool = False) -> str:
         JSON string with rooms list
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting rooms list (available_only={available_only})")
         
-        rooms = odoo_client_v3.get_operating_rooms(available_only=available_only)
+        rooms = odoo.get_operating_rooms(available_only=available_only)
         
         result = {
             'total_rooms': len(rooms),
@@ -47,7 +54,9 @@ def get_rooms_list_tool(available_only: bool = False) -> str:
 
 
 @tool
-def get_room_schedule_tool(room_name: str, date: str) -> str:
+def get_room_schedule_tool(room_name: str, date: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get schedule for a specific room.
     
@@ -59,17 +68,22 @@ def get_room_schedule_tool(room_name: str, date: str) -> str:
         JSON string with room schedule
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting schedule for room '{room_name}' on {date}")
         
         # Get all rooms to find the one we want
-        rooms = odoo_client_v3.get_operating_rooms()
+        rooms = odoo.get_operating_rooms()
         room = next((r for r in rooms if room_name.lower() in r.get('name', '').lower()), None)
         
         if not room:
             return json.dumps({'error': f"Room '{room_name}' not found"}, ensure_ascii=False)
         
         # Get schedule
-        schedule = odoo_client_v3.get_room_schedule(room['id'], date)
+        schedule = odoo.get_room_schedule(room['id'], date)
         
         # Calculate utilization
         total_minutes = 8 * 60  # Assuming 8-hour workday
@@ -94,7 +108,9 @@ def get_room_schedule_tool(room_name: str, date: str) -> str:
 
 
 @tool
-def get_equipment_list_tool(category: Optional[str] = None) -> str:
+def get_equipment_list_tool(category: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get list of clinic equipment.
     
@@ -105,9 +121,14 @@ def get_equipment_list_tool(category: Optional[str] = None) -> str:
         JSON string with equipment list
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting equipment list (category={category})")
         
-        equipment = odoo_client_v3.get_equipment_list(category=category)
+        equipment = odoo.get_equipment_list(category=category)
         
         # Group by category
         by_category = {}
@@ -140,7 +161,9 @@ def get_equipment_list_tool(category: Optional[str] = None) -> str:
 
 
 @tool
-def create_maintenance_request_tool(equipment_name: str, issue_description: str, priority: str = "medium") -> str:
+def create_maintenance_request_tool(equipment_name: str, issue_description: str, priority: str = "medium",
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create maintenance request for equipment.
     
@@ -153,9 +176,14 @@ def create_maintenance_request_tool(equipment_name: str, issue_description: str,
         JSON string with request result
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Creating maintenance request for {equipment_name}")
         
-        result = odoo_client_v3.create_maintenance_request(
+        result = odoo.create_maintenance_request(
             equipment_name=equipment_name,
             issue_description=issue_description,
             priority=priority
@@ -170,7 +198,9 @@ def create_maintenance_request_tool(equipment_name: str, issue_description: str,
 
 
 @tool
-def get_maintenance_requests_tool(state: Optional[str] = None, priority: Optional[str] = None) -> str:
+def get_maintenance_requests_tool(state: Optional[str] = None, priority: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get maintenance requests.
     
@@ -182,9 +212,14 @@ def get_maintenance_requests_tool(state: Optional[str] = None, priority: Optiona
         JSON string with maintenance requests
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting maintenance requests (state={state}, priority={priority})")
         
-        requests = odoo_client_v3.get_maintenance_requests(state=state, priority=priority)
+        requests = odoo.get_maintenance_requests(state=state, priority=priority)
         
         # Group by state
         by_state = {}
@@ -219,7 +254,9 @@ def get_maintenance_requests_tool(state: Optional[str] = None, priority: Optiona
 
 
 @tool
-def get_compliance_reminders_tool(days_ahead: int = 30) -> str:
+def get_compliance_reminders_tool(days_ahead: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Get upcoming compliance and regulatory reminders.
     
@@ -230,9 +267,14 @@ def get_compliance_reminders_tool(days_ahead: int = 30) -> str:
         JSON string with compliance reminders
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Getting compliance reminders ({days_ahead} days ahead)")
         
-        reminders = odoo_client_v3.get_compliance_reminders(days_ahead=days_ahead)
+        reminders = odoo.get_compliance_reminders(days_ahead=days_ahead)
         
         # Group by category
         by_category = {}
@@ -272,7 +314,9 @@ def get_compliance_reminders_tool(days_ahead: int = 30) -> str:
 
 
 @tool
-def create_safety_checklist_tool(checklist_type: str, date: Optional[str] = None) -> str:
+def create_safety_checklist_tool(checklist_type: str, date: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Create safety checklist for daily/weekly/monthly checks.
     
@@ -284,12 +328,17 @@ def create_safety_checklist_tool(checklist_type: str, date: Optional[str] = None
         JSON string with created checklist
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         if not date:
             date = datetime.now().strftime('%Y-%m-%d')
         
         logger.info(f"Creating {checklist_type} safety checklist for {date}")
         
-        checklist = odoo_client_v3.create_safety_checklist(checklist_type, date)
+        checklist = odoo.create_safety_checklist(checklist_type, date)
         
         import json
         return json.dumps(checklist, ensure_ascii=False, indent=2)
@@ -300,7 +349,9 @@ def create_safety_checklist_tool(checklist_type: str, date: Optional[str] = None
 
 
 @tool
-def check_equipment_maintenance_tool(days_ahead: int = 30) -> str:
+def check_equipment_maintenance_tool(days_ahead: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Check equipment that needs maintenance soon.
     
@@ -311,9 +362,14 @@ def check_equipment_maintenance_tool(days_ahead: int = 30) -> str:
         JSON string with equipment needing maintenance
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Checking equipment maintenance ({days_ahead} days ahead)")
         
-        equipment = odoo_client_v3.get_equipment_list()
+        equipment = odoo.get_equipment_list()
         
         today = datetime.now()
         threshold_date = (today + timedelta(days=days_ahead)).strftime('%Y-%m-%d')
@@ -351,7 +407,9 @@ def check_equipment_maintenance_tool(days_ahead: int = 30) -> str:
 
 
 @tool
-def generate_compliance_report_tool(report_type: str = "summary", days_back: int = 30) -> str:
+def generate_compliance_report_tool(report_type: str = "summary", days_back: int = 30,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Generate comprehensive compliance report.
     
@@ -363,13 +421,18 @@ def generate_compliance_report_tool(report_type: str = "summary", days_back: int
         JSON string with compliance report
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Generating compliance report (type={report_type}, days={days_back})")
         
         if report_type == "summary":
             # Get all key compliance metrics
-            reminders = odoo_client_v3.get_compliance_reminders(days_ahead=30)
-            maintenance_requests = odoo_client_v3.get_maintenance_requests()
-            equipment = odoo_client_v3.get_equipment_list()
+            reminders = odoo.get_compliance_reminders(days_ahead=30)
+            maintenance_requests = odoo.get_maintenance_requests()
+            equipment = odoo.get_equipment_list()
             
             report = {
                 'report_type': 'summary',
@@ -391,8 +454,8 @@ def generate_compliance_report_tool(report_type: str = "summary", days_back: int
             }
         
         elif report_type == "equipment":
-            equipment = odoo_client_v3.get_equipment_list()
-            maintenance_requests = odoo_client_v3.get_maintenance_requests()
+            equipment = odoo.get_equipment_list()
+            maintenance_requests = odoo.get_maintenance_requests()
             
             report = {
                 'report_type': 'equipment',
@@ -424,7 +487,7 @@ def generate_compliance_report_tool(report_type: str = "summary", days_back: int
             }
         
         elif report_type == "regulatory":
-            reminders = odoo_client_v3.get_compliance_reminders(days_ahead=90)
+            reminders = odoo.get_compliance_reminders(days_ahead=90)
             
             report = {
                 'report_type': 'regulatory',
@@ -453,7 +516,9 @@ def generate_compliance_report_tool(report_type: str = "summary", days_back: int
 
 
 @tool
-def optimize_room_utilization_tool(date: str) -> str:
+def optimize_room_utilization_tool(date: str,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> str:
     """
     Analyze and suggest room utilization optimization.
     
@@ -464,13 +529,18 @@ def optimize_room_utilization_tool(date: str) -> str:
         JSON string with optimization suggestions
     """
     try:
+        # Extract context
+        context = config.get("configurable", {}).get("context") if config else None
+        organization_id = context.organization_id if context else None
+        odoo = OdooClientFactory.get_client(organization_id)
+        
         logger.info(f"Analyzing room utilization for {date}")
         
-        rooms = odoo_client_v3.get_operating_rooms()
+        rooms = odoo.get_operating_rooms()
         
         room_analysis = []
         for room in rooms:
-            schedule = odoo_client_v3.get_room_schedule(room['id'], date)
+            schedule = odoo.get_room_schedule(room['id'], date)
             
             total_minutes = 8 * 60  # 8-hour workday
             booked_minutes = sum(s.get('duration', 0) for s in schedule)

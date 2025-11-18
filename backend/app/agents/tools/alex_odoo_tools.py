@@ -7,11 +7,16 @@ the real Odoo dental management system.
 Tools focus on patient management and basic information retrieval.
 """
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Annotated
 from datetime import datetime, date
 import logging
+import os
 
-from app.integrations.odoo_client import OdooClient
+from langchain_core.tools import tool, InjectedToolArg
+from langchain_core.runnables import RunnableConfig
+from app.agents.context import DentaFlowContext
+from app.integrations.odoo_client_factory import OdooClientFactory
+
 from app.agents.rbac import (
     has_permission,
     can_access_resource,
@@ -22,16 +27,16 @@ from app.agents.rbac import (
 
 logger = logging.getLogger(__name__)
 
-# Initialize V3 client
-odoo_client = OdooClient()
+# Note: OdooClient is now created per-request via OdooClientFactory
+# to support multi-tenancy (organization-specific credentials)
 
 
+@tool
 def search_patient_odoo(
     name: Optional[str] = None,
     phone: Optional[str] = None,
     email: Optional[str] = None,
-    requesting_user_id: Optional[str] = None,
-    requesting_user_role: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Search for a patient in Odoo by name, phone, or email.
@@ -42,12 +47,15 @@ def search_patient_odoo(
         name: Patient name (partial match allowed)
         phone: Patient phone number
         email: Patient email
-        requesting_user_id: ID of user making the request
-        requesting_user_role: Role of user making the request
         
     Returns:
         String with patient information or "not found" message
     """
+    # Extract context
+    context = config.get("configurable", {}).get("context") if config else None
+    requesting_user_id = context.user_id if context else None
+    requesting_user_role = context.user_role if context else None
+    organization_id = context.organization_id if context else None
     try:
         # RBAC Check
         if requesting_user_role == "patient":
@@ -78,6 +86,9 @@ def search_patient_odoo(
                 False
             )
             return get_permission_denied_message(requesting_user_role or "unknown", "search_patients")
+        
+        # Get organization-specific OdooClient
+        odoo_client = OdooClientFactory.get_client(organization_id)
         
         # Search in Odoo
         patient_ids = odoo_client.search_patients(name=name, phone=phone, email=email, limit=5)
@@ -118,10 +129,10 @@ def search_patient_odoo(
         return f"Error searching patient: {str(e)}"
 
 
+@tool
 def get_patient_details_odoo(
     patient_id: int,
-    requesting_user_id: Optional[str] = None,
-    requesting_user_role: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get detailed information about a specific patient from Odoo.
@@ -130,12 +141,15 @@ def get_patient_details_odoo(
     
     Args:
         patient_id: Odoo patient ID
-        requesting_user_id: ID of user making the request
-        requesting_user_role: Role of user making the request
         
     Returns:
         String with detailed patient information
     """
+    # Extract context
+    context = config.get("configurable", {}).get("context") if config else None
+    requesting_user_id = context.user_id if context else None
+    requesting_user_role = context.user_role if context else None
+    organization_id = context.organization_id if context else None
     try:
         # RBAC Check
         if requesting_user_role == "patient":
@@ -169,6 +183,9 @@ def get_patient_details_odoo(
             True
         )
         
+        # Get organization-specific OdooClient
+        odoo_client = OdooClientFactory.get_client(organization_id)
+        
         # Get patient from Odoo
         patient = odoo_client.get_patient(patient_id)
         
@@ -199,14 +216,14 @@ Country: {patient.get('country_id', ['N/A', 'N/A'])[1] if isinstance(patient.get
         return f"Error retrieving patient details: {str(e)}"
 
 
+@tool
 def create_patient_odoo(
     name: str,
     phone: Optional[str] = None,
     email: Optional[str] = None,
     street: Optional[str] = None,
     city: Optional[str] = None,
-    requesting_user_id: Optional[str] = None,
-    requesting_user_role: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Create a new patient in Odoo.
@@ -219,12 +236,15 @@ def create_patient_odoo(
         email: Patient email
         street: Street address
         city: City
-        requesting_user_id: ID of user making the request
-        requesting_user_role: Role of user making the request
         
     Returns:
         String confirming patient creation with new ID
     """
+    # Extract context
+    context = config.get("configurable", {}).get("context") if config else None
+    requesting_user_id = context.user_id if context else None
+    requesting_user_role = context.user_role if context else None
+    organization_id = context.organization_id if context else None
     try:
         # RBAC Check - only staff can create patients
         if requesting_user_role not in ["doctor", "owner", "admin"]:
@@ -246,6 +266,9 @@ def create_patient_odoo(
             None,
             True
         )
+        
+        # Get organization-specific OdooClient
+        odoo_client = OdooClientFactory.get_client(organization_id)
         
         # Create patient in Odoo
         patient_id = odoo_client.create_patient(
@@ -289,6 +312,11 @@ def update_patient_odoo(
     Returns:
         String confirming update
     """
+    # Extract context
+    context = config.get("configurable", {}).get("context") if config else None
+    requesting_user_id = context.user_id if context else None
+    requesting_user_role = context.user_role if context else None
+    organization_id = context.organization_id if context else None
     try:
         # RBAC Check
         if requesting_user_role == "patient":
@@ -350,9 +378,9 @@ def update_patient_odoo(
         return f"Error updating patient: {str(e)}"
 
 
+@tool
 def get_doctors_list_odoo(
-    requesting_user_id: Optional[str] = None,
-    requesting_user_role: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> str:
     """
     Get list of available doctors from Odoo.
@@ -366,6 +394,11 @@ def get_doctors_list_odoo(
     Returns:
         String with list of doctors
     """
+    # Extract context
+    context = config.get("configurable", {}).get("context") if config else None
+    requesting_user_id = context.user_id if context else None
+    requesting_user_role = context.user_role if context else None
+    organization_id = context.organization_id if context else None
     try:
         # RBAC Check - all authenticated users can view doctors
         if not requesting_user_role:
@@ -379,6 +412,10 @@ def get_doctors_list_odoo(
             None,
             True
         )
+        
+        
+        # Get organization-specific OdooClient
+        odoo_client = OdooClientFactory.get_client(organization_id)
         
         # Get doctors from Odoo
         doctors = odoo_client.get_doctors(limit=20)

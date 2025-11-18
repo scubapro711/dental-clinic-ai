@@ -141,6 +141,12 @@ class Settings(BaseSettings):
     FEATURE_FINE_TUNING: bool = Field(default=False)
     FEATURE_EXECUTIVE_AGENTS: bool = Field(default=False)
     FEATURE_SELF_HEALING: bool = Field(default=False)
+    
+    # Multi-Tenancy Feature Flag
+    ENFORCE_MULTI_TENANCY: bool = Field(
+        default=False,
+        description="When True, organization_id is required for all agent requests. When False, falls back to default Odoo credentials."
+    )
 
     # Environment helpers
     @property

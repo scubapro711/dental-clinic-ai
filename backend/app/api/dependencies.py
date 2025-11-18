@@ -2,7 +2,7 @@
 API dependencies for authentication and authorization.
 """
 
-from typing import Optional
+from typing import Optional, Union, List
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -66,13 +66,21 @@ async def get_current_active_user(
     return current_user
 
 
-def require_role(required_role: UserRole):
+def require_role(required_role: Union[UserRole, List[str]]):
     """
     Dependency factory for role-based access control.
     
+    Supports both single role and list of allowed roles.
+    
     Usage:
+        # Single role
         @router.get("/admin-only")
         async def admin_endpoint(user: User = Depends(require_role(UserRole.SUPER_ADMIN))):
+            ...
+        
+        # Multiple roles (any of them)
+        @router.get("/multi-role")
+        async def multi_endpoint(user: User = Depends(require_role(["clinic_admin", "super_admin"]))):
             ...
     """
 
@@ -84,14 +92,33 @@ def require_role(required_role: UserRole):
             UserRole.ORG_STAFF: 2,
             UserRole.ORG_VIEWER: 1,
         }
-
-        if role_hierarchy.get(current_user.role, 0) < role_hierarchy.get(
-            required_role, 0
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions",
-            )
+        
+        # String to UserRole mapping for list-based roles
+        role_mapping = {
+            "super_admin": UserRole.SUPER_ADMIN,
+            "clinic_admin": UserRole.ORG_ADMIN,
+            "org_admin": UserRole.ORG_ADMIN,
+            "org_staff": UserRole.ORG_STAFF,
+            "org_viewer": UserRole.ORG_VIEWER,
+        }
+        
+        # Handle list of roles (user needs to have ANY of them)
+        if isinstance(required_role, list):
+            allowed_roles = [role_mapping.get(r.lower(), r) for r in required_role]
+            if current_user.role not in allowed_roles:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Insufficient permissions",
+                )
+        # Handle single role (hierarchical check)
+        else:
+            if role_hierarchy.get(current_user.role, 0) < role_hierarchy.get(
+                required_role, 0
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Insufficient permissions",
+                )
 
         return current_user
 

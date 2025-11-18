@@ -634,9 +634,9 @@ async def approve_decision(
         # Update the checkpoint to mark decision as approved
         query = text("""
             UPDATE checkpoints
-            SET channel_values = jsonb_set(
-                channel_values,
-                '{messages}',
+            SET checkpoint = jsonb_set(
+                checkpoint,
+                '{channel_values,messages}',
                 (
                     SELECT jsonb_agg(
                         CASE 
@@ -646,7 +646,7 @@ async def approve_decision(
                             ELSE msg
                         END
                     )
-                    FROM jsonb_array_elements(channel_values->'messages') as msg
+                    FROM jsonb_array_elements(checkpoint->'channel_values'->'messages') as msg
                 )
             )
             WHERE thread_id = :thread_id
@@ -702,9 +702,9 @@ async def reject_decision(
         # Update the checkpoint to mark decision as rejected
         query = text("""
             UPDATE checkpoints
-            SET channel_values = jsonb_set(
-                channel_values,
-                '{messages}',
+            SET checkpoint = jsonb_set(
+                checkpoint,
+                '{channel_values,messages}',
                 (
                     SELECT jsonb_agg(
                         CASE 
@@ -714,7 +714,7 @@ async def reject_decision(
                             ELSE msg
                         END
                     )
-                    FROM jsonb_array_elements(channel_values->'messages') as msg
+                    FROM jsonb_array_elements(checkpoint->'channel_values'->'messages') as msg
                 )
             )
             WHERE thread_id = :thread_id

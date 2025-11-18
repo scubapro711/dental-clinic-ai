@@ -10,10 +10,14 @@ These tools enable Alex to perform complete patient lifecycle management:
 All tools integrate with Odoo ERP via OdooClient.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Annotated
 from datetime import datetime
 from pydantic import BaseModel, Field
 
+from langchain_core.tools import tool, InjectedToolArg
+from langchain_core.runnables import RunnableConfig
+from app.agents.context import DentaFlowContext
+from app.integrations.odoo_client_factory import OdooClientFactory
 from app.integrations.odoo_client import OdooClient
 
 
@@ -40,11 +44,11 @@ class CreatePatientInput(BaseModel):
     clinic_id: int = Field(..., description="Clinic ID (organization ID)")
 
 
+@tool
 def create_patient_tool(
     first_name: str,
     last_name: str,
     phone: str,
-    clinic_id: int,
     email: Optional[str] = None,
     date_of_birth: Optional[str] = None,
     gender: Optional[str] = None,
@@ -56,6 +60,7 @@ def create_patient_tool(
     insurance_provider: Optional[str] = None,
     insurance_number: Optional[str] = None,
     notes: Optional[str] = None,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> Dict[str, Any]:
     """
     Register a new patient in the system.
@@ -89,8 +94,17 @@ def create_patient_tool(
         - confirmation: Success message
         - next_steps: Suggested next actions
     """
+    # Extract context
+
+    organization_id = context.organization_id if context else None
+
+    
+
     try:
-        odoo = OdooClient()
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Step 1: Create partner (res.partner)
         partner_data = {
@@ -100,7 +114,7 @@ def create_patient_tool(
             'street': address,
             'city': city,
             'zip': zip_code,
-            'is_patient': True,
+            'customer_rank': 1,
             'company_id': clinic_id,
         }
         
@@ -201,6 +215,7 @@ class UpdatePatientInfoInput(BaseModel):
     insurance_number: Optional[str] = Field(None, description="New insurance policy number")
 
 
+@tool
 def update_patient_info_tool(
     patient_id: int,
     phone: Optional[str] = None,
@@ -212,6 +227,8 @@ def update_patient_info_tool(
     emergency_contact_phone: Optional[str] = None,
     insurance_provider: Optional[str] = None,
     insurance_number: Optional[str] = None,
+
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
 ) -> Dict[str, Any]:
     """
     Update patient information.
@@ -238,8 +255,17 @@ def update_patient_info_tool(
         - patient_name: Patient's name
         - confirmation: Success message
     """
+    # Extract context
+
+    organization_id = context.organization_id if context else None
+
+    
+
     try:
-        odoo = OdooClient()
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Get patient record to find partner_id
         patient = odoo.read('patient.patient', patient_id, ['partner_id', 'name'])
@@ -337,7 +363,11 @@ def update_patient_info_tool(
 # Tool 3: Get Patient Full Context
 # ============================================================================
 
-def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
+@tool
+def get_patient_full_context_tool(
+    patient_id: int,
+    config: Annotated[RunnableConfig, InjectedToolArg] = None,
+) -> Dict[str, Any]:
     """
     Get comprehensive patient context in a single call.
     
@@ -362,8 +392,17 @@ def get_patient_full_context_tool(patient_id: int) -> Dict[str, Any]:
         - notes: Recent notes and communications
         - summary: High-level patient snapshot
     """
+    # Extract context
+
+    organization_id = context.organization_id if context else None
+
+    
+
     try:
-        odoo = OdooClient()
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Get patient and partner data
         patient = odoo.read('patient.patient', patient_id, [
@@ -590,8 +629,17 @@ def add_patient_note_tool(
         - confirmation: Success message
         - timestamp: When the note was created
     """
+    # Extract context
+
+    organization_id = context.organization_id if context else None
+
+    
+
     try:
-        odoo = OdooClient()
+
+        # Get organization-specific OdooClient
+
+        odoo = OdooClientFactory.get_client(organization_id)
         
         # Get patient name
         patient = odoo.read('patient.patient', patient_id, ['name'])

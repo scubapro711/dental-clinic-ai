@@ -3,6 +3,7 @@ import BaseWidget from './BaseWidget';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Phone, MessageSquare, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { dashboardService } from '@/services/dashboardService';
 
@@ -33,6 +34,29 @@ export default function TodaysPatientsWidget({ onChatWithPatient }: TodaysPatien
   useEffect(() => {
     fetchTodaysPatients();
   }, []);
+
+  const handleConfirmAppointment = async (patient: Patient) => {
+    try {
+      // TODO: Implement actual API call when backend endpoint is ready
+      // await api.post(`/appointments/${patient.appointmentId}/confirm`);
+      
+      toast.success(`✅ תור אושר בהצלחה!`, {
+        description: `${patient.name} - ${patient.treatment}`,
+        duration: 4000,
+      });
+      
+      // Update patient status locally
+      setPatients(prev => prev.map(p => 
+        p.id === patient.id ? { ...p, status: 'confirmed' as const } : p
+      ));
+    } catch (error) {
+      console.error('[TodaysPatientsWidget] Error confirming appointment:', error);
+      toast.error('❌ שגיאה באישור התור', {
+        description: 'אנא נסה שוב או פנה לתמיכה',
+        duration: 5000,
+      });
+    }
+  };
 
   const fetchTodaysPatients = async () => {
     try {
@@ -158,6 +182,7 @@ export default function TodaysPatientsWidget({ onChatWithPatient }: TodaysPatien
                     <Button
                       size="sm"
                       className="flex-1 text-xs h-7 bg-green-600 hover:bg-green-700"
+                      onClick={() => handleConfirmAppointment(patient)}
                     >
                       <CheckCircle2 className="w-3 h-3 mr-1" />
                       אשר

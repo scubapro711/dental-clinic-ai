@@ -115,10 +115,14 @@ async def get_todays_appointments_enriched(
         counts_by_status = get_appointments_count_by_status(odoo, today_str, today_str)
         
         # Get upcoming appointments (next 7 days)
-        upcoming_appointments = get_upcoming_appointments(odoo, days=7)
+        upcoming_appointments = get_upcoming_appointments(odoo, days_ahead=7)
         
         # Get new patients this month
-        new_patients = get_new_patients_by_period(odoo, period='month')
+        from datetime import date
+        today = date.today()
+        month_start = today.replace(day=1).strftime('%Y-%m-%d')
+        month_end = today.strftime('%Y-%m-%d')
+        new_patients = get_new_patients_by_period(odoo, month_start, month_end)
         
         # Count first visits in today's appointments
         first_visits_count = sum(
@@ -134,7 +138,7 @@ async def get_todays_appointments_enriched(
             cancelled=counts_by_status.get('cancelled', 0),
             first_visits=first_visits_count,
             upcoming_week=len(upcoming_appointments),
-            new_patients_this_month=len(new_patients) if new_patients else 0
+            new_patients_this_month=new_patients if new_patients else 0
         )
         
         # Transform appointments
