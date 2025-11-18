@@ -54,7 +54,7 @@ export default function PatientDetailPage() {
     
     try {
       const response = await fetch(
-        API_CONFIG.endpoint(`dashboard/patients/${id}`),
+        API_CONFIG.endpoint(`patients/${id}`),
         {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
