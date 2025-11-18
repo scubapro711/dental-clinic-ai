@@ -99,7 +99,9 @@ export default function DecisionCard({
       clinical: { label: 'קליני', icon: <User className="w-3 h-3" /> },
       operational: { label: 'תפעולי', icon: <TrendingUp className="w-3 h-3" /> },
       financial: { label: 'פיננסי', icon: <TrendingUp className="w-3 h-3" /> },
-      compliance: { label: 'ציות', icon: <Shield className="w-3 h-3" /> }
+      compliance: { label: 'ציות', icon: <Shield className="w-3 h-3" /> },
+      scheduling: { label: 'תזמון', icon: <Clock className="w-3 h-3" /> },
+      optimization: { label: 'אופטימיזציה', icon: <TrendingUp className="w-3 h-3" /> }
     };
     // Defensive check: ensure category exists and is valid
     const safeCategory = category || 'operational';
