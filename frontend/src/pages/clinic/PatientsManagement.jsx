@@ -279,7 +279,7 @@ export default function PatientsManagement() {
                   </div>
                   
                   <div className="flex flex-col gap-2">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/clinic/patients/${patient.id}`)}>
                       <Eye className="h-4 w-4 ml-1" />
                       צפה
                     </Button>
