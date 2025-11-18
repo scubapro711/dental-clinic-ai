@@ -192,7 +192,7 @@ async def get_patients(
         patients = odoo.search_read(
             'res.partner',
             domain=domain,
-            fields=['id', 'name', 'phone', 'email', 'birthdate_date', 'create_date'],
+            fields=['id', 'name', 'phone', 'email', 'create_date'],
             limit=limit,
             offset=offset,
             order='create_date DESC'
@@ -234,7 +234,7 @@ async def get_patients(
                 "name": patient["name"],
                 "phone": patient.get("phone"),
                 "email": patient.get("email"),
-                "date_of_birth": patient.get("birthdate_date"),
+                "date_of_birth": None,  # TODO: Add birthdate field when available in Odoo
                 "registration_date": patient.get("create_date"),
                 "last_visit": last_appt[0]['start'] if last_appt else None,
                 "total_visits": total_visits,
@@ -278,7 +278,7 @@ async def get_patient_details(
     """
     try:
         # Get patient
-        patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email', 'birthdate_date'])
+        patients = odoo.read('res.partner', [patient_id], ['name', 'phone', 'email'])
         if not patients:
             raise HTTPException(status_code=404, detail="Patient not found")
         
