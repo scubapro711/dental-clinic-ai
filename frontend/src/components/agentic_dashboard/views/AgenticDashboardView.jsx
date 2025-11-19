@@ -19,7 +19,10 @@ export const AgenticDashboardView = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark bg-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50'}`}>
+    <div 
+      className={`min-h-screen ${darkMode ? 'dark' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50'}`}
+      style={darkMode ? { backgroundColor: '#0f172a' } : {}}
+    >
       {/* Top Navigation */}
       <nav className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
