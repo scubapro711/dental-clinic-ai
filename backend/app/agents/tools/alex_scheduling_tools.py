@@ -102,7 +102,7 @@ def bulk_reschedule_appointments_tool(
             ('doctor', '=', doctor_id),
             ('appointment_date', '>=', f'{original_date} 00:00:00'),
             ('appointment_date', '<=', f'{original_date} 23:59:59'),
-            ('status', '!=', 'cancel'),
+            ('appointment_status', '!=', 'cancelled'),
         ], ['id', 'patient', 'appointment_date', 'duration'])
         
         if not appointments:
@@ -227,7 +227,7 @@ def _get_available_slots_for_date(
         ('doctor', '=', doctor_id),
         ('appointment_date', '>=', f'{date} 00:00:00'),
         ('appointment_date', '<=', f'{date} 23:59:59'),
-        ('status', '!=', 'cancel'),
+        ('appointment_status', '!=', 'cancelled'),
     ], ['appointment_date', 'duration'])
     
     # Generate all possible slots
@@ -618,7 +618,7 @@ def _calculate_waitlist_priority(
     # Check patient history (loyalty)
     appointments = odoo.search_read('patient.appointment', [
         ('patient', '=', patient_id),
-        ('status', '=', 'done'),
+        ('appointment_status', '=', 'completed_appointment'),
     ], ['id'])
     
     if len(appointments) > 10:

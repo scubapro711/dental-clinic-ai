@@ -96,8 +96,8 @@ async def get_active_conversations(
         # Get recent scheduled or confirmed appointments
         appointments = odoo.search_read(
             'patient.appointment',
-            domain=[('status', 'in', ['draft', 'confirmed'])],
-            fields=['id', 'patient_id', 'start', 'status'],
+            domain=[('appointment_status', 'in', ['draft', 'confirm'])],
+            fields=['id', 'patient_id', 'start', 'appointment_status'],
             limit=10,
             order='start DESC'
         )
@@ -303,7 +303,7 @@ async def get_patient_details(
         # Get treatment records (from appointments)
         treatments = odoo.search_read(
             'patient.appointment',
-            domain=[('patient_id', '=', patient_id), ('status', '=', 'done')],
+            domain=[('patient_id', '=', patient_id), ('appointment_status', '=', 'completed_appointment')],
             fields=['id', 'start', 'doctor_id', 'comments'],
             order='start DESC'
         )

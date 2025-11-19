@@ -47,7 +47,7 @@ async def get_overview_statistics(
         # Get completed appointments
         completed_appointments = odoo.search_count(
             'patient.appointment',
-            [('status', '=', 'done')]
+            [('appointment_status', '=', 'completed_appointment')]
         )
         
         # Get total invoices
@@ -140,7 +140,7 @@ async def get_patient_statistics(
             'patient.appointment',
             domain=[
                 ('start', '>=', f"{ninety_days_ago} 00:00:00"),
-                ('state', '=', 'done')
+                ('appointment_status', '=', 'completed_appointment')
             ],
             fields=['patient_id']
         )
@@ -319,7 +319,7 @@ async def get_top_patients(
             # Get appointment count
             appt_count = odoo.search_count(
                 'patient.appointment',
-                [('patient_id', '=', patient['id']), ('status', '=', 'done')]
+                [('patient_id', '=', patient['id']), ('appointment_status', '=', 'completed_appointment')]
             )
             
             # Get total revenue (from invoices)
