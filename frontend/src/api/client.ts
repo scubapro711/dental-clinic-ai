@@ -294,6 +294,37 @@ export const api = {
     get: (id: string) =>
       apiClient.get(`/audit-logs/${id}`),
   },
+  
+  // Decision Queue endpoints (Agentic Dashboard)
+  decisionQueue: {
+    list: (params?: { agent_name?: string; category?: string; priority?: string; status?: string }) =>
+      apiClient.get(`/decision-queue`, { params }),
+    
+    get: (id: string) =>
+      apiClient.get(`/decision-queue/${id}`),
+    
+    approve: (id: string) =>
+      apiClient.post(`/decision-queue/${id}/approve`),
+    
+    reject: (id: string) =>
+      apiClient.post(`/decision-queue/${id}/reject`),
+    
+    stats: () =>
+      apiClient.get(`/decision-queue/stats`),
+  },
+  
+  // Revenue endpoints (Agentic Dashboard)
+  revenue: {
+    getData: () =>
+      apiClient.get(`/revenue/data`),
+    
+    getHealth: () =>
+      apiClient.get(`/revenue/health`),
+    
+    getTrends: (params?: { start_date?: string; end_date?: string }) =>
+      apiClient.get(`/revenue/trends`, { params }),
+  },
 };
+
 
 export default apiClient;

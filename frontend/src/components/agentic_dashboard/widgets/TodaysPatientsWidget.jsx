@@ -1,125 +1,27 @@
-/**
- * TodaysPatientsWidget Component
- * 
- * Displays today's appointments.
- * Integrated with real backend API.
- */
+import React from 'react';
+import { Users } from 'lucide-react';
 
-import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, AlertTriangle } from 'lucide-react';
-import { dashboardApiClient } from '../../../utils/dashboardApiClient';
-
-const STATUS_COLORS = {
-  scheduled: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400',
-  confirmed: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
-  in_progress: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400',
-  completed: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
-  cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
-  no_show: 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
-};
-
-const STATUS_LABELS = {
-  scheduled: 'מתוכנן',
-  confirmed: 'מאושר',
-  in_progress: 'בטיפול',
-  completed: 'הושלם',
-  cancelled: 'בוטל',
-  no_show: 'לא הגיע'
-};
-
-export const TodaysPatientsWidget = () => {
-  const [appointments, setAppointments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const data = await dashboardApiClient.get('/appointments/today');
-        setAppointments(data.appointments || []);
-      } catch (err) {
-        console.error('Failed to fetch appointments:', err);
-        setError(err.response?.data?.detail || 'שגיאה בטעינת תורים');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAppointments();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-red-900 dark:text-red-200">שגיאה בטעינת תורים</p>
-            <p className="text-xs text-red-700 dark:text-red-300 mt-1">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (appointments.length === 0) {
-    return (
-      <div className="p-6 text-center">
-        <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-300 dark:text-slate-600" />
-        <p className="text-sm text-slate-600 dark:text-slate-400">אין תורים להיום</p>
-      </div>
-    );
-  }
+const TodaysPatientsWidget = ({ onSelect }) => {
+  const pts = [
+    {id:1, time:'09:00', name:'ישראל ישראלי', status:'confirmed', type:'בדיקה'},
+    {id:2, time:'10:30', name:'רבקה מיכאלי', status:'in_progress', type:'עקירה'},
+    {id:3, time:'11:15', name:'יוסי כהן', status:'scheduled', type:'שיננית'},
+  ];
+  const getStatusLabel = (s) => ({ 'confirmed': 'מאושר', 'in_progress': 'בטיפול', 'scheduled': 'מתוכנן', 'no_show': 'לא הגיע' }[s] || s);
 
   return (
-    <div className="divide-y divide-slate-100 dark:divide-slate-700">
-      {appointments.map((apt) => (
-        <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-          {/* Time */}
-          <div className="flex items-center gap-2 mb-2">
-            <Clock className="w-4 h-4 text-slate-400" />
-            <span className="text-sm font-bold text-slate-900 dark:text-white">
-              {apt.time}
-            </span>
+    <div className="p-5 h-full flex flex-col">
+      <h3 className="text-slate-700 font-bold flex gap-2 text-sm mb-4 dark:text-slate-200"><Users size={18} className="text-indigo-500"/> יומן היום</h3>
+      <div className="space-y-2 flex-grow overflow-y-auto">
+        {pts.map(p => (
+          <div key={p.id} onClick={()=>onSelect(p)} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-indigo-50 cursor-pointer border border-transparent hover:border-indigo-100 dark:hover:bg-slate-700/50 dark:hover:border-slate-600">
+            <div className="flex items-center gap-3"><div className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded dark:bg-slate-700 dark:text-slate-300">{p.time}</div><div className="text-sm font-bold text-slate-800 dark:text-slate-200">{p.name}</div></div>
+            <div className={`text-[10px] px-2 py-0.5 rounded-full ${p.status==='in_progress'?'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300':'bg-slate-100 dark:bg-slate-700 dark:text-slate-400'}`}>{getStatusLabel(p.status)}</div>
           </div>
-
-          {/* Patient */}
-          <div className="flex items-center gap-2 mb-2">
-            <User className="w-4 h-4 text-slate-400" />
-            <span className="text-sm text-slate-700 dark:text-slate-300">
-              {apt.patient_name}
-            </span>
-          </div>
-
-          {/* Type & Status */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 rounded-full">
-              {apt.type === 'checkup' ? 'בדיקה' : 
-               apt.type === 'cleaning' ? 'ניקוי' :
-               apt.type === 'treatment' ? 'טיפול' :
-               apt.type === 'emergency' ? 'חירום' : 'מעקב'}
-            </span>
-            <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${STATUS_COLORS[apt.status]}`}>
-              {STATUS_LABELS[apt.status]}
-            </span>
-          </div>
-
-          {/* Doctor */}
-          {apt.doctor && (
-            <div className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-              רופא: {apt.doctor}
-            </div>
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 };
+
+export default TodaysPatientsWidget;

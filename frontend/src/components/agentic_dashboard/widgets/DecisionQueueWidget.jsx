@@ -1,100 +1,107 @@
-/**
- * DecisionQueueWidget Component
- * 
- * Displays pending decisions that require human approval.
- * Integrated with real backend API.
- */
+import React, { useState, useEffect } from 'react';
+import { BrainCircuit, CheckCircle } from 'lucide-react';
+import { useToast } from '../../../contexts/ToastContext';
+import { useAuth } from '../../../contexts/AgenticAuthContext';
+import { api } from '../../../api/client';
 
-import React from 'react';
-import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
-import { useDecisions } from '../../../hooks/dashboard/useDecisions';
-import { PRIORITY_COLORS, AGENT_COLORS } from '../constants';
-
-export const DecisionQueueWidget = () => {
-  const { decisions, isLoading, error, approveDecision, rejectDecision } = useDecisions();
-
-  if (isLoading) {
-    return (
-      <div className="p-6 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-red-900 dark:text-red-200">שגיאה בטעינת החלטות</p>
-            <p className="text-xs text-red-700 dark:text-red-300 mt-1">{error}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (decisions.length === 0) {
-    return (
-      <div className="p-6 text-center">
-        <CheckCircle className="w-12 h-12 mx-auto mb-3 text-emerald-500" />
-        <p className="text-sm text-slate-600 dark:text-slate-400">אין החלטות ממתינות</p>
-      </div>
-    );
-  }
-
+const DecisionQueueWidget = () => {
+  const { organization } = useAuth();
+  const [items, setItems] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { addToast } = useToast();
+  
+  useEffect(() => {
+    if (organization) {
+      loadDecisions();
+    }
+  }, [organization]);
+  
+  const loadDecisions = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.decisionQueue.list({ status: 'pending' });
+      setItems(response.data.suggestions || []);
+    } catch (error) {
+      console.error('Failed to load decisions:', error);
+      addToast('שגיאה בטעינת החלטות', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleApprove = async (id) => {
+    try {
+      await api.decisionQueue.approve(id);
+      setItems(prev => prev.filter(x => x.id !== id));
+      addToast('פעולה אושרה בהצלחה', 'success');
+    } catch (error) {
+      console.error('Failed to approve decision:', error);
+      addToast('שגיאה באישור פעולה', 'error');
+    }
+  };
+  
+  const handleReject = async (id) => {
+    try {
+      await api.decisionQueue.reject(id);
+      setItems(prev => prev.filter(x => x.id !== id));
+      addToast('פעולה נדחתה');
+    } catch (error) {
+      console.error('Failed to reject decision:', error);
+      addToast('שגיאה בדחיית פעולה', 'error');
+    }
+  };
+  
   return (
-    <div className="divide-y divide-slate-100 dark:divide-slate-700">
-      {decisions.map((decision) => (
-        <div key={decision.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-          {/* Agent Badge */}
-          <div className="flex items-center gap-2 mb-2">
-            <div className={`w-2 h-2 rounded-full ${AGENT_COLORS[decision.agent_id]}`}></div>
-            <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-              {decision.agent_name}
-            </span>
+    <div className="p-5 h-full flex flex-col">
+      <h3 className="text-slate-700 font-bold flex gap-2 text-sm mb-4 dark:text-slate-200">
+        <BrainCircuit size={18} className="text-purple-600 dark:text-purple-400"/> אישורים
+      </h3>
+      <div className="space-y-3 overflow-y-auto custom-scrollbar pr-1 flex-grow">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full text-slate-400 text-xs">טוען...</div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-slate-400 text-xs">
+            <CheckCircle size={32} className="mb-2 opacity-20"/>
+            הסוכנים מסתדרים לבד 🎉
           </div>
-
-          {/* Title */}
-          <h4 className="font-bold text-sm mb-1 text-slate-900 dark:text-white">
-            {decision.title}
-          </h4>
-
-          {/* Description */}
-          <p className="text-xs text-slate-600 dark:text-slate-400 mb-3">
-            {decision.description}
-          </p>
-
-          {/* Priority & Confidence */}
-          <div className="flex items-center gap-2 mb-3">
-            <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${PRIORITY_COLORS[decision.priority]}`}>
-              {decision.priority === 'high' ? 'גבוה' : decision.priority === 'medium' ? 'בינוני' : 'נמוך'}
-            </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              ביטחון: {decision.confidence}%
-            </span>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => approveDecision(decision.id)}
-              className="flex-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-1"
-            >
-              <CheckCircle size={14} />
-              אשר
-            </button>
-            <button
-              onClick={() => rejectDecision(decision.id)}
-              className="flex-1 px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition flex items-center justify-center gap-1"
-            >
-              <XCircle size={14} />
-              דחה
-            </button>
-          </div>
-        </div>
-      ))}
+        ) : (
+          items.map(i => (
+            <div key={i.id} className="p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-purple-200 transition-colors dark:bg-slate-700/50 dark:border-slate-600 dark:hover:border-purple-500/50">
+              <div className="flex justify-between mb-1">
+                <span className="font-bold text-sm dark:text-slate-200">{i.title}</span>
+                <span className="text-[10px] font-mono text-slate-500 bg-white px-1 rounded border border-slate-200 dark:bg-slate-600 dark:border-slate-500 dark:text-slate-300">
+                  {i.confidence || 95}% AI
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mb-2 line-clamp-2 dark:text-slate-400">{i.description}</p>
+              <div className="flex items-center gap-1 mb-3">
+                <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white ${
+                  i.agent_name?.includes('Marcus') ? 'bg-emerald-500' : 'bg-purple-500'
+                }`}>
+                  {i.agent_name?.[0] || 'A'}
+                </div>
+                <span className="text-[10px] text-slate-400 font-medium dark:text-slate-300">{i.agent_name || 'AI Agent'}</span>
+              </div>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => handleReject(i.id)} 
+                  className="flex-1 py-1 rounded border border-slate-200 text-xs hover:bg-slate-100 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600"
+                >
+                  דחה
+                </button>
+                <button 
+                  onClick={() => handleApprove(i.id)} 
+                  className="flex-1 py-1 rounded bg-purple-600 text-white text-xs hover:bg-purple-700"
+                >
+                  אשר
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
+
+export default DecisionQueueWidget;

@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { LogOut, Moon, Sun } from 'lucide-react';
+import { useAuth } from '../../../contexts/AgenticAuthContext';
 import { useAuth } from '../../../hooks/useAuth';
 import { SystemPulseHeader } from '../SystemPulseHeader';
 import { WidgetWrapper } from '../WidgetWrapper';
