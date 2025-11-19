@@ -7,12 +7,12 @@
 
 import React from 'react';
 import { ToastProvider } from '../contexts/dashboard/ToastContext';
-import { AgenticDashboardView } from '../components/agentic_dashboard/views/AgenticDashboardView';
+import { DashboardView } from '../components/agentic_dashboard/views/DashboardView';
 
 export const AgenticDashboardPage = () => {
   return (
     <ToastProvider>
-      <AgenticDashboardView />
+      <DashboardView />
     </ToastProvider>
   );
 };

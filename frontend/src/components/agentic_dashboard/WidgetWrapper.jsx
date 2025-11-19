@@ -1,45 +1,34 @@
 /**
  * WidgetWrapper Component
  * 
- * Wraps dashboard widgets with consistent styling.
+ * Wraps dashboard widgets with consistent styling and close button.
  */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import { X } from 'lucide-react';
 
 export const WidgetWrapper = ({ children, title, onClose, isWide = false }) => {
   return (
-    <div 
-      className={`bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col ${
-        isWide ? 'md:col-span-2' : ''
-      }`}
-    >
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center shrink-0">
-        <h3 className="font-bold text-slate-900 dark:text-white">{title}</h3>
+    <div className={`flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden relative group transition-all hover:shadow-md h-full dark:bg-slate-800 dark:border-slate-700 ${isWide ? 'md:col-span-2 xl:col-span-2' : 'col-span-1'}`}>
+      <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
         {onClose && (
-          <button
-            onClick={onClose}
-            className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition"
-            aria-label="Close widget"
+          <button 
+            onClick={onClose} 
+            title="הסר" 
+            className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded dark:hover:bg-red-900/30"
           >
-            <X size={16} />
+            <X size={14}/>
           </button>
         )}
       </div>
-      
-      {/* Content */}
-      <div className="flex-1 overflow-auto">
-        {children}
-      </div>
+      <div className="h-full w-full">{children}</div>
     </div>
   );
 };
 
 WidgetWrapper.propTypes = {
   children: PropTypes.node.isRequired,
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   onClose: PropTypes.func,
   isWide: PropTypes.bool
 };
