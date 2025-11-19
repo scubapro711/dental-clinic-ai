@@ -47,7 +47,7 @@ async def get_overview_statistics(
         # Get completed appointments
         completed_appointments = odoo.search_count(
             'patient.appointment',
-            [('state', '=', 'done')]
+            [('status', '=', 'done')]
         )
         
         # Get total invoices

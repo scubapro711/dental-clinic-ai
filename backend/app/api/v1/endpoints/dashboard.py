@@ -96,8 +96,8 @@ async def get_active_conversations(
         # Get recent scheduled or confirmed appointments
         appointments = odoo.search_read(
             'patient.appointment',
-            domain=[('state', 'in', ['draft', 'confirmed'])],
-            fields=['id', 'patient_id', 'start', 'state'],
+            domain=[('status', 'in', ['draft', 'confirmed'])],
+            fields=['id', 'patient_id', 'start', 'status'],
             limit=10,
             order='start DESC'
         )

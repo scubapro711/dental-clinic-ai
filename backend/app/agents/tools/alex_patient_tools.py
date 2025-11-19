@@ -437,8 +437,8 @@ def get_patient_full_context_tool(
         upcoming_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
             ('appointment_date', '>=', today),
-            ('state', 'in', ['draft', 'confirmed'])
-        ], ['appointment_date', 'doctor_id', 'treatment_id', 'state'], limit=5)
+            ('status', 'in', ['draft', 'confirmed'])
+        ], ['appointment_date', 'doctor_id', 'treatment_id', 'status'], limit=5)
         
         past_appointments = odoo.search_read('patient.appointment', [
             ('patient_id', '=', patient_id),
@@ -508,7 +508,7 @@ def get_patient_full_context_tool(
                         'date': a['appointment_date'],
                         'doctor': a['doctor_id'][1] if isinstance(a['doctor_id'], list) else a['doctor_id'],
                         'treatment': a['treatment_id'][1] if isinstance(a['treatment_id'], list) else a['treatment_id'],
-                        'status': a['state']
+                        'status': a['status']
                     }
                     for a in upcoming_appointments
                 ],
