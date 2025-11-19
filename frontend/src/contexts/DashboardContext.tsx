@@ -209,7 +209,7 @@ function getDefaultState(organizationId: string, userId: string): DashboardState
 // ========== localStorage Utilities ==========
 
 function getStorageKey(organizationId: string, userId: string): string {
-  // CRITICAL: Use current_organization_id (not organization_id)
+  // Storage key scoped per organization and user
   return `dashboard_state_${organizationId}_${userId}`
 }
 
@@ -290,8 +290,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const { user, organization } = useAuthStore()
   
   // Get organizationId from localStorage (matches useAuthStore)
-  const organizationId = localStorage.getItem('current_organization_id') || organization?.id || ''
-  const userId = user?.id || ''
+  const organizationId = localStorage.getItem('organization_id') || organization?.id || ''
+  const userProfile = JSON.parse(localStorage.getItem('user_profile') || '{}')
+  const userId = userProfile.id || user?.id || ''
   
   const [state, setState] = useState<DashboardState>(() =>
     loadDashboardState(organizationId, userId)
