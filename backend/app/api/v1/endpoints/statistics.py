@@ -17,19 +17,14 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
-def OdooClient() -> OdooClient:
+def get_odoo_client() -> OdooClient:
     """Dependency to get Odoo client instance."""
-    return OdooClient(
-        url=settings.ODOO_URL,
-        db=settings.ODOO_DB,
-        username=settings.ODOO_USERNAME,
-        password=settings.ODOO_PASSWORD,
-    )
+    return OdooClient()
 
 
 @router.get("/overview")
 async def get_overview_statistics(
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get overview statistics for the clinic dashboard.
@@ -110,7 +105,7 @@ async def get_overview_statistics(
 
 @router.get("/patients")
 async def get_patient_statistics(
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get patient-related statistics.
@@ -181,7 +176,7 @@ async def get_patient_statistics(
 
 @router.get("/appointments")
 async def get_appointment_statistics(
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get appointment-related statistics.
@@ -234,7 +229,7 @@ async def get_appointment_statistics(
 
 @router.get("/revenue")
 async def get_revenue_statistics(
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get revenue and financial statistics.
@@ -291,7 +286,7 @@ async def get_revenue_statistics(
 @router.get("/top-patients")
 async def get_top_patients(
     limit: int = 10,
-    odoo: OdooClient = Depends(OdooClient)
+    odoo: OdooClient = Depends(get_odoo_client)
 ) -> Dict[str, Any]:
     """
     Get top patients by revenue.
