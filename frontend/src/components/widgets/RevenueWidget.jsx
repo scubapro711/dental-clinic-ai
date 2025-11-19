@@ -25,7 +25,9 @@ export default function RevenueWidget({ onChatWithAgent }) {
     setIsLoading(true);
     try {
       // Get organization ID
-      const organizationId = localStorage.getItem('organization_id') || '1';
+      const organizationId = localStorage.getItem('current_organization_id') || 
+                              localStorage.getItem('organization_id') || 
+                              '1';
       
       // Fetch enriched revenue data from new endpoint
       const response = await fetch(API_CONFIG.endpoint('revenue/dashboard'), {

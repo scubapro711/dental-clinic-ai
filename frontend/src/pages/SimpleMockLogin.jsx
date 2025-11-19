@@ -51,7 +51,7 @@ export default function SimpleMockLogin() {
     const mockToken = 'mock-jwt-token-' + Date.now();
     localStorage.setItem('token', mockToken);
     localStorage.setItem('access_token', mockToken);
-    localStorage.setItem('organization_id', '1');
+    localStorage.setItem('current_organization_id', '1');
     localStorage.setItem('user_profile', JSON.stringify(mockUser));
     localStorage.setItem('mockUser', JSON.stringify(mockUser)); // For RBAC utility
     

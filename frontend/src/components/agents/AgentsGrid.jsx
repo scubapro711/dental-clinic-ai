@@ -39,7 +39,7 @@ export function AgentsGrid({
       const response = await fetch(API_CONFIG.endpoint('dashboard/stats'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
-          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+          'X-Organization-ID': localStorage.getItem('current_organization_id') || localStorage.getItem('organization_id') || '1'
         }
       });
 

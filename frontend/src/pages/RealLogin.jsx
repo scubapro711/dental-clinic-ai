@@ -70,7 +70,7 @@ export default function RealLogin() {
       localStorage.setItem('token', access_token);
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('refresh_token', refresh_token);
-      localStorage.setItem('organization_id', organizationId || '1');
+      localStorage.setItem('current_organization_id', organizationId || '1');
       localStorage.setItem('user_profile', JSON.stringify(userProfile));
 
       // Navigate based on role

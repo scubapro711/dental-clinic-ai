@@ -290,7 +290,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const { user, organization } = useAuthStore()
   
   // Get organizationId from localStorage (matches useAuthStore)
-  const organizationId = localStorage.getItem('organization_id') || organization?.id || ''
+  // Fallback to old key for backward compatibility during migration
+  const organizationId = localStorage.getItem('current_organization_id') || 
+                         localStorage.getItem('organization_id') || 
+                         organization?.id || ''
   const userProfile = JSON.parse(localStorage.getItem('user_profile') || '{}')
   const userId = userProfile.id || user?.id || ''
   

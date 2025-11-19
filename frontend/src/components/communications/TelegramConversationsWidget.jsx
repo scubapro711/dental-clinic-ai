@@ -26,7 +26,7 @@ export default function TelegramConversationsWidget() {
       const response = await fetch(API_CONFIG.endpoint('telegram-admin/conversations'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
-          'X-Organization-ID': localStorage.getItem('organization_id')
+          'X-Organization-ID': localStorage.getItem('current_organization_id') || localStorage.getItem('organization_id') || '1'
         }
       });
       

@@ -54,7 +54,7 @@ const AgentChat = ({ agentId, agentName, agentColor }) => {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token') || localStorage.getItem('access_token')}`,
-          'X-Organization-ID': localStorage.getItem('organization_id') || '1'
+          'X-Organization-ID': localStorage.getItem('current_organization_id') || localStorage.getItem('organization_id') || '1'
         },
         body: JSON.stringify({
           message: input.trim(),
