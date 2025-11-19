@@ -52,9 +52,14 @@ export const RevenueWidget = () => {
     );
   }
 
-  const change = revenue.revenue_this_month - revenue.revenue_last_month;
-  const changePercent = revenue.revenue_last_month > 0 
-    ? ((change / revenue.revenue_last_month) * 100).toFixed(1)
+  // Provide default values for undefined fields
+  const revenueThisMonth = revenue.revenue_this_month ?? 0;
+  const revenueLastMonth = revenue.revenue_last_month ?? 0;
+  const outstandingBalance = revenue.outstanding_balance ?? 0;
+
+  const change = revenueThisMonth - revenueLastMonth;
+  const changePercent = revenueLastMonth > 0 
+    ? ((change / revenueLastMonth) * 100).toFixed(1)
     : '0';
   const isPositive = change >= 0;
 
@@ -67,7 +72,7 @@ export const RevenueWidget = () => {
           <span className="text-sm text-slate-600 dark:text-slate-400">הכנסות החודש</span>
         </div>
         <div className="text-3xl font-bold text-slate-900 dark:text-white mb-1">
-          ₪{revenue.revenue_this_month.toLocaleString()}
+          ₪{revenueThisMonth.toLocaleString()}
         </div>
         <div className="flex items-center gap-1">
           {isPositive ? (
@@ -87,7 +92,7 @@ export const RevenueWidget = () => {
         <div className="flex justify-between items-center">
           <span className="text-sm text-slate-600 dark:text-slate-400">יתרה לגביה</span>
           <span className="text-lg font-bold text-orange-600">
-            ₪{revenue.outstanding_balance.toLocaleString()}
+            ₪{outstandingBalance.toLocaleString()}
           </span>
         </div>
       </div>
