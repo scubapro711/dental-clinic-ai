@@ -171,7 +171,7 @@ describe('SimpleMockLogin', () => {
       // Check localStorage immediately (before timeout)
       expect(localStorage.getItem('token')).toMatch(/^mock-jwt-token-/);
       expect(localStorage.getItem('access_token')).toMatch(/^mock-jwt-token-/);
-      expect(localStorage.getItem('organization_id')).toBe('1');
+      expect(localStorage.getItem("current_organization_id")).toBe("1");
       
       const userProfile = JSON.parse(localStorage.getItem('user_profile'));
       expect(userProfile.name).toBe('Dr. Rachel Cohen');
