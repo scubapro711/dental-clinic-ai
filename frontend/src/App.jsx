@@ -23,6 +23,7 @@ import PatientProfile from './pages/patient/PatientProfile'
 
 // Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
+import AgenticDashboardPage from './pages/AgenticDashboardPage'
 // import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import PatientDetailPage from './pages/clinic/PatientDetailPage'
@@ -175,6 +176,7 @@ function App() {
         >
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
           <Route path="dashboard" element={<AgenticDashboard />} />
+          <Route path="dashboard-v2" element={<AgenticDashboardPage />} />
           <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
           <Route path="patients/:id" element={<PatientDetailPage />} />
