@@ -12,7 +12,9 @@ const ToastContext = createContext(null);
 export const useToast = () => {
   const context = useContext(ToastContext);
   if (!context) {
-    throw new Error('useToast must be used within ToastProvider');
+    // Return no-op fallback if ToastProvider is not available
+    console.warn('useToast called outside ToastProvider, using fallback');
+    return { addToast: () => {} };
   }
   return context;
 };
