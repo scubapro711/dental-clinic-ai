@@ -165,6 +165,16 @@ function App() {
           <Route path="chat" element={<ChatPage />} />
         </Route>
         
+        {/* New Agentic Dashboard v2 (Standalone, no layout wrapper) */}
+        <Route
+          path="/clinic/dashboard-v2"
+          element={
+            <ProtectedRoute allowedRoles={['org_admin', 'org_staff']}>
+              <AgenticDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
         {/* Clinic Portal Routes (ORG_ADMIN, ORG_STAFF) */}
         <Route
           path="/clinic"
@@ -176,7 +186,6 @@ function App() {
         >
           <Route index element={<Navigate to="/clinic/dashboard" replace />} />
           <Route path="dashboard" element={<AgenticDashboard />} />
-          <Route path="dashboard-v2" element={<AgenticDashboardPage />} />
           <Route path="clinical" element={<ClinicalDashboard />} />
           <Route path="patients" element={<PatientsManagement />} />
           <Route path="patients/:id" element={<PatientDetailPage />} />
