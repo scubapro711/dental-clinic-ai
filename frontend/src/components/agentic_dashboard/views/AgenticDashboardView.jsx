@@ -53,10 +53,10 @@ export const AgenticDashboardView = () => {
               {/* User Info */}
               <div className="flex items-center gap-3 px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  {user?.full_name?.charAt(0) || 'U'}
+                  {user?.email?.charAt(0).toUpperCase() || 'U'}
                 </div>
                 <span className="text-sm font-medium text-slate-900 dark:text-white">
-                  {user?.full_name || 'User'}
+                  {user?.email || 'User'}
                 </span>
               </div>
 
