@@ -26,7 +26,18 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [organization, setOrganization] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { addToast } = useToast();
+  
+  // Make toast optional to avoid context dependency issues
+  let addToast = () => {};
+  try {
+    const toastContext = useToast();
+    if (toastContext?.addToast) {
+      addToast = toastContext.addToast;
+    }
+  } catch (error) {
+    // Toast context not available, use no-op
+    console.warn('Toast context not available in AuthProvider');
+  }
 
   useEffect(() => {
     const initAuth = async () => {
