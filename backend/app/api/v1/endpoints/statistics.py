@@ -189,13 +189,13 @@ async def get_appointment_statistics(
         appointments = odoo.search_read(
             'patient.appointment',
             domain=[],
-            fields=['id', 'state', 'start']
+            fields=['id', 'appointment_status', 'start']
         )
         
         # Status distribution
         status_dist = {}
         for appt in appointments:
-            status = appt['state']
+            status = appt['appointment_status']
             status_dist[status] = status_dist.get(status, 0) + 1
         
         # Upcoming appointments (next 7 days)
@@ -204,7 +204,7 @@ async def get_appointment_statistics(
         upcoming = odoo.search_count(
             'patient.appointment',
             [
-                ('state', 'in', ['draft', 'confirmed']),
+                ('appointment_status', 'in', ['draft', 'confirm']),
                 ('start', '>=', f"{today} 00:00:00"),
                 ('start', '<=', f"{seven_days} 23:59:59")
             ]
