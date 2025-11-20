@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../styles/dashboard.css';
 import '../styles/transparency.css';
 import '../styles/widgets.css';
