@@ -55,21 +55,46 @@ export default function AgenticDashboard() {
   const [showHistorySidebar, setShowHistorySidebar] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversationMessages, setConversationMessages] = useState([]);
-  const [darkMode, setDarkMode] = useState(false);
+  // Dark mode with localStorage persistence and system preference detection
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('dentaflow_dark_mode');
+    if (saved !== null) {
+      return JSON.parse(saved);
+    }
+    // If no saved preference, use system preference
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
   const chatInputRef = useRef(null);
   const userInfo = getUserInfo();
   
   // Feature flag: Dashboard customization
   const enableCustomization = isFeatureEnabled('ENABLE_DASHBOARD_CUSTOMIZATION');
 
-  // Dark mode effect
+  // Dark mode effect with localStorage persistence
   useEffect(() => {
+    // Save to localStorage
+    localStorage.setItem('dentaflow_dark_mode', JSON.stringify(darkMode));
+    
+    // Apply to document
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Prevent transitions on initial load
+  useEffect(() => {
+    // Add no-transitions class on mount
+    document.documentElement.classList.add('no-transitions');
+    
+    // Remove it after a short delay to enable transitions
+    const timer = setTimeout(() => {
+      document.documentElement.classList.remove('no-transitions');
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handler to send message to chat from widgets
   const handleChatWithAgent = (message) => {
