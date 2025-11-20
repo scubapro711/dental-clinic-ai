@@ -127,7 +127,7 @@ export default function PatientsManagement() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Alex Suggestion */}
-        <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-2xl shadow-sm">
+        <Card className="mb-6 border-blue-200 bg-gradient-to-r from-blue-50 to-blue-100/50">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
@@ -160,7 +160,7 @@ export default function PatientsManagement() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">סה"כ מטופלים</CardTitle>
               <Users className="h-4 w-4 text-blue-600" />
@@ -171,7 +171,7 @@ export default function PatientsManagement() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">פעילים</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
@@ -182,7 +182,7 @@ export default function PatientsManagement() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">עם חוב</CardTitle>
               <AlertCircle className="h-4 w-4 text-red-600" />
@@ -193,7 +193,7 @@ export default function PatientsManagement() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">תורים היום</CardTitle>
               <Calendar className="h-4 w-4 text-purple-600" />
@@ -206,7 +206,7 @@ export default function PatientsManagement() {
         </div>
 
         {/* Search and Filters */}
-        <Card className="mb-6 rounded-2xl shadow-sm">
+        <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex gap-4">
               <div className="flex-1 relative">
@@ -239,7 +239,7 @@ export default function PatientsManagement() {
 
         {/* Patients List */}
         {isLoading ? (
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardContent className="p-6">
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
@@ -258,7 +258,7 @@ export default function PatientsManagement() {
             </CardContent>
           </Card>
         ) : error ? (
-          <Card className="border-red-200 bg-red-50 rounded-2xl shadow-sm">
+          <Card className="border-red-200 bg-red-50">
             <CardContent className="p-6">
               <div className="flex items-center gap-3 text-red-800">
                 <AlertCircle className="h-6 w-6" />
@@ -277,7 +277,7 @@ export default function PatientsManagement() {
             </CardContent>
           </Card>
         ) : patients.length === 0 ? (
-          <Card className="rounded-2xl shadow-sm">
+          <Card>
             <CardContent className="p-12 text-center">
               <Users className="h-16 w-16 mx-auto mb-4 text-gray-400" />
               <h3 className="text-lg font-semibold mb-2">לא נמצאו מטופלים</h3>
@@ -297,7 +297,7 @@ export default function PatientsManagement() {
         ) : (
           <div className="space-y-4">
             {patients.map((patient) => (
-            <Card key={patient.id} className="rounded-2xl shadow-sm hover:shadow-lg hover:bg-blue-50/30 transition-all cursor-pointer">
+            <Card key={patient.id} className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4 flex-1">
