@@ -22,7 +22,7 @@ import { exportReasoningLog } from '../components/transparency/EnhancedTranspare
 import { getUserInfo } from '../utils/rbac';
 import { DashboardProvider } from '../contexts/DashboardContext';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
-import { DashboardSidebar } from '../components/dashboard/DashboardSidebar';
+import { NavigationSidebar } from '../components/dashboard/NavigationSidebar';
 import DashboardGrid from '../components/dashboard/DashboardGrid';
 import { isFeatureEnabled } from '../config/features';
 import API_CONFIG from '@/config/api';
@@ -167,7 +167,14 @@ export default function AgenticDashboard() {
         <DashboardGrid />
 
         {/* Fixed Right Sidebar */}
-        <DashboardSidebar />
+        <NavigationSidebar 
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
+          onLogout={() => {
+            localStorage.clear()
+            window.location.href = '/login'
+          }}
+        />
 
         {/* Conversation History Sidebar (Left) */}
         {showHistorySidebar && (
