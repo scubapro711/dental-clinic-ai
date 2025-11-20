@@ -22,7 +22,7 @@ export default function CommunicationsHub() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm">
+      <div className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 shadow-sm sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -41,13 +41,13 @@ export default function CommunicationsHub() {
             
             {/* Stats */}
             <div className="flex gap-4">
-              <Card className="border-2 border-blue-200 bg-blue-50/50">
+              <Card className="border-2 border-blue-200 bg-blue-50/50 rounded-2xl shadow-sm">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-blue-600">12</div>
                   <p className="text-xs text-gray-600">משתמשים פעילים</p>
                 </CardContent>
               </Card>
-              <Card className="border-2 border-purple-200 bg-purple-50/50">
+              <Card className="border-2 border-purple-200 bg-purple-50/50 rounded-2xl shadow-sm">
                 <CardContent className="p-4">
                   <div className="text-2xl font-bold text-purple-600">8</div>
                   <p className="text-xs text-gray-600">שיחות פתוחות</p>
@@ -96,7 +96,7 @@ export default function CommunicationsHub() {
 
           {/* SMS Tab (Coming Soon) */}
           <TabsContent value="sms">
-            <Card className="border-2 border-dashed border-gray-300">
+            <Card className="border-2 border-dashed border-gray-300 rounded-2xl shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Phone className="w-16 h-16 text-gray-400 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
@@ -111,7 +111,7 @@ export default function CommunicationsHub() {
 
           {/* WhatsApp Tab (Coming Soon) */}
           <TabsContent value="whatsapp">
-            <Card className="border-2 border-dashed border-gray-300">
+            <Card className="border-2 border-dashed border-gray-300 rounded-2xl shadow-sm">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <MessageSquare className="w-16 h-16 text-gray-400 mb-4" />
                 <h3 className="text-xl font-semibold text-gray-600 mb-2">
