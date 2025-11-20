@@ -7,14 +7,25 @@
 
 import React from 'react';
 import { ToastProvider } from '../contexts/ToastContext';
-import { AuthProvider } from '../contexts/AgenticAuthContext';
+import { AuthProvider, useAuth } from '../contexts/AgenticAuthContext';
+import { SubscriptionProvider } from '../contexts/SubscriptionContext';
 import MainAppContent from '../components/agentic_dashboard/MainAppContent';
+
+const AgenticDashboardContent = () => {
+  const { organization } = useAuth();
+  
+  return (
+    <SubscriptionProvider organization={organization}>
+      <MainAppContent />
+    </SubscriptionProvider>
+  );
+};
 
 export const AgenticDashboardPage = () => {
   return (
     <ToastProvider>
       <AuthProvider>
-        <MainAppContent />
+        <AgenticDashboardContent />
       </AuthProvider>
     </ToastProvider>
   );

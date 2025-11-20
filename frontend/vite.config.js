@@ -32,8 +32,13 @@ export default defineConfig({
   },
   
   preview: {
+    host: '0.0.0.0',
     port: 3001,
     strictPort: false,
-    allowedHosts: 'all',
+    allowedHosts: [
+      'localhost',
+      '.manus-asia.computer',
+      /^.*-i2riz9jnf3i192bfzlmrn-.*\.manus-asia\.computer$/,
+    ],
   },
 })
