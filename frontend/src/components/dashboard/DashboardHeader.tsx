@@ -11,6 +11,12 @@
 import { getUserInfo } from '../../utils/rbac'
 import { OrganizationSelector } from '../OrganizationSelector'
 import { useNavigate } from 'react-router-dom'
+import { Moon, Sun } from 'lucide-react'
+
+interface DashboardHeaderProps {
+  darkMode?: boolean
+  onToggleDarkMode?: () => void
+}
 
 const AI_AGENTS = [
   { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981', icon: 'H' },
@@ -20,7 +26,7 @@ const AI_AGENTS = [
   { id: 'alex', name: 'Alex', role: 'Patient Experience', value: '247', color: '#3b82f6', icon: 'A' }
 ]
 
-export function DashboardHeader() {
+export function DashboardHeader({ darkMode, onToggleDarkMode }: DashboardHeaderProps = {}) {
   const userInfo = getUserInfo()
   const navigate = useNavigate()
   
@@ -42,8 +48,38 @@ export function DashboardHeader() {
         minHeight: '60px'
       }}
     >
-      {/* Left: Organization Selector (if multiple orgs) */}
-      <OrganizationSelector />
+      {/* Left: Dark Mode Toggle + Organization Selector */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        {onToggleDarkMode && (
+          <button
+            onClick={onToggleDarkMode}
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            style={{
+              padding: '8px',
+              borderRadius: '8px',
+              border: '1.5px solid var(--border)',
+              background: 'var(--background)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              color: darkMode ? '#fbbf24' : '#64748b'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--accent)'
+              e.currentTarget.style.transform = 'scale(1.05)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--background)'
+              e.currentTarget.style.transform = 'scale(1)'
+            }}
+          >
+            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
+        )}
+        <OrganizationSelector />
+      </div>
       
       {/* Center: Title and Greeting - Compact */}
       <div style={{ minWidth: '200px' }}>

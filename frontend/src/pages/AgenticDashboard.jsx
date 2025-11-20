@@ -55,11 +55,21 @@ export default function AgenticDashboard() {
   const [showHistorySidebar, setShowHistorySidebar] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversationMessages, setConversationMessages] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
   const chatInputRef = useRef(null);
   const userInfo = getUserInfo();
   
   // Feature flag: Dashboard customization
   const enableCustomization = isFeatureEnabled('ENABLE_DASHBOARD_CUSTOMIZATION');
+
+  // Dark mode effect
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   // Handler to send message to chat from widgets
   const handleChatWithAgent = (message) => {
@@ -123,6 +133,8 @@ export default function AgenticDashboard() {
           onExportLog={() => exportReasoningLog(reasoningSteps)}
           onToggleHistory={() => setShowHistorySidebar(!showHistorySidebar)}
           enableCustomization={enableCustomization}
+          darkMode={darkMode}
+          onToggleDarkMode={() => setDarkMode(!darkMode)}
         />
         </div>
 
