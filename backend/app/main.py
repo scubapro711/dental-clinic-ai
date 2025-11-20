@@ -277,6 +277,7 @@ app = FastAPI(
 
 # Security headers middleware
 from app.middleware.security_headers import SecurityHeadersMiddleware
+from app.middleware.demo_mode import DemoModeMiddleware
 
 # HIPAA compliance middleware (TODO: needs refactoring)
 # from app.middleware.hipaa_middleware import HIPAAMiddleware
@@ -380,6 +381,9 @@ app.add_middleware(SlowAPIMiddleware)
 # Add CSRF protection middleware (before security headers)
 # TEMPORARILY DISABLED FOR TESTING - Task 1.1 debugging
 # app.add_middleware(CSRFMiddleware)
+
+# Add demo mode middleware (read-only enforcement)
+app.add_middleware(DemoModeMiddleware)
 
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import PilotApplicationForm from '../components/PilotApplicationForm';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import DemoChatButton from '../components/DemoChatButton';
+import DemoInfoModal from '../components/demo/DemoInfoModal';
 import './LandingPage.css';
 
 const LandingPage = () => {
@@ -11,6 +12,7 @@ const LandingPage = () => {
   const { t } = useTranslation();
   const [showPilotForm, setShowPilotForm] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState('professional');
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
   return (
     <div className="landing-page">
@@ -27,7 +29,7 @@ const LandingPage = () => {
             <a href="#pricing">{t("landing.nav.pricing")}</a>
             <a href="#pilot">{t("landing.nav.pilot")}</a>
             <LanguageSwitcher />
-            <Link to="/login" className="nav-cta-demo">{t("landing.nav.tryDemo")}</Link>
+            <button onClick={() => setShowDemoModal(true)} className="nav-cta-demo">{t("landing.nav.tryDemo")}</button>
             <Link to="/register" className="nav-cta">{t("landing.nav.startTrial")}</Link>
           </div>
         </div>
@@ -48,7 +50,7 @@ const LandingPage = () => {
             
             {/* 3-Level CTA Strategy */}
             <div className="hero-ctas">
-              <button className="cta-primary" onClick={() => navigate('/login')}>
+              <button className="cta-primary" onClick={() => setShowDemoModal(true)}>
                 <span className="cta-icon">💬</span>
                 {t("landing.hero.tryDemo")}
                 <span className="cta-badge">{t("landing.hero.noSignup")}</span>
@@ -580,7 +582,7 @@ const LandingPage = () => {
           <h2>Ready to Transform Your Dental Practice?</h2>
           <p>Join forward-thinking clinics using AI to save time and increase revenue</p>
           <div className="final-ctas">
-            <button className="cta-large primary" onClick={() => navigate('/login')}>
+            <button className="cta-large primary" onClick={() => setShowDemoModal(true)}>
               {t("landing.hero.tryDemo")}
             </button>
             <button className="cta-large secondary" onClick={() => navigate('/register')}>
@@ -641,6 +643,12 @@ const LandingPage = () => {
 
       {/* Demo Chat Button (Floating) */}
       <DemoChatButton />
+      
+      {/* Demo Info Modal */}
+      <DemoInfoModal 
+        isOpen={showDemoModal} 
+        onClose={() => setShowDemoModal(false)} 
+      />
     </div>
   );
 };

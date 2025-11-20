@@ -321,3 +321,119 @@ async def get_demo_stats():
         logger.error(f"Error getting demo stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+
+# ============================================================================
+# Dashboard Demo Session (Rachel Tenant Access)
+# ============================================================================
+
+from sqlalchemy.orm import Session
+from app.core.database import get_db
+from app.core.security import create_access_token
+from app.models.user import User
+from app.models.demo_lead import DemoLead
+
+
+class DashboardSessionRequest(BaseModel):
+    """Request to create a dashboard demo session."""
+    name: str = Field(..., description="Lead's full name", min_length=2)
+    email: str = Field(..., description="Lead's email address")
+    phone: str = Field(..., description="Lead's phone number", min_length=7)
+
+
+class DashboardSessionResponse(BaseModel):
+    """Response with dashboard demo session information."""
+    demo_token: str = Field(..., description="JWT token for demo access")
+    expires_at: datetime = Field(..., description="Token expiration time")
+    user: Dict[str, Any] = Field(..., description="User information")
+
+
+@router.post("/dashboard-session", response_model=DashboardSessionResponse)
+async def create_dashboard_session(
+    request: DashboardSessionRequest,
+    db: Session = Depends(get_db)
+):
+    """
+    Create a dashboard demo session with Rachel tenant access.
+    
+    This endpoint:
+    1. Stores lead information for follow-up
+    2. Creates a demo token (30 min expiry)
+    3. Maps demo token to rachel@dentaflow.ai
+    4. Returns token for frontend to use
+    
+    The demo token provides read-only access to Rachel's clinic data:
+    - 30 patients from Odoo
+    - 50 appointments
+    - All widgets and features
+    - Real production experience
+    
+    Args:
+        request: Lead information (name, email, phone)
+        db: Database session
+        
+    Returns:
+        DashboardSessionResponse with demo token and user info
+    """
+    try:
+        # 1. Store lead info
+        lead = DemoLead(
+            name=request.name,
+            email=request.email,
+            phone=request.phone,
+            created_at=datetime.utcnow()
+        )
+        db.add(lead)
+        db.commit()
+        
+        logger.info(f"Created demo lead: {request.email}")
+        
+        # 2. Get Rachel user
+        rachel = db.query(User).filter(User.email == "rachel@dentaflow.ai").first()
+        if not rachel:
+            logger.error("Rachel demo user not found in database")
+            raise HTTPException(
+                status_code=500,
+                detail="Demo user not configured. Please contact support."
+            )
+        
+        # 3. Create demo token (30 min expiry)
+        demo_token = create_access_token(
+            data={
+                "sub": rachel.email,
+                "user_id": str(rachel.id),
+                "demo_mode": True,  # Special flag for middleware
+                "lead_email": request.email,
+                "read_only": True  # Prevent modifications
+            },
+            expires_delta=timedelta(minutes=30)
+        )
+        
+        # 4. Prepare user info
+        user_info = {
+            "email": rachel.email,
+            "full_name": rachel.full_name,
+            "role": rachel.role,
+            "organization_id": str(rachel.organization_id) if rachel.organization_id else None,
+            "organization_name": rachel.organization.name if rachel.organization else "DentaFlow Clinic",
+            "odoo_partner_id": rachel.odoo_partner_id
+        }
+        
+        expires_at = datetime.utcnow() + timedelta(minutes=30)
+        
+        logger.info(f"Created dashboard demo session for {request.email}, expires at {expires_at}")
+        
+        return DashboardSessionResponse(
+            demo_token=demo_token,
+            expires_at=expires_at,
+            user=user_info
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating dashboard demo session: {e}", exc_info=True)
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to create demo session. Please try again later."
+        )

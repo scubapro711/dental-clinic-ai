@@ -27,6 +27,7 @@ import DashboardGrid from '../components/dashboard/DashboardGrid';
 import PatientModal from '../components/patients/PatientModal';
 import FullPatientFile from '../components/patients/FullPatientFile';
 import AddTreatmentModal from '../components/patients/AddTreatmentModal';
+import DemoModeBanner from '../components/demo/DemoModeBanner';
 import { isFeatureEnabled } from '../config/features';
 import API_CONFIG from '@/config/api';
 
@@ -64,6 +65,10 @@ export default function AgenticDashboard() {
   const [selectedPatient, setSelectedPatient] = useState(null);        // Level 1: Quick view modal
   const [fullFilePatientId, setFullFilePatientId] = useState(null);   // Level 2: Full patient file
   const [showTreatmentModal, setShowTreatmentModal] = useState(false); // Level 3: Add treatment
+  
+  // Demo mode state
+  const isDemoMode = localStorage.getItem('demo_mode') === 'true';
+  const demoExpiresAt = localStorage.getItem('demo_expires_at');
   // Dark mode with localStorage persistence and system preference detection
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('dentaflow_dark_mode');
@@ -148,14 +153,27 @@ export default function AgenticDashboard() {
           minHeight: '100vh',
           background: 'var(--background)',
           position: 'relative',
-          paddingTop: '80px'
+          paddingTop: isDemoMode ? '140px' : '80px'
         }}
       >
+        {/* Demo Mode Banner */}
+        {isDemoMode && demoExpiresAt && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 101
+          }}>
+            <DemoModeBanner expiresAt={demoExpiresAt} />
+          </div>
+        )}
+        
         {/* Header - Sticky (hidden in full patient file) */}
         {currentView !== 'patient_file_full' && (
           <div style={{
             position: 'fixed',
-            top: 0,
+            top: isDemoMode ? '60px' : 0,
             left: 0,
             right: 0,
             zIndex: 100,

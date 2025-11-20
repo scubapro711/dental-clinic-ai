@@ -55,6 +55,9 @@ from app.models.cost_tracking import CostTracking
 from app.models.analytics_snapshot import AnalyticsSnapshot, SnapshotType
 from app.models.admin_action import AdminAction, AdminActionType
 
+# Demo and leads
+from app.models.demo_lead import DemoLead
+
 # Other
 from app.models.proactive_suggestion import ProactiveSuggestion
 from app.models.user_patient_mapping import UserPatientMapping
@@ -112,6 +115,8 @@ __all__ = [
     "SnapshotType",
     "AdminAction",
     "AdminActionType",
+    # Demo and leads
+    "DemoLead",
     # Other
     "ProactiveSuggestion",
     "UserPatientMapping",
