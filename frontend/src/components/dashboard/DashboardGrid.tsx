@@ -108,7 +108,7 @@ const saveState = (widgetId: string, state: WidgetState) => {
   localStorage.setItem(getStorageKey(widgetId), JSON.stringify(state))
 }
 
-export default function DashboardGrid() {
+export default function DashboardGrid({ onPatientSelect }: { onPatientSelect?: (patient: any) => void }) {
   const { activeWidgets, removeWidget } = useDashboard()
 
   // State for each widget
@@ -250,7 +250,9 @@ export default function DashboardGrid() {
                   padding: '16px'
                 }}
               >
-                <WidgetComponent />
+                <WidgetComponent 
+                  {...(config.id === 'todays-patients' && onPatientSelect ? { onPatientSelect } : {})}
+                />
               </div>
             </div>
           </Rnd>

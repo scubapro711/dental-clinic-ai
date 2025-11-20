@@ -24,6 +24,9 @@ import { DashboardProvider } from '../contexts/DashboardContext';
 import { DashboardHeader } from '../components/dashboard/DashboardHeader';
 import { NavigationSidebar } from '../components/dashboard/NavigationSidebar';
 import DashboardGrid from '../components/dashboard/DashboardGrid';
+import PatientModal from '../components/patients/PatientModal';
+import FullPatientFile from '../components/patients/FullPatientFile';
+import AddTreatmentModal from '../components/patients/AddTreatmentModal';
 import { isFeatureEnabled } from '../config/features';
 import API_CONFIG from '@/config/api';
 
@@ -55,6 +58,12 @@ export default function AgenticDashboard() {
   const [showHistorySidebar, setShowHistorySidebar] = useState(false);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [conversationMessages, setConversationMessages] = useState([]);
+  
+  // Drill-down navigation state (v2)
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [selectedPatient, setSelectedPatient] = useState(null);        // Level 1: Quick view modal
+  const [fullFilePatientId, setFullFilePatientId] = useState(null);   // Level 2: Full patient file
+  const [showTreatmentModal, setShowTreatmentModal] = useState(false); // Level 3: Add treatment
   // Dark mode with localStorage persistence and system preference detection
   const [darkMode, setDarkMode] = useState(() => {
     const saved = localStorage.getItem('dentaflow_dark_mode');
@@ -142,29 +151,42 @@ export default function AgenticDashboard() {
           paddingTop: '80px'
         }}
       >
-        {/* Header - Sticky */}
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          background: 'var(--background)',
-          borderBottom: '1px solid var(--border)',
-          padding: '0 20px'
-        }}>
-          <DashboardHeader 
-          userInfo={userInfo}
-          onExportLog={() => exportReasoningLog(reasoningSteps)}
-          onToggleHistory={() => setShowHistorySidebar(!showHistorySidebar)}
-          enableCustomization={enableCustomization}
-          darkMode={darkMode}
-          onToggleDarkMode={() => setDarkMode(!darkMode)}
-        />
-        </div>
+        {/* Header - Sticky (hidden in full patient file) */}
+        {currentView !== 'patient_file_full' && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            background: 'var(--background)',
+            borderBottom: '1px solid var(--border)',
+            padding: '0 20px'
+          }}>
+            <DashboardHeader 
+            userInfo={userInfo}
+            onExportLog={() => exportReasoningLog(reasoningSteps)}
+            onToggleHistory={() => setShowHistorySidebar(!showHistorySidebar)}
+            enableCustomization={enableCustomization}
+            darkMode={darkMode}
+            onToggleDarkMode={() => setDarkMode(!darkMode)}
+          />
+          </div>
+        )}
 
-        {/* Main Dashboard Grid */}
-        <DashboardGrid />
+        {/* Main Content - Conditional based on currentView */}
+        {currentView === 'patient_file_full' ? (
+          <FullPatientFile 
+            patientId={fullFilePatientId}
+            onBack={() => {
+              setCurrentView('dashboard')
+              setFullFilePatientId(null)
+            }}
+            onAddTreatment={() => setShowTreatmentModal(true)}
+          />
+        ) : (
+          <DashboardGrid onPatientSelect={setSelectedPatient} />
+        )}
 
         {/* Fixed Right Sidebar */}
         <NavigationSidebar 
@@ -212,6 +234,32 @@ export default function AgenticDashboard() {
               {activeAgent} is working...
             </span>
           </div>
+        )}
+        
+        {/* Patient Modal (Level 1) */}
+        {selectedPatient && (
+          <PatientModal 
+            patient={selectedPatient}
+            onClose={() => setSelectedPatient(null)}
+            onOpenFullFile={(pid) => {
+              setFullFilePatientId(pid)
+              setCurrentView('patient_file_full')
+              setSelectedPatient(null)
+            }}
+          />
+        )}
+        
+        {/* Add Treatment Modal (Level 3) */}
+        {showTreatmentModal && (
+          <AddTreatmentModal 
+            patientId={fullFilePatientId}
+            onClose={() => setShowTreatmentModal(false)}
+            onSave={(treatment) => {
+              setShowTreatmentModal(false)
+              // Refresh patient data would happen here
+              console.log('Treatment saved:', treatment)
+            }}
+          />
         )}
       </div>
     </DashboardProvider>

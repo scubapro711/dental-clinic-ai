@@ -13,7 +13,7 @@ import API_CONFIG from '@/config/api';
  * Shows today's patient appointments with enriched statistics
  * Now uses ALL available backend data for maximum value
  */
-export default function TodaysPatientsWidget({ onChatWithPatient }) {
+export default function TodaysPatientsWidget({ onChatWithPatient, onPatientSelect }) {
   const navigate = useNavigate();
   const [patients, setPatients] = useState([]);
   const [summary, setSummary] = useState(null);
@@ -192,7 +192,23 @@ export default function TodaysPatientsWidget({ onChatWithPatient }) {
               return (
                 <div
                   key={patient.id}
-                  onClick={() => navigate(`/clinic/patients/${patient.patient_id}`)}
+                  onClick={() => {
+                    if (onPatientSelect) {
+                      // v2 drill-down: Open patient modal
+                      onPatientSelect({
+                        id: patient.patient_id,
+                        name: patient.patient_name,
+                        phone: patient.patient_phone,
+                        email: patient.patient_email,
+                        status: patient.status,
+                        balance: patient.balance,
+                        last_visit: patient.last_visit
+                      })
+                    } else {
+                      // v1 behavior: Navigate to patients page
+                      navigate(`/clinic/patients/${patient.patient_id}`)
+                    }
+                  }}
                   className={cn(
                     'rounded-lg border-2 p-3 transition-all duration-200',
                     'hover:shadow-md cursor-pointer',
