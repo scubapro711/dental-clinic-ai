@@ -23,7 +23,6 @@ import PatientProfile from './pages/patient/PatientProfile'
 
 // Clinic Portal Pages
 import AgenticDashboard from './pages/AgenticDashboard'
-import AgenticDashboardPage from './pages/AgenticDashboardPage'
 // import MissionControlPage from './pages/MissionControlPage'
 import PatientsManagement from './pages/clinic/PatientsManagement'
 import PatientDetailPage from './pages/clinic/PatientDetailPage'
@@ -165,16 +164,6 @@ function App() {
           <Route path="chat" element={<ChatPage />} />
         </Route>
         
-        {/* New Agentic Dashboard v2 (Standalone, no layout wrapper) */}
-        <Route
-          path="/clinic/dashboard-v2"
-          element={
-            <ProtectedRoute allowedRoles={['org_admin', 'org_staff']}>
-              <AgenticDashboardPage />
-            </ProtectedRoute>
-          }
-        />
-
         {/* Clinic Portal Routes (ORG_ADMIN, ORG_STAFF) */}
         <Route
           path="/clinic"
