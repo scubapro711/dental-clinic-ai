@@ -1,210 +1,70 @@
 /**
- * DashboardHeader v7.1 - Compact Header with Larger Horizontal Agent Cards
+ * DashboardHeader v8.0 - Clean v2 Design
  * 
  * Features:
- * - Compact, normal-sized top bar
- * - Larger horizontal rectangular agent cards
- * - Responsive design with scroll for agents
- * - Professional card design
+ * - Frosted glass effect (v2 signature look)
+ * - Clean, minimal design
+ * - No agent cards (moved to AI Agents page via sidebar)
+ * - Organization selector
+ * - Dark mode toggle
+ * - Responsive design
  */
 
 import { getUserInfo } from '../../utils/rbac'
 import { OrganizationSelector } from '../OrganizationSelector'
-import { useNavigate } from 'react-router-dom'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun, Building2 } from 'lucide-react'
 
 interface DashboardHeaderProps {
   darkMode?: boolean
   onToggleDarkMode?: () => void
 }
 
-const AI_AGENTS = [
-  { id: 'harper', name: 'Harper', role: 'Compliance', value: '96%', color: '#10b981', icon: 'H' },
-  { id: 'sophia', name: 'Sophia', role: 'Scheduling', value: '8', color: '#f59e0b', icon: 'S' },
-  { id: 'marcus', name: 'Marcus', role: 'Financial', value: '₪45,230', color: '#06b6d4', icon: 'M' },
-  { id: 'sarah', name: 'Sarah', role: 'Clinical Support', value: '98%', color: '#8b5cf6', icon: 'S' },
-  { id: 'alex', name: 'Alex', role: 'Patient Experience', value: '247', color: '#3b82f6', icon: 'A' }
-]
-
 export function DashboardHeader({ darkMode, onToggleDarkMode }: DashboardHeaderProps = {}) {
   const userInfo = getUserInfo()
-  const navigate = useNavigate()
   
   return (
-    <div 
-      className="dashboard-header"
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '12px 20px',
-        background: 'var(--background)',
-        border: 'none',
-        borderRadius: 'var(--radius-lg)',
-        boxShadow: 'none',
-        gap: '20px',
-        marginBottom: 'var(--spacing-lg)',
-        flexWrap: 'wrap',
-        minHeight: '60px'
-      }}
+    <header 
+      className="h-16 px-6 flex items-center justify-between bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-10"
     >
-      {/* Left: Dark Mode Toggle + Organization Selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Left: Logo + Title */}
+      <div className="flex items-center gap-4">
+        <div className="w-9 h-9 bg-gradient-to-tr from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/50 flex items-center justify-center text-white font-bold text-lg">
+          D
+        </div>
+        <div>
+          <h1 className="text-xl font-bold text-slate-800 dark:text-white">
+            Dashboard
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Welcome back, <span className="font-medium text-slate-700 dark:text-slate-300">
+              {userInfo?.name || 'User'}
+            </span>
+          </p>
+        </div>
+      </div>
+      
+      {/* Right: Organization + Dark Mode */}
+      <div className="flex items-center gap-3">
+        {/* Organization Selector */}
+        <div className="hidden md:block">
+          <OrganizationSelector />
+        </div>
+        
+        {/* Dark Mode Toggle */}
         {onToggleDarkMode && (
           <button
             onClick={onToggleDarkMode}
             title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            style={{
-              padding: '8px',
-              borderRadius: '8px',
-              border: '1.5px solid var(--border)',
-              background: 'var(--background)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s ease',
-              color: darkMode ? '#fbbf24' : '#64748b'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--accent)'
-              e.currentTarget.style.transform = 'scale(1.05)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--background)'
-              e.currentTarget.style.transform = 'scale(1)'
-            }}
+            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all duration-200 flex items-center justify-center"
           >
-            {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            {darkMode ? (
+              <Sun size={18} className="text-amber-500" />
+            ) : (
+              <Moon size={18} className="text-slate-600" />
+            )}
           </button>
         )}
-        <OrganizationSelector />
       </div>
-      
-      {/* Center: Title and Greeting - Compact */}
-      <div style={{ minWidth: '200px' }}>
-        <h1 
-          className="dashboard-title"
-          style={{
-            fontSize: '24px',
-            fontWeight: '700',
-            color: 'var(--foreground)',
-            margin: '0 0 4px 0'
-          }}
-        >
-          Dashboard
-        </h1>
-        <p 
-          style={{
-            fontSize: '13px',
-            color: 'var(--foreground-tertiary)',
-            margin: '0'
-          }}
-        >
-          Welcome back, <span style={{ fontWeight: '500', color: 'var(--foreground-secondary)' }}>
-            {userInfo?.name || 'User'}
-          </span>
-          {userInfo?.role && (
-            <span style={{ marginLeft: '6px' }}>
-              • {userInfo.role}
-            </span>
-          )}
-        </p>
-      </div>
-      
-      {/* Right: AI Agents - Larger Horizontal Rectangles */}
-      <div 
-        style={{ 
-          display: 'flex', 
-          gap: '12px', 
-          flex: 1,
-          overflowX: 'auto',
-          padding: '2px 4px',
-          background: 'transparent',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch',
-          justifyContent: 'flex-end'
-        }}
-        className="ai-agents-container"
-      >
-        {AI_AGENTS.map(agent => (
-          <div
-            key={agent.id}
-            title={`${agent.name} - ${agent.role}`}
-            onClick={() => navigate(`/clinic/agents/${agent.id}`)}
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: '14px',
-              padding: '12px 18px',
-              borderRadius: '10px',
-              background: 'white',
-              border: '1.5px solid var(--border)',
-              boxShadow: '0 2px 4px rgba(0,0,0,0.06)',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-              minWidth: 'fit-content',
-              height: '56px'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)'
-              e.currentTarget.style.boxShadow = '0 6px 12px rgba(0,0,0,0.12)'
-              e.currentTarget.style.borderColor = agent.color
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.06)'
-              e.currentTarget.style.borderColor = 'var(--border)'
-            }}
-          >
-            {/* Agent Avatar - Larger */}
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                background: `${agent.color}15`,
-                border: `2.5px solid ${agent.color}`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '16px',
-                fontWeight: '700',
-                color: agent.color,
-                flexShrink: 0
-              }}
-            >
-              {agent.icon}
-            </div>
-            
-            {/* Agent Info - Horizontal with larger text */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-              <div
-                style={{
-                  fontSize: '18px',
-                  fontWeight: '700',
-                  color: agent.color,
-                  lineHeight: '1.1'
-                }}
-              >
-                {agent.value}
-              </div>
-              <div
-                style={{
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  color: 'var(--foreground-secondary)',
-                  lineHeight: '1.1'
-                }}
-              >
-                {agent.name}
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    </header>
   )
 }

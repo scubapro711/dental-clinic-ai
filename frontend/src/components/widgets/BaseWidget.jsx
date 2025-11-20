@@ -1,72 +1,182 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
-
 /**
- * Base Widget Component - Enhanced Version
+ * BaseWidget v2.0 - Clean v2 Design System
  * 
- * Reusable widget container for all agent widgets with modern styling
+ * Universal widget wrapper with consistent v2 styling
+ * 
+ * Features:
+ * - rounded-2xl containers
+ * - shadow-sm shadows
+ * - border border-slate-200 borders
+ * - Consistent padding and spacing
+ * - Dark mode support
+ * - Loading states
+ * - Optional header actions
  */
+
+import React from 'react'
+import { cn } from '@/lib/utils'
+
 export default function BaseWidget({
   title,
-  agent,
   icon,
   children,
   className,
   headerAction,
   badge,
-  isLoading = false
+  isLoading = false,
+  contentClassName
 }) {
-  // Agent colors with modern gradients
-  const agentColors = {
-    alex: 'border-blue-400 bg-gradient-to-br from-blue-50 to-white hover:shadow-blue-100',
-    marcus: 'border-green-400 bg-gradient-to-br from-green-50 to-white hover:shadow-green-100',
-    sophia: 'border-purple-400 bg-gradient-to-br from-purple-50 to-white hover:shadow-purple-100',
-    sarah: 'border-orange-400 bg-gradient-to-br from-orange-50 to-white hover:shadow-orange-100',
-    system: 'border-gray-400 bg-gradient-to-br from-gray-50 to-white hover:shadow-gray-100'
-  };
-
-  const agentColor = agentColors[agent] || agentColors.system;
-
   return (
-    <Card className={cn(
-      'border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1',
-      'backdrop-blur-sm bg-white/90',
-      agentColor,
-      className
-    )}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm flex items-center gap-2 font-semibold">
-            {icon && <span className="text-xl">{icon}</span>}
-            {title}
-          </CardTitle>
-          <div className="flex items-center gap-2">
-            {badge && (
-              <Badge variant="secondary" className="text-xs font-semibold">
-                {badge}
-              </Badge>
-            )}
-            {headerAction}
+    <div 
+      className={cn(
+        // v2 Base Styling
+        'bg-white dark:bg-slate-800',
+        'rounded-2xl',
+        'shadow-sm',
+        'border border-slate-200 dark:border-slate-700',
+        'overflow-hidden',
+        'transition-all duration-200',
+        'hover:shadow-md',
+        className
+      )}
+    >
+      {/* Header */}
+      {(title || icon || headerAction || badge) && (
+        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {icon && (
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                  {icon}
+                </div>
+              )}
+              {title && (
+                <h3 className="text-base font-semibold text-slate-800 dark:text-white">
+                  {title}
+                </h3>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              {badge && (
+                <span className="px-2 py-1 text-xs font-medium rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                  {badge}
+                </span>
+              )}
+              {headerAction}
+            </div>
           </div>
         </div>
-      </CardHeader>
-      <CardContent>
+      )}
+      
+      {/* Content */}
+      <div className={cn('p-6', contentClassName)}>
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-t-2 border-blue-600"></div>
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="h-6 w-6 bg-blue-100 rounded-full"></div>
-              </div>
-            </div>
+          <div className="flex items-center justify-center py-12">
+            <div className="w-8 h-8 border-4 border-blue-200 dark:border-blue-800 border-t-blue-600 dark:border-t-blue-400 rounded-full animate-spin"/>
           </div>
         ) : (
           children
         )}
-      </CardContent>
-    </Card>
-  );
+      </div>
+    </div>
+  )
 }
 
+/**
+ * BaseWidgetCard - For card-based content inside widgets
+ */
+export function BaseWidgetCard({ children, className, onClick }) {
+  return (
+    <div 
+      className={cn(
+        'p-4 rounded-xl',
+        'bg-slate-50 dark:bg-slate-700/50',
+        'border border-slate-200 dark:border-slate-600',
+        'transition-all duration-200',
+        onClick && 'cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-blue-300 dark:hover:border-blue-600',
+        className
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
+ * BaseWidgetStat - For displaying statistics
+ */
+export function BaseWidgetStat({ label, value, icon, trend, className }) {
+  return (
+    <div className={cn('space-y-1', className)}>
+      <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        {icon && <span>{icon}</span>}
+        <span>{label}</span>
+      </div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-2xl font-bold text-slate-800 dark:text-white">
+          {value}
+        </span>
+        {trend && (
+          <span className={cn(
+            'text-sm font-medium',
+            trend > 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+          )}>
+            {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
+          </span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * BaseWidgetList - For list-based content
+ */
+export function BaseWidgetList({ children, className }) {
+  return (
+    <div className={cn('space-y-2', className)}>
+      {children}
+    </div>
+  )
+}
+
+/**
+ * BaseWidgetListItem - Individual list item
+ */
+export function BaseWidgetListItem({ children, className, onClick }) {
+  return (
+    <div 
+      className={cn(
+        'p-3 rounded-lg',
+        'border border-slate-200 dark:border-slate-700',
+        'transition-all duration-200',
+        onClick && 'cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-300 dark:hover:border-blue-600',
+        className
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </div>
+  )
+}
+
+/**
+ * BaseWidgetEmpty - Empty state
+ */
+export function BaseWidgetEmpty({ icon, message, action }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      {icon && (
+        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500 mb-4">
+          {icon}
+        </div>
+      )}
+      <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        {message || 'No data available'}
+      </p>
+      {action}
+    </div>
+  )
+}
