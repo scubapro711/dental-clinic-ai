@@ -6,6 +6,7 @@ import { MessageSquare, Send, Phone, Sparkles } from 'lucide-react';
 import TelegramInviteCodesWidget from '@/components/communications/TelegramInviteCodesWidget';
 import TelegramUsersWidget from '@/components/communications/TelegramUsersWidget';
 import TelegramConversationsWidget from '@/components/communications/TelegramConversationsWidget';
+import UnifiedInbox from '@/components/communications/UnifiedInbox';
 // import TelegramHub from '@/components/communications/TelegramHub'; // Temporarily disabled
 
 /**
@@ -17,7 +18,7 @@ import TelegramConversationsWidget from '@/components/communications/TelegramCon
  * - WhatsApp (coming soon)
  */
 export default function CommunicationsHub() {
-  const [activeTab, setActiveTab] = useState('telegram');
+  const [activeTab, setActiveTab] = useState('unified');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -61,7 +62,12 @@ export default function CommunicationsHub() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[600px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[800px]">
+            <TabsTrigger value="unified" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Unified Inbox
+              <Badge variant="secondary" className="ml-2">חדש</Badge>
+            </TabsTrigger>
             <TabsTrigger value="telegram" className="flex items-center gap-2">
               <Send className="w-4 h-4" />
               Telegram
@@ -78,6 +84,11 @@ export default function CommunicationsHub() {
               <Badge variant="outline" className="ml-2">בקרוב</Badge>
             </TabsTrigger>
           </TabsList>
+
+          {/* Unified Inbox Tab */}
+          <TabsContent value="unified" className="space-y-6">
+            <UnifiedInbox />
+          </TabsContent>
 
           {/* Telegram Tab */}
           <TabsContent value="telegram" className="space-y-6">
