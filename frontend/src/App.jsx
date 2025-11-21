@@ -64,11 +64,11 @@ import LegalDocument from './pages/legal/LegalDocument'
 // Onboarding
 import ClinicOnboarding from './pages/onboarding/ClinicOnboarding'
 
-// Demo Portal - REMOVED (backup in BACKUP_DEMO_20251120_062917)
-// import { DemoProvider } from './contexts/DemoContext'
+// Demo Portal
+import { DemoProvider } from './contexts/DemoContext'
 import { ErrorBoundary } from './components/error-handling'
-// import DemoPortal from './pages/DemoPortal'
-// import DemoPortalEnhanced from './pages/DemoPortalEnhanced'
+import DemoPortal from './pages/DemoPortal'
+import DemoPortalEnhanced from './pages/DemoPortalEnhanced'
 
 // Landing Page
 import LandingPage from './pages/LandingPage'
@@ -131,17 +131,17 @@ function App() {
         {/* Legal Pages (Public) */}
         <Route path="/legal/:documentId" element={<LegalDocument />} />
         
-        {/* Demo Portal (Public) - REMOVED */}
-        {/* <Route 
+        {/* Demo Portal (Public) */}
+        <Route 
           path="/demo" 
           element={<DemoPortalEnhanced />} 
-        /> */}
+        />
         
-        {/* Demo Portal - Basic Version (Public) - REMOVED */}
-        {/* <Route 
+        {/* Demo Portal - Basic Version (Public) */}
+        <Route 
           path="/demo-basic" 
           element={<DemoPortal />} 
-        /> */}
+        />
         
         {/* Pricing Page (Public) */}
         <Route path="/pricing" element={<PricingPage />} />
